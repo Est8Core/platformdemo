@@ -1421,7 +1421,7 @@ function contactDetail() {
       openWindow(d){
         const key = d.key || d.title || d.src;
         const ex = this.windows.find(w => w.key === key);
-        if (ex){ ex.min=false; ex.z=++this.topZ; return; }          // dedup → focus existing instead of duplicating
+        if (ex){ ex.min=false; ex.z=++this.topZ; return; }          // dedup → focus existing instead of duplicating          // dedup → focus existing instead of duplicating
         // Tile new windows in alternating left/right columns within the content area (left of the sidebar),
         // so a 2nd window appears clearly BESIDE the 1st (not stacked on top → "looks like one window").
         const vw = window.innerWidth, vh = window.innerHeight;
@@ -1483,7 +1483,9 @@ function contactDetail() {
       fmId:null, fmTop:0, fmRight:0,
       fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
       fmClose(){ this.fmId=null; },
-      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+      // Return an OBJECT (not a string): a string :style overwrites the whole style attr and wipes
+      // x-show's display:none → all row menus stay visible & stacked. An object merges, so x-show works.
+      fmStyle(){ return { top: this.fmTop+'px', right: this.fmRight+'px' }; },
     };
   }
 </script>

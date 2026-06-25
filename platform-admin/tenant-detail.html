@@ -1338,7 +1338,9 @@ function tenantDetail() {
       fmClose(){ this.fmId = null; },
       // method (NOT a getter): object spread {...floatMenu()} would invoke a getter once and
       // freeze its value → menu stuck at 0,0. A method re-evaluates on every render.
-      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+      // Return an OBJECT (not a string): a string :style overwrites the whole style attr and wipes
+      // x-show's display:none → all row menus stay visible & stacked. An object merges, so x-show works.
+      fmStyle(){ return { top: this.fmTop+'px', right: this.fmRight+'px' }; },
     };
   }
 </script>
