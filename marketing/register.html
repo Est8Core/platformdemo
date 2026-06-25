@@ -435,7 +435,7 @@
         priceOf(p) { var v = this.billing === 'yearly' ? p.yearly : p.monthly; return v ? v.toLocaleString('ar-EG') : '0'; },
         next() {
           if (!this.valid) return;
-          if (this.isLast) { this.done = true; return; }
+          if (this.isLast) { this.done = true; setTimeout(function(){ window.location.href='verify-email.html'; }, 1200); return; }
           this.step++; window.scrollTo({ top: 0, behavior: 'smooth' });
         },
         back() { if (this.step > 0) { this.step--; window.scrollTo({ top: 0, behavior: 'smooth' }); } },

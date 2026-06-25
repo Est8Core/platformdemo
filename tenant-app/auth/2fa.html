@@ -117,7 +117,7 @@
         submit() {
           if (!this.ready) return;
           console.log('POST /api/v1/auth/verify-2fa', { code: this.backup ? this.backupCode : this.code });
-          window.location.href = 'register.html'; // demo: would go to dashboard
+          window.location.href = '../app/dashboard.html';
         },
       };
     }

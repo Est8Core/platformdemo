@@ -192,20 +192,37 @@
     .crm-embed .adm-main { margin-inline-start:0 !important; }
     .crm-embed .adm-content { padding:1.1rem 1.4rem 2rem; max-width:none; }
 
-    /* ===== Detail WINDOWS (OS-like popup: 100dvw/dvh default · multi-window · minimize/maximize · taskbar) ===== */
-    .crm-win { position:fixed; z-index:66; background:#F4F6FA; box-shadow:0 24px 70px rgba(6,15,30,.42); display:flex; flex-direction:column; overflow:hidden; animation:winIn .18s ease-out; }
-    @keyframes winIn { from { opacity:.4; transform:scale(.985); } to { opacity:1; transform:scale(1); } }
-    .crm-win.max { inset:0; border-radius:0; }
-    .crm-win.float { top:5dvh; bottom:5dvh; inset-inline:7%; border-radius:1rem; }
-    .crm-win-head { height:46px; flex-shrink:0; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.4rem; padding:0 .7rem; }
+    /* ===== Detail WINDOWS — draggable · resizable · multi-window · dedup · vertical dock ===== */
+    .crm-win { position:fixed; z-index:66; background:#fff; border:1px solid #E2E7F0; border-radius:14px; box-shadow:0 18px 60px rgba(6,15,30,.34); display:flex; flex-direction:column; overflow:hidden; }
+    .crm-win.appear { animation:winIn .2s cubic-bezier(.34,1.2,.5,1); }
+    @keyframes winIn { from { opacity:0; transform:translateY(10px) scale(.97); } to { opacity:1; transform:none; } }
+    .crm-win.busy { transition:none !important; will-change:left,top,width,height; }
+    .crm-win.anim { transition:left .22s ease, top .22s ease, width .22s ease, height .22s ease, border-radius .22s ease; }
+    .crm-win.max { inset:0 !important; width:auto !important; height:auto !important; border-radius:0; border:0; }
+    .crm-win-head { height:44px; flex-shrink:0; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.25rem; padding:0 .45rem 0 .8rem; cursor:grab; user-select:none; }
+    .crm-win-head:active { cursor:grabbing; }
+    .crm-win.max .crm-win-head { cursor:default; }
+    .crm-win-dot { width:9px; height:9px; border-radius:50%; background:#C8A24B; flex-shrink:0; }
     .crm-win-frame { flex:1; border:0; width:100%; background:#F4F6FA; }
-    .crm-win-btn { width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; color:#4D5F7A; cursor:pointer; }
-    .crm-win-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .crm-win-btn { width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; color:#4D5F7A; cursor:pointer; transition:.12s; }
+    .crm-win-btn:hover { background:#F2F5FA; color:#102A4C; }
     .crm-win-btn.close:hover { background:rgba(192,57,43,.1); color:#C0392B; }
-    .crm-taskbar { position:fixed; left:1rem; bottom:1rem; z-index:90; display:flex; gap:.5rem; flex-wrap:wrap; max-width:calc(100vw - 2rem); }
-    .crm-task { display:flex; align-items:center; gap:.55rem; background:#0B1F3A; color:#fff; border-radius:.6rem; padding:.4rem .5rem .4rem .85rem; font-size:.78rem; font-weight:600; box-shadow:0 8px 24px rgba(11,31,58,.32); cursor:pointer; max-width:230px; border:1.5px solid transparent; }
-    .crm-task:hover { background:#102A4C; }
-    .crm-task.active { border-color:#C8A24B; }
+    .crm-win-grip { position:absolute; width:20px; height:20px; bottom:0; right:0; cursor:nwse-resize; z-index:4; }
+    .crm-win-grip::after { content:""; position:absolute; right:4px; bottom:4px; width:9px; height:9px; border-right:2px solid #C0C8D8; border-bottom:2px solid #C0C8D8; border-radius:0 0 4px 0; }
+    .crm-win-grip.bl { left:0; right:auto; cursor:nesw-resize; }
+    .crm-win-grip.bl::after { left:4px; right:auto; border-right:0; border-left:2px solid #C0C8D8; border-radius:0 0 0 4px; }
+    .crm-win.max .crm-win-grip { display:none; }
+    .crm-dragmask { position:fixed; inset:0; z-index:300; }
+    /* Vertical dock (left edge) — open windows */
+    .crm-dock { position:fixed; left:.85rem; top:50%; transform:translateY(-50%); z-index:64; display:flex; flex-direction:column; gap:.45rem; background:#0B1F3A; padding:.5rem; border-radius:16px; box-shadow:0 14px 40px rgba(6,15,30,.34); border:1px solid rgba(255,255,255,.06); }
+    .crm-dock-item { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; color:#A9C0DD; cursor:pointer; position:relative; font-weight:800; font-size:.82rem; background:rgba(255,255,255,.05); transition:.15s; }
+    .crm-dock-item:hover { background:rgba(255,255,255,.13); color:#fff; transform:scale(1.06); }
+    .crm-dock-item.active { background:rgba(200,162,75,.22); color:#fff; box-shadow:inset 0 0 0 1.5px #C8A24B; }
+    .crm-dock-item.min { opacity:.5; }
+    .crm-dock-tip { position:absolute; left:50px; top:50%; transform:translateY(-50%); white-space:nowrap; background:#0B1F3A; color:#fff; font-size:.72rem; font-weight:600; padding:.32rem .6rem; border-radius:7px; opacity:0; pointer-events:none; transition:.15s; box-shadow:0 6px 18px rgba(0,0,0,.3); }
+    .crm-dock-item:hover .crm-dock-tip { opacity:1; }
+    .crm-dock-x { position:absolute; top:-5px; right:-5px; width:17px; height:17px; background:#C0392B; color:#fff; border-radius:50%; display:none; align-items:center; justify-content:center; border:2px solid #0B1F3A; }
+    .crm-dock-item:hover .crm-dock-x { display:flex; }
   </style>
 </head>
 
@@ -545,24 +562,37 @@ function adminTeam(){
   </div>
 </div>
 
-<!-- ===== Detail windows (OS-like: full-screen popup · multi-window · minimize/maximize) ===== -->
+<!-- ===== Detail windows — draggable · resizable · multi-window · dedup ===== -->
 <template x-for="w in windows" :key="w.id">
-  <div class="crm-win" :class="w.max ? 'max' : 'float'" x-show="!w.min" :style="'z-index:'+(66 + w.z)" @mousedown="focusWin(w.id)" x-cloak>
-    <div class="crm-win-head">
+  <div class="crm-win appear" :class="{ max:w.max, busy:dragId===w.id, anim:animId===w.id }" x-show="!w.min"
+       :style="w.max ? ('z-index:'+(66+w.z)) : ('left:'+w.x+'px;top:'+w.y+'px;width:'+w.w+'px;height:'+w.h+'px;z-index:'+(66+w.z))"
+       @mousedown="focusWin(w.id)" x-cloak>
+    <div class="crm-win-head" @mousedown="winDrag(w,$event)" @dblclick="toggleMax(w)">
+      <span class="crm-win-dot"></span>
       <span class="font-bold text-primary-800 text-sm truncate flex-1 ps-1" x-text="w.title"></span>
-      <a :href="w.full" class="crm-win-btn" title="فتح كصفحة كاملة"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2H2v12h12v-4M9.5 6.5l5-5M10.5 2h4v4"/></svg></a>
-      <button @click="minWin(w.id)" class="crm-win-btn" title="تصغير"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h10"/></svg></button>
-      <button @click="w.max=!w.max" class="crm-win-btn" :title="w.max?'استعادة':'تكبير'"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/></svg></button>
-      <button @click="closeWin(w.id)" class="crm-win-btn close" title="إغلاق"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      <a :href="w.full" class="crm-win-btn" title="فتح كصفحة كاملة" @mousedown.stop @click.stop><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2H2v12h12v-4M9.5 6.5l5-5M10.5 2h4v4"/></svg></a>
+      <button @mousedown.stop @click.stop="minWin(w.id)" class="crm-win-btn" title="تصغير"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h10"/></svg></button>
+      <button @mousedown.stop @click.stop="toggleMax(w)" class="crm-win-btn" :title="w.max?'استعادة':'تكبير'">
+        <svg x-show="!w.max" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/></svg>
+        <svg x-show="w.max" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4.5" y="2.5" width="9" height="9" rx="1.5"/><path d="M2.5 5.5v8h8"/></svg>
+      </button>
+      <button @mousedown.stop @click.stop="closeWin(w.id)" class="crm-win-btn close" title="إغلاق"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
     </div>
     <iframe class="crm-win-frame" :src="w.src" :title="w.title"></iframe>
+    <div class="crm-win-grip" @mousedown.stop="winResize(w,$event,'br')"></div>
+    <div class="crm-win-grip bl" @mousedown.stop="winResize(w,$event,'bl')"></div>
   </div>
 </template>
-<div class="crm-taskbar" x-show="windows.length" x-cloak>
-  <template x-for="w in windows" :key="'t'+w.id">
-    <div class="crm-task" :class="!w.min && 'active'" @click="restoreWin(w.id)">
-      <span class="truncate" x-text="w.title"></span>
-      <button @click.stop="closeWin(w.id)" class="w-5 h-5 inline-flex items-center justify-center rounded text-white/70 hover:text-white hover:bg-white/15"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+<!-- drag/resize mask: captures the pointer while moving over iframes -->
+<div class="crm-dragmask" x-show="dragId" :style="dragMode==='resize' ? 'cursor:nwse-resize' : 'cursor:grabbing'"
+     @mousemove="winMove($event)" @mouseup="winEnd()" @mouseleave="winEnd()" x-cloak></div>
+<!-- vertical dock of open windows -->
+<div class="crm-dock" x-show="windows.length" x-transition.opacity x-cloak>
+  <template x-for="w in windows" :key="'d'+w.id">
+    <div class="crm-dock-item" :class="{ active:!w.min && w.z===topZ, min:w.min }" @click="dockClick(w)" :title="w.title">
+      <span x-text="winInitials(w.title)"></span>
+      <span class="crm-dock-tip" x-text="w.title"></span>
+      <button class="crm-dock-x" @click.stop="closeWin(w.id)"><svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
     </div>
   </template>
 </div>
@@ -581,12 +611,32 @@ function adminTeam(){
     };
     return {
       navOpen:false, userMenu:false, bellOpen:false,
-      windows:[], winSeq:0, topZ:0,
-      openWindow(d){ this.windows.push({ id:++this.winSeq, src:d.src, title:d.title, full:d.full, min:false, max:true, z:++this.topZ }); },
-      focusWin(id){ const w=this.windows.find(x=>x.id===id); if(w) w.z=++this.topZ; },
+      // ===== Window manager: draggable · resizable · multi-window · dedup (one window per entity) =====
+      windows:[], winSeq:0, topZ:0, dragId:null, dragMode:null, animId:null, _drag:null,
+      openWindow(d){
+        const key = d.key || d.title || d.src;
+        const ex = this.windows.find(w => w.key === key);
+        if (ex){ ex.min=false; ex.z=++this.topZ; return; }
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const W = Math.min(960, Math.round(vw*0.72)), H = Math.min(640, Math.round(vh*0.80));
+        const k = this.windows.length % 7;
+        this.windows.push({ id:++this.winSeq, key, src:d.src, title:d.title, full:d.full,
+          min:false, max:false, z:++this.topZ, x:110 + k*38, y:64 + k*34, w:W, h:H });
+      },
+      focusWin(id){ const w=this.windows.find(x=>x.id===id); if(w && w.z!==this.topZ) w.z=++this.topZ; },
       minWin(id){ const w=this.windows.find(x=>x.id===id); if(w) w.min=true; },
       restoreWin(id){ const w=this.windows.find(x=>x.id===id); if(w){ w.min=false; w.z=++this.topZ; } },
       closeWin(id){ this.windows=this.windows.filter(x=>x.id!==id); },
+      toggleMax(w){ this.animId=w.id; w.max=!w.max; this.focusWin(w.id); setTimeout(()=>{ this.animId=null; }, 240); },
+      dockClick(w){ if(w.min) this.restoreWin(w.id); else if(w.z===this.topZ) this.minWin(w.id); else this.focusWin(w.id); },
+      winInitials(t){ const p=(t||'').trim().split(/\s+/); return ((p[0]||'')[0]||'') + ((p[1]||'')[0]||''); },
+      winDrag(w,e){ if(w.max || e.target.closest('.crm-win-btn') || e.target.closest('a')) return; this.focusWin(w.id); this.dragId=w.id; this.dragMode='move'; this._drag={ sx:e.clientX, sy:e.clientY, ox:w.x, oy:w.y }; },
+      winResize(w,e,dir){ if(w.max) return; this.focusWin(w.id); this.dragId=w.id; this.dragMode='resize'; this._drag={ sx:e.clientX, sy:e.clientY, ox:w.x, ow:w.w, oh:w.h, dir }; },
+      winMove(e){ const w=this.windows.find(x=>x.id===this.dragId); if(!w||!this._drag) return; const dx=e.clientX-this._drag.sx, dy=e.clientY-this._drag.sy;
+        if(this.dragMode==='move'){ w.x=Math.max(0, Math.min(window.innerWidth-90, this._drag.ox+dx)); w.y=Math.max(0, Math.min(window.innerHeight-46, this._drag.oy+dy)); }
+        else { if(this._drag.dir==='bl'){ const nw=this._drag.ow-dx; if(nw>=360){ w.w=nw; w.x=this._drag.ox+dx; } } else { w.w=Math.max(360, this._drag.ow+dx); } w.h=Math.max(240, this._drag.oh+dy); }
+      },
+      winEnd(){ this.dragId=null; this.dragMode=null; this._drag=null; },
       alerts:[
         { id:1, tone:'warning', icon:ICO.invoice, title:'٣ فواتير بانتظار التحقق اليدوي', desc:'تحتاج اعتماد أو رفض', href:'invoices.html' },
         { id:2, tone:'danger',  icon:ICO.queue,   title:'وظيفتان فشلتا في طابور البريد', desc:'راجع صحة الطوابير', href:'dashboard.html' },
