@@ -20,6 +20,7 @@
       boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
     } } };
   </script>
+  <script>if (location.search.indexOf('embed') > -1) document.documentElement.classList.add('crm-embed');</script>
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>
@@ -185,10 +186,30 @@
     .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
     .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
     .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+
+    /* ===== Embed mode (detail shown inside a window iframe → hide chrome) ===== */
+    .crm-embed .adm-sidebar, .crm-embed .adm-topbar { display:none !important; }
+    .crm-embed .adm-main { margin-inline-start:0 !important; }
+    .crm-embed .adm-content { padding:1.1rem 1.4rem 2rem; max-width:none; }
+
+    /* ===== Detail WINDOWS (OS-like popup: 100dvw/dvh default · multi-window · minimize/maximize · taskbar) ===== */
+    .crm-win { position:fixed; z-index:66; background:#F4F6FA; box-shadow:0 24px 70px rgba(6,15,30,.42); display:flex; flex-direction:column; overflow:hidden; animation:winIn .18s ease-out; }
+    @keyframes winIn { from { opacity:.4; transform:scale(.985); } to { opacity:1; transform:scale(1); } }
+    .crm-win.max { inset:0; border-radius:0; }
+    .crm-win.float { top:5dvh; bottom:5dvh; inset-inline:7%; border-radius:1rem; }
+    .crm-win-head { height:46px; flex-shrink:0; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.4rem; padding:0 .7rem; }
+    .crm-win-frame { flex:1; border:0; width:100%; background:#F4F6FA; }
+    .crm-win-btn { width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; color:#4D5F7A; cursor:pointer; }
+    .crm-win-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .crm-win-btn.close:hover { background:rgba(192,57,43,.1); color:#C0392B; }
+    .crm-taskbar { position:fixed; left:1rem; bottom:1rem; z-index:90; display:flex; gap:.5rem; flex-wrap:wrap; max-width:calc(100vw - 2rem); }
+    .crm-task { display:flex; align-items:center; gap:.55rem; background:#0B1F3A; color:#fff; border-radius:.6rem; padding:.4rem .5rem .4rem .85rem; font-size:.78rem; font-weight:600; box-shadow:0 8px 24px rgba(11,31,58,.32); cursor:pointer; max-width:230px; border:1.5px solid transparent; }
+    .crm-task:hover { background:#102A4C; }
+    .crm-task.active { border-color:#C8A24B; }
   </style>
 </head>
 
-<body x-data="shell()" x-cloak>
+<body x-data="shell()" @open-drawer.window="openWindow($event.detail)" x-cloak>
 <div class="adm-shell">
 
   <!-- Mobile backdrop -->
@@ -1040,6 +1061,28 @@ function support() {
   </div>
 </div>
 
+<!-- ===== Detail windows (OS-like: full-screen popup · multi-window · minimize/maximize) ===== -->
+<template x-for="w in windows" :key="w.id">
+  <div class="crm-win" :class="w.max ? 'max' : 'float'" x-show="!w.min" :style="'z-index:'+(66 + w.z)" @mousedown="focusWin(w.id)" x-cloak>
+    <div class="crm-win-head">
+      <span class="font-bold text-primary-800 text-sm truncate flex-1 ps-1" x-text="w.title"></span>
+      <a :href="w.full" class="crm-win-btn" title="فتح كصفحة كاملة"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2H2v12h12v-4M9.5 6.5l5-5M10.5 2h4v4"/></svg></a>
+      <button @click="minWin(w.id)" class="crm-win-btn" title="تصغير"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h10"/></svg></button>
+      <button @click="w.max=!w.max" class="crm-win-btn" :title="w.max?'استعادة':'تكبير'"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/></svg></button>
+      <button @click="closeWin(w.id)" class="crm-win-btn close" title="إغلاق"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <iframe class="crm-win-frame" :src="w.src" :title="w.title"></iframe>
+  </div>
+</template>
+<div class="crm-taskbar" x-show="windows.length" x-cloak>
+  <template x-for="w in windows" :key="'t'+w.id">
+    <div class="crm-task" :class="!w.min && 'active'" @click="restoreWin(w.id)">
+      <span class="truncate" x-text="w.title"></span>
+      <button @click.stop="closeWin(w.id)" class="w-5 h-5 inline-flex items-center justify-center rounded text-white/70 hover:text-white hover:bg-white/15"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+  </template>
+</div>
+
 <script>
   // ===== Shared platform shell component (sidebar + topbar) =====
   // Operational alerts are DERIVED from real endpoints (no admin-notifications backend exists):
@@ -1054,6 +1097,12 @@ function support() {
     };
     return {
       navOpen:false, userMenu:false, bellOpen:false,
+      windows:[], winSeq:0, topZ:0,
+      openWindow(d){ this.windows.push({ id:++this.winSeq, src:d.src, title:d.title, full:d.full, min:false, max:true, z:++this.topZ }); },
+      focusWin(id){ const w=this.windows.find(x=>x.id===id); if(w) w.z=++this.topZ; },
+      minWin(id){ const w=this.windows.find(x=>x.id===id); if(w) w.min=true; },
+      restoreWin(id){ const w=this.windows.find(x=>x.id===id); if(w){ w.min=false; w.z=++this.topZ; } },
+      closeWin(id){ this.windows=this.windows.filter(x=>x.id!==id); },
       alerts:[
         { id:1, tone:'warning', icon:ICO.invoice, title:'٣ فواتير بانتظار التحقق اليدوي', desc:'تحتاج اعتماد أو رفض', href:'invoices.html' },
         { id:2, tone:'danger',  icon:ICO.queue,   title:'وظيفتان فشلتا في طابور البريد', desc:'راجع صحة الطوابير', href:'dashboard.html' },

@@ -289,7 +289,7 @@
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
           </button>
           <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
-            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
             <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
             <div class="h-px bg-neutral-100 my-1"></div>
             <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
@@ -409,9 +409,9 @@
       <div class="adm-pagination" x-show="filtered.length">
         <span class="text-xs text-neutral-500">عرض <span x-text="pageRows.length"></span> من <span x-text="filtered.length"></span></span>
         <div class="flex items-center gap-1">
-          <button class="adm-page-btn" :disabled="page===1" @click="page--">‹</button>
+          <button class="adm-page-btn" :disabled="page===1" @click="page--"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l-5 5 5 5"/></svg></button>
           <span class="text-sm px-2" x-text="page + ' / ' + totalPages"></span>
-          <button class="adm-page-btn" :disabled="page===totalPages" @click="page++">›</button>
+          <button class="adm-page-btn" :disabled="page===totalPages" @click="page++"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3l5 5-5 5"/></svg></button>
         </div>
       </div>
     </div>
@@ -443,7 +443,7 @@
                     <template x-for="a in l.assignees" :key="a.initials"><span class="adm-avatar w-5 h-5 text-[.55rem] ring-2 ring-white" :class="a.isPrimary?'bg-accent-500 text-primary-900':'bg-primary-100 text-primary-700'" x-text="a.initials"></span></template>
                   </div>
                   <select class="text-[.7rem] text-neutral-500 bg-transparent border-0 cursor-pointer" @change="moveStage(l, $event.target.value); $event.target.value=''">
-                    <option value="">نقل ↦</option>
+                    <option value="">نقل إلى…</option>
                     <template x-for="t in stages" :key="t.id"><option :value="t.id" x-show="t.id!==l.stageId" x-text="t.name"></option></template>
                   </select>
                 </div>

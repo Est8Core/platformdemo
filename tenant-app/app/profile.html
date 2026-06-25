@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · ملفي الشخصي</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script>if (location.search.indexOf('embed') > -1) document.documentElement.classList.add('crm-embed');</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+
+    /* ===== Embed mode (detail shown inside a quick-view drawer iframe → hide chrome) ===== */
+    .crm-embed .crm-sidebar, .crm-embed .crm-topbar { display:none !important; }
+    .crm-embed .crm-main { margin-inline-start:0 !important; }
+    .crm-embed .crm-content { padding:1.1rem 1.4rem 2rem; max-width:none; }
+
+    /* ===== Detail WINDOWS (OS-like popup: 100dvw/dvh default · multi-window · minimize/maximize · taskbar) ===== */
+    .crm-win { position:fixed; z-index:66; background:#F4F6FA; box-shadow:0 24px 70px rgba(6,15,30,.42); display:flex; flex-direction:column; overflow:hidden; animation:winIn .18s ease-out; }
+    @keyframes winIn { from { opacity:.4; transform:scale(.985); } to { opacity:1; transform:scale(1); } }
+    .crm-win.max { inset:0; border-radius:0; }
+    .crm-win.float { top:5dvh; bottom:5dvh; inset-inline:7%; border-radius:1rem; }
+    .crm-win-head { height:46px; flex-shrink:0; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.4rem; padding:0 .7rem; }
+    .crm-win-frame { flex:1; border:0; width:100%; background:#F4F6FA; }
+    .crm-win-btn { width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; color:#4D5F7A; cursor:pointer; }
+    .crm-win-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .crm-win-btn.close:hover { background:rgba(192,57,43,.1); color:#C0392B; }
+    .crm-taskbar { position:fixed; left:1rem; bottom:1rem; z-index:90; display:flex; gap:.5rem; flex-wrap:wrap; max-width:calc(100vw - 2rem); }
+    .crm-task { display:flex; align-items:center; gap:.55rem; background:#0B1F3A; color:#fff; border-radius:.6rem; padding:.4rem .5rem .4rem .85rem; font-size:.78rem; font-weight:600; box-shadow:0 8px 24px rgba(11,31,58,.32); cursor:pointer; max-width:230px; border:1.5px solid transparent; }
+    .crm-task:hover { background:#102A4C; }
+    .crm-task.active { border-color:#C8A24B; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" @open-drawer.window="openWindow($event.detail)" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- S-056 · ملفي الشخصي (مستخدم tenant) · FN profile
+     GET    /api/v1/users/:id                              ← بيانات المستخدم (User.Model)
+     PUT    /api/v1/users/:id                              ← تحديث الاسم الأول/الأخير/الجوال
+     PUT    /api/v1/users/:id/password                     ← تغيير كلمة المرور (currentPassword+newPassword)
+     PUT    /api/v1/users/me/avatar                        ← رفع الصورة الشخصية (avatarUploadId)
+     GET    /api/v1/settings/notifications/preferences     ← تفضيلات الإشعارات
+     PUT    /api/v1/settings/notifications/preferences     ← تحديث التفضيلات
+     NOTE: البريد الإلكتروني للعرض فقط (يُدار من قِبل المالك)
+     NOTE: تفضيل اللغة مخزون في user_notification_prefs.language (BCP-47)
+     NOTE: 2FA: POST /api/v1/auth/2fa/{setup,enable,disable,backup-codes/regenerate}
+           (الـ endpoints مبنية على User.Model: twoFactorEnabled, twoFactorSecret, backupCodes)
+           — لا endpoint مؤكَّد في Auth.Routes لـ 2FA tenant؛ القسم معروض مع ملاحظة.
+-->
+<div x-data="profile()">
+
+  <!-- ===== Breadcrumb ===== -->
+  <div class="adm-breadcrumb">
+    <a href="settings.html">الإعدادات</a>
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="text-neutral-300"><path d="M10 12L6 8l4-4"/></svg>
+    <span class="text-neutral-600 font-medium">ملفي الشخصي</span>
+  </div>
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">ملفي الشخصي</h1>
+      <p class="adm-page-sub">بياناتك الشخصية · كلمة المرور · الأمان · تفضيلات الإشعارات</p>
+    </div>
+  </div>
+
+  <!-- ===== Toast ===== -->
+  <div x-show="toast.show" x-transition.opacity
+       class="fixed bottom-6 end-6 z-50 flex items-center gap-2.5 text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-xl"
+       :class="toast.ok ? 'bg-success' : 'bg-danger'">
+    <svg x-show="toast.ok" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l3 3 7-7"/></svg>
+    <svg x-show="!toast.ok" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4L4 12"/></svg>
+    <span x-text="toast.msg"></span>
+  </div>
+
+  <!-- ===== Two-column layout ===== -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+    <!-- ═══════════════════════════════════════════════════
+         بطاقة الهوية — عمود جانبي
+    ═══════════════════════════════════════════════════ -->
+    <div class="adm-card xl:col-span-1 h-fit">
+
+      <!-- Avatar + Upload -->
+      <div class="p-6 flex flex-col items-center text-center border-b border-neutral-100 gap-4">
+
+        <!-- Avatar -->
+        <div class="relative group cursor-pointer" @click="$refs.avatarInput.click()">
+          <!-- صورة مخصصة -->
+          <img x-show="me.avatarUrl"
+               :src="me.avatarUrl"
+               class="w-24 h-24 rounded-2xl object-cover border-2 border-neutral-100 shadow-card" />
+          <!-- أحرف افتراضية -->
+          <div x-show="!me.avatarUrl"
+               class="w-24 h-24 rounded-2xl bg-primary-800 text-accent-400 text-3xl font-bold flex items-center justify-center shadow-card"
+               x-text="initials"></div>
+          <!-- Overlay عند التحويم -->
+          <div class="absolute inset-0 rounded-2xl bg-primary-900/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-1">
+            <svg class="text-white" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1"/><path d="M12 12v5M9 15l3-3 3 3"/><path d="M20 12a8 8 0 10-16 0"/></svg>
+            <span class="text-white text-[.68rem] font-semibold">تغيير الصورة</span>
+          </div>
+        </div>
+        <!-- Hidden file input — PUT /users/me/avatar -->
+        <input type="file" accept="image/*" x-ref="avatarInput" class="hidden" @change="uploadAvatar($event)" />
+
+        <!-- الاسم والدور -->
+        <div>
+          <div class="text-lg font-bold text-primary-800 leading-tight" x-text="me.firstName + ' ' + me.lastName"></div>
+          <div class="text-sm text-neutral-500 mt-0.5 font-latin" dir="ltr" x-text="me.email"></div>
+          <div class="flex items-center justify-center gap-2 mt-3 flex-wrap">
+            <span class="adm-role" x-text="roleLabel"></span>
+            <span class="adm-badge b-success">نشط</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- معلومات الهوية -->
+      <div class="p-5">
+        <dl class="adm-info" style="grid-template-columns:1fr;">
+          <div>
+            <dt>الفرع</dt>
+            <dd class="flex items-center gap-1.5">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="#6E7F9C" stroke-width="1.4"><path d="M3 13V6l5-4 5 4v7"/><path d="M6 13v-4h4v4"/></svg>
+              <span x-text="me.branch"></span>
+            </dd>
+          </div>
+          <div>
+            <dt>الجوال</dt>
+            <dd class="font-latin" dir="ltr" x-text="me.phone || '—'"></dd>
+          </div>
+          <div>
+            <dt>آخر تسجيل دخول</dt>
+            <dd x-text="me.lastLoginAt ? fmtDateTime(me.lastLoginAt) : '—'"></dd>
+          </div>
+          <div>
+            <dt>آخر تغيير لكلمة المرور</dt>
+            <dd x-text="me.passwordChangedAt ? fmtDate(me.passwordChangedAt) : 'لم تُغيَّر بعد'"></dd>
+          </div>
+        </dl>
+        <!-- ملاحظة البريد -->
+        <div class="mt-4 rounded-lg bg-neutral-50 border border-neutral-100 p-3 text-xs text-neutral-500 flex items-start gap-2">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v.3M8 7v4" stroke-linecap="round"/></svg>
+          البريد الإلكتروني يُدار من قِبل مالك المنشأة — لا يمكن تعديله ذاتياً.
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         العمود الرئيسي — تبويبات
+    ═══════════════════════════════════════════════════ -->
+    <div class="xl:col-span-2 flex flex-col gap-0">
+
+      <!-- Tabs nav -->
+      <div class="adm-card mb-5">
+        <div class="adm-tabs px-1 overflow-x-auto">
+          <button class="adm-tab" :class="tab==='info'&&'on'" @click="tab='info'">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg>
+            المعلومات الشخصية
+          </button>
+          <button class="adm-tab" :class="tab==='password'&&'on'" @click="tab='password'">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="7" width="8" height="7" rx="1.5"/><path d="M6 7V5a2 2 0 014 0v2"/></svg>
+            كلمة المرور
+          </button>
+          <button class="adm-tab" :class="tab==='2fa'&&'on'" @click="tab='2fa'">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2l1.5 3 3.5.5-2.5 2.5.6 3.5L8 10l-3.1 1.5.6-3.5L3 5.5l3.5-.5z"/></svg>
+            المصادقة الثنائية
+          </button>
+          <button class="adm-tab" :class="tab==='notif'&&'on'" @click="tab='notif'">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2a4 4 0 00-4 4c0 3.5-1.5 5-1.5 5h11S12 9.5 12 6a4 4 0 00-4-4z"/><path d="M6.5 13.5a1.5 1.5 0 003 0"/></svg>
+            الإشعارات
+          </button>
+          <button class="adm-tab" :class="tab==='locale'&&'on'" @click="tab='locale'">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 2v12M2 8h12M4 4.5C5.3 5.8 6.6 7 8 7s2.7-1.2 4-2.5M4 11.5C5.3 10.2 6.6 9 8 9s2.7 1.2 4 2.5"/></svg>
+            اللغة والمنطقة
+          </button>
+        </div>
+      </div>
+
+      <!-- ──────────────────────────────────────────────
+           تبويب: المعلومات الشخصية
+           PUT /api/v1/users/:id  (firstName, lastName, phone)
+      ────────────────────────────────────────────── -->
+      <div x-show="tab==='info'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">المعلومات الشخصية</div>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
+              <div>
+                <label class="ec-label">الاسم الأول</label>
+                <input type="text" class="ec-input" x-model="form.info.firstName" placeholder="محمد" />
+              </div>
+              <div>
+                <label class="ec-label">الاسم الأخير</label>
+                <input type="text" class="ec-input" x-model="form.info.lastName" placeholder="العتيبي" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="ec-label">الجوال</label>
+                <input type="tel" class="ec-input font-latin" x-model="form.info.phone" placeholder="+966 5X XXX XXXX" dir="ltr" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="ec-label">البريد الإلكتروني</label>
+                <div class="relative">
+                  <input type="email" class="ec-input font-latin opacity-60 cursor-not-allowed" :value="me.email" disabled dir="ltr" />
+                  <span class="absolute top-1/2 -translate-y-1/2 end-3 text-xs text-neutral-400 bg-white px-1">للعرض فقط</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 flex items-center gap-3">
+              <button class="adm-btn adm-btn-primary" @click="saveInfo()" :disabled="savingInfo">
+                <svg x-show="!savingInfo" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8l3 3 7-7"/></svg>
+                <svg x-show="savingInfo" class="animate-spin" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" stroke-dasharray="22" stroke-dashoffset="12"/></svg>
+                <span x-text="savingInfo ? 'جاري الحفظ…' : 'حفظ التغييرات'"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──────────────────────────────────────────────
+           تبويب: كلمة المرور
+           PUT /api/v1/users/:id/password  (currentPassword, newPassword)
+      ────────────────────────────────────────────── -->
+      <div x-show="tab==='password'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">تغيير كلمة المرور</div>
+          </div>
+          <div class="p-5">
+            <div class="flex flex-col gap-4 max-w-md">
+              <!-- كلمة المرور الحالية -->
+              <div>
+                <label class="ec-label">كلمة المرور الحالية</label>
+                <div class="relative">
+                  <input :type="showPw.cur ? 'text' : 'password'" class="ec-input pe-10 font-latin" x-model="form.pw.current" placeholder="••••••••" autocomplete="current-password" dir="ltr" />
+                  <button type="button" class="absolute top-1/2 -translate-y-1/2 end-2.5 text-neutral-400 hover:text-neutral-700 transition" @click="showPw.cur=!showPw.cur" tabindex="-1">
+                    <svg x-show="!showPw.cur" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
+                    <svg x-show="showPw.cur" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l12 12M6.5 6.6a2 2 0 002.9 2.9M4 4.4C2.6 5.5 1.5 7 1 8c1.3 2.4 4 5 7 5a7 7 0 003.7-1M9.5 3.2A7 7 0 0115 8c-.4.9-1 1.9-1.8 2.7"/></svg>
+                  </button>
+                </div>
+              </div>
+              <!-- كلمة المرور الجديدة -->
+              <div>
+                <label class="ec-label">كلمة المرور الجديدة</label>
+                <div class="relative">
+                  <input :type="showPw.new ? 'text' : 'password'" class="ec-input pe-10 font-latin" x-model="form.pw.newPw" @input="calcStrength()" placeholder="على الأقل 8 محارف" autocomplete="new-password" dir="ltr" />
+                  <button type="button" class="absolute top-1/2 -translate-y-1/2 end-2.5 text-neutral-400 hover:text-neutral-700 transition" @click="showPw.new=!showPw.new" tabindex="-1">
+                    <svg x-show="!showPw.new" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
+                    <svg x-show="showPw.new" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l12 12M6.5 6.6a2 2 0 002.9 2.9M4 4.4C2.6 5.5 1.5 7 1 8c1.3 2.4 4 5 7 5a7 7 0 003.7-1M9.5 3.2A7 7 0 0115 8c-.4.9-1 1.9-1.8 2.7"/></svg>
+                  </button>
+                </div>
+                <!-- مؤشر القوة -->
+                <div x-show="form.pw.newPw.length > 0" class="mt-2">
+                  <div class="flex gap-1.5 h-1.5">
+                    <div class="flex-1 rounded-full transition-colors duration-300"
+                         :class="strength>=1 ? (strength<=1?'bg-danger':(strength<=2?'bg-warning':'bg-success')) : 'bg-neutral-100'"></div>
+                    <div class="flex-1 rounded-full transition-colors duration-300"
+                         :class="strength>=2 ? (strength<=2?'bg-warning':'bg-success') : 'bg-neutral-100'"></div>
+                    <div class="flex-1 rounded-full transition-colors duration-300"
+                         :class="strength>=3 ? (strength<=3?'bg-warning':'bg-success') : 'bg-neutral-100'"></div>
+                    <div class="flex-1 rounded-full transition-colors duration-300"
+                         :class="strength>=4 ? 'bg-success' : 'bg-neutral-100'"></div>
+                  </div>
+                  <div class="text-xs mt-1 font-semibold"
+                       :class="strength<=1?'text-danger':(strength<=2?'text-warning':'text-success')"
+                       x-text="['','ضعيفة','مقبولة','جيدة','قوية'][strength]||''"></div>
+                </div>
+              </div>
+              <!-- تأكيد كلمة المرور -->
+              <div>
+                <label class="ec-label">تأكيد كلمة المرور الجديدة</label>
+                <div class="relative">
+                  <input :type="showPw.conf ? 'text' : 'password'" class="ec-input pe-10 font-latin" x-model="form.pw.confirm" placeholder="أعد الكتابة" autocomplete="new-password" dir="ltr"
+                         :class="form.pw.confirm && form.pw.confirm!==form.pw.newPw ? 'border-danger' : ''" />
+                  <button type="button" class="absolute top-1/2 -translate-y-1/2 end-2.5 text-neutral-400 hover:text-neutral-700 transition" @click="showPw.conf=!showPw.conf" tabindex="-1">
+                    <svg x-show="!showPw.conf" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
+                    <svg x-show="showPw.conf" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2l12 12M6.5 6.6a2 2 0 002.9 2.9M4 4.4C2.6 5.5 1.5 7 1 8c1.3 2.4 4 5 7 5a7 7 0 003.7-1M9.5 3.2A7 7 0 0115 8c-.4.9-1 1.9-1.8 2.7"/></svg>
+                  </button>
+                </div>
+                <p x-show="form.pw.confirm && form.pw.confirm!==form.pw.newPw" class="text-xs text-danger mt-1">كلمتا المرور غير متطابقتين</p>
+              </div>
+            </div>
+            <div class="mt-5 flex items-center gap-3">
+              <button class="adm-btn adm-btn-primary" @click="changePassword()" :disabled="savingPw || !form.pw.current || !form.pw.newPw || form.pw.newPw!==form.pw.confirm">
+                <svg x-show="!savingPw" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="7" width="8" height="7" rx="1.5"/><path d="M6 7V5a2 2 0 014 0v2"/></svg>
+                <svg x-show="savingPw" class="animate-spin" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" stroke-dasharray="22" stroke-dashoffset="12"/></svg>
+                <span x-text="savingPw ? 'جاري التغيير…' : 'تغيير كلمة المرور'"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──────────────────────────────────────────────
+           تبويب: المصادقة الثنائية (2FA)
+           المصدر: User.Model (twoFactorEnabled, twoFactorSecret, backupCodes)
+           NOTE: endpoints 2FA للـ tenant غير مؤكَّدة في Auth.Routes المتاحة —
+           القسم معروض استناداً للنموذج (model-grounded). يُحدَّث عند توثيق الـ endpoints.
+      ────────────────────────────────────────────── -->
+      <div x-show="tab==='2fa'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">المصادقة الثنائية (2FA)</div>
+            <span class="adm-badge" :class="me.twoFactorEnabled ? 'b-success' : 'b-warning'"
+                  x-text="me.twoFactorEnabled ? 'مُفعّلة' : 'غير مُفعّلة'"></span>
+          </div>
+          <div class="p-5 flex flex-col gap-4">
+            <!-- وصف -->
+            <div class="flex items-start gap-3">
+              <span class="w-10 h-10 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+              </span>
+              <p class="text-sm text-neutral-600 leading-relaxed">
+                تحمي حسابك بطبقة أمان إضافية عبر تطبيق مصادقة (TOTP) مثل Google Authenticator أو Authy.
+                عند تفعيلها يُطلَب رمز إضافي في كل مرة تسجيل دخول.
+              </p>
+            </div>
+            <!-- أزرار الإجراءات -->
+            <div class="flex flex-wrap gap-2.5">
+              <button x-show="!me.twoFactorEnabled"
+                      @click="modal='2fa-setup'; tfaCode=''"
+                      class="adm-btn adm-btn-primary">
+                <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3v10M3 8h10"/></svg>
+                تفعيل المصادقة الثنائية
+              </button>
+              <template x-if="me.twoFactorEnabled">
+                <div class="flex flex-wrap gap-2.5">
+                  <button @click="modal='2fa-regen'; tfaCode=''" class="adm-btn adm-btn-ghost">
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 8a6 6 0 1012 0 6 6 0 00-12 0"/><path d="M2 4v4h4"/></svg>
+                    إعادة توليد رموز الاحتياط
+                  </button>
+                  <button @click="modal='2fa-disable'; tfaCode=''" class="adm-btn adm-btn-danger">
+                    تعطيل 2FA
+                  </button>
+                </div>
+              </template>
+            </div>
+            <!-- رموز الاحتياط (مخفية حتى التفعيل) -->
+            <div x-show="me.twoFactorEnabled" class="rounded-xl bg-neutral-50 border border-neutral-100 p-4">
+              <div class="flex items-center gap-2 mb-3">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#B5730A" stroke-width="1.5" class="shrink-0"><path d="M8 1.5l6.5 11.5H1.5z"/><path d="M8 6v3M8 11v.3" stroke-linecap="round"/></svg>
+                <span class="text-xs font-semibold text-warning">رموز الاحتياط — كل رمز يُستخدم مرة واحدة فقط</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <template x-for="c in backupCodes" :key="c">
+                  <div class="font-latin text-center text-sm font-semibold text-neutral-700 bg-white border border-neutral-200 rounded-lg py-2" x-text="c"></div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──────────────────────────────────────────────
+           تبويب: تفضيلات الإشعارات
+           GET/PUT /api/v1/settings/notifications/preferences
+           Model: UserNotificationPrefs (channels, events, quietHours)
+      ────────────────────────────────────────────── -->
+      <div x-show="tab==='notif'" x-cloak>
+        <div class="flex flex-col gap-4">
+
+          <!-- قنوات الإشعار -->
+          <div class="adm-card">
+            <div class="adm-card-head"><div class="adm-card-title">قنوات الإشعار</div></div>
+            <div class="p-5 flex flex-col gap-4">
+              <template x-for="ch in notifChannels" :key="ch.key">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" :class="ch.bg">
+                      <span x-html="ch.icon" class="w-4 h-4" :class="ch.iconCls"></span>
+                    </span>
+                    <div>
+                      <div class="text-sm font-semibold text-neutral-800" x-text="ch.label"></div>
+                      <div class="text-xs text-neutral-400" x-text="ch.hint"></div>
+                    </div>
+                  </div>
+                  <div class="adm-switch" :class="prefs.channels[ch.key]&&'on'"
+                       @click="prefs.channels[ch.key]=!prefs.channels[ch.key]"
+                       role="switch" :aria-checked="prefs.channels[ch.key]"></div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- أنواع الأحداث -->
+          <div class="adm-card">
+            <div class="adm-card-head"><div class="adm-card-title">أنواع الأحداث</div></div>
+            <div class="p-5 flex flex-col gap-4">
+              <template x-for="ev in notifEvents" :key="ev.key">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm font-semibold text-neutral-800" x-text="ev.label"></div>
+                    <div class="text-xs text-neutral-400" x-text="ev.hint"></div>
+                  </div>
+                  <div class="adm-switch" :class="prefs.events[ev.key]&&'on'"
+                       @click="prefs.events[ev.key]=!prefs.events[ev.key]"
+                       role="switch" :aria-checked="prefs.events[ev.key]"></div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- ساعات الهدوء -->
+          <div class="adm-card">
+            <div class="adm-card-head">
+              <div>
+                <div class="adm-card-title">ساعات الهدوء</div>
+                <p class="text-xs text-neutral-400 mt-0.5">لا تُرسَل إشعارات خلال هذه الساعات</p>
+              </div>
+              <div class="adm-switch" :class="prefs.quietHoursEnabled&&'on'"
+                   @click="prefs.quietHoursEnabled=!prefs.quietHoursEnabled"
+                   role="switch" :aria-checked="prefs.quietHoursEnabled"></div>
+            </div>
+            <div x-show="prefs.quietHoursEnabled" class="p-5 grid grid-cols-2 gap-4 max-w-xs">
+              <div>
+                <label class="ec-label">من</label>
+                <input type="time" class="ec-input font-latin" x-model="prefs.quietFrom" />
+              </div>
+              <div>
+                <label class="ec-label">إلى</label>
+                <input type="time" class="ec-input font-latin" x-model="prefs.quietTo" />
+              </div>
+            </div>
+          </div>
+
+          <!-- حفظ -->
+          <div class="flex items-center gap-3">
+            <button class="adm-btn adm-btn-primary" @click="saveNotifPrefs()" :disabled="savingNotif">
+              <svg x-show="!savingNotif" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8l3 3 7-7"/></svg>
+              <svg x-show="savingNotif" class="animate-spin" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" stroke-dasharray="22" stroke-dashoffset="12"/></svg>
+              <span x-text="savingNotif ? 'جاري الحفظ…' : 'حفظ التفضيلات'"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──────────────────────────────────────────────
+           تبويب: اللغة والمنطقة
+           PUT /api/v1/settings/notifications/preferences  (language field)
+           NOTE: المنطقة الزمنية مخزونة في إعدادات الشركة (settings.company) —
+           يمكن للمستخدم تفضيل لغة إشعاراته فقط (user_notification_prefs.language).
+      ────────────────────────────────────────────── -->
+      <div x-show="tab==='locale'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head"><div class="adm-card-title">اللغة والمنطقة</div></div>
+          <div class="p-5 flex flex-col gap-5 max-w-md">
+            <!-- اختيار اللغة -->
+            <div>
+              <label class="ec-label">لغة الإشعارات</label>
+              <p class="text-xs text-neutral-400 mb-2">تُؤثِّر على لغة رسائل البريد ورسائل الإشعارات المُرسَلة إليك</p>
+              <div class="grid grid-cols-2 gap-3">
+                <button @click="prefs.language='ar'"
+                        class="flex items-center gap-3 p-3 rounded-xl border-2 transition"
+                        :class="prefs.language==='ar' ? 'border-primary-700 bg-primary-50' : 'border-neutral-100 hover:border-neutral-200'">
+                  <span class="text-xl leading-none">ar</span>
+                  <div class="text-start">
+                    <div class="text-sm font-bold text-primary-800">العربية</div>
+                    <div class="text-xs text-neutral-400">Arabic</div>
+                  </div>
+                  <svg x-show="prefs.language==='ar'" class="ms-auto text-primary-700" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l3 3 7-7"/></svg>
+                </button>
+                <button @click="prefs.language='en'"
+                        class="flex items-center gap-3 p-3 rounded-xl border-2 transition"
+                        :class="prefs.language==='en' ? 'border-primary-700 bg-primary-50' : 'border-neutral-100 hover:border-neutral-200'">
+                  <span class="text-xl leading-none">en</span>
+                  <div class="text-start">
+                    <div class="text-sm font-bold text-primary-800">English</div>
+                    <div class="text-xs text-neutral-400">الإنجليزية</div>
+                  </div>
+                  <svg x-show="prefs.language==='en'" class="ms-auto text-primary-700" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l3 3 7-7"/></svg>
+                </button>
+              </div>
+            </div>
+            <!-- المنطقة الزمنية (للعرض فقط) -->
+            <div>
+              <label class="ec-label">المنطقة الزمنية</label>
+              <p class="text-xs text-neutral-400 mb-2">تُدار من إعدادات الشركة — للعرض فقط</p>
+              <div class="ec-input opacity-60 cursor-not-allowed select-none flex items-center gap-2">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l3 1.5"/></svg>
+                Asia/Riyadh (AST +3)
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <button class="adm-btn adm-btn-primary" @click="saveLocale()" :disabled="savingLocale">
+                <svg x-show="!savingLocale" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8l3 3 7-7"/></svg>
+                <svg x-show="savingLocale" class="animate-spin" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="5.5" stroke-dasharray="22" stroke-dashoffset="12"/></svg>
+                <span x-text="savingLocale ? 'جاري الحفظ…' : 'حفظ اللغة'"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main col -->
+  </div><!-- /grid -->
+
+  <!-- ═══════════════════════════════════════════════════
+       Modal: تفعيل 2FA — QR + رمز TOTP
+  ═══════════════════════════════════════════════════ -->
+  <template x-if="modal==='2fa-setup'">
+    <div class="adm-overlay" @click.self="modal=null">
+      <div class="adm-modal" style="max-width:440px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">تفعيل المصادقة الثنائية</div>
+          <button @click="modal=null" class="adm-icon-btn">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-4">
+          <!-- خطوات -->
+          <ol class="text-sm text-neutral-600 flex flex-col gap-2 list-decimal list-inside">
+            <li>افتح تطبيق <span class="font-semibold">Google Authenticator</span> أو <span class="font-semibold">Authy</span></li>
+            <li>امسح رمز QR أدناه أو أدخل المفتاح يدوياً</li>
+            <li>أدخل الرمز المكوَّن من 6 أرقام للتأكيد</li>
+          </ol>
+          <!-- QR placeholder -->
+          <div class="mx-auto w-44 h-44 rounded-2xl border-2 border-neutral-200 bg-neutral-50 grid place-items-center text-neutral-300">
+            <svg width="90" height="90" viewBox="0 0 80 80" fill="currentColor">
+              <rect x="8" y="8" width="22" height="22"/><rect x="50" y="8" width="22" height="22"/>
+              <rect x="8" y="50" width="22" height="22"/><rect x="36" y="36" width="10" height="10"/>
+              <rect x="54" y="50" width="18" height="18"/>
+            </svg>
+          </div>
+          <div class="text-center text-xs text-neutral-500">
+            أو أدخل المفتاح يدوياً:
+            <span class="font-latin font-bold text-neutral-700 tracking-widest" x-text="tfaSecret"></span>
+          </div>
+          <!-- حقل الرمز -->
+          <input type="text" inputmode="numeric" maxlength="6" dir="ltr"
+                 x-model="tfaCode" placeholder="000 000"
+                 class="ec-input text-center font-latin text-xl tracking-[0.5em]" />
+        </div>
+        <div class="adm-modal-foot">
+          <button class="adm-btn adm-btn-primary" @click="enable2fa()" :disabled="tfaCode.length<6">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8l3 3 7-7"/></svg>
+            تأكيد وتفعيل
+          </button>
+          <button class="adm-btn adm-btn-ghost" @click="modal=null">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Modal: رموز الاحتياط (بعد التفعيل أو إعادة التوليد) -->
+  <template x-if="modal==='2fa-backup'">
+    <div class="adm-overlay" @click.self="modal=null">
+      <div class="adm-modal" style="max-width:440px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">رموز الاحتياط</div>
+          <button @click="modal=null" class="adm-icon-btn">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-3">
+          <div class="flex items-start gap-2 rounded-lg bg-warning/10 border border-warning/30 p-3 text-xs text-warning">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" class="shrink-0 mt-0.5"><path d="M8 1.5l6.5 11.5H1.5z"/><path d="M8 6v3M8 11v.3" stroke-linecap="round"/></svg>
+            احفظ هذه الرموز في مكان آمن — كل رمز يُستخدَم مرة واحدة ولن تظهر مجدداً.
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <template x-for="c in backupCodes" :key="c">
+              <div class="font-latin text-center text-sm font-semibold text-neutral-700 bg-neutral-50 border border-neutral-100 rounded-lg py-2.5" x-text="c"></div>
+            </template>
+          </div>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm self-start" @click="copyBackupCodes()">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5.5" y="5.5" width="8" height="9" rx="1.5"/><path d="M10 5.5V3.5a1.5 1.5 0 00-1.5-1.5h-5a1.5 1.5 0 00-1.5 1.5v8a1.5 1.5 0 001.5 1.5H5.5"/></svg>
+            نسخ الرموز
+          </button>
+        </div>
+        <div class="adm-modal-foot">
+          <button class="adm-btn adm-btn-primary" @click="modal=null">حفظت الرموز، إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Modal: تعطيل 2FA | إعادة توليد الرموز -->
+  <template x-if="modal==='2fa-disable' || modal==='2fa-regen'">
+    <div class="adm-overlay" @click.self="modal=null">
+      <div class="adm-modal" style="max-width:420px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800"
+               x-text="modal==='2fa-disable' ? 'تعطيل المصادقة الثنائية' : 'إعادة توليد رموز الاحتياط'"></div>
+          <button @click="modal=null" class="adm-icon-btn">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-3">
+          <p class="text-sm text-neutral-600"
+             x-text="modal==='2fa-disable'
+               ? 'أدخل رمز المصادقة الحالي لتأكيد التعطيل. سيُقلِّل هذا من أمان حسابك.'
+               : 'أدخل رمز المصادقة الحالي لإصدار رموز احتياط جديدة. ستُلغى الرموز القديمة فوراً.'">
+          </p>
+          <input type="text" inputmode="numeric" maxlength="6" dir="ltr"
+                 x-model="tfaCode" placeholder="000 000"
+                 class="ec-input text-center font-latin text-xl tracking-[0.5em]" />
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="confirm2fa()" :disabled="tfaCode.length<6"
+                  class="adm-btn"
+                  :class="modal==='2fa-disable' ? 'adm-btn-danger-solid' : 'adm-btn-primary'"
+                  x-text="modal==='2fa-disable' ? 'تعطيل' : 'توليد رموز جديدة'"></button>
+          <button @click="modal=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</div><!-- /x-data -->
+
+<script>
+function profile() {
+  return {
+    /* ═══ حالة التبويب ═══ */
+    tab: 'info',
+
+    /* ═══ بيانات المستخدم (محاكاة GET /api/v1/users/:id) ═══ */
+    me: {
+      id:                'usr-001',
+      firstName:         'محمد',
+      lastName:          'العتيبي',
+      email:             'm.alotaibi@maskan-riyadh.com',
+      phone:             '+966 50 234 5678',
+      avatarUrl:         null,           /* null = أحرف افتراضية */
+      avatarUploadId:    null,
+      role:              'owner',
+      branch:            'فرع الرياض',
+      twoFactorEnabled:  false,
+      lastLoginAt:       new Date(Date.now() - 3 * 3600e3).toISOString(),
+      passwordChangedAt: '2026-03-15T10:00:00Z',
+    },
+
+    /* ═══ نموذج المعلومات الشخصية ═══ */
+    form: {
+      info:   { firstName: 'محمد', lastName: 'العتيبي', phone: '+966 50 234 5678' },
+      pw:     { current: '', newPw: '', confirm: '' },
+    },
+
+    /* ═══ حالة كلمة المرور ═══ */
+    showPw:    { cur: false, new: false, conf: false },
+    strength:  0,
+
+    /* ═══ تفضيلات الإشعارات (محاكاة GET /settings/notifications/preferences) ═══ */
+    prefs: {
+      channels: { inApp: true, email: true, whatsapp: false, sms: false },
+      quietHoursEnabled: false,
+      quietFrom: '22:00',
+      quietTo:   '08:00',
+      events: {
+        lead_assigned:      true,
+        deal_closed:        true,
+        follow_up_overdue:  true,
+        activity_reminder:  true,
+        approval_required:  true,
+      },
+      language: 'ar',
+    },
+
+    /* ═══ تعريفات قنوات وأحداث الإشعارات ═══ */
+    notifChannels: [
+      {
+        key:'inApp', label:'داخل التطبيق', hint:'إشعارات الجرس في الشريط العلوي',
+        bg:'bg-primary-50', iconCls:'text-primary-700',
+        icon:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2a4 4 0 00-4 4c0 3.5-1.5 5-1.5 5h11S12 9.5 12 6a4 4 0 00-4-4z"/><path d="M6.5 13.5a1.5 1.5 0 003 0"/></svg>',
+      },
+      {
+        key:'email', label:'البريد الإلكتروني', hint:'ملخص يومي ورسائل تنبيه',
+        bg:'bg-info/10', iconCls:'text-info',
+        icon:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1.5" y="3.5" width="13" height="9" rx="1.5"/><path d="M1.5 5.5l6.5 4 6.5-4"/></svg>',
+      },
+      {
+        key:'whatsapp', label:'واتساب', hint:'رسائل WhatsApp Business',
+        bg:'bg-success/10', iconCls:'text-success',
+        icon:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6.5"/><path d="M5 8c0 1.7 1.3 3 3 3 .6 0 1.1-.2 1.6-.5l1.5.5-.5-1.5C10.8 9.1 11 8.6 11 8c0-1.7-1.3-3-3-3S5 6.3 5 8z"/></svg>',
+      },
+      {
+        key:'sms', label:'رسائل SMS', hint:'رسائل نصية قصيرة',
+        bg:'bg-warning/10', iconCls:'text-warning',
+        icon:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2.5h12v8H2z" rx="1.5"/><path d="M5 13l3-2.5 3 2.5"/></svg>',
+      },
+    ],
+
+    notifEvents: [
+      { key:'lead_assigned',     label:'عميل محتمل جديد مُسنَد',    hint:'عند إسناد عميل إليك' },
+      { key:'activity_reminder', label:'تذكير بنشاط قادم',           hint:'قبل موعد المهمة/المكالمة' },
+      { key:'deal_closed',       label:'تحديث الصفقة',                hint:'عند تغيّر حالة صفقة مرتبطة بك' },
+      { key:'follow_up_overdue', label:'متابعة متأخرة',               hint:'عند تجاوز تاريخ المتابعة' },
+      { key:'approval_required', label:'صفقة بحاجة لموافقة',          hint:'عند طلب موافقة منك كمدير' },
+    ],
+
+    /* ═══ 2FA ═══ */
+    modal:       null,
+    tfaCode:     '',
+    tfaSecret:   'JBSW Y3DP EHPK 3PXP',
+    backupCodes: ['A1B2-C3D4','E5F6-G7H8','J9K0-L1M2','N3P4-Q5R6','S7T8-U9V0','W1X2-Y3Z4'],
+
+    /* ═══ حالة التحميل ═══ */
+    savingInfo:   false,
+    savingPw:     false,
+    savingNotif:  false,
+    savingLocale: false,
+
+    /* ═══ Toast ═══ */
+    toast: { show: false, ok: true, msg: '' },
+
+    /* ════════════════════════════ Computed ════════════════════════════ */
+    get initials() {
+      return (this.me.firstName?.[0] || '') + (this.me.lastName?.[0] || '');
+    },
+    get roleLabel() {
+      const map = {
+        owner:          'مالك المنشأة',
+        branch_manager: 'مدير فرع',
+        team_leader:    'قائد فريق',
+        sales_agent:    'وكيل مبيعات',
+      };
+      return map[this.me.role] || this.me.role;
+    },
+
+    /* ════════════════════════════ Methods ════════════════════════════ */
+
+    showToast(msg, ok = true) {
+      this.toast = { show: true, ok, msg };
+      setTimeout(() => { this.toast.show = false; }, 3500);
+    },
+
+    calcStrength() {
+      const p = this.form.pw.newPw;
+      let s = 0;
+      if (p.length >= 8)                                       s++;
+      if (/[A-Z]/.test(p) && /[a-z]/.test(p))                s++;
+      if (/\d/.test(p))                                        s++;
+      if (/[^A-Za-z0-9]/.test(p))                             s++;
+      this.strength = s;
+    },
+
+    /* PUT /api/v1/users/:id */
+    async saveInfo() {
+      this.savingInfo = true;
+      await new Promise(r => setTimeout(r, 800));
+      this.me.firstName = this.form.info.firstName;
+      this.me.lastName  = this.form.info.lastName;
+      this.me.phone     = this.form.info.phone;
+      this.savingInfo = false;
+      this.showToast('تم حفظ المعلومات الشخصية بنجاح');
+    },
+
+    /* PUT /api/v1/users/:id/password */
+    async changePassword() {
+      if (!this.form.pw.current || !this.form.pw.newPw || this.form.pw.newPw !== this.form.pw.confirm) return;
+      this.savingPw = true;
+      await new Promise(r => setTimeout(r, 900));
+      this.me.passwordChangedAt = new Date().toISOString();
+      this.form.pw = { current: '', newPw: '', confirm: '' };
+      this.strength = 0;
+      this.savingPw = false;
+      this.showToast('تم تغيير كلمة المرور بنجاح');
+    },
+
+    /* PUT /api/v1/users/me/avatar */
+    async uploadAvatar(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      /* محاكاة رفع — في الإنتاج: رفع لـ /uploads ثم PUT /users/me/avatar {avatarUploadId} */
+      const reader = new FileReader();
+      reader.onload = (e) => { this.me.avatarUrl = e.target.result; };
+      reader.readAsDataURL(file);
+      this.showToast('تم تحديث الصورة الشخصية');
+    },
+
+    /* 2FA — enable (POST /auth/2fa/enable) */
+    enable2fa() {
+      if (this.tfaCode.length < 6) return;
+      this.me.twoFactorEnabled = true;
+      this.tfaCode = '';
+      this.modal = '2fa-backup';
+    },
+
+    /* 2FA — disable | regen (POST /auth/2fa/disable | backup-codes/regenerate) */
+    confirm2fa() {
+      if (this.tfaCode.length < 6) return;
+      if (this.modal === '2fa-disable') {
+        this.me.twoFactorEnabled = false;
+        this.modal = null;
+        this.showToast('تم تعطيل المصادقة الثنائية');
+      } else {
+        /* regen */
+        this.backupCodes = ['B2C3-D4E5','F6G7-H8J9','K0L1-M2N3','P4Q5-R6S7','T8U9-V0W1','X2Y3-Z4A5'];
+        this.modal = '2fa-backup';
+      }
+      this.tfaCode = '';
+    },
+
+    async copyBackupCodes() {
+      try {
+        await navigator.clipboard.writeText(this.backupCodes.join('\n'));
+        this.showToast('تم نسخ الرموز');
+      } catch { /* ignore */ }
+    },
+
+    /* PUT /api/v1/settings/notifications/preferences (channels + events + quietHours) */
+    async saveNotifPrefs() {
+      this.savingNotif = true;
+      await new Promise(r => setTimeout(r, 800));
+      this.savingNotif = false;
+      this.showToast('تم حفظ تفضيلات الإشعارات');
+    },
+
+    /* PUT /api/v1/settings/notifications/preferences (language) */
+    async saveLocale() {
+      this.savingLocale = true;
+      await new Promise(r => setTimeout(r, 700));
+      this.savingLocale = false;
+      this.showToast('تم حفظ تفضيل اللغة');
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== Detail windows (OS-like: full-screen popup · multi-window · minimize/maximize) ===== -->
+<template x-for="w in windows" :key="w.id">
+  <div class="crm-win" :class="w.max ? 'max' : 'float'" x-show="!w.min" :style="'z-index:'+(66 + w.z)" @mousedown="focusWin(w.id)" x-cloak>
+    <div class="crm-win-head">
+      <span class="font-bold text-primary-800 text-sm truncate flex-1 ps-1" x-text="w.title"></span>
+      <a :href="w.full" class="crm-win-btn" title="فتح كصفحة كاملة"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2H2v12h12v-4M9.5 6.5l5-5M10.5 2h4v4"/></svg></a>
+      <button @click="minWin(w.id)" class="crm-win-btn" title="تصغير"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h10"/></svg></button>
+      <button @click="w.max=!w.max" class="crm-win-btn" :title="w.max?'استعادة':'تكبير'"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/></svg></button>
+      <button @click="closeWin(w.id)" class="crm-win-btn close" title="إغلاق"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <iframe class="crm-win-frame" :src="w.src" :title="w.title"></iframe>
+  </div>
+</template>
+<div class="crm-taskbar" x-show="windows.length" x-cloak>
+  <template x-for="w in windows" :key="'t'+w.id">
+    <div class="crm-task" :class="!w.min && 'active'" @click="restoreWin(w.id)">
+      <span class="truncate" x-text="w.title"></span>
+      <button @click.stop="closeWin(w.id)" class="w-5 h-5 inline-flex items-center justify-center rounded text-white/70 hover:text-white hover:bg-white/15"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+  </template>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      windows:[], winSeq:0, topZ:0,
+      openWindow(d){ this.windows.push({ id:++this.winSeq, src:d.src, title:d.title, full:d.full, min:false, max:true, z:++this.topZ }); },
+      focusWin(id){ const w=this.windows.find(x=>x.id===id); if(w) w.z=++this.topZ; },
+      minWin(id){ const w=this.windows.find(x=>x.id===id); if(w) w.min=true; },
+      restoreWin(id){ const w=this.windows.find(x=>x.id===id); if(w){ w.min=false; w.z=++this.topZ; } },
+      closeWin(id){ this.windows=this.windows.filter(x=>x.id!==id); },
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'profile';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0,
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
+      fmClose(){ this.fmId=null; },
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>

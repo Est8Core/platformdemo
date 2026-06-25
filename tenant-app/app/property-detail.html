@@ -289,7 +289,7 @@
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
           </button>
           <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
-            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
             <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
             <div class="h-px bg-neutral-100 my-1"></div>
             <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
@@ -436,15 +436,15 @@
               <!-- Next (inline-end = right in RTL → visually left nav = "next" in reading direction) -->
               <button
                 @click="nextMedia()"
-                class="absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-colors text-xl z-10"
+                class="absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-colors z-10"
                 style="inset-inline-end:0.75rem;"
-                title="التالي">›</button>
+                title="التالي"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3l5 5-5 5"/></svg></button>
               <!-- Prev (inline-start = left in RTL → visually right nav = "prev" in reading direction) -->
               <button
                 @click="prevMedia()"
-                class="absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-colors text-xl z-10"
+                class="absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-colors z-10"
                 style="inset-inline-start:0.75rem;"
-                title="السابق">‹</button>
+                title="السابق"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l-5 5 5 5"/></svg></button>
             </div>
           </template>
 
@@ -689,7 +689,7 @@
                       <span class="adm-badge text-xs" :style="viewingStatusStyle(v.status)" x-text="viewingStatusLabel(v.status)"></span>
                       <span class="text-sm font-semibold text-primary-900" x-text="fmtDateTime(v.scheduledAt)"></span>
                       <template x-if="v.endAt">
-                        <span class="text-xs text-neutral-500" x-text="'← ' + fmtDateTime(v.endAt)"></span>
+                        <span class="text-xs text-neutral-500" x-text="'حتى ' + fmtDateTime(v.endAt)"></span>
                       </template>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
@@ -1133,7 +1133,7 @@
                 @click="changeStatus(s.value)">
                 <span x-text="s.icon"></span>
                 <span x-text="s.label"></span>
-                <span x-show="property.status === s.value" class="ms-auto text-primary-500 font-bold">✓</span>
+                <span x-show="property.status === s.value" class="ms-auto text-primary-500 flex items-center"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 4 6-7"/></svg></span>
               </button>
             </template>
           </div>

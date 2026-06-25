@@ -289,7 +289,7 @@
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
           </button>
           <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
-            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
             <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
             <div class="h-px bg-neutral-100 my-1"></div>
             <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
@@ -632,13 +632,13 @@
             </template>
             <template x-if="entry.type === 'task' && entry.taskStatus === 'pending'">
               <div class="flex gap-2 mt-2">
-                <button class="adm-btn adm-btn-success text-xs py-1 px-2" @click="updateTaskStatus(entry.id, 'done')">تم ✓</button>
+                <button class="adm-btn adm-btn-success text-xs py-1 px-2 inline-flex items-center gap-1" @click="updateTaskStatus(entry.id, 'done')">تم <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 4 6-7"/></svg></button>
                 <button class="adm-btn adm-btn-outline text-xs py-1 px-2" @click="updateTaskStatus(entry.id, 'cancelled')">إلغاء</button>
               </div>
             </template>
             <!-- Lead/Deal cross-ref -->
             <template x-if="entry.leadId">
-              <a :href="'lead-detail.html?id=' + entry.leadId" class="text-xs text-primary hover:underline mt-1 block">← عميل محتمل مرتبط</a>
+              <a :href="'lead-detail.html?id=' + entry.leadId" class="text-xs text-primary hover:underline mt-1 flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l-5 5 5 5"/></svg>عميل محتمل مرتبط</a>
             </template>
           </div>
         </div>
