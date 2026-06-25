@@ -1327,15 +1327,19 @@ function tenantDetail() {
   // table or card clipping. Usage: trigger @click="fmOpen(id,$event)" · menu class="adm-rowmenu" :style="fmStyle" x-show="fmId===id" @click.outside="fmClose()" @scroll.window="fmClose()".
   function floatMenu(){
     return {
-      fmId: null, fmTop: 0, fmRight: 0,
+      fmId: null, fmTop: 0, fmRight: 0, _fmGuard: false,
+      // Guard: opening row A's menu fires EVERY OTHER row's @click.outside in the same click → they'd
+      // call fmClose() and shut the menu instantly. Ignore those same-event closes via a 1-tick guard.
       fmOpen(id, e){
         if (this.fmId === id) { this.fmId = null; return; }
         const r = e.currentTarget.getBoundingClientRect();
         this.fmTop = Math.round(r.bottom + 4);
         this.fmRight = Math.round(Math.max(8, window.innerWidth - r.right));
         this.fmId = id;
+        this._fmGuard = true;
+        queueMicrotask(() => { this._fmGuard = false; });
       },
-      fmClose(){ this.fmId = null; },
+      fmClose(){ if (this._fmGuard) return; this.fmId = null; },
       // method (NOT a getter): object spread {...floatMenu()} would invoke a getter once and
       // freeze its value → menu stuck at 0,0. A method re-evaluates on every render.
       // Return an OBJECT (not a string): a string :style overwrites the whole style attr and wipes

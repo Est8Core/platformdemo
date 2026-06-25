@@ -765,9 +765,11 @@ function leads(){
   // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
   function floatMenu(){
     return {
-      fmId:null, fmTop:0, fmRight:0,
-      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
-      fmClose(){ this.fmId=null; },
+      fmId:null, fmTop:0, fmRight:0, _fmGuard:false,
+      // Guard: opening row A's menu fires EVERY OTHER row's @click.outside in the same click → they'd
+      // call fmClose() and shut the menu instantly. Ignore those same-event closes via a 1-tick guard.
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; this._fmGuard=true; queueMicrotask(()=>{ this._fmGuard=false; }); },
+      fmClose(){ if(this._fmGuard) return; this.fmId=null; },
       // Return an OBJECT (not a string): a string :style overwrites the whole style attr and wipes
       // x-show's display:none → all row menus stay visible & stacked. An object merges, so x-show works.
       fmStyle(){ return { top: this.fmTop+'px', right: this.fmRight+'px' }; },
