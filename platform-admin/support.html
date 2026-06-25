@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — لوحة المنصة · صندوق الدعم</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant platform shell) ===== */
+    .adm-shell { display:flex; min-height:100vh; }
+    .adm-sidebar { width:264px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .adm-main { flex:1; min-width:0; margin-inline-start:264px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .adm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .adm-sidebar.open{ transform:translateX(0);} .adm-main{ margin-inline-start:0; } }
+    .adm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav ===== */
+    .adm-brand { display:flex; align-items:center; gap:.65rem; padding:1.15rem 1.25rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .adm-nav { flex:1; overflow-y:auto; padding:1rem .75rem 1.5rem; }
+    .adm-nav-label { font-size:.7rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:1rem .75rem .4rem; text-transform:uppercase; }
+    .adm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .adm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .adm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .adm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.75rem; top:50%; transform:translateY(-50%); width:3.5px; height:60%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .adm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .adm-nav-item .soon { margin-inline-start:auto; font-size:.62rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:600; }
+
+    /* ===== Topbar ===== */
+    .adm-topbar { height:64px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:1rem; padding:0 1.5rem; position:sticky; top:0; z-index:30; }
+    .adm-env { display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700; color:#1A8C4E; background:rgba(26,140,78,.1); padding:.28rem .65rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .adm-content { padding:1.6rem 1.75rem 3rem; max-width:1400px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.6rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Cards / KPI ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:.0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.85rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+
+    /* ===== Table ===== */
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.85rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+
+    /* ===== Badges / status ===== */
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+
+    /* ===== Buttons ===== */
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+
+    /* ===== Inputs ===== */
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+
+    /* ===== Tabs ===== */
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+
+    /* ===== Pills (filters) ===== */
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+
+    /* ===== Modal ===== */
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+
+    /* ===== Toggle switch ===== */
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+
+    /* ===== Progress (usage) ===== */
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+
+    /* ===== Info grid ===== */
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+
+    /* ===== Empty / pagination ===== */
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-pagination { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.25rem; border-top:1px solid #F1F3F5; flex-wrap:wrap; }
+    .adm-page-btn { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; border:1px solid #DDE1EA; font-size:.8rem; color:#4D5F7A; cursor:pointer; }
+    .adm-page-btn:hover:not(:disabled){ background:#F4F6FA; } .adm-page-btn:disabled{ opacity:.4; cursor:not-allowed; }
+    .adm-page-btn.on { background:#0B1F3A; color:#fff; border-color:#0B1F3A; }
+
+    /* ===== Audit diff ===== */
+    .adm-diff { font-family:'Inter',monospace; font-size:.78rem; border-radius:.5rem; padding:.7rem .9rem; white-space:pre-wrap; word-break:break-word; }
+    .adm-diff.before { background:rgba(192,57,43,.05); border:1px solid rgba(192,57,43,.15); color:#7a2018; }
+    .adm-diff.after { background:rgba(26,140,78,.05); border:1px solid rgba(26,140,78,.15); color:#0f5a31; }
+
+    /* ===== JSON viewer (collapsible tree · syntax-highlighted · VSCode-like) ===== */
+    .jv-root { font-family:'Inter',ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.74rem; line-height:1.75; color:#344260; direction:ltr; text-align:left; }
+    .jv-row { white-space:pre-wrap; word-break:break-word; }
+    .jv-children { padding-inline-start:1.1rem; margin-inline-start:.35rem; border-inline-start:1px dashed #DDE1EA; }
+    details.jv-node > summary { list-style:none; cursor:pointer; display:block; border-radius:4px; }
+    details.jv-node > summary:hover { background:#EEF0F5; }
+    details.jv-node > summary::-webkit-details-marker { display:none; }
+    details.jv-node > summary::before { content:'▾'; display:inline-block; width:1em; margin-inline-end:.1rem; color:#9BA6BB; font-size:.8em; }
+    details.jv-node:not([open]) > summary::before { content:'▸'; }
+    details.jv-node[open] > summary > .jv-count, details.jv-node[open] > summary > .jv-ellipsis { display:none; }
+    .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
+    .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
+    .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+
+    /* ===== Floating row-action menu (position:fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; }
+    .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+  </style>
+</head>
+
+<body x-data="shell()" x-cloak>
+<div class="adm-shell">
+
+  <!-- Mobile backdrop -->
+  <div class="adm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="adm-sidebar" :class="navOpen && 'open'">
+    <div class="adm-brand">
+      <img src="../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div>
+        <div class="font-latin text-base font-bold text-white leading-none">Est8<span class="text-accent-500">Core</span></div>
+        <div class="text-[.66rem] text-primary-200 mt-1 font-semibold tracking-wide">لوحة المنصة</div>
+      </div>
+    </div>
+    <nav class="adm-nav">
+      <div class="adm-nav-label">الرئيسية</div>
+      <a href="dashboard.html" class="adm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+      <a href="notifications.html" class="adm-nav-item" data-nav="notifications">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 3z"/><path d="M8.5 16.5a1.5 1.5 0 003 0"/></svg>
+        التنبيهات
+        <span class="soon" x-show="alertCount>0" x-text="alertCount"></span>
+      </a>
+      <div class="adm-nav-label">الإدارة</div>
+      <a href="tenants.html" class="adm-nav-item" data-nav="tenants">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V6l5-3 5 3v11"/><path d="M13 8l4 2v7"/><path d="M2 17h16M6 8h2M6 11h2M6 14h2"/></svg>
+        المنشآت
+      </a>
+      <a href="plans.html" class="adm-nav-item" data-nav="plans">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M2.5 8h15M6 12h3"/></svg>
+        خطط الاشتراك
+      </a>
+      <a href="invoices.html" class="adm-nav-item" data-nav="invoices">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2.5h10v15l-2.5-1.5L10 17l-2.5-1L5 17.5z"/><path d="M8 6.5h4M8 9.5h4M8 12.5h2.5"/></svg>
+        الفواتير
+      </a>
+      <a href="support.html" class="adm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3.5 4h13v9H7l-3.5 3.5z"/><path d="M7 7.5h6M7 10h4"/></svg>
+        الدعم الفني
+      </a>
+      <div class="adm-nav-label">النظام</div>
+      <a href="admins.html" class="adm-nav-item" data-nav="admins">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7.5" cy="7" r="2.5"/><path d="M3 16c0-2.6 2-4.5 4.5-4.5S12 13.4 12 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        فريق المنصة
+      </a>
+      <a href="settings.html" class="adm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        إعدادات المنصة
+      </a>
+      <a href="audit-log.html" class="adm-nav-item" data-nav="audit">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 2.5h8l4 4V17.5H4z"/><path d="M12 2.5v4h4M7 10h6M7 13h6"/></svg>
+        سجل التدقيق
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 text-[.68rem] text-primary-300 flex items-center gap-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> النظام يعمل · v2.0.0
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="adm-main">
+    <header class="adm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث في المنصة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="adm-env"><span class="w-1.5 h-1.5 rounded-full bg-success"></span> الإنتاج</span>
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="التنبيهات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alertCount>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+              <span class="text-sm font-bold text-primary-800">التنبيهات التشغيلية</span>
+              <span class="adm-badge b-danger" x-show="alertCount>0" x-text="alertCount + ' بحاجة لإجراء'"></span>
+            </div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div>
+                    <div class="text-xs text-neutral-500 mt-0.5" x-text="a.desc"></div>
+                  </div>
+                </a>
+              </template>
+            </div>
+            <a href="notifications.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض كل التنبيهات</a>
+          </div>
+        </div>
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="w-8 h-8 rounded-lg bg-primary-800 text-accent-400 text-xs font-bold flex items-center justify-center">صد</span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none">صبري داوود</div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5">مدير عام للمنصة</div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="adm-content">
+
+<!-- S-066 · صندوق الدعم الفني (Platform Admin)
+     Endpoints (spec: .Pm/40-Support-Tickets-Module-Plan.md §4 — جانب المنصة):
+       GET    /api/v1/admin/support/tickets?status&priority&tenantId&assigneeId&q&page&limit
+       GET    /api/v1/admin/support/tickets/:id
+       POST   /api/v1/admin/support/tickets/:id/assign        { adminId }  ("self" جائز)
+       PATCH  /api/v1/admin/support/tickets/:id               { status?, priority?, category? }
+       POST   /api/v1/admin/support/tickets/:id/messages      { body, isInternal?, attachmentUploadIds? }
+       GET    /api/v1/admin/support/stats                     → counts: مفتوحة / غير مُسندة / متأخرة
+     الحالات:  open · answered (بانتظار الدعم) · pending (بانتظار العميل) · resolved · closed
+     الأولوية: low · normal · high · urgent
+     الفئة:   billing · technical · account · other
+     الأدوار: support / admin / super_admin
+     Middleware: AdminAuthMiddleware + RequireFull2FA
+-->
+<div x-data="support()">
+
+  <!-- ===== Page head ===== -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">صندوق الدعم الفني</h1>
+      <p class="adm-page-sub">تذاكر كل المنشآت — إسناد، رد، ومتابعة</p>
+    </div>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="refreshStats()">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 8a6 6 0 10-1.8 4.2M14 8V4M14 8h-3"/></svg>
+      تحديث
+    </button>
+  </div>
+
+  <!-- ===== KPIs ===== -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-5">
+
+    <!-- مفتوحة -->
+    <div class="adm-kpi cursor-pointer" @click="setStatusFilter('open')" :class="statusFilter==='open' && 'ring-2 ring-info/40'">
+      <div class="adm-kpi-label">
+        <span class="adm-kpi-ico" style="background:rgba(21,101,192,.1);color:#1565C0">
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3.5 4h13v9H7l-3.5 3.5z"/><path d="M7 7.5h6M7 10h4"/></svg>
+        </span>
+        مفتوحة
+      </div>
+      <div class="adm-kpi-val font-latin" x-text="fmtNum(stats.open)"></div>
+      <div class="adm-trend flat">تذاكر نشطة</div>
+    </div>
+
+    <!-- غير مُسنَدة -->
+    <div class="adm-kpi cursor-pointer" @click="setStatusFilter(''); setAssignedFilter('unassigned')" :class="assignedFilter==='unassigned' && 'ring-2 ring-warning/40'">
+      <div class="adm-kpi-label">
+        <span class="adm-kpi-ico" style="background:rgba(212,134,10,.12);color:#D4860A">
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="7" r="3"/><path d="M4 17c0-2.8 2.2-5 5-5"/><path d="M14 12v6M11 15h6"/></svg>
+        </span>
+        غير مُسنَدة
+      </div>
+      <div class="adm-kpi-val font-latin" x-text="fmtNum(stats.unassigned)"></div>
+      <div class="adm-trend down" x-show="stats.unassigned > 0">تحتاج إسناداً</div>
+      <div class="adm-trend up" x-show="stats.unassigned === 0">كل التذاكر مُسنَدة</div>
+    </div>
+
+    <!-- بانتظار ردّنا -->
+    <div class="adm-kpi cursor-pointer" @click="setStatusFilter('answered')" :class="statusFilter==='answered' && 'ring-2 ring-warning/40'">
+      <div class="adm-kpi-label">
+        <span class="adm-kpi-ico" style="background:rgba(212,134,10,.12);color:#B5730A">
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2"/></svg>
+        </span>
+        بانتظار ردّنا
+      </div>
+      <div class="adm-kpi-val font-latin" x-text="fmtNum(stats.awaitingAdmin)"></div>
+      <div class="adm-trend flat">ردّ العميل انتظرنا</div>
+    </div>
+
+    <!-- متأخرة -->
+    <div class="adm-kpi cursor-pointer" @click="setStatusFilter(''); setOverdueFilter()" :class="overdueOnly && 'ring-2 ring-danger/40'">
+      <div class="adm-kpi-label">
+        <span class="adm-kpi-ico" style="background:rgba(192,57,43,.1);color:#C0392B">
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3.5v7M10 14.5v1"/><circle cx="10" cy="10" r="8"/></svg>
+        </span>
+        متأخرة
+      </div>
+      <div class="adm-kpi-val font-latin" x-text="fmtNum(stats.overdue)"></div>
+      <div class="adm-trend down" x-show="stats.overdue > 0">تجاوزت 48 ساعة بلا رد</div>
+      <div class="adm-trend up" x-show="stats.overdue === 0">لا تأخير</div>
+    </div>
+
+  </div>
+
+  <!-- ===== Main card: filters + table ===== -->
+  <div class="adm-card mb-4">
+
+    <!-- Status pills -->
+    <div class="flex flex-wrap items-center gap-2 px-5 pt-4 pb-3 border-b border-neutral-100">
+      <template x-for="f in statusPills" :key="f.val">
+        <button class="adm-pill" :class="statusFilter===f.val && !overdueOnly && assignedFilter!=='unassigned' && 'on'"
+                @click="setStatusFilter(f.val)" x-text="f.label"></button>
+      </template>
+      <button class="adm-pill ms-auto" :class="overdueOnly && 'on'" @click="setOverdueFilter()">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" class="inline -mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4v4l2 1.5"/></svg>
+        متأخرة فقط
+      </button>
+    </div>
+
+    <!-- Search + advanced filters -->
+    <div class="flex flex-wrap items-center gap-2.5 px-5 py-3 border-b border-neutral-100">
+      <div class="relative flex-1 min-w-[200px]">
+        <input type="search" placeholder="بحث في الموضوع أو رقم التذكرة…" class="ec-input ps-9 text-sm"
+               x-model="searchQ" @input.debounce.300ms="page=1" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400 pointer-events-none" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <select class="ec-input text-sm" style="width:160px" x-model="priorityFilter" @change="page=1">
+        <option value="">كل الأولويات</option>
+        <option value="urgent">عاجلة</option>
+        <option value="high">عالية</option>
+        <option value="normal">عادية</option>
+        <option value="low">منخفضة</option>
+      </select>
+      <select class="ec-input text-sm" style="width:160px" x-model="tenantFilter" @change="page=1">
+        <option value="">كل المنشآت</option>
+        <template x-for="t in tenantOptions" :key="t.id">
+          <option :value="t.id" x-text="t.name"></option>
+        </template>
+      </select>
+      <select class="ec-input text-sm" style="width:160px" x-model="assignedFilter" @change="page=1">
+        <option value="">كل المُسنَدين</option>
+        <option value="unassigned">غير مُسنَدة</option>
+        <template x-for="a in adminOptions" :key="a.id">
+          <option :value="a.id" x-text="a.name"></option>
+        </template>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="adm-table">
+        <thead>
+          <tr>
+            <th>رقم التذكرة</th>
+            <th>المنشأة</th>
+            <th>الموضوع</th>
+            <th>الفئة</th>
+            <th>الأولوية</th>
+            <th>الحالة</th>
+            <th>المُسنَد إليه</th>
+            <th>آخر رد</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="tk in pagedTickets" :key="tk.id">
+            <tr class="cursor-pointer" @click="openDetail(tk)" :class="selectedTicket?.id===tk.id && 'bg-primary-50/60'">
+              <td>
+                <span class="font-latin text-xs font-bold text-primary-700" x-text="'#'+tk.ref"></span>
+              </td>
+              <td>
+                <span class="text-sm font-semibold" x-text="tk.tenantName"></span>
+              </td>
+              <td>
+                <span class="text-sm text-neutral-700 block max-w-[220px] truncate" x-text="tk.subject"></span>
+              </td>
+              <td>
+                <span class="adm-badge" :class="categoryClass(tk.category)" x-text="categoryLabel(tk.category)"></span>
+              </td>
+              <td>
+                <span class="adm-badge" :class="priorityClass(tk.priority)" x-text="priorityLabel(tk.priority)"></span>
+              </td>
+              <td>
+                <span class="adm-badge" :class="statusClass(tk.status)" x-text="statusLabel(tk.status)"></span>
+              </td>
+              <td>
+                <template x-if="tk.assignedAdmin">
+                  <div class="flex items-center gap-1.5">
+                    <span class="adm-avatar w-7 h-7 rounded-full bg-primary-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0"
+                          x-text="tk.assignedAdmin.slice(0,2)"></span>
+                    <span class="text-xs text-neutral-600" x-text="tk.assignedAdmin"></span>
+                  </div>
+                </template>
+                <template x-if="!tk.assignedAdmin">
+                  <span class="text-xs text-neutral-400 italic">غير مُسنَد</span>
+                </template>
+              </td>
+              <td class="text-xs text-neutral-500 whitespace-nowrap" x-text="timeAgo(tk.lastReplyAt)"></td>
+              <td @click.stop>
+                <button class="adm-icon-btn"
+                        @click.stop="openRowMenu($event, tk)"
+                        aria-label="إجراءات">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="8" cy="13" r="1"/></svg>
+                </button>
+              </td>
+            </tr>
+          </template>
+          <tr x-show="filteredTickets.length === 0">
+            <td colspan="9">
+              <div class="adm-empty">
+                <svg class="mx-auto mb-3 text-neutral-300" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                <div class="text-sm font-semibold">لا توجد تذاكر مطابقة</div>
+                <div class="text-xs mt-1">جرّب تغيير الفلاتر أو مصطلح البحث</div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="adm-pagination">
+      <span class="text-xs text-neutral-500">إجمالي <strong x-text="filteredTickets.length"></strong> تذكرة</span>
+      <div class="flex items-center gap-1">
+        <button class="adm-page-btn" :disabled="page<=1" @click="page--">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 4l-4 4 4 4"/></svg>
+        </button>
+        <template x-for="p in totalPages" :key="p">
+          <button class="adm-page-btn" :class="page===p && 'on'" @click="page=p" x-text="p"></button>
+        </template>
+        <button class="adm-page-btn" :disabled="page>=totalPages" @click="page++">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4l4 4-4 4"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Floating row-action menu ===== -->
+  <div class="adm-rowmenu" x-show="menu.open" x-cloak
+       :style="`top:${menu.y}px;inset-inline-end:${menu.x}px;`"
+       @click.outside="menu.open=false"
+       x-transition.origin.top.end>
+    <button @click="openDetail(menu.tk); menu.open=false">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5h.01"/></svg>
+      فتح التذكرة
+    </button>
+    <button @click="assignToSelf(menu.tk); menu.open=false">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6.5" cy="5.5" r="2.5"/><path d="M2 14c0-2.8 2-5 4.5-5M11 9v6M8.5 12h5"/></svg>
+      إسناد لي
+    </button>
+    <button @click="quickPatch(menu.tk, 'status', 'pending'); menu.open=false">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2 1.5"/></svg>
+      بانتظار العميل
+    </button>
+    <button @click="quickPatch(menu.tk, 'status', 'resolved'); menu.open=false" class="mi-ok">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>
+      تحديد كمحلول
+    </button>
+    <div class="mi-sep"></div>
+    <button @click="quickPatch(menu.tk, 'status', 'closed'); menu.open=false" class="mi-danger">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      إغلاق التذكرة
+    </button>
+  </div>
+
+  <!-- ===== Modal: تفاصيل التذكرة ===== -->
+  <div class="adm-overlay" x-show="detailOpen" x-cloak x-transition.opacity @click.self="detailOpen=false">
+    <div class="bg-white rounded-xl shadow-[0_24px_60px_rgba(6,15,30,.35)] w-full flex flex-col"
+         style="max-width:780px;max-height:90vh;"
+         x-show="detailOpen" x-transition>
+
+      <!-- Modal head -->
+      <div class="flex items-start justify-between gap-3 p-4 border-b border-neutral-100 flex-shrink-0">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-latin text-xs font-bold text-primary-500 bg-primary-50 px-2 py-0.5 rounded" x-text="selectedTicket ? '#'+selectedTicket.ref : ''"></span>
+            <span class="adm-badge" :class="statusClass(selectedTicket?.status)" x-text="statusLabel(selectedTicket?.status)"></span>
+            <span class="adm-badge" :class="priorityClass(selectedTicket?.priority)" x-text="priorityLabel(selectedTicket?.priority)"></span>
+            <span class="adm-badge" :class="categoryClass(selectedTicket?.category)" x-text="categoryLabel(selectedTicket?.category)"></span>
+          </div>
+          <h2 class="font-bold text-primary-800 text-base mt-1 leading-snug" x-text="selectedTicket?.subject"></h2>
+        </div>
+        <button class="adm-icon-btn flex-shrink-0" @click="detailOpen=false">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+
+      <div class="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
+
+        <!-- ── Thread (main column) ── -->
+        <div class="flex-1 min-h-0 flex flex-col">
+
+          <!-- Ticket info bar -->
+          <div class="bg-neutral-50 px-4 py-3 border-b border-neutral-100 flex-shrink-0">
+            <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 text-xs">
+              <div>
+                <dt class="text-neutral-400 font-semibold mb-0.5">المنشأة</dt>
+                <dd class="font-semibold text-primary-800" x-text="selectedTicket?.tenantName"></dd>
+              </div>
+              <div>
+                <dt class="text-neutral-400 font-semibold mb-0.5">المفتوح بواسطة</dt>
+                <dd class="text-neutral-700" x-text="selectedTicket?.openedBy"></dd>
+              </div>
+              <div>
+                <dt class="text-neutral-400 font-semibold mb-0.5">تاريخ الفتح</dt>
+                <dd class="font-latin text-neutral-600" x-text="selectedTicket ? fmtDateTime(selectedTicket.createdAt) : ''"></dd>
+              </div>
+              <div>
+                <dt class="text-neutral-400 font-semibold mb-0.5">المُسنَد إليه</dt>
+                <dd>
+                  <span x-text="selectedTicket?.assignedAdmin || 'غير مُسنَد'"
+                        :class="selectedTicket?.assignedAdmin ? 'text-neutral-700 font-semibold' : 'text-neutral-400 italic'"></span>
+                </dd>
+              </div>
+              <div>
+                <dt class="text-neutral-400 font-semibold mb-0.5">آخر رد</dt>
+                <dd class="text-neutral-600" x-text="selectedTicket ? timeAgo(selectedTicket.lastReplyAt) : ''"></dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Message thread -->
+          <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3" id="threadScroll">
+            <template x-for="msg in selectedMessages" :key="msg.id">
+              <div>
+                <!-- Internal note -->
+                <template x-if="msg.isInternal">
+                  <div class="relative border border-dashed border-accent-300 bg-accent-50/60 rounded-xl p-3">
+                    <div class="flex items-center gap-1.5 mb-1.5">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" class="text-accent-600"><path d="M2 2h12v10l-3-2.5H2z"/><path d="M5 6h6M5 8.5h4"/></svg>
+                      <span class="text-[.7rem] font-bold text-accent-700">ملاحظة داخلية</span>
+                      <span class="text-[.68rem] text-neutral-400 ms-auto" x-text="timeAgo(msg.createdAt)"></span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <span class="w-7 h-7 rounded-full bg-accent-200 text-accent-800 text-xs font-bold flex items-center justify-center flex-shrink-0"
+                            x-text="msg.authorName.slice(0,2)"></span>
+                      <div class="flex-1 min-w-0">
+                        <span class="text-xs font-semibold text-accent-700 block mb-0.5" x-text="msg.authorName"></span>
+                        <p class="text-sm text-neutral-700 leading-relaxed" x-text="msg.body"></p>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Admin message -->
+                <template x-if="!msg.isInternal && msg.authorType==='admin'">
+                  <div class="flex items-start gap-2.5 flex-row-reverse">
+                    <span class="w-8 h-8 rounded-full bg-primary-800 text-accent-300 text-xs font-bold flex items-center justify-center flex-shrink-0"
+                          x-text="msg.authorName.slice(0,2)"></span>
+                    <div class="max-w-[78%]">
+                      <div class="flex items-center gap-1.5 justify-end mb-1">
+                        <span class="text-xs text-neutral-400" x-text="timeAgo(msg.createdAt)"></span>
+                        <span class="text-xs font-semibold text-primary-700" x-text="msg.authorName"></span>
+                        <span class="adm-role">دعم</span>
+                      </div>
+                      <div class="bg-primary-800 text-white rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm leading-relaxed" x-text="msg.body"></div>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Tenant/client message -->
+                <template x-if="!msg.isInternal && msg.authorType==='tenant'">
+                  <div class="flex items-start gap-2.5">
+                    <span class="w-8 h-8 rounded-full bg-neutral-200 text-neutral-600 text-xs font-bold flex items-center justify-center flex-shrink-0"
+                          x-text="msg.authorName.slice(0,2)"></span>
+                    <div class="max-w-[78%]">
+                      <div class="flex items-center gap-1.5 mb-1">
+                        <span class="text-xs font-semibold text-neutral-700" x-text="msg.authorName"></span>
+                        <span class="adm-badge b-neutral" style="font-size:.65rem;padding:.1rem .4rem;">عميل</span>
+                        <span class="text-xs text-neutral-400" x-text="timeAgo(msg.createdAt)"></span>
+                      </div>
+                      <div class="bg-neutral-100 rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm leading-relaxed text-neutral-800" x-text="msg.body"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <!-- Reply box -->
+          <div class="border-t border-neutral-100 p-4 flex-shrink-0">
+            <!-- Internal toggle -->
+            <div class="flex items-center gap-2 mb-2">
+              <button class="adm-switch" :class="replyForm.isInternal && 'on'" @click="replyForm.isInternal=!replyForm.isInternal" role="switch" :aria-checked="replyForm.isInternal"></button>
+              <span class="text-xs font-semibold" :class="replyForm.isInternal ? 'text-accent-700' : 'text-neutral-500'">
+                <template x-if="replyForm.isInternal">
+                  <span>ملاحظة داخلية — لن يراها العميل</span>
+                </template>
+                <template x-if="!replyForm.isInternal">
+                  <span>رد عام — يصل للعميل</span>
+                </template>
+              </span>
+            </div>
+            <textarea class="ec-input resize-none text-sm mb-2"
+                      rows="3"
+                      :placeholder="replyForm.isInternal ? 'ملاحظة داخلية لفريق الدعم…' : 'اكتب ردّك للعميل…'"
+                      :class="replyForm.isInternal && 'border-accent-300 bg-accent-50/40 focus:border-accent-500'"
+                      x-model="replyForm.body"></textarea>
+            <div class="flex items-center gap-2">
+              <button class="adm-btn adm-btn-sm"
+                      :class="replyForm.isInternal ? 'adm-btn-ghost border-accent-300 text-accent-700' : 'adm-btn-primary'"
+                      :disabled="!replyForm.body.trim()"
+                      @click="submitReply()">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" width="14" height="14"><path d="M2 8l11-5-5 11v-5.5L2 8z"/></svg>
+                <span x-text="replyForm.isInternal ? 'حفظ الملاحظة' : 'إرسال الرد'"></span>
+              </button>
+              <span class="text-xs text-neutral-400 me-auto" x-show="replyForm.isInternal">
+                <svg class="inline -mt-0.5" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM8 5v3.5l2 1.5"/></svg>
+                مرئية للفريق الداخلي فقط
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Side panel: actions ── -->
+        <div class="lg:w-60 flex-shrink-0 border-t lg:border-t-0 lg:border-s border-neutral-100 flex flex-col gap-0 overflow-y-auto">
+
+          <!-- Assign -->
+          <div class="p-4 border-b border-neutral-100">
+            <div class="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2">الإسناد</div>
+            <select class="ec-input text-sm mb-2" x-model="detailAssignee" @change="submitAssign()">
+              <option value="">غير مُسنَد</option>
+              <template x-for="a in adminOptions" :key="a.id">
+                <option :value="a.id" x-text="a.name"></option>
+              </template>
+            </select>
+            <button class="adm-btn adm-btn-ghost adm-btn-sm w-full" @click="assignToSelf(selectedTicket)">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13"><circle cx="6" cy="5" r="2.5"/><path d="M2 13c0-2.5 1.8-4.5 4-4.5M11 9v6M8.5 12h5"/></svg>
+              إسناد لي
+            </button>
+          </div>
+
+          <!-- Status -->
+          <div class="p-4 border-b border-neutral-100">
+            <div class="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2">الحالة</div>
+            <div class="flex flex-col gap-1.5">
+              <template x-for="s in statusOptions" :key="s.val">
+                <button class="text-start text-xs px-2.5 py-1.5 rounded-lg border transition-all"
+                        :class="selectedTicket?.status===s.val
+                          ? 'border-primary-300 bg-primary-50 text-primary-800 font-bold'
+                          : 'border-neutral-200 text-neutral-600 hover:border-neutral-300 hover:bg-neutral-50'"
+                        @click="quickPatch(selectedTicket, 'status', s.val)">
+                  <span class="adm-badge me-1" :class="statusClass(s.val)"></span>
+                  <span x-text="s.label"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <!-- Priority -->
+          <div class="p-4 border-b border-neutral-100">
+            <div class="text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2">الأولوية</div>
+            <select class="ec-input text-sm" x-model="detailPriority" @change="quickPatch(selectedTicket, 'priority', detailPriority)">
+              <option value="low">منخفضة</option>
+              <option value="normal">عادية</option>
+              <option value="high">عالية</option>
+              <option value="urgent">عاجلة</option>
+            </select>
+          </div>
+
+          <!-- Close -->
+          <div class="p-4">
+            <button class="adm-btn adm-btn-danger adm-btn-sm w-full"
+                    x-show="selectedTicket?.status !== 'closed'"
+                    @click="quickPatch(selectedTicket,'status','closed')">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+              إغلاق التذكرة
+            </button>
+            <div x-show="selectedTicket?.status === 'closed'" class="text-center text-xs text-neutral-400 italic py-1">التذكرة مغلقة</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function support() {
+  /* ── Helpers (provided globally by shell-foot) ── */
+  const D = (hoursAgo) => new Date(Date.now() - hoursAgo * 3600e3).toISOString();
+
+  /* ── Demo data ── */
+  const TICKETS = [
+    { id:'tk-001', ref:'2026001', tenantName:'دار العقارية', openedBy:'محمد السالم', subject:'مشكلة في تسجيل الدخول بعد تحديث كلمة المرور', category:'technical', priority:'urgent', status:'open', assignedAdmin:null, assignedAdminId:null, lastReplyAt:D(50), lastReplyBy:'tenant', createdAt:D(52) },
+    { id:'tk-002', ref:'2026002', tenantName:'مفاتيح الخليج', openedBy:'نورة الفيصل', subject:'استفسار عن تجديد الاشتراك ومدة التجربة', category:'billing', priority:'normal', status:'answered', assignedAdmin:'أحمد الرشيد', assignedAdminId:'adm-01', lastReplyAt:D(3), lastReplyBy:'tenant', createdAt:D(48) },
+    { id:'tk-003', ref:'2026003', tenantName:'النخبة للتسويق', openedBy:'خالد العمري', subject:'الإحصاءات لا تظهر في لوحة التحكم', category:'technical', priority:'high', status:'pending', assignedAdmin:'سارة المنصور', assignedAdminId:'adm-02', lastReplyAt:D(6), lastReplyBy:'admin', createdAt:D(30) },
+    { id:'tk-004', ref:'2026004', tenantName:'عقارات المستقبل', openedBy:'فاطمة الدوسري', subject:'طلب تغيير البريد الإلكتروني للحساب الرئيسي', category:'account', priority:'normal', status:'resolved', assignedAdmin:'أحمد الرشيد', assignedAdminId:'adm-01', lastReplyAt:D(72), lastReplyBy:'admin', createdAt:D(96) },
+    { id:'tk-005', ref:'2026005', tenantName:'بيت الاستثمار', openedBy:'سلطان القحطاني', subject:'خطأ في احتساب عمولة الصفقة رقم D-2026-088', category:'billing', priority:'urgent', status:'open', assignedAdmin:null, assignedAdminId:null, lastReplyAt:D(55), lastReplyBy:'tenant', createdAt:D(56) },
+    { id:'tk-006', ref:'2026006', tenantName:'أحمد الراشد', openedBy:'أحمد الراشد', subject:'استفسار: كيفية إضافة أعضاء للفريق', category:'other', priority:'low', status:'closed', assignedAdmin:'سارة المنصور', assignedAdminId:'adm-02', lastReplyAt:D(120), lastReplyBy:'admin', createdAt:D(144) },
+    { id:'tk-007', ref:'2026007', tenantName:'سكن للتطوير', openedBy:'ريم الزهراني', subject:'تصدير ملف العملاء يتوقف عند 500 سجل', category:'technical', priority:'high', status:'answered', assignedAdmin:null, assignedAdminId:null, lastReplyAt:D(28), lastReplyBy:'tenant', createdAt:D(35) },
+    { id:'tk-008', ref:'2026008', tenantName:'البوابة العقارية', openedBy:'محمود العسيري', subject:'فاتورة مزدوجة في شهر مايو', category:'billing', priority:'high', status:'open', assignedAdmin:'أحمد الرشيد', assignedAdminId:'adm-01', lastReplyAt:D(20), lastReplyBy:'tenant', createdAt:D(22) },
+    { id:'tk-009', ref:'2026009', tenantName:'دار العقارية', openedBy:'لمى الحارثي', subject:'طلب رفع حد المستخدمين لـ 50 وكيل', category:'account', priority:'normal', status:'pending', assignedAdmin:'سارة المنصور', assignedAdminId:'adm-02', lastReplyAt:D(8), lastReplyBy:'admin', createdAt:D(20) },
+    { id:'tk-010', ref:'2026010', tenantName:'الوطنية للعقار', openedBy:'عبدالله الشمري', subject:'تعذّر الاتصال بخدمة WhatsApp بعد تجديد التوكن', category:'technical', priority:'urgent', status:'open', assignedAdmin:null, assignedAdminId:null, lastReplyAt:D(62), lastReplyBy:'tenant', createdAt:D(63) },
+  ];
+
+  /* Demo messages for tk-002 (مفاتيح الخليج — answered) */
+  const MESSAGES = {
+    'tk-002': [
+      { id:'m-001', authorType:'tenant', authorName:'نورة الفيصل', isInternal:false, body:'مرحباً، اشتراكنا سينتهي بعد أسبوعين. هل يمكن تمديده بنفس السعر؟ وكيف نجدد بصورة آلية؟', createdAt:D(48) },
+      { id:'m-002', authorType:'admin',  authorName:'أحمد الرشيد', isInternal:false, body:'مرحباً نورة، شكراً على تواصلك. نعم يمكن التجديد التلقائي من صفحة الفوترة — تأكدي أن بطاقة الدفع محدّثة. سأرسل لك رابط الإعداد مباشرة.', createdAt:D(46) },
+      { id:'m-003', authorType:'admin',  authorName:'أحمد الرشيد', isInternal:true, body:'تحقّقت من الحساب — الاشتراك نوع Professional ومؤهّل لخصم 10٪ عند التجديد المبكر. أُبلغ الإدارة للموافقة قبل إخبار العميلة.', createdAt:D(45) },
+      { id:'m-004', authorType:'tenant', authorName:'نورة الفيصل', isInternal:false, body:'شكراً جزيلاً أحمد! وصلني الرابط وأكملت الإعداد. هل سيُطبَّق الخصم تلقائياً عند التجديد؟', createdAt:D(3) },
+    ],
+    'tk-001': [
+      { id:'m-010', authorType:'tenant', authorName:'محمد السالم', isInternal:false, body:'تعذّر تسجيل دخولي منذ الأمس بعد تغيير كلمة المرور. تظهر رسالة "رمز التحقق غير صحيح" رغم كونه صحيحاً.', createdAt:D(52) },
+    ],
+    'tk-005': [
+      { id:'m-020', authorType:'tenant', authorName:'سلطان القحطاني', isInternal:false, body:'صفقة D-2026-088 احتُسبت عمولتها مرتين في كشف الحساب. المبلغ الزائد 3,200 ريال. أرجو المراجعة العاجلة.', createdAt:D(56) },
+    ],
+  };
+
+  return {
+    /* ── state ── */
+    statusFilter: '',
+    priorityFilter: '',
+    tenantFilter: '',
+    assignedFilter: '',
+    overdueOnly: false,
+    searchQ: '',
+    page: 1,
+    pageSize: 8,
+
+    /* detail modal */
+    detailOpen: false,
+    selectedTicket: null,
+    replyForm: { body:'', isInternal:false },
+    detailAssignee: '',
+    detailPriority: 'normal',
+
+    /* floating menu */
+    menu: { open:false, x:0, y:0, tk:null },
+
+    /* stats */
+    stats: { open:0, unassigned:0, awaitingAdmin:0, overdue:0 },
+
+    /* data */
+    tickets: TICKETS,
+    messages: MESSAGES,
+
+    tenantOptions: [
+      { id:'t-001', name:'دار العقارية' },
+      { id:'t-002', name:'مفاتيح الخليج' },
+      { id:'t-003', name:'النخبة للتسويق' },
+      { id:'t-004', name:'عقارات المستقبل' },
+      { id:'t-005', name:'بيت الاستثمار' },
+      { id:'t-006', name:'أحمد الراشد' },
+      { id:'t-007', name:'سكن للتطوير' },
+      { id:'t-008', name:'البوابة العقارية' },
+      { id:'t-009', name:'الوطنية للعقار' },
+    ],
+    adminOptions: [
+      { id:'adm-01', name:'أحمد الرشيد' },
+      { id:'adm-02', name:'سارة المنصور' },
+      { id:'adm-03', name:'يوسف الغامدي' },
+    ],
+    statusOptions: [
+      { val:'open',     label:'مفتوحة' },
+      { val:'answered', label:'بانتظار الدعم' },
+      { val:'pending',  label:'بانتظار العميل' },
+      { val:'resolved', label:'محلولة' },
+      { val:'closed',   label:'مغلقة' },
+    ],
+    statusPills: [
+      { val:'', label:'الكل' },
+      { val:'open', label:'مفتوحة' },
+      { val:'answered', label:'بانتظار الدعم' },
+      { val:'pending', label:'بانتظار العميل' },
+      { val:'resolved', label:'محلولة' },
+      { val:'closed', label:'مغلقة' },
+    ],
+
+    /* ── helpers ── */
+    fmtNum,
+    fmtDateTime,
+    timeAgo,
+
+    /* ── label / class helpers ── */
+    statusLabel(s) {
+      return { open:'مفتوحة', answered:'بانتظار الدعم', pending:'بانتظار العميل', resolved:'محلولة', closed:'مغلقة' }[s] || s || '—';
+    },
+    statusClass(s) {
+      return { open:'b-info', answered:'b-warning', pending:'b-neutral', resolved:'b-success', closed:'b-neutral' }[s] || 'b-neutral';
+    },
+    priorityLabel(p) {
+      return { low:'منخفضة', normal:'عادية', high:'عالية', urgent:'عاجلة' }[p] || p || '—';
+    },
+    priorityClass(p) {
+      return { low:'b-neutral', normal:'b-neutral', high:'b-warning', urgent:'b-danger' }[p] || 'b-neutral';
+    },
+    categoryLabel(c) {
+      return { billing:'الفوترة', technical:'تقني', account:'الحساب', other:'أخرى' }[c] || c || '—';
+    },
+    categoryClass(c) {
+      return { billing:'b-accent', technical:'b-info', account:'b-warning', other:'b-neutral' }[c] || 'b-neutral';
+    },
+
+    /* ── computed ── */
+    get filteredTickets() {
+      const now = Date.now();
+      const overdueThresh = 48 * 3600e3; // 48h
+      let list = this.tickets;
+
+      if (this.statusFilter)     list = list.filter(t => t.status === this.statusFilter);
+      if (this.priorityFilter)   list = list.filter(t => t.priority === this.priorityFilter);
+      if (this.tenantFilter)     list = list.filter(t => t.tenantName === (this.tenantOptions.find(o => o.id===this.tenantFilter)?.name));
+      if (this.assignedFilter === 'unassigned') list = list.filter(t => !t.assignedAdminId);
+      else if (this.assignedFilter) list = list.filter(t => t.assignedAdminId === this.assignedFilter);
+      if (this.overdueOnly)      list = list.filter(t => !['resolved','closed'].includes(t.status) && (now - new Date(t.lastReplyAt).getTime()) > overdueThresh);
+      if (this.searchQ.trim()) {
+        const q = this.searchQ.trim().toLowerCase();
+        list = list.filter(t => t.subject.toLowerCase().includes(q) || t.ref.includes(q) || t.tenantName.includes(q));
+      }
+      return list;
+    },
+    get pagedTickets() {
+      const s = (this.page - 1) * this.pageSize;
+      return this.filteredTickets.slice(s, s + this.pageSize);
+    },
+    get totalPages() {
+      return Math.max(1, Math.ceil(this.filteredTickets.length / this.pageSize));
+    },
+    get selectedMessages() {
+      if (!this.selectedTicket) return [];
+      return this.messages[this.selectedTicket.id] || [];
+    },
+
+    /* ── actions ── */
+    init() {
+      this.refreshStats();
+    },
+    refreshStats() {
+      /* GET /api/v1/admin/support/stats */
+      const now = Date.now();
+      const overdueThresh = 48 * 3600e3;
+      this.stats = {
+        open:          this.tickets.filter(t => t.status === 'open').length,
+        unassigned:    this.tickets.filter(t => !t.assignedAdminId && !['resolved','closed'].includes(t.status)).length,
+        awaitingAdmin: this.tickets.filter(t => t.status === 'answered').length,
+        overdue:       this.tickets.filter(t => !['resolved','closed'].includes(t.status) && (now - new Date(t.lastReplyAt).getTime()) > overdueThresh).length,
+      };
+    },
+    setStatusFilter(val) {
+      this.statusFilter = val;
+      this.overdueOnly = false;
+      this.assignedFilter = '';
+      this.page = 1;
+    },
+    setAssignedFilter(val) {
+      this.assignedFilter = val;
+      this.overdueOnly = false;
+      this.page = 1;
+    },
+    setOverdueFilter() {
+      this.overdueOnly = !this.overdueOnly;
+      if (this.overdueOnly) { this.statusFilter = ''; this.assignedFilter = ''; }
+      this.page = 1;
+    },
+    openRowMenu(evt, tk) {
+      const rect = evt.currentTarget.getBoundingClientRect();
+      this.menu = { open:true, x: window.innerWidth - rect.right + rect.width, y: rect.bottom + 6, tk };
+    },
+    openDetail(tk) {
+      this.selectedTicket = tk;
+      this.replyForm = { body:'', isInternal:false };
+      this.detailAssignee = tk.assignedAdminId || '';
+      this.detailPriority = tk.priority;
+      this.detailOpen = true;
+      this.$nextTick(() => {
+        const el = document.getElementById('threadScroll');
+        if (el) el.scrollTop = el.scrollHeight;
+      });
+    },
+    submitReply() {
+      if (!this.replyForm.body.trim() || !this.selectedTicket) return;
+      /* POST /api/v1/admin/support/tickets/:id/messages */
+      const msg = {
+        id: 'm-' + Date.now(),
+        authorType: 'admin',
+        authorName: 'صبري داوود',
+        isInternal: this.replyForm.isInternal,
+        body: this.replyForm.body.trim(),
+        createdAt: new Date().toISOString(),
+      };
+      if (!this.messages[this.selectedTicket.id]) {
+        this.messages[this.selectedTicket.id] = [];
+      }
+      this.messages[this.selectedTicket.id].push(msg);
+      /* Update ticket state */
+      const tk = this.tickets.find(t => t.id === this.selectedTicket.id);
+      if (tk && !this.replyForm.isInternal) {
+        tk.status = 'pending';
+        tk.lastReplyAt = msg.createdAt;
+        tk.lastReplyBy = 'admin';
+        this.selectedTicket.status = 'pending';
+        this.selectedTicket.lastReplyAt = msg.createdAt;
+      }
+      this.replyForm = { body:'', isInternal:false };
+      this.$nextTick(() => {
+        const el = document.getElementById('threadScroll');
+        if (el) el.scrollTop = el.scrollHeight;
+      });
+      this.refreshStats();
+    },
+    submitAssign() {
+      if (!this.selectedTicket) return;
+      /* POST /api/v1/admin/support/tickets/:id/assign { adminId: detailAssignee } */
+      const tk = this.tickets.find(t => t.id === this.selectedTicket.id);
+      const admin = this.adminOptions.find(a => a.id === this.detailAssignee);
+      if (tk) {
+        tk.assignedAdminId = this.detailAssignee || null;
+        tk.assignedAdmin   = admin?.name || null;
+        this.selectedTicket.assignedAdminId = tk.assignedAdminId;
+        this.selectedTicket.assignedAdmin   = tk.assignedAdmin;
+      }
+      this.refreshStats();
+    },
+    assignToSelf(tk) {
+      if (!tk) return;
+      /* POST /api/v1/admin/support/tickets/:id/assign { adminId: "self" } */
+      const target = this.tickets.find(t => t.id === tk.id);
+      if (target) {
+        target.assignedAdminId = 'adm-00';
+        target.assignedAdmin   = 'صبري داوود';
+        if (this.selectedTicket?.id === tk.id) {
+          this.selectedTicket.assignedAdminId = 'adm-00';
+          this.selectedTicket.assignedAdmin   = 'صبري داوود';
+          this.detailAssignee = 'adm-00';
+        }
+      }
+      this.refreshStats();
+    },
+    quickPatch(tk, field, value) {
+      if (!tk) return;
+      /* PATCH /api/v1/admin/support/tickets/:id { [field]: value } */
+      const target = this.tickets.find(t => t.id === tk.id);
+      if (target) {
+        target[field] = value;
+        if (this.selectedTicket?.id === tk.id) {
+          this.selectedTicket[field] = value;
+          if (field === 'priority') this.detailPriority = value;
+        }
+      }
+      this.refreshStats();
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared platform shell component (sidebar + topbar) =====
+  // Operational alerts are DERIVED from real endpoints (no admin-notifications backend exists):
+  //   pending manual invoices (/admin/billing/invoices/pending) · queue failures (/admin/platform/queues)
+  //   · expiring trials (/admin/tenants?status=trial) · recently suspended (/admin/tenants?status=suspended)
+  function shell() {
+    const ICO = {
+      invoice:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v12l-2-1-2 1-2-1-2 1z"/><path d="M6 6h4M6 9h4"/></svg>',
+      queue:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l6 3.5v6L8 14.5 2 11V5z"/><path d="M8 5v3.5M8 11v.3" stroke-linecap="round"/></svg>',
+      trial:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
+      suspend:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 5.5l5 5"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false,
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.invoice, title:'٣ فواتير بانتظار التحقق اليدوي', desc:'تحتاج اعتماد أو رفض', href:'invoices.html' },
+        { id:2, tone:'danger',  icon:ICO.queue,   title:'وظيفتان فشلتا في طابور البريد', desc:'راجع صحة الطوابير', href:'dashboard.html' },
+        { id:3, tone:'info',    icon:ICO.trial,   title:'٥ تجارب تنتهي خلال ٣ أيام', desc:'منشآت قد تحتاج متابعة', href:'tenants.html' },
+        { id:4, tone:'danger',  icon:ICO.suspend, title:'منشأة موقوفة حديثاً', desc:'عقارات المستقبل — عدم سداد', href:'tenant-detail.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'support';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.adm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'USD',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable JSON tree viewer → HTML string (collapsible via native <details>, syntax-highlighted) =====
+  function jsonTreeHtml(value){
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const prim = v => {
+      if (v === null) return '<span class="jv-null">null</span>';
+      const t = typeof v;
+      if (t === 'number')  return '<span class="jv-num">'+v+'</span>';
+      if (t === 'boolean') return '<span class="jv-bool">'+v+'</span>';
+      return '<span class="jv-str">"'+esc(v)+'"</span>';
+    };
+    const keyHtml = (k, parent) => {
+      if (parent === 'root')  return '';
+      if (parent === 'array') return '<span class="jv-idx">'+k+'</span><span class="jv-punc">: </span>';
+      return '<span class="jv-key">"'+esc(k)+'"</span><span class="jv-punc">: </span>';
+    };
+    const node = (k, v, parent) => {
+      const kh = keyHtml(k, parent);
+      if (v !== null && typeof v === 'object') {
+        const isA = Array.isArray(v);
+        const keys = isA ? v.map((_,i)=>i) : Object.keys(v);
+        const open = isA ? '[' : '{', close = isA ? ']' : '}';
+        if (keys.length === 0) return '<div class="jv-row">'+kh+'<span class="jv-punc">'+open+close+'</span></div>';
+        const unit = isA ? 'عنصر' : 'حقل';
+        const children = keys.map(kk => node(kk, v[kk], isA?'array':'object')).join('');
+        return '<details class="jv-node" open><summary class="jv-row">'+kh+'<span class="jv-punc">'+open+'</span>'
+             + '<span class="jv-count">'+keys.length+' '+unit+'</span><span class="jv-ellipsis"> … '+close+'</span></summary>'
+             + '<div class="jv-children">'+children+'</div>'
+             + '<div class="jv-row jv-close"><span class="jv-punc">'+close+'</span></div></details>';
+      }
+      return '<div class="jv-row">'+kh+prim(v)+'</div>';
+    };
+    return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+  // ===== Reusable floating row-action menu mixin (spread into a component: {...floatMenu(), ...}) =====
+  // Renders the menu as position:fixed anchored to the trigger button → escapes any overflow:auto/hidden
+  // table or card clipping. Usage: trigger @click="fmOpen(id,$event)" · menu class="adm-rowmenu" :style="fmStyle" x-show="fmId===id" @click.outside="fmClose()" @scroll.window="fmClose()".
+  function floatMenu(){
+    return {
+      fmId: null, fmTop: 0, fmRight: 0,
+      fmOpen(id, e){
+        if (this.fmId === id) { this.fmId = null; return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.fmTop = Math.round(r.bottom + 4);
+        this.fmRight = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.fmId = id;
+      },
+      fmClose(){ this.fmId = null; },
+      // method (NOT a getter): object spread {...floatMenu()} would invoke a getter once and
+      // freeze its value → menu stuck at 0,0. A method re-evaluates on every render.
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>

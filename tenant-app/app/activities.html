@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · الأنشطة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- S-040/042/043 · الأنشطة · Endpoints (grounded: Server/Src/Modules/Activities/Activities.Routes.ts + Activity.Model.ts):
+     GET    /api/v1/activities?from=&to=&status=&type=&assignedTo=&leadId=&dealId=&contactId=&propertyId=&page=&limit=
+     POST   /api/v1/activities                        → CreateActivitySchema (type,title,scheduledAt,leadId,dealId,contactId,propertyId,assignedTo,assignedToIds,description,viewingFeedback,isRecurring,recurrenceRule)
+     PUT    /api/v1/activities/:id                    → UpdateActivitySchema (partial, status≠done)
+     PUT    /api/v1/activities/:id/complete           → CompleteActivitySchema { outcome? }
+     DELETE /api/v1/activities/:id
+     GET    /api/v1/activities/today                  → today's activities
+     GET    /api/v1/activities/overdue                → past scheduledAt + status=pending
+     POST   /api/v1/activities/bulk/complete          → { ids[], outcome? }
+     POST   /api/v1/activities/bulk/reschedule        → { ids[], scheduledAt }
+     POST   /api/v1/activities/bulk/reassign          → { ids[], assignedTo, assignedToIds? }  (manager-only)
+     POST   /api/v1/activities/bulk/delete            → { ids[] }
+     GET    /api/v1/activities/types                  → activity_types per-tenant
+     Statuses (schema): pending | done | cancelled | postponed  (overdue = derived: pending + scheduledAt < now)
+     Types (seeded defaults): call | meeting | viewing | email | whatsapp | task
+-->
+<div x-data="activities()">
+
+  <!-- ===== Page head ===== -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">الأنشطة</h1>
+      <p class="adm-page-sub">جدولة المواعيد · متابعة العملاء · تسجيل النتائج</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- Calendar / List view toggle -->
+      <div class="flex bg-neutral-100 rounded-lg p-0.5">
+        <button class="px-3 py-1.5 rounded-md text-sm font-semibold transition flex items-center gap-1.5"
+          :class="view==='calendar'?'bg-white text-primary-800 shadow-sm':'text-neutral-500'"
+          @click="view='calendar'">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>
+          تقويم
+        </button>
+        <button class="px-3 py-1.5 rounded-md text-sm font-semibold transition flex items-center gap-1.5"
+          :class="view==='list'?'bg-white text-primary-800 shadow-sm':'text-neutral-500'"
+          @click="view='list'">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5h10M3 8h10M3 11.5h10"/></svg>
+          قائمة
+        </button>
+      </div>
+      <!-- Quick Add -->
+      <button class="adm-btn adm-btn-gold" @click="openAdd()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
+        نشاط جديد
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== Overdue alert banner ===== -->
+  <template x-if="overdueList.length">
+    <div class="adm-card mb-4 p-3 flex items-center gap-3 flex-wrap" style="border-color:#C0392B;border-width:1.5px">
+      <div class="flex items-center gap-2 text-danger font-bold text-sm">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="9" r="7.5"/><path d="M9 5.5v4M9 12.5h.01"/></svg>
+        متأخرة — <span x-text="overdueList.length"></span> نشاط
+      </div>
+      <div class="flex flex-wrap gap-2 flex-1">
+        <template x-for="a in overdueList.slice(0,3)" :key="a.id">
+          <div class="flex items-center gap-1.5 bg-red-50 border border-red-100 rounded-lg px-2.5 py-1">
+            <span class="text-[.72rem] font-semibold text-danger" x-text="typeLabel(a.type)"></span>
+            <span class="text-xs text-neutral-600 truncate max-w-[140px]" x-text="a.title"></span>
+            <span class="text-[.66rem] text-neutral-400 font-latin" dir="ltr" x-text="fmtDate(a.scheduledAt)"></span>
+          </div>
+        </template>
+        <span x-show="overdueList.length>3" class="text-xs text-neutral-500 self-center">+ <span x-text="overdueList.length-3"></span> أخرى</span>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== Filters ===== -->
+  <div class="adm-card mb-4">
+    <div class="p-4 flex flex-wrap gap-3 items-center">
+      <!-- Type pills -->
+      <div class="flex flex-wrap gap-1.5">
+        <template x-for="tp in activityTypes" :key="tp.slug">
+          <button class="adm-pill adm-btn-sm flex items-center gap-1.5"
+            :class="fType===tp.slug && 'on'"
+            @click="fType = fType===tp.slug ? '' : tp.slug">
+            <span x-html="typeIcon(tp.slug)" class="inline-flex"></span>
+            <span x-text="tp.label"></span>
+          </button>
+        </template>
+      </div>
+      <!-- Status -->
+      <select x-model="fStatus" class="ec-input w-auto">
+        <option value="">كل الحالات</option>
+        <option value="pending">مجدول</option>
+        <option value="done">مكتمل</option>
+        <option value="cancelled">ملغي</option>
+        <option value="postponed">مؤجَّل</option>
+        <option value="overdue">متأخر</option>
+      </select>
+      <!-- Agent filter (manager sees all) -->
+      <select x-model="fAgent" class="ec-input w-auto" x-show="isManager">
+        <option value="">كل الوكلاء</option>
+        <template x-for="u in agents" :key="u.id">
+          <option :value="u.id" x-text="u.name"></option>
+        </template>
+      </select>
+    </div>
+  </div>
+
+  <!-- ===== Bulk bar ===== -->
+  <div x-show="selected.length" x-transition class="adm-card mb-4 p-3 flex items-center gap-3 flex-wrap" style="border-color:#C8A24B">
+    <span class="text-sm font-semibold text-primary-800"><span x-text="selected.length"></span> محدَّد</span>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="bulkComplete()">تحديد مكتمل</button>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="bulkReschedule=true">إعادة جدولة</button>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm" x-show="isManager" @click="bulkReassignOpen=true">إسناد جماعي</button>
+    <button class="adm-btn adm-btn-danger adm-btn-sm" @click="bulkDelete()">حذف</button>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm ms-auto" @click="selected=[]">إلغاء التحديد</button>
+  </div>
+
+  <!-- ======================================================
+       CALENDAR VIEW (default)
+  ======================================================= -->
+  <div x-show="view==='calendar'">
+
+    <!-- Week nav -->
+    <div class="flex items-center gap-3 mb-4">
+      <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="weekOffset--">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 4l-4 4 4 4"/></svg>
+        الأسبوع السابق
+      </button>
+      <span class="flex-1 text-center text-sm font-bold text-primary-800" x-text="weekRangeLabel"></span>
+      <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="weekOffset++">
+        الأسبوع التالي
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 4l4 4-4 4"/></svg>
+      </button>
+      <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="weekOffset=0" x-show="weekOffset!==0">هذا الأسبوع</button>
+    </div>
+
+    <!-- Calendar grid -->
+    <div class="adm-card overflow-hidden">
+      <!-- Day headers -->
+      <div class="grid grid-cols-7 border-b border-neutral-100">
+        <template x-for="(day, di) in weekDays" :key="di">
+          <div class="p-2.5 text-center border-e border-neutral-50 last:border-e-0"
+            :class="isToday(day.date) && 'bg-primary-50'">
+            <div class="text-[.7rem] font-semibold text-neutral-400 uppercase" x-text="day.dayName"></div>
+            <div class="text-lg font-bold mt-0.5"
+              :class="isToday(day.date) ? 'text-primary-700 w-8 h-8 bg-primary-700 text-white rounded-full flex items-center justify-center mx-auto text-sm' : 'text-primary-800'"
+              x-text="day.dayNum"></div>
+          </div>
+        </template>
+      </div>
+      <!-- Activity cards per day -->
+      <div class="grid grid-cols-7 divide-x divide-x-reverse divide-neutral-50 min-h-[420px]">
+        <template x-for="(day, di) in weekDays" :key="di+'c'">
+          <div class="p-2 flex flex-col gap-1.5 min-h-[200px] border-e border-neutral-50 last:border-e-0"
+            :class="isToday(day.date) && 'bg-primary-50/40'">
+            <!-- Quick add for this day -->
+            <button class="w-full text-[.68rem] text-neutral-300 hover:text-primary-600 hover:bg-primary-50 rounded py-0.5 transition flex items-center justify-center gap-1"
+              @click="openAddOn(day.date)">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2v8M2 6h8"/></svg>
+              إضافة
+            </button>
+            <!-- Activities for this day -->
+            <template x-for="act in activitiesOnDay(day.date)" :key="act.id">
+              <div class="rounded-lg px-2 py-1.5 cursor-pointer transition hover:opacity-80 relative group"
+                :style="'background:'+typeBg(act.type)+';border-inline-start:3px solid '+typeColor(act.type)"
+                @click="openDetail(act)">
+                <!-- Overdue indicator -->
+                <span x-show="isOverdue(act)" class="absolute top-1 end-1 w-1.5 h-1.5 rounded-full bg-danger"></span>
+                <div class="text-[.72rem] font-bold leading-tight truncate" :style="'color:'+typeColor(act.type)" x-text="act.title"></div>
+                <div class="flex items-center justify-between mt-0.5">
+                  <span class="text-[.65rem] text-neutral-500 font-latin" dir="ltr" x-text="timeOnly(act.scheduledAt)"></span>
+                  <span class="text-[.65rem] font-semibold rounded-full px-1.5" :class="statusBadgeCls(act.status)" x-text="statusLabel(act.status)"></span>
+                </div>
+                <div x-show="act.linkedLabel" class="text-[.62rem] text-neutral-400 truncate mt-0.5" x-text="act.linkedLabel"></div>
+              </div>
+            </template>
+            <!-- Empty -->
+            <template x-if="!activitiesOnDay(day.date).length">
+              <div class="flex-1 flex items-center justify-center text-[.65rem] text-neutral-200 select-none">لا أنشطة</div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======================================================
+       LIST VIEW
+  ======================================================= -->
+  <div x-show="view==='list'">
+    <div class="adm-card">
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th class="w-8"><input type="checkbox" @change="toggleAll($event)" :checked="pageRows.length && selected.length===pageRows.length" /></th>
+              <th>النوع</th>
+              <th>العنوان</th>
+              <th>مرتبط بـ</th>
+              <th>التاريخ والوقت</th>
+              <th>الحالة</th>
+              <th>الوكيل</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="act in pageRows" :key="act.id">
+              <tr :class="isOverdue(act) && 'bg-red-50/40'">
+                <td><input type="checkbox" :value="act.id" x-model="selected" /></td>
+                <!-- Type -->
+                <td>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg"
+                      :style="'background:'+typeBg(act.type)">
+                      <span x-html="typeIcon(act.type)" :style="'color:'+typeColor(act.type)"></span>
+                    </span>
+                    <span class="text-[.82rem] font-semibold text-primary-700" x-text="typeLabel(act.type)"></span>
+                  </div>
+                </td>
+                <!-- Title + description -->
+                <td>
+                  <div class="font-semibold text-primary-800 text-[.85rem]" x-text="act.title"></div>
+                  <div x-show="act.description" class="text-xs text-neutral-400 truncate max-w-[200px]" x-text="act.description"></div>
+                  <span x-show="act.isRecurring" class="inline-flex items-center gap-0.5 text-[.63rem] text-accent-700 font-semibold mt-0.5">
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6a4 4 0 007.8-1M10 6a4 4 0 01-7.8 1"/><path d="M2 5V2.5M2 5H4.5"/><path d="M10 7v2.5M10 7H7.5"/></svg>
+                    متكرر
+                  </span>
+                </td>
+                <!-- Linked entity -->
+                <td>
+                  <div x-show="act.linkedLabel" class="flex items-center gap-1.5">
+                    <span class="text-[.68rem] font-semibold text-neutral-400 uppercase" x-text="act.linkedType"></span>
+                    <span class="text-xs text-primary-700 font-semibold" x-text="act.linkedLabel"></span>
+                  </div>
+                  <span x-show="!act.linkedLabel" class="text-neutral-300 text-xs">—</span>
+                </td>
+                <!-- Date/Time -->
+                <td>
+                  <div class="text-[.82rem] font-semibold text-primary-800 font-latin" dir="ltr" x-text="fmtDateTime(act.scheduledAt)"></div>
+                  <div x-show="act.durationMinutes" class="text-[.68rem] text-neutral-400" x-text="act.durationMinutes+' دقيقة'"></div>
+                  <div x-show="isOverdue(act)" class="text-[.68rem] text-danger font-bold mt-0.5">متأخر</div>
+                </td>
+                <!-- Status badge -->
+                <td>
+                  <span class="adm-badge" :class="statusBadgeCls(act.status)" x-text="statusLabel(act.status)"></span>
+                </td>
+                <!-- Agent -->
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <span class="adm-avatar w-6 h-6 text-[.6rem] bg-primary-100 text-primary-700" x-text="act.assigneeInitials"></span>
+                    <span class="text-xs text-neutral-600" x-text="act.assigneeName"></span>
+                  </div>
+                </td>
+                <!-- Row menu -->
+                <td>
+                  <div class="flex justify-start" @click.outside="fmClose()">
+                    <button class="adm-icon-btn w-8 h-8" @click="fmOpen(act.id,$event)">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
+                    </button>
+                    <div x-show="fmId===act.id" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">
+                      <button @click="openDetail(act); fmClose()">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5V8l2 1.5"/></svg>
+                        عرض التفاصيل
+                      </button>
+                      <button @click="openEdit(act); fmClose()" x-show="act.status!=='done'">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                        تعديل
+                      </button>
+                      <button @click="openComplete(act); fmClose()" class="mi-ok" x-show="act.status==='pending' || act.status==='postponed'">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8.5l3.5 3.5L13 5"/></svg>
+                        تحديد مكتمل
+                      </button>
+                      <button @click="rescheduleOne(act); fmClose()" x-show="act.status!=='done' && act.status!=='cancelled'">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>
+                        إعادة جدولة
+                      </button>
+                      <div class="mi-sep"></div>
+                      <button @click="cancel(act); fmClose()" class="mi-warn" x-show="act.status!=='done'&&act.status!=='cancelled'">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/></svg>
+                        إلغاء
+                      </button>
+                      <button @click="del(act); fmClose()" class="mi-danger">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+                        حذف
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <template x-if="!filtered.length">
+        <div class="adm-empty">
+          لا أنشطة مطابقة لهذا الفلتر.
+          <button class="text-primary-700 font-semibold ms-1" @click="openAdd()">أضف نشاطاً جديداً</button>
+        </div>
+      </template>
+      <!-- Pagination -->
+      <div class="adm-pagination" x-show="filtered.length">
+        <span class="text-xs text-neutral-500">عرض <span x-text="pageRows.length"></span> من <span x-text="filtered.length"></span></span>
+        <div class="flex items-center gap-1">
+          <button class="adm-page-btn" :disabled="page===1" @click="page--">‹</button>
+          <span class="text-sm px-2" x-text="page + ' / ' + totalPages"></span>
+          <button class="adm-page-btn" :disabled="page===totalPages" @click="page++">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       MODAL: Quick Add / Edit Activity (S-040/S-042)
+       POST /api/v1/activities · PUT /api/v1/activities/:id
+  ======================================================= -->
+  <template x-if="form">
+    <div class="adm-overlay" @click.self="form=null">
+      <div class="adm-modal" style="max-width:560px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800" x-text="form.id ? 'تعديل النشاط' : 'نشاط جديد'"></div>
+          <button @click="form=null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+
+          <!-- Type -->
+          <div class="sm:col-span-2">
+            <label class="ec-label"><span class="text-danger">*</span> نوع النشاط</label>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <template x-for="tp in activityTypes" :key="tp.slug">
+                <button type="button"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-semibold transition"
+                  :class="form.type===tp.slug ? 'border-primary-500 bg-primary-50 text-primary-800' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'"
+                  @click="form.type=tp.slug">
+                  <span x-html="typeIcon(tp.slug)" class="inline-flex"></span>
+                  <span x-text="tp.label"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <!-- Title -->
+          <div class="sm:col-span-2">
+            <label class="ec-label"><span class="text-danger">*</span> العنوان</label>
+            <input type="text" x-model="form.title" class="ec-input" placeholder="مثال: مكالمة متابعة مع محمد العتيبي" />
+          </div>
+
+          <!-- Date / Time -->
+          <div>
+            <label class="ec-label">التاريخ</label>
+            <input type="date" dir="ltr" x-model="form.date" class="ec-input font-latin" />
+          </div>
+          <div>
+            <label class="ec-label">الوقت</label>
+            <input type="time" dir="ltr" x-model="form.time" class="ec-input font-latin" />
+          </div>
+
+          <!-- Duration -->
+          <div>
+            <label class="ec-label">المدة (دقيقة)</label>
+            <input type="number" dir="ltr" x-model.number="form.durationMinutes" class="ec-input font-latin" placeholder="30" min="1" max="1440" />
+          </div>
+
+          <!-- Assignee -->
+          <div>
+            <label class="ec-label">الوكيل</label>
+            <select x-model="form.assignedTo" class="ec-input">
+              <option value="">— اختر —</option>
+              <template x-for="u in agents" :key="u.id">
+                <option :value="u.id" x-text="u.name"></option>
+              </template>
+            </select>
+          </div>
+
+          <!-- Linked entity section -->
+          <div class="sm:col-span-2">
+            <label class="ec-label">ربط بـ (اختياري)</label>
+            <div class="grid grid-cols-3 gap-2 mt-1">
+              <div>
+                <label class="text-[.72rem] text-neutral-400 mb-1 block">عميل</label>
+                <select x-model="form.contactId" class="ec-input text-xs">
+                  <option value="">—</option>
+                  <template x-for="c in contacts" :key="c.id">
+                    <option :value="c.id" x-text="c.name"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="text-[.72rem] text-neutral-400 mb-1 block">صفقة</label>
+                <select x-model="form.dealId" class="ec-input text-xs">
+                  <option value="">—</option>
+                  <template x-for="d in deals" :key="d.id">
+                    <option :value="d.id" x-text="d.title"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="text-[.72rem] text-neutral-400 mb-1 block">عقار</label>
+                <select x-model="form.propertyId" class="ec-input text-xs">
+                  <option value="">—</option>
+                  <template x-for="p in properties" :key="p.id">
+                    <option :value="p.id" x-text="p.title"></option>
+                  </template>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Viewing feedback (only for viewing type) -->
+          <div class="sm:col-span-2" x-show="form.type==='viewing'">
+            <label class="ec-label">تقييم المعاينة</label>
+            <textarea x-model="form.viewingFeedback" rows="2" class="ec-input" placeholder="ردة فعل العميل على العقار…"></textarea>
+          </div>
+
+          <!-- Notes / Description -->
+          <div class="sm:col-span-2">
+            <label class="ec-label">ملاحظات</label>
+            <textarea x-model="form.description" rows="2" class="ec-input" placeholder="تفاصيل إضافية…"></textarea>
+          </div>
+
+          <!-- Reminder -->
+          <div class="sm:col-span-2">
+            <div class="flex items-center gap-3 p-3 bg-neutral-50 rounded-lg border border-neutral-100">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="text-accent-600 flex-shrink-0"><path d="M8 1.5A4.5 4.5 0 0 0 3.5 6c0 3-1.5 4-1.5 4h12s-1.5-1-1.5-4A4.5 4.5 0 0 0 8 1.5zM6.5 13a1.5 1.5 0 0 0 3 0"/></svg>
+              <span class="text-sm text-neutral-600 flex-1">تذكير تلقائي قبل النشاط</span>
+              <select x-model="form.reminderMinutes" class="ec-input w-auto text-xs">
+                <option value="">بدون تذكير</option>
+                <option value="5">قبل ٥ دقائق</option>
+                <option value="15">قبل ١٥ دقيقة</option>
+                <option value="30">قبل ٣٠ دقيقة</option>
+                <option value="60">قبل ساعة</option>
+                <option value="1440">قبل يوم</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Recurring -->
+          <div class="sm:col-span-2">
+            <label class="flex items-center gap-2.5 cursor-pointer">
+              <div class="adm-switch" :class="form.isRecurring&&'on'" @click="form.isRecurring=!form.isRecurring"></div>
+              <span class="text-sm font-medium text-neutral-700">نشاط متكرر</span>
+            </label>
+            <div x-show="form.isRecurring" class="mt-2 flex gap-2">
+              <select x-model="form.recurrenceFreq" class="ec-input w-auto">
+                <option value="daily">يومي</option>
+                <option value="weekly">أسبوعي</option>
+                <option value="monthly">شهري</option>
+              </select>
+              <input type="date" dir="ltr" x-model="form.recurrenceEnd" class="ec-input font-latin" placeholder="تاريخ الانتهاء (اختياري)" />
+            </div>
+          </div>
+
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="save()" :disabled="!form.type || !form.title" class="adm-btn adm-btn-primary" x-text="form.id ? 'حفظ التعديلات' : 'إضافة النشاط'"></button>
+          <button @click="form=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ======================================================
+       MODAL: Activity Detail (read-only summary)
+  ======================================================= -->
+  <template x-if="detail">
+    <div class="adm-overlay" @click.self="detail=null">
+      <div class="adm-modal" style="max-width:500px">
+        <div class="adm-modal-head">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg"
+              :style="'background:'+typeBg(detail.type)">
+              <span x-html="typeIcon(detail.type)" :style="'color:'+typeColor(detail.type)"></span>
+            </span>
+            <div>
+              <div class="font-bold text-primary-800 text-[.95rem]" x-text="detail.title"></div>
+              <div class="text-[.72rem] text-neutral-400 mt-0.5" x-text="typeLabel(detail.type)+' · '+fmtDateTime(detail.scheduledAt)"></div>
+            </div>
+          </div>
+          <button @click="detail=null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body">
+          <dl class="adm-info">
+            <div>
+              <dt>الحالة</dt>
+              <dd><span class="adm-badge" :class="statusBadgeCls(detail.status)" x-text="statusLabel(detail.status)"></span></dd>
+            </div>
+            <div>
+              <dt>الوكيل</dt>
+              <dd x-text="detail.assigneeName"></dd>
+            </div>
+            <div x-show="detail.linkedLabel">
+              <dt x-text="detail.linkedType"></dt>
+              <dd class="text-primary-700 font-semibold" x-text="detail.linkedLabel"></dd>
+            </div>
+            <div x-show="detail.durationMinutes">
+              <dt>المدة</dt>
+              <dd x-text="detail.durationMinutes+' دقيقة'"></dd>
+            </div>
+            <div x-show="detail.description" class="col-span-2">
+              <dt>ملاحظات</dt>
+              <dd x-text="detail.description"></dd>
+            </div>
+            <div x-show="detail.outcome" class="col-span-2">
+              <dt>نتيجة النشاط</dt>
+              <dd class="text-success font-semibold" x-text="detail.outcome"></dd>
+            </div>
+            <div x-show="detail.viewingFeedback" class="col-span-2">
+              <dt>تقييم المعاينة</dt>
+              <dd x-text="detail.viewingFeedback"></dd>
+            </div>
+            <div x-show="detail.isRecurring">
+              <dt>التكرار</dt>
+              <dd x-text="recurrenceLabel(detail)"></dd>
+            </div>
+          </dl>
+        </div>
+        <div class="adm-modal-foot">
+          <button x-show="detail.status==='pending'||detail.status==='postponed'"
+            @click="openComplete(detail); detail=null" class="adm-btn adm-btn-primary">
+            تسجيل الإتمام
+          </button>
+          <button x-show="detail.status!=='done'&&detail.status!=='cancelled'"
+            @click="openEdit(detail); detail=null" class="adm-btn adm-btn-ghost">تعديل</button>
+          <button @click="detail=null" class="adm-btn adm-btn-ghost ms-auto">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ======================================================
+       MODAL: Complete Activity — UX-A16
+       PUT /api/v1/activities/:id/complete  { outcome? }
+  ======================================================= -->
+  <template x-if="completeModal">
+    <div class="adm-overlay" @click.self="completeModal=null">
+      <div class="adm-modal" style="max-width:460px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">تسجيل إتمام النشاط</div>
+          <button @click="completeModal=null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-4">
+          <p class="text-sm text-neutral-600">
+            <span class="font-semibold text-primary-800" x-text="completeModal.title"></span>
+            — <span x-text="fmtDateTime(completeModal.scheduledAt)"></span>
+          </p>
+          <div>
+            <label class="ec-label">نتيجة النشاط (اختياري)</label>
+            <textarea x-model="outcomeInput" rows="3" class="ec-input"
+              placeholder="مثال: العميل مهتم بعقار في حطين — تم الاتفاق على معاينة الثلاثاء القادم"></textarea>
+          </div>
+          <!-- Follow-up suggestion (UX-A16) -->
+          <div class="rounded-xl border border-neutral-100 bg-neutral-50 p-3">
+            <label class="flex items-center gap-2.5 cursor-pointer">
+              <div class="adm-switch" :class="scheduleFollowUp&&'on'" @click="scheduleFollowUp=!scheduleFollowUp"></div>
+              <span class="text-sm font-semibold text-neutral-700">جدولة متابعة تالية</span>
+            </label>
+            <div x-show="scheduleFollowUp" class="mt-3 grid grid-cols-2 gap-2">
+              <div>
+                <label class="ec-label">نوع المتابعة</label>
+                <select x-model="followUpType" class="ec-input">
+                  <template x-for="tp in activityTypes" :key="tp.slug">
+                    <option :value="tp.slug" x-text="tp.label"></option>
+                  </template>
+                </select>
+              </div>
+              <div>
+                <label class="ec-label">بعد كم يوم</label>
+                <select x-model.number="followUpDays" class="ec-input">
+                  <option value="1">يوم واحد</option>
+                  <option value="2">يومين</option>
+                  <option value="3">٣ أيام</option>
+                  <option value="7">أسبوع</option>
+                  <option value="14">أسبوعين</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="confirmComplete()" class="adm-btn adm-btn-primary">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2.5 8l3 3L12.5 4"/></svg>
+            تأكيد الإتمام
+          </button>
+          <button @click="completeModal=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</div>
+
+<script>
+function activities() {
+  // ── Seed helpers ────────────────────────────────────────────────────────────
+  // Build ISO string offset from today by +/- days and an hour
+  const D = (days, h=9, m=0) => {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    d.setHours(h, m, 0, 0);
+    return d.toISOString();
+  };
+
+  // ── Seeded reference data ────────────────────────────────────────────────────
+  const AGENTS = [
+    { id:'u1', name:'سارة القحطاني',  initials:'سق' },
+    { id:'u2', name:'خالد العمري',    initials:'خع' },
+    { id:'u3', name:'نورة الدوسري',   initials:'ند' },
+    { id:'u4', name:'فهد الشمري',     initials:'فش' },
+  ];
+  const CONTACTS = [
+    { id:'c1', name:'عبدالله المطيري' },
+    { id:'c2', name:'منى السبيعي' },
+    { id:'c3', name:'تركي الحربي' },
+    { id:'c4', name:'ريم الزهراني' },
+  ];
+  const DEALS = [
+    { id:'d1', title:'فيلا حطين — تركي الحربي' },
+    { id:'d2', title:'برج المروج ٢٠٤ — أمل الحارثي' },
+  ];
+  const PROPERTIES = [
+    { id:'p1', title:'فيلا — حي الياسمين، ٦ غرف' },
+    { id:'p2', title:'شقة — برج المروج ٢٠٤' },
+    { id:'p3', title:'أرض تجارية — طريق الملك فهد' },
+  ];
+
+  // Grounded: status enum from Activities.Schema.ts
+  // pending | done | cancelled | postponed  (overdue = derived)
+  const STATUS_MAP = {
+    pending:   { label:'مجدول',   cls:'b-info' },
+    done:      { label:'مكتمل',   cls:'b-success' },
+    cancelled: { label:'ملغي',    cls:'b-neutral' },
+    postponed: { label:'مؤجَّل',  cls:'b-warning' },
+    overdue:   { label:'متأخر',   cls:'b-danger' },
+  };
+
+  // Grounded: type slugs from activity_types seeder (call|meeting|viewing|email|whatsapp|task)
+  const TYPE_META = {
+    call:     { label:'مكالمة',  color:'#1565C0', bg:'rgba(21,101,192,.09)',  icon:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3.5 3a1 1 0 011-1h2l1.5 3.5L6.5 7A9 9 0 0 0 9 9.5l1.5-1.5L14 9.5v2a1 1 0 01-1 1C6.3 13 3 7.7 3 4a1 1 0 01.5-.9z"/></svg>' },
+    meeting:  { label:'اجتماع', color:'#8C6E27', bg:'rgba(200,162,75,.10)', icon:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="5" r="2"/><path d="M2 13c0-2.2 1.8-4 4-4s4 1.8 4 4"/><circle cx="12" cy="5" r="1.5"/><path d="M12 9c1.5 0 3 1 3 3"/></svg>' },
+    viewing:  { label:'معاينة', color:'#4A75B4', bg:'rgba(74,117,180,.09)',  icon:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v7H3z"/><path d="M7 16v-5h4v5"/></svg>' },
+    email:    { label:'بريد',   color:'#344260', bg:'rgba(52,66,96,.07)',    icon:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="12" height="9" rx="1.5"/><path d="M2 5l6 4 6-4"/></svg>' },
+    whatsapp: { label:'واتساب', color:'#1A8C4E', bg:'rgba(26,140,78,.09)',   icon:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 9.5c1 1.5 4 2.5 5.5.5C9.5 11 8.5 9 7 8.5S5 7 5.5 5.5c1-1.5 2.5-.5 3.5.5"/></svg>' },
+    task:     { label:'مهمة',   color:'#6E7F9C', bg:'rgba(110,127,156,.09)', icon:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8.5l3 3L13 5"/><path d="M3 3.5h10M3 13h6"/></svg>' },
+  };
+
+  // Grounded: 10 realistic activities spread across the week
+  const buildList = () => [
+    { id:'a01', type:'call',     title:'متابعة سعر الفيلا مع تركي الحربي',       status:'pending',   scheduledAt:D(-2,10,0),  durationMinutes:20,  contactId:'c3', dealId:'d1',  propertyId:null, assignedTo:'u1', isRecurring:false, description:'مناقشة العرض المضاد ومدى المرونة في السعر',  outcome:null, viewingFeedback:null },
+    { id:'a02', type:'viewing',  title:'معاينة فيلا الياسمين مع منى السبيعي',    status:'done',      scheduledAt:D(-1,11,30), durationMinutes:60,  contactId:'c2', dealId:null,  propertyId:'p1', assignedTo:'u2', isRecurring:false, description:null,                                         outcome:'العميلة مهتمة جداً — طلبت مقارنة سعر بعقار مجاور', viewingFeedback:'الموقع ممتاز والتشطيبات راقية — تحتاج غرفة إضافية' },
+    { id:'a03', type:'meeting',  title:'اجتماع مراجعة عقد برج المروج',            status:'pending',   scheduledAt:D(0,9,0),   durationMinutes:45,  contactId:'c1', dealId:'d2',  propertyId:'p2', assignedTo:'u1', isRecurring:false, description:'مراجعة البنود القانونية والجدول الزمني للتسليم', outcome:null, viewingFeedback:null },
+    { id:'a04', type:'whatsapp', title:'إرسال تقرير السوق الأسبوعي',              status:'done',      scheduledAt:D(0,10,0),  durationMinutes:null, contactId:null, dealId:null,  propertyId:null, assignedTo:'u3', isRecurring:true,  description:'تقرير أسعار المناطق الشمالية في الرياض',       outcome:'تم الإرسال لـ ٣٢ عميل', viewingFeedback:null },
+    { id:'a05', type:'call',     title:'تأكيد موعد المعاينة مع ريم الزهراني',    status:'pending',   scheduledAt:D(0,14,0),  durationMinutes:10,  contactId:'c4', dealId:null,  propertyId:'p3', assignedTo:'u4', isRecurring:false, description:null,                                         outcome:null, viewingFeedback:null },
+    { id:'a06', type:'email',    title:'إرسال عرض سعر مع مخطط الأرض التجارية',   status:'postponed', scheduledAt:D(0,15,0),  durationMinutes:null, contactId:'c4', dealId:null,  propertyId:'p3', assignedTo:'u2', isRecurring:false, description:'يشمل المقارنة مع ثلاثة بدائل في نفس المنطقة',  outcome:null, viewingFeedback:null },
+    { id:'a07', type:'viewing',  title:'معاينة شقة المروج ٢٠٤ مع عبدالله المطيري', status:'pending', scheduledAt:D(1,10,0),  durationMinutes:90,  contactId:'c1', dealId:'d2',  propertyId:'p2', assignedTo:'u1', isRecurring:false, description:'المقاييس الكاملة + تصوير للعائلة',            outcome:null, viewingFeedback:null },
+    { id:'a08', type:'task',     title:'مراجعة وتحديث صور العقارات المعروضة',      status:'pending',   scheduledAt:D(1,14,0),  durationMinutes:120, contactId:null, dealId:null,  propertyId:null, assignedTo:'u3', isRecurring:false, description:'تحديث الصور والوصف لـ ٧ عقارات على المنصة',    outcome:null, viewingFeedback:null },
+    { id:'a09', type:'meeting',  title:'اجتماع أسبوعي الفريق — مراجعة الأهداف',  status:'pending',   scheduledAt:D(2,9,0),   durationMinutes:60,  contactId:null, dealId:null,  propertyId:null, assignedTo:'u1', isRecurring:true,  description:'مراجعة KPIs أسبوع + توزيع leads الجديدة',      outcome:null, viewingFeedback:null },
+    { id:'a10', type:'call',     title:'تفاوض نهائي مع منى السبيعي على السعر',    status:'cancelled', scheduledAt:D(2,11,0),  durationMinutes:30,  contactId:'c2', dealId:null,  propertyId:'p1', assignedTo:'u2', isRecurring:false, description:'العميلة طلبت تأجيل حتى بعد إجازة العيد',       outcome:null, viewingFeedback:null },
+    { id:'a11', type:'task',     title:'إعداد عرض تقديمي لصفقة حطين',            status:'pending',   scheduledAt:D(3,13,0),  durationMinutes:180, contactId:'c3', dealId:'d1',  propertyId:null, assignedTo:'u4', isRecurring:false, description:'شامل التمويل والعائد الاستثماري',               outcome:null, viewingFeedback:null },
+    { id:'a12', type:'whatsapp', title:'تذكير موعد توقيع العقد — تركي الحربي',    status:'pending',   scheduledAt:D(4,9,30),  durationMinutes:null, contactId:'c3', dealId:'d1',  propertyId:null, assignedTo:'u1', isRecurring:false, description:null,                                         outcome:null, viewingFeedback:null },
+  ];
+
+  return {
+    ...floatMenu(),
+
+    // ── State ────────────────────────────────────────────────────────────────
+    view: 'calendar',
+    weekOffset: 0,
+    fType: '',
+    fStatus: '',
+    fAgent: '',
+    page: 1,
+    limit: 10,
+    selected: [],
+    isManager: true,
+
+    // ── Modals ───────────────────────────────────────────────────────────────
+    form: null,
+    detail: null,
+    completeModal: null,
+    outcomeInput: '',
+    scheduleFollowUp: false,
+    followUpType: 'call',
+    followUpDays: 3,
+    bulkReschedule: false,
+    bulkReassignOpen: false,
+
+    // ── Reference data ───────────────────────────────────────────────────────
+    agents: AGENTS,
+    contacts: CONTACTS,
+    deals: DEALS,
+    properties: PROPERTIES,
+    activityTypes: Object.entries(TYPE_META).map(([slug, m]) => ({ slug, ...m })),
+
+    // ── Activity list (enriched with display fields) ─────────────────────────
+    get list() {
+      return buildList().map(a => {
+        const ag = AGENTS.find(u => u.id === a.assignedTo) || { name: '—', initials: '—' };
+        let linkedType = '', linkedLabel = '';
+        if (a.contactId) { const c = CONTACTS.find(x=>x.id===a.contactId); if(c){linkedType='عميل';linkedLabel=c.name;} }
+        if (a.dealId)    { const d = DEALS.find(x=>x.id===a.dealId);    if(d){linkedType='صفقة';linkedLabel=d.title;} }
+        if (a.propertyId){ const p = PROPERTIES.find(x=>x.id===a.propertyId); if(p){linkedType='عقار';linkedLabel=p.title;} }
+        return { ...a, assigneeName: ag.name, assigneeInitials: ag.initials, linkedType, linkedLabel };
+      });
+    },
+
+    // ── Derived: overdue = pending + scheduledAt < now ───────────────────────
+    get overdueList() {
+      const now = new Date();
+      return this.list.filter(a => a.status === 'pending' && new Date(a.scheduledAt) < now);
+    },
+
+    isOverdue(a) {
+      return a.status === 'pending' && new Date(a.scheduledAt) < new Date();
+    },
+
+    // ── Filtered list ────────────────────────────────────────────────────────
+    get filtered() {
+      return this.list.filter(a => {
+        if (this.fType   && a.type !== this.fType) return false;
+        if (this.fAgent  && a.assignedTo !== this.fAgent) return false;
+        if (this.fStatus === 'overdue') return this.isOverdue(a);
+        if (this.fStatus && a.status !== this.fStatus) return false;
+        return true;
+      });
+    },
+
+    get totalPages() { return Math.max(1, Math.ceil(this.filtered.length / this.limit)); },
+    get pageRows()   { return this.filtered.slice((this.page - 1) * this.limit, this.page * this.limit); },
+
+    toggleAll(e) {
+      this.selected = e.target.checked ? this.pageRows.map(a => a.id) : [];
+    },
+
+    // ── Calendar helpers ─────────────────────────────────────────────────────
+    get weekStart() {
+      const d = new Date();
+      const day = d.getDay();
+      // Saturday = start of Arabic week (day 6)
+      const diff = (day - 6 + 7) % 7;
+      d.setDate(d.getDate() - diff + (this.weekOffset * 7));
+      d.setHours(0, 0, 0, 0);
+      return d;
+    },
+
+    get weekDays() {
+      const DAYS_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      return Array.from({ length: 7 }, (_, i) => {
+        const d = new Date(this.weekStart);
+        d.setDate(d.getDate() + i);
+        return {
+          date: new Date(d),
+          dayName: DAYS_AR[d.getDay()],
+          dayNum: d.getDate(),
+        };
+      });
+    },
+
+    get weekRangeLabel() {
+      const s = this.weekDays[0].date;
+      const e = this.weekDays[6].date;
+      const fmt = dt => dt.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' });
+      return `${fmt(s)} — ${fmt(e)}، ${s.getFullYear()}`;
+    },
+
+    isToday(d) {
+      const t = new Date();
+      return d.getDate() === t.getDate() && d.getMonth() === t.getMonth() && d.getFullYear() === t.getFullYear();
+    },
+
+    sameDay(a, b) {
+      return a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
+    },
+
+    activitiesOnDay(dayDate) {
+      return this.filtered.filter(a => {
+        if (!a.scheduledAt) return false;
+        return this.sameDay(new Date(a.scheduledAt), dayDate);
+      });
+    },
+
+    // ── Type helpers (grounded on TYPE_META) ────────────────────────────────
+    typeLabel(slug) { return TYPE_META[slug]?.label ?? slug; },
+    typeColor(slug) { return TYPE_META[slug]?.color ?? '#9BA6BB'; },
+    typeBg(slug)    { return TYPE_META[slug]?.bg    ?? 'rgba(0,0,0,.05)'; },
+    typeIcon(slug)  { return TYPE_META[slug]?.icon  ?? ''; },
+
+    // ── Status helpers (grounded on schema enum) ─────────────────────────────
+    statusLabel(status) {
+      if (status === 'pending') return 'مجدول';
+      return STATUS_MAP[status]?.label ?? status;
+    },
+    statusBadgeCls(status) {
+      return STATUS_MAP[status]?.cls ?? 'b-neutral';
+    },
+
+    // ── Formatting helpers ───────────────────────────────────────────────────
+    timeOnly(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+    },
+
+    recurrenceLabel(a) {
+      if (!a.isRecurring || !a.recurrenceRule) return 'متكرر';
+      const freq = { daily: 'يومي', weekly: 'أسبوعي', monthly: 'شهري' };
+      return freq[a.recurrenceRule.freq] ?? 'متكرر';
+    },
+
+    // ── Modal: open add ──────────────────────────────────────────────────────
+    openAdd() {
+      this.form = {
+        id: null, type: 'call', title: '', date: '', time: '', durationMinutes: null,
+        assignedTo: 'u1', contactId: '', dealId: '', propertyId: '',
+        description: '', viewingFeedback: '', reminderMinutes: '15',
+        isRecurring: false, recurrenceFreq: 'weekly', recurrenceEnd: '',
+      };
+    },
+
+    openAddOn(date) {
+      this.openAdd();
+      const d = new Date(date);
+      this.form.date = d.toISOString().slice(0, 10);
+    },
+
+    openEdit(act) {
+      const d = act.scheduledAt ? new Date(act.scheduledAt) : null;
+      this.form = {
+        ...act,
+        date: d ? d.toISOString().slice(0, 10) : '',
+        time: d ? d.toTimeString().slice(0, 5) : '',
+        reminderMinutes: '15',
+        recurrenceFreq: act.recurrenceRule?.freq ?? 'weekly',
+        recurrenceEnd: act.recurrenceRule?.endDate ?? '',
+      };
+    },
+
+    openDetail(act) {
+      this.detail = act;
+    },
+
+    openComplete(act) {
+      this.outcomeInput = '';
+      this.scheduleFollowUp = false;
+      this.followUpType = 'call';
+      this.followUpDays = 3;
+      this.completeModal = act;
+    },
+
+    // ── Save (POST/PUT /api/v1/activities) ──────────────────────────────────
+    save() {
+      if (!this.form.type || !this.form.title) return;
+      // Build scheduledAt ISO from date+time inputs
+      let scheduledAt = null;
+      if (this.form.date) {
+        scheduledAt = this.form.time
+          ? new Date(`${this.form.date}T${this.form.time}:00`).toISOString()
+          : new Date(`${this.form.date}T09:00:00`).toISOString();
+      }
+      // Optimistic UI update — real impl calls POST/PUT /api/v1/activities
+      this.form = null;
+    },
+
+    // ── Complete: PUT /api/v1/activities/:id/complete { outcome? } ───────────
+    confirmComplete() {
+      if (!this.completeModal) return;
+      // Optimistic: update status in-memory
+      // Real impl: PUT /api/v1/activities/:id/complete { outcome: this.outcomeInput }
+      // If scheduleFollowUp: POST /api/v1/activities with parent data + followUpDays offset
+      this.completeModal = null;
+    },
+
+    // ── Cancel: PUT /api/v1/activities/:id { status:'cancelled' } ────────────
+    cancel(act) {
+      act.status = 'cancelled';
+    },
+
+    // ── Delete: DELETE /api/v1/activities/:id ────────────────────────────────
+    del(act) {
+      // Real impl: DELETE /api/v1/activities/:id
+    },
+
+    rescheduleOne(act) {
+      // Opens edit modal pre-filled (user changes date/time then saves)
+      this.openEdit(act);
+    },
+
+    // ── Bulk: POST /api/v1/activities/bulk/complete ──────────────────────────
+    bulkComplete() {
+      // Real impl: POST /api/v1/activities/bulk/complete { ids: this.selected }
+      this.selected = [];
+    },
+
+    // ── Bulk: POST /api/v1/activities/bulk/delete ────────────────────────────
+    bulkDelete() {
+      // Real impl: POST /api/v1/activities/bulk/delete { ids: this.selected }
+      this.selected = [];
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'activities';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0,
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
+      fmClose(){ this.fmId=null; },
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>

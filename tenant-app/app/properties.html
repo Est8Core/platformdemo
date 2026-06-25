@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · العقارات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- S-029 · العقارات · GET /api/v1/properties?page&limit&search&typeId&purpose&status&city&minPrice&maxPrice&featured&portfolioType&sortBy&sortOrder · POST /api/v1/properties · PUT /api/v1/properties/:id · DELETE /api/v1/properties/:id · PUT /api/v1/properties/:id/status · POST /api/v1/properties/:id/publish · POST /api/v1/properties/:id/unpublish · GET /api/v1/properties/market-avg · GET /api/v1/properties/types -->
+<div x-data="properties()">
+
+  <!-- Page head -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">العقارات</h1>
+      <p class="adm-page-sub">مخزون العقارات — إدراج · نشر · مطابقة العملاء · إغلاق الصفقات</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <!-- KPI strip -->
+      <div class="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-white border border-neutral-100 text-[.78rem]">
+        <span class="text-neutral-500">المتاح <span class="font-bold text-success ms-1" x-text="list.filter(p=>p.status==='available').length"></span></span>
+        <span class="w-px h-3.5 bg-neutral-200"></span>
+        <span class="text-neutral-500">محجوز <span class="font-bold text-warning ms-1" x-text="list.filter(p=>p.status==='reserved').length"></span></span>
+        <span class="w-px h-3.5 bg-neutral-200"></span>
+        <span class="text-neutral-500">مُباع <span class="font-bold text-neutral-600 ms-1" x-text="list.filter(p=>p.status==='sold').length"></span></span>
+      </div>
+      <!-- View toggle -->
+      <div class="flex bg-neutral-100 rounded-lg p-0.5">
+        <button class="px-3 py-1.5 rounded-md text-sm font-semibold transition flex items-center gap-1.5"
+          :class="view==='grid'?'bg-white text-primary-800 shadow-sm':'text-neutral-500'" @click="view='grid'">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.2"/></svg>
+          شبكة
+        </button>
+        <button class="px-3 py-1.5 rounded-md text-sm font-semibold transition flex items-center gap-1.5"
+          :class="view==='list'?'bg-white text-primary-800 shadow-sm':'text-neutral-500'" @click="view='list'">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>
+          قائمة
+        </button>
+      </div>
+      <button class="adm-btn adm-btn-gold" @click="openAdd()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
+        عقار جديد
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="adm-card mb-4">
+    <div class="p-4 flex flex-wrap items-center gap-3">
+      <!-- Search -->
+      <div class="relative flex-1 min-w-[220px]">
+        <input type="search" x-model="search" @input="page=1" placeholder="بحث بالعنوان · الرقم المرجعي · المدينة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <!-- Type filter -->
+      <select x-model="fType" class="ec-input w-auto" @change="page=1">
+        <option value="">كل الأنواع</option>
+        <template x-for="t in types" :key="t.id">
+          <option :value="t.id" x-text="t.name"></option>
+        </template>
+      </select>
+      <!-- City filter -->
+      <select x-model="fCity" class="ec-input w-auto" @change="page=1">
+        <option value="">كل المدن</option>
+        <template x-for="c in cities" :key="c">
+          <option :value="c" x-text="c"></option>
+        </template>
+      </select>
+      <!-- Price range -->
+      <div class="flex items-center gap-1.5">
+        <input type="number" x-model="fMinPrice" @input="page=1" placeholder="سعر من" class="ec-input w-28 font-latin text-sm" dir="ltr" />
+        <span class="text-neutral-400 text-xs">—</span>
+        <input type="number" x-model="fMaxPrice" @input="page=1" placeholder="إلى" class="ec-input w-28 font-latin text-sm" dir="ltr" />
+      </div>
+      <!-- Featured toggle -->
+      <label class="flex items-center gap-2 text-sm text-neutral-600 cursor-pointer">
+        <div class="adm-switch" :class="fFeatured&&'on'" @click="fFeatured=!fFeatured; page=1"></div>
+        مميّزة فقط
+      </label>
+    </div>
+
+    <!-- Purpose pills -->
+    <div class="px-4 pb-2 flex flex-wrap gap-2 items-center border-b border-neutral-50">
+      <span class="text-[.72rem] font-semibold text-neutral-400 uppercase tracking-wide me-1">الغرض</span>
+      <button class="adm-pill adm-btn-sm" :class="fPurpose===''&&'on'" @click="fPurpose='';page=1">الكل</button>
+      <button class="adm-pill adm-btn-sm" :class="fPurpose==='sale'&&'on'" @click="fPurpose='sale';page=1">للبيع</button>
+      <button class="adm-pill adm-btn-sm" :class="fPurpose==='rent'&&'on'" @click="fPurpose='rent';page=1">للإيجار</button>
+    </div>
+
+    <!-- Status pills -->
+    <div class="px-4 py-3 flex flex-wrap gap-2 items-center">
+      <span class="text-[.72rem] font-semibold text-neutral-400 uppercase tracking-wide me-1">الحالة</span>
+      <button class="adm-pill adm-btn-sm" :class="fStatus===''&&'on'" @click="fStatus='';page=1">الكل</button>
+      <button class="adm-pill adm-btn-sm" :class="fStatus==='available'&&'on'" @click="fStatus='available';page=1">متاح</button>
+      <button class="adm-pill adm-btn-sm" :class="fStatus==='reserved'&&'on'" @click="fStatus='reserved';page=1">محجوز</button>
+      <button class="adm-pill adm-btn-sm" :class="fStatus==='sold'&&'on'" @click="fStatus='sold';page=1">مُباع</button>
+      <button class="adm-pill adm-btn-sm" :class="fStatus==='rented'&&'on'" @click="fStatus='rented';page=1">مُؤجَّر</button>
+      <button class="adm-pill adm-btn-sm" :class="fStatus==='under_negotiation'&&'on'" @click="fStatus='under_negotiation';page=1">تحت التفاوض</button>
+    </div>
+  </div>
+
+  <!-- Results count -->
+  <div class="flex items-center justify-between mb-3 px-0.5">
+    <span class="text-sm text-neutral-500"><span class="font-semibold text-primary-800" x-text="filtered.length"></span> عقار</span>
+    <select x-model="sortBy" class="ec-input w-auto text-sm py-1.5" @change="page=1">
+      <option value="createdAt_desc">الأحدث أولاً</option>
+      <option value="price_asc">السعر: الأدنى</option>
+      <option value="price_desc">السعر: الأعلى</option>
+      <option value="bedrooms_desc">الأكثر غرفاً</option>
+      <option value="size_desc">الأكبر مساحةً</option>
+    </select>
+  </div>
+
+  <!-- ===== GRID VIEW ===== -->
+  <div x-show="view==='grid'">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <template x-for="p in pageRows" :key="p.id">
+        <div class="adm-card overflow-hidden flex flex-col group hover:shadow-lg transition-shadow duration-200">
+
+          <!-- Image / placeholder -->
+          <div class="relative h-44 overflow-hidden shrink-0"
+            :style="'background:' + typeGradient(p.typeId)">
+            <!-- Gradient placeholder with icon -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center gap-2">
+              <div class="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center">
+                <svg class="text-white/70" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" x-show="typeName(p.typeId)==='شقة'"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
+                <svg class="text-white/70" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" x-show="typeName(p.typeId)==='فيلا'"><path d="M3 12l9-7 9 7v8H3z"/><path d="M9 21v-6h6v6"/></svg>
+                <svg class="text-white/70" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" x-show="typeName(p.typeId)==='دوبلكس'"><path d="M3 21V10l9-7 9 7v11"/><path d="M3 15h18M9 21v-6h6v6"/></svg>
+                <svg class="text-white/70" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" x-show="typeName(p.typeId)==='مكتب'"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                <svg class="text-white/70" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" x-show="typeName(p.typeId)==='محل تجاري'"><path d="M3 9l1-5h16l1 5"/><path d="M3 9h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9z"/></svg>
+                <svg class="text-white/70" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" x-show="typeName(p.typeId)==='مستودع'"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M2 7l10-5 10 5"/></svg>
+                <svg class="text-white/70" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" x-show="typeName(p.typeId)==='أرض'"><rect x="2" y="14" width="20" height="8" rx="1"/><path d="M2 14l5-8h10l5 8"/></svg>
+              </div>
+              <span class="text-white/60 text-xs font-semibold" x-text="typeName(p.typeId) || 'عقار'"></span>
+            </div>
+
+            <!-- Status badge overlay -->
+            <div class="absolute top-2.5 start-2.5">
+              <span class="adm-badge text-[.7rem] shadow-sm"
+                :class="statusCls(p.status)"
+                x-text="statusAr(p.status)"></span>
+            </div>
+
+            <!-- Featured badge -->
+            <div x-show="p.featured" class="absolute top-2.5 end-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[.67rem] font-bold bg-accent-500 text-primary-900 shadow">
+                <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 4.6H15l-4.1 3 1.5 4.9L8 11 3.6 13.5l1.5-4.9L1 5.6h5.2z"/></svg>
+                مميّز
+              </span>
+            </div>
+
+            <!-- Published indicator -->
+            <div x-show="p.isPublished" class="absolute bottom-2.5 end-2.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[.65rem] font-bold bg-white/90 text-success shadow-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-success"></span> منشور
+              </span>
+            </div>
+
+            <!-- Purpose tag -->
+            <div class="absolute bottom-2.5 start-2.5">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[.67rem] font-bold shadow-sm"
+                :class="p.purpose==='sale'?'bg-primary-800/90 text-white':'bg-info/90 text-white'"
+                x-text="p.purpose==='sale'?'للبيع':'للإيجار'"></span>
+            </div>
+          </div>
+
+          <!-- Card body -->
+          <div class="p-3.5 flex flex-col flex-1 gap-1.5">
+            <!-- Title -->
+            <a href="property-detail.html" class="font-semibold text-primary-800 text-sm leading-tight hover:text-accent-700 transition-colors line-clamp-2" x-text="p.title"></a>
+
+            <!-- Price -->
+            <div class="flex items-baseline gap-1.5 mt-0.5">
+              <span class="font-bold text-xl text-primary-900 font-latin leading-none" x-text="Number(p.price).toLocaleString('en-US')"></span>
+              <span class="text-xs font-semibold text-neutral-500" x-text="p.currency"></span>
+            </div>
+
+            <!-- Location -->
+            <div class="flex items-center gap-1 text-xs text-neutral-500">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="7" r="3"/><path d="M8 1C4.7 1 2 3.7 2 7c0 4.5 6 9 6 9s6-4.5 6-9c0-3.3-2.7-6-6-6z"/></svg>
+              <span x-text="[p.area, p.city].filter(Boolean).join('، ')"></span>
+            </div>
+
+            <!-- Specs row -->
+            <div class="flex items-center gap-3 text-xs text-neutral-600 mt-1" x-show="p.bedrooms || p.bathrooms || p.size">
+              <span x-show="p.bedrooms" class="flex items-center gap-1">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11V7a6 6 0 0 1 12 0v4"/><rect x="1" y="11" width="14" height="3" rx="1"/><path d="M5 11V8h6v3"/></svg>
+                <span x-text="p.bedrooms"></span>
+              </span>
+              <span x-show="p.bathrooms" class="flex items-center gap-1">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="8" width="12" height="5" rx="1"/><path d="M5 8V4a1 1 0 0 1 1-1h1"/><path d="M14 10h1M1 10H0"/></svg>
+                <span x-text="p.bathrooms"></span>
+              </span>
+              <span x-show="p.size" class="flex items-center gap-1">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="1"/><path d="M5 11l6-6M8 5l3-3M5 11l-3 3"/></svg>
+                <span x-text="p.size + ' م²'"></span>
+              </span>
+            </div>
+
+            <!-- Ref + type -->
+            <div class="flex items-center justify-between mt-auto pt-2 border-t border-neutral-50">
+              <span class="text-[.67rem] text-neutral-400 font-latin font-semibold" x-text="p.referenceNumber"></span>
+              <span class="text-[.7rem] text-neutral-500 bg-neutral-50 px-2 py-0.5 rounded" x-text="typeName(p.typeId)"></span>
+            </div>
+          </div>
+
+          <!-- Row menu -->
+          <div class="border-t border-neutral-50 px-3 py-2 flex items-center justify-between">
+            <span class="text-[.7rem] text-neutral-400" x-text="agentName(p.listingAgentId)"></span>
+            <div @click.outside="fmClose()">
+              <button class="adm-icon-btn w-8 h-8" @click="fmOpen(p.id,$event)">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
+              </button>
+              <div x-show="fmId===p.id" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">
+                <a href="property-detail.html">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/></svg>
+                  عرض التفاصيل
+                </a>
+                <button @click="openEdit(p); fmClose()">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                  تعديل
+                </button>
+                <button @click="togglePublish(p); fmClose()" :class="p.isPublished?'mi-warn':'mi-ok'">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 5l3-3 3 3M3 14h10"/></svg>
+                  <span x-text="p.isPublished?'إلغاء النشر':'نشر العقار'"></span>
+                </button>
+                <button @click="openShare(p); fmClose()">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="3" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="13" r="2"/><path d="M6 9l4 3M6 7l4-3"/></svg>
+                  مشاركة
+                </button>
+                <div class="mi-sep"></div>
+                <button @click="askDelete(p); fmClose()" class="mi-danger">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+                  حذف
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </template>
+    </div>
+    <template x-if="!filtered.length">
+      <div class="adm-empty">لا عقارات مطابقة للفلاتر الحالية. <a href="#" @click.prevent="openAdd()" class="text-primary-700 font-semibold">أضف عقاراً جديداً</a></div>
+    </template>
+  </div>
+
+  <!-- ===== LIST VIEW ===== -->
+  <div x-show="view==='list'">
+    <div class="adm-card">
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>العقار</th>
+              <th>النوع</th>
+              <th>الغرض</th>
+              <th>السعر</th>
+              <th>المنطقة/المدينة</th>
+              <th>الحالة</th>
+              <th>وكيل الإدراج</th>
+              <th>الرقم المرجعي</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="p in pageRows" :key="p.id">
+              <tr>
+                <!-- Thumbnail + title -->
+                <td>
+                  <a href="property-detail.html" class="flex items-center gap-3 group min-w-[200px]">
+                    <div class="w-12 h-10 rounded-lg shrink-0 flex items-center justify-center"
+                      :style="'background:'+typeGradient(p.typeId)">
+                      <svg class="text-white/70" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12l9-7 9 7v8H3z"/><path d="M9 21v-6h6v6"/></svg>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-semibold text-primary-800 group-hover:text-accent-700 text-[.84rem] truncate max-w-[220px]" x-text="p.title"></div>
+                      <div class="flex items-center gap-1.5 mt-0.5">
+                        <span x-show="p.featured" class="text-[.62rem] font-bold text-accent-700">★ مميّز</span>
+                        <span x-show="p.isPublished" class="text-[.62rem] font-semibold text-success">● منشور</span>
+                      </div>
+                    </div>
+                  </a>
+                </td>
+                <td>
+                  <span class="text-[.8rem] text-neutral-600" x-text="typeName(p.typeId) || '—'"></span>
+                </td>
+                <td>
+                  <span class="adm-badge"
+                    :class="p.purpose==='sale'?'b-neutral':'b-info'"
+                    x-text="p.purpose==='sale'?'بيع':'إيجار'"></span>
+                </td>
+                <td>
+                  <span class="font-bold text-primary-900 font-latin text-[.88rem]" x-text="Number(p.price).toLocaleString('en-US')"></span>
+                  <span class="text-xs text-neutral-400 ms-0.5" x-text="p.currency"></span>
+                </td>
+                <td class="text-sm text-neutral-600" x-text="[p.area, p.city].filter(Boolean).join('، ') || '—'"></td>
+                <td>
+                  <span class="adm-badge" :class="statusCls(p.status)" x-text="statusAr(p.status)"></span>
+                </td>
+                <td class="text-sm text-neutral-500" x-text="agentName(p.listingAgentId)"></td>
+                <td class="font-latin text-xs text-neutral-400" x-text="p.referenceNumber"></td>
+                <td>
+                  <div class="flex justify-start" @click.outside="fmClose()">
+                    <button class="adm-icon-btn w-8 h-8" @click="fmOpen(p.id,$event)">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
+                    </button>
+                    <div x-show="fmId===p.id" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">
+                      <a href="property-detail.html">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><circle cx="8" cy="8" r="2"/></svg>
+                        عرض التفاصيل
+                      </a>
+                      <button @click="openEdit(p); fmClose()">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                        تعديل
+                      </button>
+                      <button @click="togglePublish(p); fmClose()" :class="p.isPublished?'mi-warn':'mi-ok'">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v8M5 5l3-3 3 3M3 14h10"/></svg>
+                        <span x-text="p.isPublished?'إلغاء النشر':'نشر العقار'"></span>
+                      </button>
+                      <button @click="openShare(p); fmClose()">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="3" r="2"/><circle cx="4" cy="8" r="2"/><circle cx="12" cy="13" r="2"/><path d="M6 9l4 3M6 7l4-3"/></svg>
+                        مشاركة
+                      </button>
+                      <div class="mi-sep"></div>
+                      <button @click="askDelete(p); fmClose()" class="mi-danger">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+                        حذف
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <template x-if="!filtered.length">
+        <div class="adm-empty">لا عقارات مطابقة. <a href="#" @click.prevent="openAdd()" class="text-primary-700 font-semibold">أضف عقاراً</a></div>
+      </template>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="adm-pagination mt-4" x-show="filtered.length">
+    <span class="text-xs text-neutral-500">عرض <span x-text="pageRows.length"></span> من <span x-text="filtered.length"></span></span>
+    <div class="flex items-center gap-1">
+      <button class="adm-page-btn" :disabled="page===1" @click="page--">‹</button>
+      <span class="text-sm px-2" x-text="page + ' / ' + totalPages"></span>
+      <button class="adm-page-btn" :disabled="page===totalPages" @click="page++">›</button>
+    </div>
+  </div>
+
+  <!-- ===== Add / Edit modal ===== -->
+  <template x-if="form">
+    <div class="adm-overlay" @click.self="form=null">
+      <div class="adm-modal" style="max-width:660px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800" x-text="form.id?'تعديل عقار':'عقار جديد'"></div>
+          <button @click="form=null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 sm:grid-cols-2 gap-3.5" style="max-height:75vh;overflow-y:auto;">
+
+          <!-- ── القسم 1: المعلومات الأساسية ── -->
+          <div class="sm:col-span-2 flex items-center gap-2 pt-0.5">
+            <span class="text-[.68rem] font-bold tracking-widest uppercase text-neutral-400">المعلومات الأساسية</span>
+            <span class="flex-1 h-px bg-neutral-100"></span>
+          </div>
+
+          <!-- Title -->
+          <div class="sm:col-span-2">
+            <label class="ec-label"><span class="text-danger">*</span> عنوان العقار</label>
+            <input type="text" x-model="form.title" class="ec-input" placeholder="مثال: شقة 3 غرف بحي النرجس" />
+          </div>
+          <!-- Type + Purpose -->
+          <div>
+            <label class="ec-label">نوع العقار</label>
+            <select x-model="form.typeId" class="ec-input">
+              <option value="">— اختر النوع —</option>
+              <template x-for="t in types" :key="t.id">
+                <option :value="t.id" x-text="t.name"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> الغرض</label>
+            <select x-model="form.purpose" class="ec-input">
+              <option value="sale">للبيع</option>
+              <option value="rent">للإيجار</option>
+            </select>
+          </div>
+          <!-- Price + Currency -->
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> السعر</label>
+            <input type="number" dir="ltr" x-model="form.price" class="ec-input font-latin" placeholder="0" />
+          </div>
+          <div>
+            <label class="ec-label">العملة</label>
+            <select x-model="form.currency" class="ec-input">
+              <option>SAR</option>
+              <option>AED</option>
+              <option>EGP</option>
+              <option>USD</option>
+            </select>
+          </div>
+          <!-- City + Area -->
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> المدينة</label>
+            <input type="text" x-model="form.city" class="ec-input" placeholder="الرياض" />
+          </div>
+          <div>
+            <label class="ec-label">المنطقة / الحي</label>
+            <input type="text" x-model="form.area" class="ec-input" placeholder="حي النرجس" />
+          </div>
+          <!-- Bedrooms + Bathrooms + Size -->
+          <div>
+            <label class="ec-label">عدد الغرف</label>
+            <input type="number" dir="ltr" x-model="form.bedrooms" class="ec-input font-latin" min="0" />
+          </div>
+          <div>
+            <label class="ec-label">عدد الحمامات</label>
+            <input type="number" dir="ltr" x-model="form.bathrooms" class="ec-input font-latin" min="0" />
+          </div>
+          <div>
+            <label class="ec-label">المساحة (م²)</label>
+            <input type="number" dir="ltr" x-model="form.size" class="ec-input font-latin" placeholder="0" />
+          </div>
+          <!-- Status -->
+          <div>
+            <label class="ec-label">الحالة</label>
+            <select x-model="form.status" class="ec-input">
+              <option value="available">متاح</option>
+              <option value="reserved">محجوز</option>
+              <option value="sold">مُباع</option>
+              <option value="rented">مُؤجَّر</option>
+              <option value="under_negotiation">تحت التفاوض</option>
+            </select>
+          </div>
+          <!-- Featured + Exclusive -->
+          <div class="sm:col-span-2 flex items-center gap-6">
+            <label class="flex items-center gap-2 text-sm text-neutral-700 cursor-pointer">
+              <div class="adm-switch" :class="form.featured&&'on'" @click="form.featured=!form.featured"></div>
+              عقار مميّز
+            </label>
+            <label class="flex items-center gap-2 text-sm text-neutral-700 cursor-pointer">
+              <div class="adm-switch" :class="form.isExclusive&&'on'" @click="form.isExclusive=!form.isExclusive"></div>
+              حصري
+            </label>
+          </div>
+          <!-- Description -->
+          <div class="sm:col-span-2">
+            <label class="ec-label">وصف العقار</label>
+            <textarea x-model="form.description" rows="3" class="ec-input" placeholder="وصف تفصيلي للعقار…"></textarea>
+          </div>
+
+          <!-- ── القسم 2: المميزات ── -->
+          <div class="sm:col-span-2 flex items-center gap-2 pt-2">
+            <span class="text-[.68rem] font-bold tracking-widest uppercase text-neutral-400">المميزات</span>
+            <span class="flex-1 h-px bg-neutral-100"></span>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="ec-label">اختر مميزات العقار</label>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <template x-for="f in featuresCatalog" :key="f">
+                <button type="button"
+                  class="adm-pill adm-btn-sm"
+                  :class="form.features.includes(f) && 'on'"
+                  @click="toggleFeature(f)"
+                  x-text="f">
+                </button>
+              </template>
+            </div>
+            <p class="text-[.73rem] text-neutral-400 mt-2" x-show="form.features.length">
+              محدد: <span class="font-semibold text-neutral-600" x-text="form.features.join(' · ')"></span>
+            </p>
+          </div>
+
+          <!-- ── القسم 3: المرافق ── -->
+          <div class="sm:col-span-2 flex items-center gap-2 pt-2">
+            <span class="text-[.68rem] font-bold tracking-widest uppercase text-neutral-400">المرافق</span>
+            <span class="flex-1 h-px bg-neutral-100"></span>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="ec-label">اختر المرافق المتوفرة</label>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <template x-for="a in amenitiesCatalog" :key="a.id">
+                <button type="button"
+                  class="adm-pill adm-btn-sm"
+                  :class="form.amenities.includes(a.id) && 'on'"
+                  @click="toggleAmenity(a.id)"
+                  x-text="a.name">
+                </button>
+              </template>
+            </div>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="ec-label">مرافق إضافية</label>
+            <input type="text" x-model="form.amenitiesCustom" class="ec-input"
+              placeholder="مثال: حوض سباحة خاص، غرفة بيلياردو…" />
+            <p class="text-[.73rem] text-neutral-400 mt-1">أي مرافق غير موجودة في القائمة أعلاه</p>
+          </div>
+
+          <!-- ── القسم 4: الوسائط ── -->
+          <div class="sm:col-span-2 flex items-center gap-2 pt-2">
+            <span class="text-[.68rem] font-bold tracking-widest uppercase text-neutral-400">الصور والوسائط</span>
+            <span class="flex-1 h-px bg-neutral-100"></span>
+          </div>
+
+          <!-- Drop zone -->
+          <div class="sm:col-span-2">
+            <div class="relative border-2 border-dashed border-neutral-200 rounded-xl p-6 flex flex-col items-center justify-center gap-2 text-center cursor-pointer transition hover:border-primary-300 hover:bg-primary-50/30"
+              @click="$refs.mediaFileInput.click()"
+              @dragover.prevent
+              @drop.prevent="handleMediaDrop($event)">
+              <input type="file" x-ref="mediaFileInput" class="hidden" accept="image/*,video/*" multiple @change="handleMediaFiles($event)" />
+              <div class="w-12 h-12 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-400 mb-1">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="3" y="3" width="18" height="14" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="M21 17l-5-5-3 3-2-2-5 5"/>
+                  <path d="M12 3v4M10 5l2-2 2 2"/>
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-neutral-600">اسحب الصور/الفيديو أو انقر للرفع</p>
+              <p class="text-[.75rem] text-neutral-400">PNG · JPG · MP4 · حد أقصى 20 ميجا للملف</p>
+              <button type="button" class="adm-btn adm-btn-ghost adm-btn-sm mt-1" @click.stop="addDemoMedia()">إضافة وسائط تجريبية</button>
+            </div>
+          </div>
+
+          <!-- Thumbnail grid -->
+          <div class="sm:col-span-2" x-show="form.media.length > 0">
+            <label class="ec-label mb-2">الوسائط المُضافة <span class="text-neutral-400 font-normal" x-text="'('+form.media.length+')'"></span></label>
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+              <template x-for="(m, idx) in form.media" :key="m.id">
+                <div class="relative rounded-xl overflow-hidden border-2 transition"
+                  :class="m.isPrimary ? 'border-accent-500' : 'border-neutral-200'">
+                  <!-- Thumbnail -->
+                  <div class="aspect-square bg-neutral-100 flex items-center justify-center overflow-hidden">
+                    <template x-if="m.type === 'image'">
+                      <img :src="m.url" class="w-full h-full object-cover" :alt="'صورة '+(idx+1)" />
+                    </template>
+                    <template x-if="m.type !== 'image'">
+                      <div class="flex flex-col items-center justify-center gap-1 text-neutral-400">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <polygon points="5,3 19,12 5,21"/>
+                        </svg>
+                        <span class="text-[.65rem] font-semibold">فيديو</span>
+                      </div>
+                    </template>
+                  </div>
+                  <!-- Primary badge -->
+                  <div class="absolute top-1.5 start-1.5">
+                    <button type="button"
+                      class="text-[.6rem] font-bold px-1.5 py-0.5 rounded-full transition"
+                      :class="m.isPrimary ? 'bg-accent-500 text-primary-900 shadow' : 'bg-black/40 text-white/80 hover:bg-accent-500/80 hover:text-primary-900'"
+                      @click="setMediaPrimary(idx)"
+                      x-text="m.isPrimary ? 'رئيسية' : 'تعيين رئيسية'">
+                    </button>
+                  </div>
+                  <!-- Remove -->
+                  <button type="button"
+                    class="absolute top-1.5 end-1.5 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-danger transition text-xs leading-none"
+                    @click="removeMedia(idx)">✕</button>
+                  <!-- Sort order indicator -->
+                  <div class="absolute bottom-1.5 end-1.5">
+                    <span class="text-[.6rem] bg-black/40 text-white px-1.5 py-0.5 rounded font-latin" x-text="idx+1"></span>
+                  </div>
+                </div>
+              </template>
+            </div>
+            <p class="text-[.73rem] text-neutral-400 mt-2">انقر على "تعيين رئيسية" لاختيار الصورة الرئيسية للعقار. ترتيب العرض حسب الإضافة.</p>
+          </div>
+
+        </div><!-- /adm-modal-body -->
+        <div class="adm-modal-foot">
+          <button @click="save()" :disabled="!form.title||!form.price||!form.city||!form.purpose" class="adm-btn adm-btn-primary" x-text="form.id?'حفظ التعديلات':'إضافة العقار'"></button>
+          <button @click="form=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== Share modal ===== -->
+  <template x-if="shareTarget">
+    <div class="adm-overlay" @click.self="shareTarget=null">
+      <div class="adm-modal" style="max-width:460px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">مشاركة العقار</div>
+          <button @click="shareTarget=null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-4">
+          <div class="rounded-xl bg-neutral-50 border border-neutral-100 p-3.5">
+            <p class="text-sm font-semibold text-primary-800 mb-1" x-text="shareTarget.title"></p>
+            <p class="text-xs text-neutral-500" x-text="shareTarget.referenceNumber"></p>
+          </div>
+          <!-- Copy link -->
+          <div>
+            <label class="ec-label">رابط المشاركة</label>
+            <div class="flex gap-2">
+              <input type="text" :value="'https://crm.est8core.com/p/'+shareTarget.referenceNumber?.toLowerCase()" class="ec-input font-latin text-sm flex-1" dir="ltr" readonly />
+              <button class="adm-btn adm-btn-ghost adm-btn-sm shrink-0" @click="copyLink(shareTarget)">نسخ</button>
+            </div>
+          </div>
+          <!-- WhatsApp quick share -->
+          <div class="flex gap-2">
+            <a :href="'https://wa.me/?text='+encodeURIComponent('عقار للبيع: '+shareTarget.title+' | '+shareTarget.price+' '+shareTarget.currency+' | https://crm.est8core.com/p/'+shareTarget.referenceNumber?.toLowerCase())"
+              target="_blank" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" style="color:#1A8C4E;border-color:#1A8C4E22">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-1-.2-.1-.4-.1-.6.1l-.8.9c-.1.2-.3.2-.5.1-1-.4-1.8-.9-2.5-1.7-.6-.7-1-1.5-1.1-1.8-.1-.2 0-.4.1-.5l.5-.6c.1-.2.2-.4.1-.6-.2-.5-.5-1.2-.7-1.7-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.6.6-.9 1.3-.9 2.1 0 1.2.9 2.4 1 2.5.1.1 1.7 2.7 4.2 3.7.6.2 1.1.4 1.5.5.6.2 1.2.1 1.6-.1.5-.2 1.4-.6 1.6-1.1.2-.5.2-.9.1-1-.1-.1-.3-.2-.5-.2zm-5.5 7.6h-.1c-1.7 0-3.4-.5-4.9-1.4l-.3-.2-3.3.9.9-3.2-.2-.3C3 16.2 2.5 14.4 2.5 12.5c0-5 4-9 9-9 2.4 0 4.6.9 6.3 2.6 1.7 1.7 2.7 4 2.7 6.4-.1 4.9-4.1 8.9-9 8.9zm7.7-16.6C17.7 3.5 15.1 2.5 12.4 2.5 7 2.5 2.6 7 2.6 12.5c0 1.7.4 3.4 1.2 4.9L2 21.5l4.3-1.1c1.4.8 3 1.2 4.6 1.2H12c5.5 0 9.9-4.4 9.9-9.9 0-2.7-1-5.2-2.9-7.1-.6-.6-.6-.6-.3-.3z"/></svg>
+              إرسال واتساب
+            </a>
+            <button @click="shareTarget=null" class="adm-btn adm-btn-ghost adm-btn-sm">إغلاق</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== Delete confirm ===== -->
+  <template x-if="deleteTarget">
+    <div class="adm-overlay" @click.self="deleteTarget=null">
+      <div class="adm-modal" style="max-width:420px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-danger">تأكيد الحذف</div>
+          <button @click="deleteTarget=null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body">
+          <p class="text-sm text-neutral-600">سيتم حذف العقار <span class="font-bold text-primary-800" x-text="'«'+deleteTarget.title+'»'"></span> نهائياً. هذا الإجراء لا يمكن التراجع عنه.</p>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="confirmDelete()" class="adm-btn adm-btn-danger-solid">حذف</button>
+          <button @click="deleteTarget=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</div>
+
+<script>
+function properties(){
+  /* Pagination button helper — must exist before component uses it */
+  if(!document.querySelector('.adm-page-btn')){
+    const st=document.createElement('style');
+    st.textContent='.adm-page-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1.5px solid #DDE1EA;border-radius:.45rem;font-size:.9rem;color:#4D5F7A;cursor:pointer;transition:.15s;}.adm-page-btn:hover:not(:disabled){background:#F4F6FA;border-color:#C4CBDA;}.adm-page-btn:disabled{opacity:.35;cursor:not-allowed;}.adm-pagination{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1rem;}.adm-page-btn+.adm-page-btn{margin-inline-start:.25rem;}';
+    document.head.appendChild(st);
+  }
+
+  const agents=[
+    { id:'u1', name:'سارة القحطاني' },
+    { id:'u2', name:'خالد العمري' },
+    { id:'u3', name:'نورة الدوسري' },
+    { id:'u4', name:'فهد الشمري' },
+  ];
+
+  const types=[
+    { id:'t1', name:'شقة',        slug:'apartment', gradient:'linear-gradient(135deg,#1A4590,#2458A5)' },
+    { id:'t2', name:'فيلا',       slug:'villa',     gradient:'linear-gradient(135deg,#102A4C,#1A4590)' },
+    { id:'t3', name:'دوبلكس',     slug:'duplex',    gradient:'linear-gradient(135deg,#344260,#4D5F7A)' },
+    { id:'t4', name:'مكتب',       slug:'office',    gradient:'linear-gradient(135deg,#0D1424,#1E2A45)' },
+    { id:'t5', name:'محل تجاري', slug:'retail',    gradient:'linear-gradient(135deg,#6A521B,#8C6E27)' },
+    { id:'t6', name:'مستودع',     slug:'warehouse', gradient:'linear-gradient(135deg,#4D5F7A,#6E7F9C)' },
+    { id:'t7', name:'أرض',        slug:'land',      gradient:'linear-gradient(135deg,#1A8C4E,#1F9E58)' },
+  ];
+
+  const list=[
+    { id:'p1',  title:'شقة 3 غرف في حي النرجس',            purpose:'sale',  status:'available',         price:'1250000', currency:'SAR', city:'الرياض',  area:'النرجس',       bedrooms:3, bathrooms:2, size:'180', typeId:'t1', featured:true,  isExclusive:true,  referenceNumber:'PROP-0001', listingAgentId:'u1', isPublished:true,  description:'شقة فاخرة بتشطيبات عالية الجودة.' },
+    { id:'p2',  title:'فيلا مستقلة في حي الياسمين',          purpose:'sale',  status:'available',         price:'3800000', currency:'SAR', city:'الرياض',  area:'الياسمين',     bedrooms:5, bathrooms:4, size:'450', typeId:'t2', featured:true,  isExclusive:false, referenceNumber:'PROP-0002', listingAgentId:'u2', isPublished:true,  description:'فيلا راقية بحديقة ومسبح.' },
+    { id:'p3',  title:'دوبلكس في حي قرطبة',                 purpose:'sale',  status:'reserved',          price:'2100000', currency:'SAR', city:'الرياض',  area:'قرطبة',        bedrooms:4, bathrooms:3, size:'320', typeId:'t3', featured:false, isExclusive:true,  referenceNumber:'PROP-0003', listingAgentId:'u1', isPublished:true,  description:'دوبلكس بتصميم مودرن.' },
+    { id:'p4',  title:'مكتب تجاري في حي العليا',             purpose:'rent',  status:'available',         price:'85000',   currency:'SAR', city:'الرياض',  area:'العليا',       bedrooms:0, bathrooms:2, size:'120', typeId:'t4', featured:false, isExclusive:false, referenceNumber:'PROP-0004', listingAgentId:'u3', isPublished:false, description:'مكتب مميز في برج حديث.' },
+    { id:'p5',  title:'محل تجاري في شارع التحلية',           purpose:'rent',  status:'available',         price:'120000',  currency:'SAR', city:'جدة',     area:'التحلية',      bedrooms:0, bathrooms:1, size:'80',  typeId:'t5', featured:true,  isExclusive:false, referenceNumber:'PROP-0005', listingAgentId:'u4', isPublished:true,  description:'محل بواجهة واسعة في أحيى شوارع جدة.' },
+    { id:'p6',  title:'أرض تجارية في حي الصناعية',          purpose:'sale',  status:'under_negotiation', price:'5500000', currency:'SAR', city:'الرياض',  area:'الصناعية',     bedrooms:0, bathrooms:0, size:'1200',typeId:'t7', featured:false, isExclusive:true,  referenceNumber:'PROP-0006', listingAgentId:'u2', isPublished:false, description:'أرض بموقع استراتيجي.' },
+    { id:'p7',  title:'شقة مفروشة في برج المروج',            purpose:'rent',  status:'available',         price:'45000',   currency:'SAR', city:'الرياض',  area:'المروج',       bedrooms:2, bathrooms:1, size:'110', typeId:'t1', featured:false, isExclusive:false, referenceNumber:'PROP-0007', listingAgentId:'u1', isPublished:true,  description:'شقة مفروشة بالكامل.' },
+    { id:'p8',  title:'فيلا فاخرة في الكورنيش',              purpose:'sale',  status:'sold',              price:'7200000', currency:'SAR', city:'جدة',     area:'الكورنيش',     bedrooms:6, bathrooms:5, size:'680', typeId:'t2', featured:true,  isExclusive:false, referenceNumber:'PROP-0008', listingAgentId:'u3', isPublished:false, description:'فيلا بإطلالة بحرية مباشرة.' },
+    { id:'p9',  title:'مستودع صناعي في المدينة الصناعية',    purpose:'rent',  status:'available',         price:'180000',  currency:'SAR', city:'الدمام',  area:'الصناعية',     bedrooms:0, bathrooms:2, size:'800', typeId:'t6', featured:false, isExclusive:false, referenceNumber:'PROP-0009', listingAgentId:'u4', isPublished:false, description:'مستودع جديد بمواصفات عالية.' },
+    { id:'p10', title:'شقة 4 غرف في حي الملقا',              purpose:'sale',  status:'available',         price:'1650000', currency:'SAR', city:'الرياض',  area:'الملقا',       bedrooms:4, bathrooms:3, size:'220', typeId:'t1', featured:false, isExclusive:true,  referenceNumber:'PROP-0010', listingAgentId:'u2', isPublished:true,  description:'شقة واسعة بموقع هادئ.' },
+    { id:'p11', title:'دوبلكس في حي حطين',                   purpose:'sale',  status:'rented',            price:'2800000', currency:'SAR', city:'الرياض',  area:'حطين',         bedrooms:5, bathrooms:4, size:'390', typeId:'t3', featured:true,  isExclusive:false, referenceNumber:'PROP-0011', listingAgentId:'u1', isPublished:false, description:'دوبلكس مميز في حطين.' },
+    { id:'p12', title:'أرض سكنية في العزيزية',               purpose:'sale',  status:'available',         price:'920000',  currency:'SAR', city:'مكة',     area:'العزيزية',     bedrooms:0, bathrooms:0, size:'600', typeId:'t7', featured:false, isExclusive:false, referenceNumber:'PROP-0012', listingAgentId:'u3', isPublished:true,  description:'أرض في موقع مميز.' },
+  ];
+
+  /* ── Catalogs (defined at closure level, shared with template) ── */
+  const featuresCatalog = [
+    'مفروش', 'إطلالة بحرية', 'مدخل خاص', 'تكييف مركزي',
+    'مطبخ مجهّز', 'شرفة', 'مصعد', 'غرفة خادمة',
+  ];
+
+  const amenitiesCatalog = [
+    { id:'pool',       name:'مسبح' },
+    { id:'gym',        name:'صالة رياضية' },
+    { id:'security',   name:'أمن ٢٤/٧' },
+    { id:'parking',    name:'موقف سيارات' },
+    { id:'garden',     name:'حديقة' },
+    { id:'playground', name:'ملعب أطفال' },
+    { id:'mosque',     name:'مسجد قريب' },
+    { id:'gate',       name:'بوابة إلكترونية' },
+  ];
+
+  return {
+    ...floatMenu(),
+    view:'grid',
+    search:'',
+    fType:'',
+    fPurpose:'',
+    fStatus:'',
+    fCity:'',
+    fMinPrice:'',
+    fMaxPrice:'',
+    fFeatured:false,
+    sortBy:'createdAt_desc',
+    page:1,
+    limit:12,
+    form:null,
+    shareTarget:null,
+    deleteTarget:null,
+
+    types,
+    agents,
+    list,
+    featuresCatalog,
+    amenitiesCatalog,
+
+    get cities(){
+      return [...new Set(this.list.map(p=>p.city).filter(Boolean))].sort();
+    },
+
+    typeName(id){ return (this.types.find(t=>t.id===id)||{}).name || ''; },
+    typeGradient(id){ return (this.types.find(t=>t.id===id)||{}).gradient || 'linear-gradient(135deg,#344260,#4D5F7A)'; },
+    agentName(id){ return (this.agents.find(a=>a.id===id)||{}).name || '—'; },
+
+    statusAr(s){
+      return { available:'متاح', reserved:'محجوز', sold:'مُباع', rented:'مُؤجَّر', under_negotiation:'تحت التفاوض' }[s] || s;
+    },
+    statusCls(s){
+      return { available:'b-success', reserved:'b-warning', sold:'b-neutral', rented:'b-info', under_negotiation:'b-accent' }[s] || 'b-neutral';
+    },
+
+    get filtered(){
+      const q = this.search.trim().toLowerCase();
+      const [sBy, sOrd] = this.sortBy.split('_');
+      const mn = this.fMinPrice ? Number(this.fMinPrice) : null;
+      const mx = this.fMaxPrice ? Number(this.fMaxPrice) : null;
+
+      const rows = this.list.filter(p =>
+        (!this.fType   || p.typeId   === this.fType)   &&
+        (!this.fPurpose|| p.purpose  === this.fPurpose) &&
+        (!this.fStatus || p.status   === this.fStatus)  &&
+        (!this.fCity   || p.city     === this.fCity)    &&
+        (!this.fFeatured || p.featured)                 &&
+        (!mn || Number(p.price) >= mn)                  &&
+        (!mx || Number(p.price) <= mx)                  &&
+        (!q  || p.title.toLowerCase().includes(q) ||
+                (p.referenceNumber||'').toLowerCase().includes(q) ||
+                (p.city||'').includes(q) ||
+                (p.area||'').includes(q))
+      );
+
+      rows.sort((a,b)=>{
+        let av = sBy==='price'    ? Number(a.price)    :
+                 sBy==='bedrooms' ? (a.bedrooms||0)    :
+                 sBy==='size'     ? Number(a.size||0)  :
+                 new Date(a.id).getTime(); // createdAt proxy
+        let bv = sBy==='price'    ? Number(b.price)    :
+                 sBy==='bedrooms' ? (b.bedrooms||0)    :
+                 sBy==='size'     ? Number(b.size||0)  :
+                 new Date(b.id).getTime();
+        return sOrd==='asc' ? av-bv : bv-av;
+      });
+      return rows;
+    },
+    get totalPages(){ return Math.max(1, Math.ceil(this.filtered.length / this.limit)); },
+    get pageRows(){ return this.filtered.slice((this.page-1)*this.limit, this.page*this.limit); },
+
+    openAdd(){
+      this.form={
+        id:null, title:'', typeId:'', purpose:'sale', price:'', currency:'SAR',
+        city:'', area:'', bedrooms:'', bathrooms:'', size:'',
+        status:'available', featured:false, isExclusive:false, description:'',
+        features:[], amenities:[], amenitiesCustom:'', media:[],
+      };
+    },
+    openEdit(p){
+      /* Clone arrays so edits don't mutate the underlying list row */
+      this.form={
+        ...p,
+        features:  [...(p.features   || [])],
+        amenities: [...(p.amenities  || [])],
+        amenitiesCustom: p.amenitiesCustom || '',
+        media:     (p.media || []).map(m=>({...m})),
+      };
+    },
+    save(){
+      if(!this.form.title || !this.form.price || !this.form.city || !this.form.purpose) return;
+      if(this.form.id){
+        const i = this.list.findIndex(x=>x.id===this.form.id);
+        if(i>-1) this.list[i] = { ...this.list[i], ...this.form };
+      } else {
+        const nextNum = String(this.list.length+1).padStart(4,'0');
+        this.list.unshift({
+          ...this.form,
+          id:'p'+Date.now(),
+          referenceNumber:'PROP-'+nextNum,
+          isPublished:false,
+          listingAgentId:'u1',
+        });
+      }
+      this.form = null;
+    },
+
+    /* ── Features helpers ── */
+    toggleFeature(f){
+      if(this.form.features.includes(f))
+        this.form.features = this.form.features.filter(x=>x!==f);
+      else
+        this.form.features = [...this.form.features, f];
+    },
+
+    /* ── Amenities helpers ── */
+    toggleAmenity(id){
+      if(this.form.amenities.includes(id))
+        this.form.amenities = this.form.amenities.filter(x=>x!==id);
+      else
+        this.form.amenities = [...this.form.amenities, id];
+    },
+
+    /* ── Media helpers ── */
+    addDemoMedia(){
+      const demos = [
+        { id:'dm'+Date.now()+'_1', uploadId:null, url:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400', type:'image', isPrimary:true,  sortOrder:0 },
+        { id:'dm'+Date.now()+'_2', uploadId:null, url:'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?w=400', type:'image', isPrimary:false, sortOrder:1 },
+        { id:'dm'+Date.now()+'_3', uploadId:null, url:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400', type:'image', isPrimary:false, sortOrder:2 },
+      ];
+      /* Avoid duplicating if already has media */
+      if(this.form.media.length === 0) this.form.media = demos;
+      else this.form.media = [...this.form.media, ...demos.map((d,i)=>({...d, id:'dm'+Date.now()+'_ex'+i, isPrimary:false, sortOrder:this.form.media.length+i}))];
+    },
+    handleMediaFiles(event){
+      const files = Array.from(event.target.files || []);
+      files.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.form.media = [...this.form.media, {
+            id: 'upload_'+Date.now()+'_'+idx,
+            uploadId: null, /* will be set after POST /uploads */
+            url: e.target.result,
+            type: file.type.startsWith('video/') ? 'video' : 'image',
+            isPrimary: this.form.media.length === 0 && idx === 0,
+            sortOrder: this.form.media.length + idx,
+          }];
+        };
+        reader.readAsDataURL(file);
+      });
+      event.target.value = '';
+    },
+    handleMediaDrop(event){
+      const files = Array.from(event.dataTransfer?.files || []);
+      if(!files.length) return;
+      /* Simulate handleMediaFiles flow */
+      files.forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.form.media = [...this.form.media, {
+            id: 'drop_'+Date.now()+'_'+idx,
+            uploadId: null,
+            url: e.target.result,
+            type: file.type.startsWith('video/') ? 'video' : 'image',
+            isPrimary: this.form.media.length === 0 && idx === 0,
+            sortOrder: this.form.media.length + idx,
+          }];
+        };
+        reader.readAsDataURL(file);
+      });
+    },
+    setMediaPrimary(idx){
+      this.form.media = this.form.media.map((m, i) => ({ ...m, isPrimary: i === idx }));
+    },
+    removeMedia(idx){
+      const wasPrimary = this.form.media[idx]?.isPrimary;
+      this.form.media = this.form.media.filter((_, i) => i !== idx)
+        .map((m, i) => ({ ...m, sortOrder: i }));
+      /* Promote first item to primary if removed item was primary */
+      if(wasPrimary && this.form.media.length > 0)
+        this.form.media[0] = { ...this.form.media[0], isPrimary: true };
+    },
+
+    togglePublish(p){
+      const i = this.list.findIndex(x=>x.id===p.id);
+      if(i>-1) this.list[i].isPublished = !this.list[i].isPublished;
+    },
+
+    openShare(p){ this.shareTarget = p; },
+    copyLink(p){
+      const url = 'https://crm.est8core.com/p/'+(p.referenceNumber||'').toLowerCase();
+      navigator.clipboard?.writeText(url).catch(()=>{});
+    },
+
+    askDelete(p){ this.deleteTarget = p; },
+    confirmDelete(){
+      if(!this.deleteTarget) return;
+      this.list = this.list.filter(x=>x.id!==this.deleteTarget.id);
+      this.deleteTarget = null;
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'properties';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0,
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
+      fmClose(){ this.fmId=null; },
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>

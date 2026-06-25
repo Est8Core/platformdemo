@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · جهات الاتصال</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- S-025 · جهات الاتصال · GET /api/v1/contacts?page&limit&search&type&priority&companyName · POST /api/v1/contacts · PUT /api/v1/contacts/:id · DELETE /api/v1/contacts/:id · POST /api/v1/contacts/dedup-check · POST /api/v1/contacts/:id/merge {sourceContactId} · type values: buyer|seller|landlord|tenant|investor · priority: normal|important|vip · UX-C1..C20 -->
+<div x-data="contacts()">
+
+  <!-- Page head -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">جهات الاتصال</h1>
+      <p class="adm-page-sub">إدارة العملاء والمشترين والملاك — سجل 360° لكل علاقة</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <div class="flex bg-neutral-100 rounded-lg p-0.5">
+        <button class="px-3 py-1.5 rounded-md text-sm font-semibold transition" :class="view==='table'?'bg-white text-primary-800 shadow-sm':'text-neutral-500'" @click="view='table'">جدول</button>
+        <button class="px-3 py-1.5 rounded-md text-sm font-semibold transition" :class="view==='cards'?'bg-white text-primary-800 shadow-sm':'text-neutral-500'" @click="view='cards'">بطاقات</button>
+      </div>
+      <button class="adm-btn adm-btn-gold" @click="openAdd()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> جهة اتصال جديدة
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="adm-card mb-4">
+    <div class="p-4 flex flex-wrap items-center gap-3">
+      <div class="relative flex-1 min-w-[220px]">
+        <input type="search" x-model="search" placeholder="بحث بالاسم · الجوال · البريد…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <select x-model="fCompany" class="ec-input w-auto"><option value="">كل الشركات</option><option>شركة الفيصل العقارية</option><option>مجموعة البنيان</option><option>دار المستثمر</option></select>
+      <select x-model="fArea" class="ec-input w-auto"><option value="">كل المناطق</option><option>النرجس</option><option>الياسمين</option><option>حطين</option><option>الملقا</option><option>العليا</option><option>القيروان</option></select>
+    </div>
+    <!-- Type pills -->
+    <div class="px-4 pb-2 flex flex-wrap gap-2 items-center">
+      <span class="text-xs font-bold text-neutral-400 me-1">التصنيف:</span>
+      <button class="adm-pill adm-btn-sm" :class="fType==='all'&&'on'" @click="fType='all'">الكل</button>
+      <button class="adm-pill adm-btn-sm" :class="fType==='buyer'&&'on'" @click="fType='buyer'">مشتري</button>
+      <button class="adm-pill adm-btn-sm" :class="fType==='seller'&&'on'" @click="fType='seller'">بائع</button>
+      <button class="adm-pill adm-btn-sm" :class="fType==='landlord'&&'on'" @click="fType='landlord'">مالك</button>
+      <button class="adm-pill adm-btn-sm" :class="fType==='tenant'&&'on'" @click="fType='tenant'">مستأجر</button>
+      <button class="adm-pill adm-btn-sm" :class="fType==='investor'&&'on'" @click="fType='investor'">مستثمر</button>
+    </div>
+    <!-- Priority pills -->
+    <div class="px-4 pb-3 flex flex-wrap gap-2 items-center">
+      <span class="text-xs font-bold text-neutral-400 me-1">الأولوية:</span>
+      <button class="adm-pill adm-btn-sm" :class="fPriority==='all'&&'on'" @click="fPriority='all'">الكل</button>
+      <button class="adm-pill adm-btn-sm" :class="fPriority==='normal'&&'on'" @click="fPriority='normal'">عادي</button>
+      <button class="adm-pill adm-btn-sm" :class="fPriority==='important'&&'on'" @click="fPriority='important'">مهم</button>
+      <button class="adm-pill adm-btn-sm" :class="fPriority==='vip'&&'on'" @click="fPriority='vip'">VIP</button>
+    </div>
+  </div>
+
+  <!-- Bulk bar -->
+  <div x-show="selected.length" x-transition class="adm-card mb-4 p-3 flex items-center gap-3 flex-wrap" style="border-color:#C8A24B">
+    <span class="text-sm font-semibold text-primary-800"><span x-text="selected.length"></span> محدّد</span>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="openBulkAssign()">إسناد جماعي</button>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm">تصدير المحدّد</button>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm ms-auto" @click="selected=[]">إلغاء التحديد</button>
+  </div>
+
+  <!-- ===== TABLE VIEW ===== -->
+  <div x-show="view==='table'">
+    <div class="adm-card">
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead><tr>
+            <th class="w-8"><input type="checkbox" @change="toggleAll($event)" :checked="pageRows.length && selected.length===pageRows.length" /></th>
+            <th>الاسم</th>
+            <th>الجوال</th>
+            <th>التصنيف</th>
+            <th>الأولوية</th>
+            <th>المنطقة المفضّلة</th>
+            <th>المسؤول</th>
+            <th></th>
+          </tr></thead>
+          <tbody>
+            <template x-for="c in pageRows" :key="c.id">
+              <tr>
+                <td><input type="checkbox" :value="c.id" x-model="selected" /></td>
+                <td>
+                  <div class="flex items-center gap-2.5">
+                    <span class="adm-avatar w-9 h-9 text-[.75rem] flex-shrink-0" :class="priorityCls(c.priority,'avatar')" x-text="initials(c)"></span>
+                    <div>
+                      <div class="font-semibold text-primary-800 text-[.85rem]" x-text="fullName(c)"></div>
+                      <div class="text-xs text-neutral-400" x-text="c.companyName||'—'"></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="font-latin text-[.82rem] text-neutral-700" dir="ltr" x-text="primaryPhone(c)"></div>
+                  <div class="text-xs text-neutral-400 font-latin" dir="ltr" x-text="primaryEmail(c)"></div>
+                </td>
+                <td>
+                  <div class="flex flex-wrap gap-1">
+                    <template x-for="t in c.type" :key="t">
+                      <span class="adm-badge" :class="typeBadgeCls(t)" x-text="typeLabel(t)"></span>
+                    </template>
+                    <span x-show="!c.type.length" class="text-xs text-neutral-400">—</span>
+                  </div>
+                </td>
+                <td>
+                  <span x-show="c.priority==='vip'" class="inline-flex items-center gap-1 text-[.78rem] font-bold px-2.5 py-1 rounded-full" style="background:rgba(200,162,75,.18);color:#8C6E27;border:1px solid rgba(200,162,75,.35)">
+                    <svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 4.6L15 6.2l-3.5 3.3.9 4.8L8 12 3.6 14.3l.9-4.8L1 6.2l5.2-.6z"/></svg> VIP
+                  </span>
+                  <span x-show="c.priority==='important'" class="adm-badge b-warning">مهم</span>
+                  <span x-show="c.priority==='normal'" class="adm-badge b-neutral">عادي</span>
+                </td>
+                <td class="text-sm text-neutral-600" x-text="c.preferredArea||'—'"></td>
+                <td>
+                  <div x-show="c.assignedTo">
+                    <span class="adm-avatar w-7 h-7 text-[.65rem] bg-primary-100 text-primary-700" x-text="agentInitials(c.assignedTo)"></span>
+                  </div>
+                  <span x-show="!c.assignedTo" class="text-xs text-neutral-400">—</span>
+                </td>
+                <td>
+                  <div class="flex justify-start" @click.outside="fmClose()">
+                    <button class="adm-icon-btn w-8 h-8" @click="fmOpen(c.id,$event)">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
+                    </button>
+                    <div x-show="fmId===c.id" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">
+                      <a href="contact-detail.html">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5V8l2 1.5"/></svg> عرض الملف
+                      </a>
+                      <button @click="openEdit(c); fmClose()">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg> تعديل
+                      </button>
+                      <button @click="openMerge(c); fmClose()" class="mi-warn">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h5M12 5l3 3-3 3M1 5l3 3-3 3"/></svg> دمج مع آخر
+                      </button>
+                      <div class="mi-sep"></div>
+                      <button @click="askDelete(c); fmClose()" class="mi-danger">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg> حذف
+                      </button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <template x-if="!filtered.length">
+        <div class="adm-empty">لا جهات اتصال مطابقة. <a href="#" @click.prevent="openAdd()" class="text-primary-700 font-semibold">أضف أول جهة اتصال</a></div>
+      </template>
+      <div class="adm-pagination" x-show="filtered.length">
+        <span class="text-xs text-neutral-500">عرض <span x-text="pageRows.length"></span> من <span x-text="filtered.length"></span></span>
+        <div class="flex items-center gap-1">
+          <button class="adm-page-btn" :disabled="page===1" @click="page--">‹</button>
+          <span class="text-sm px-2" x-text="page + ' / ' + totalPages"></span>
+          <button class="adm-page-btn" :disabled="page===totalPages" @click="page++">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CARDS VIEW ===== -->
+  <div x-show="view==='cards'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <template x-for="c in pageRows" :key="c.id">
+      <div class="adm-card p-4 flex flex-col gap-3 hover:shadow-card transition">
+        <!-- Card head: avatar + VIP crown + name -->
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="adm-avatar w-11 h-11 text-sm flex-shrink-0" :class="priorityCls(c.priority,'avatar')" x-text="initials(c)"></span>
+            <div>
+              <div class="font-bold text-primary-800 text-[.88rem] leading-snug" x-text="fullName(c)"></div>
+              <div class="text-xs text-neutral-400 mt-0.5" x-text="c.companyName||'—'"></div>
+            </div>
+          </div>
+          <div>
+            <span x-show="c.priority==='vip'" class="inline-flex items-center gap-1 text-[.7rem] font-bold px-2 py-0.5 rounded-full" style="background:rgba(200,162,75,.18);color:#8C6E27">
+              <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l1.8 4.6L15 6.2l-3.5 3.3.9 4.8L8 12 3.6 14.3l.9-4.8L1 6.2l5.2-.6z"/></svg> VIP
+            </span>
+            <span x-show="c.priority==='important'" class="adm-badge b-warning">مهم</span>
+          </div>
+        </div>
+        <!-- Phone / email -->
+        <div class="flex flex-col gap-0.5">
+          <div class="text-[.8rem] font-latin text-neutral-700" dir="ltr" x-text="primaryPhone(c)"></div>
+          <div class="text-xs text-neutral-400 font-latin" dir="ltr" x-text="primaryEmail(c)"></div>
+        </div>
+        <!-- Type badges -->
+        <div class="flex flex-wrap gap-1">
+          <template x-for="t in c.type" :key="t">
+            <span class="adm-badge" :class="typeBadgeCls(t)" x-text="typeLabel(t)"></span>
+          </template>
+        </div>
+        <!-- Area + assignee -->
+        <div class="flex items-center justify-between pt-2 border-t border-neutral-100 mt-auto">
+          <span class="text-xs text-neutral-500 flex items-center gap-1">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 2C5.8 2 4 3.8 4 6c0 3 4 8 4 8s4-5 4-8c0-2.2-1.8-4-4-4z"/><circle cx="8" cy="6" r="1.5"/></svg>
+            <span x-text="c.preferredArea||'—'"></span>
+          </span>
+          <div class="flex items-center gap-1.5">
+            <span x-show="c.assignedTo" class="adm-avatar w-6 h-6 text-[.58rem] bg-primary-100 text-primary-700" x-text="agentInitials(c.assignedTo)"></span>
+            <a href="contact-detail.html" class="text-[.74rem] font-semibold text-primary-700 hover:text-accent-600">عرض ←</a>
+          </div>
+        </div>
+      </div>
+    </template>
+    <template x-if="!filtered.length">
+      <div class="adm-empty col-span-full">لا جهات اتصال مطابقة.</div>
+    </template>
+    <!-- Pagination for cards -->
+    <div class="col-span-full" x-show="filtered.length > limit">
+      <div class="adm-pagination">
+        <span class="text-xs text-neutral-500">عرض <span x-text="pageRows.length"></span> من <span x-text="filtered.length"></span></span>
+        <div class="flex items-center gap-1">
+          <button class="adm-page-btn" :disabled="page===1" @click="page--">‹</button>
+          <span class="text-sm px-2" x-text="page + ' / ' + totalPages"></span>
+          <button class="adm-page-btn" :disabled="page===totalPages" @click="page++">›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Add / Edit modal ===== -->
+  <template x-if="form">
+    <div class="adm-overlay" @click.self="form=null">
+      <div class="adm-modal" style="max-width:580px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800" x-text="form.id?'تعديل جهة الاتصال':'جهة اتصال جديدة'"></div>
+          <button @click="form=null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <!-- الاسم -->
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> الاسم الأول</label>
+            <input type="text" x-model="form.firstName" class="ec-input" placeholder="محمد" />
+          </div>
+          <div>
+            <label class="ec-label">الاسم الأخير</label>
+            <input type="text" x-model="form.lastName" class="ec-input" placeholder="الأحمدي" />
+          </div>
+          <!-- شركة -->
+          <div class="sm:col-span-2">
+            <label class="ec-label">اسم الشركة</label>
+            <input type="text" x-model="form.companyName" class="ec-input" placeholder="اختياري" />
+          </div>
+          <!-- جوال -->
+          <div>
+            <label class="ec-label">الجوال</label>
+            <input type="tel" dir="ltr" x-model="form.phone" @input="checkDup()" class="ec-input font-latin" placeholder="+9665…" />
+            <p x-show="dupWarn" class="text-[.7rem] text-warning mt-1">⚠ جهة اتصال بنفس الرقم موجودة — تأكّد قبل الحفظ.</p>
+          </div>
+          <!-- بريد -->
+          <div>
+            <label class="ec-label">البريد الإلكتروني</label>
+            <input type="email" dir="ltr" x-model="form.email" class="ec-input font-latin" placeholder="email@example.com" />
+          </div>
+          <!-- التصنيف (multi) -->
+          <div class="sm:col-span-2">
+            <label class="ec-label">التصنيف <span class="text-neutral-400 font-normal">(متعدد)</span></label>
+            <div class="flex flex-wrap gap-2 mt-1">
+              <template x-for="t in typeOptions" :key="t.value">
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input type="checkbox" :value="t.value" x-model="form.type" class="rounded" />
+                  <span class="text-sm" x-text="t.label"></span>
+                </label>
+              </template>
+            </div>
+          </div>
+          <!-- الأولوية -->
+          <div>
+            <label class="ec-label">الأولوية</label>
+            <select x-model="form.priority" class="ec-input">
+              <option value="normal">عادي</option>
+              <option value="important">مهم</option>
+              <option value="vip">VIP</option>
+            </select>
+          </div>
+          <!-- الجنسية -->
+          <div>
+            <label class="ec-label">الجنسية</label>
+            <input type="text" x-model="form.nationality" class="ec-input" placeholder="سعودي · مصري · إماراتي…" />
+          </div>
+          <!-- المهنة -->
+          <div>
+            <label class="ec-label">المهنة</label>
+            <input type="text" x-model="form.profession" class="ec-input" placeholder="مهندس · طبيب · مستثمر…" />
+          </div>
+          <!-- المنطقة المفضّلة -->
+          <div>
+            <label class="ec-label">المنطقة المفضّلة</label>
+            <input type="text" x-model="form.preferredArea" class="ec-input" placeholder="النرجس · حطين · الياسمين…" />
+          </div>
+          <!-- الميزانية -->
+          <div>
+            <label class="ec-label">الميزانية من (ر.س)</label>
+            <input type="number" dir="ltr" x-model.number="form.budgetMin" class="ec-input font-latin" placeholder="0" />
+          </div>
+          <div>
+            <label class="ec-label">الميزانية إلى (ر.س)</label>
+            <input type="number" dir="ltr" x-model.number="form.budgetMax" class="ec-input font-latin" placeholder="0" />
+          </div>
+          <!-- عملة -->
+          <div>
+            <label class="ec-label">العملة</label>
+            <select x-model="form.budgetCurrency" class="ec-input">
+              <option value="SAR">SAR — ريال سعودي</option>
+              <option value="AED">AED — درهم إماراتي</option>
+              <option value="EGP">EGP — جنيه مصري</option>
+              <option value="USD">USD — دولار أمريكي</option>
+            </select>
+          </div>
+          <!-- المسؤول -->
+          <div>
+            <label class="ec-label">المسؤول</label>
+            <select x-model="form.assignedTo" class="ec-input">
+              <option value="">—</option>
+              <template x-for="u in agents" :key="u.id"><option :value="u.id" x-text="u.name"></option></template>
+            </select>
+          </div>
+          <!-- واتساب opt-in -->
+          <div class="sm:col-span-2 flex items-center gap-3 py-1">
+            <div class="adm-switch" :class="form.whatsappOptIn&&'on'" @click="form.whatsappOptIn=!form.whatsappOptIn"></div>
+            <div>
+              <div class="text-sm font-semibold text-neutral-700">موافق على التواصل عبر واتساب</div>
+              <div class="text-xs text-neutral-400">إلزامي للرسائل الجماعية وفق سياسة Meta</div>
+            </div>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="save()" :disabled="!form.firstName.trim()" class="adm-btn adm-btn-primary" x-text="form.id?'حفظ التعديلات':'إضافة جهة اتصال'"></button>
+          <button @click="form=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== Merge modal ===== -->
+  <template x-if="mergeTarget">
+    <div class="adm-overlay" @click.self="mergeTarget=null">
+      <div class="adm-modal" style="max-width:460px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">دمج جهة اتصال</div>
+          <button @click="mergeTarget=null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-3">
+          <p class="text-sm text-neutral-600">دمج <span class="font-semibold text-neutral-800" x-text="fullName(mergeTarget)"></span> مع:</p>
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> السجل المصدر (sourceContactId)</label>
+            <select x-model="mergeSourceId" class="ec-input">
+              <option value="">اختر جهة اتصال…</option>
+              <template x-for="c in list.filter(x=>x.id!==mergeTarget.id)" :key="c.id">
+                <option :value="c.id" x-text="fullName(c)+' — '+(c.phones[0]||'بدون جوال')"></option>
+              </template>
+            </select>
+          </div>
+          <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+            سيتم دمج كل البيانات (Leads · Deals · Timeline) في السجل الحالي، وحذف السجل المصدر.
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="doMerge()" :disabled="!mergeSourceId" class="adm-btn adm-btn-danger-solid">تأكيد الدمج</button>
+          <button @click="mergeTarget=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== Bulk assign modal ===== -->
+  <template x-if="bulkAssignOpen">
+    <div class="adm-overlay" @click.self="bulkAssignOpen=false">
+      <div class="adm-modal" style="max-width:400px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">إسناد <span x-text="selected.length"></span> جهة اتصال</div>
+          <button @click="bulkAssignOpen=false" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body">
+          <label class="ec-label">الوكيل</label>
+          <select x-model="bulkAssignUser" class="ec-input">
+            <option value="">اختر وكيلاً…</option>
+            <template x-for="u in agents" :key="u.id"><option :value="u.id" x-text="u.name"></option></template>
+          </select>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="doBulkAssign()" :disabled="!bulkAssignUser" class="adm-btn adm-btn-primary">إسناد</button>
+          <button @click="bulkAssignOpen=false" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</div>
+
+<script>
+function contacts(){
+  return {
+    ...floatMenu(),
+    view:'table', search:'', fType:'all', fPriority:'all', fCompany:'', fArea:'',
+    page:1, limit:10, selected:[],
+    form:null, mergeTarget:null, mergeSourceId:'', bulkAssignOpen:false, bulkAssignUser:'', dupWarn:false,
+
+    typeOptions:[
+      {value:'buyer',   label:'مشتري'},
+      {value:'seller',  label:'بائع'},
+      {value:'landlord',label:'مالك'},
+      {value:'tenant',  label:'مستأجر'},
+      {value:'investor',label:'مستثمر'},
+    ],
+
+    agents:[
+      {id:'u1',name:'سارة القحطاني'},
+      {id:'u2',name:'خالد العمري'},
+      {id:'u3',name:'نورة الدوسري'},
+      {id:'u4',name:'فهد الشمري'},
+    ],
+
+    list:[
+      {
+        id:'c1', firstName:'عبدالله', lastName:'المطيري', companyName:'شركة الفيصل العقارية',
+        type:['buyer','investor'], tags:[], priority:'vip',
+        nationality:'سعودي', profession:'مستثمر',
+        preferredArea:'النرجس', budget:{min:1500000,max:3000000,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u1',
+        phones:['+966551234567'], emails:['a.mutairi@faisal-re.com'],
+      },
+      {
+        id:'c2', firstName:'منى', lastName:'السبيعي', companyName:'',
+        type:['buyer'], tags:[], priority:'important',
+        nationality:'سعودية', profession:'طبيبة',
+        preferredArea:'الياسمين', budget:{min:800000,max:1200000,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u2',
+        phones:['+966552345678'], emails:[''],
+      },
+      {
+        id:'c3', firstName:'تركي', lastName:'الحربي', companyName:'مجموعة البنيان',
+        type:['buyer','seller'], tags:[], priority:'vip',
+        nationality:'سعودي', profession:'رجل أعمال',
+        preferredArea:'حطين', budget:{min:2000000,max:5000000,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u1',
+        phones:['+966553456789'], emails:['turki@bunyan.com'],
+      },
+      {
+        id:'c4', firstName:'ريم', lastName:'الزهراني', companyName:'',
+        type:['tenant'], tags:[], priority:'normal',
+        nationality:'سعودية', profession:'معلمة',
+        preferredArea:'الشاطئ', budget:{min:30000,max:60000,currency:'SAR'},
+        whatsappOptIn:false, assignedTo:'u3',
+        phones:['+966554567890'], emails:[''],
+      },
+      {
+        id:'c5', firstName:'سعود', lastName:'القرني', companyName:'دار المستثمر',
+        type:['investor'], tags:[], priority:'important',
+        nationality:'سعودي', profession:'مستثمر عقاري',
+        preferredArea:'الملقا', budget:{min:3000000,max:8000000,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u4',
+        phones:['+966555678901'], emails:['saud@dar-inv.com'],
+      },
+      {
+        id:'c6', firstName:'لمياء', lastName:'الدوسري', companyName:'',
+        type:['seller'], tags:[], priority:'normal',
+        nationality:'سعودية', profession:'موظفة حكومية',
+        preferredArea:'العليا', budget:{min:0,max:0,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u1',
+        phones:['+966556789012'], emails:[''],
+      },
+      {
+        id:'c7', firstName:'ماجد', lastName:'العتيبي', companyName:'',
+        type:['buyer'], tags:[], priority:'normal',
+        nationality:'سعودي', profession:'مهندس',
+        preferredArea:'الشاطئ', budget:{min:500000,max:700000,currency:'SAR'},
+        whatsappOptIn:false, assignedTo:'u2',
+        phones:['+966557890123'], emails:['majed@mail.com'],
+      },
+      {
+        id:'c8', firstName:'هند', lastName:'الشمري', companyName:'',
+        type:['buyer','tenant'], tags:[], priority:'important',
+        nationality:'سعودية', profession:'صيدلانية',
+        preferredArea:'القيروان', budget:{min:900000,max:1100000,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u3',
+        phones:['+966558901234'], emails:[''],
+      },
+      {
+        id:'c9', firstName:'وليد', lastName:'الغامدي', companyName:'مجموعة البنيان',
+        type:['buyer','investor'], tags:[], priority:'vip',
+        nationality:'سعودي', profession:'مدير تنفيذي',
+        preferredArea:'الروضة', budget:{min:1200000,max:2500000,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u4',
+        phones:['+966559012345'], emails:['walid@bunyan.com'],
+      },
+      {
+        id:'c10', firstName:'أمل', lastName:'الحارثي', companyName:'',
+        type:['seller','landlord'], tags:[], priority:'normal',
+        nationality:'سعودية', profession:'ربّة منزل',
+        preferredArea:'حطين', budget:{min:0,max:0,currency:'SAR'},
+        whatsappOptIn:false, assignedTo:'u1',
+        phones:['+966550123456'], emails:['amal.harith@mail.com'],
+      },
+      {
+        id:'c11', firstName:'بدر', lastName:'السلمي', companyName:'شركة الفيصل العقارية',
+        type:['investor'], tags:[], priority:'important',
+        nationality:'سعودي', profession:'محاسب',
+        preferredArea:'العزيزية', budget:{min:400000,max:900000,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u2',
+        phones:['+966551112222'], emails:['badr@faisal-re.com'],
+      },
+      {
+        id:'c12', firstName:'جواهر', lastName:'المالكي', companyName:'',
+        type:['buyer'], tags:[], priority:'normal',
+        nationality:'سعودية', profession:'مديرة مبيعات',
+        preferredArea:'النخيل', budget:{min:950000,max:1300000,currency:'SAR'},
+        whatsappOptIn:true, assignedTo:'u3',
+        phones:['+966552223333'], emails:[''],
+      },
+    ],
+
+    // ── Helpers ──────────────────────────────────────────────────────────────────
+    fullName(c){ return ((c.firstName||'')+' '+(c.lastName||'')).trim() || '—'; },
+    initials(c){ return (c.firstName?.[0]||'')+(c.lastName?.[0]||''); },
+    primaryPhone(c){ return c.phones?.[0] || '—'; },
+    primaryEmail(c){ return c.emails?.[0] || ''; },
+    agentInitials(id){
+      const u = this.agents.find(a=>a.id===id);
+      if(!u) return '—';
+      return u.name.split(' ').map(p=>p[0]).join('').slice(0,2);
+    },
+    typeLabel(t){
+      const map = {buyer:'مشتري',seller:'بائع',landlord:'مالك',tenant:'مستأجر',investor:'مستثمر'};
+      return map[t]||t;
+    },
+    typeBadgeCls(t){
+      const map = {buyer:'b-info',seller:'b-success',landlord:'b-accent',tenant:'b-neutral',investor:'b-warning'};
+      return map[t]||'b-neutral';
+    },
+    priorityCls(p, ctx){
+      if(ctx==='avatar'){
+        if(p==='vip') return 'bg-accent-100 text-accent-800';
+        if(p==='important') return 'bg-warning/10 text-warning';
+        return 'bg-primary-50 text-primary-800';
+      }
+      return '';
+    },
+
+    // ── Filtering ─────────────────────────────────────────────────────────────────
+    get filtered(){
+      const q = this.search.trim().toLowerCase();
+      return this.list.filter(c =>
+        (this.fType==='all' || c.type.includes(this.fType)) &&
+        (this.fPriority==='all' || c.priority===this.fPriority) &&
+        (!this.fCompany || (c.companyName||'').includes(this.fCompany)) &&
+        (!this.fArea || (c.preferredArea||'').includes(this.fArea)) &&
+        (!q || this.fullName(c).toLowerCase().includes(q)
+            || (c.phones[0]||'').includes(q)
+            || (c.emails[0]||'').toLowerCase().includes(q)
+            || (c.companyName||'').toLowerCase().includes(q))
+      );
+    },
+    get totalPages(){ return Math.max(1, Math.ceil(this.filtered.length/this.limit)); },
+    get pageRows(){ return this.filtered.slice((this.page-1)*this.limit, this.page*this.limit); },
+    toggleAll(e){ this.selected = e.target.checked ? this.pageRows.map(c=>c.id) : []; },
+
+    // ── Add / Edit ────────────────────────────────────────────────────────────────
+    openAdd(){
+      this.dupWarn=false;
+      this.form={
+        id:null, firstName:'', lastName:'', companyName:'',
+        type:[], priority:'normal', nationality:'', profession:'',
+        preferredArea:'', budgetMin:null, budgetMax:null, budgetCurrency:'SAR',
+        phone:'', email:'', whatsappOptIn:false, assignedTo:'',
+      };
+    },
+    openEdit(c){
+      this.dupWarn=false;
+      this.form={
+        id:c.id, firstName:c.firstName, lastName:c.lastName||'', companyName:c.companyName||'',
+        type:[...c.type], priority:c.priority, nationality:c.nationality||'', profession:c.profession||'',
+        preferredArea:c.preferredArea||'',
+        budgetMin:c.budget?.min||null, budgetMax:c.budget?.max||null, budgetCurrency:c.budget?.currency||'SAR',
+        phone:c.phones[0]||'', email:c.emails[0]||'',
+        whatsappOptIn:c.whatsappOptIn, assignedTo:c.assignedTo||'',
+      };
+    },
+    checkDup(){
+      this.dupWarn = !!this.form.phone && this.list.some(c=>c.phones[0]===this.form.phone && c.id!==this.form.id);
+    },
+    save(){
+      if(!this.form.firstName.trim()) return;
+      const payload = {
+        firstName: this.form.firstName.trim(),
+        lastName: this.form.lastName||'',
+        companyName: this.form.companyName||'',
+        type: [...this.form.type],
+        priority: this.form.priority,
+        nationality: this.form.nationality||'',
+        profession: this.form.profession||'',
+        preferredArea: this.form.preferredArea||'',
+        budget: (this.form.budgetMin||this.form.budgetMax)?{min:this.form.budgetMin,max:this.form.budgetMax,currency:this.form.budgetCurrency}:null,
+        phones: this.form.phone?[this.form.phone]:[],
+        emails: this.form.email?[this.form.email]:[],
+        whatsappOptIn: this.form.whatsappOptIn,
+        assignedTo: this.form.assignedTo||null,
+      };
+      if(this.form.id){
+        const i = this.list.findIndex(x=>x.id===this.form.id);
+        if(i>-1) this.list[i]={ ...this.list[i], ...payload };
+      } else {
+        this.list.unshift({ id:'c'+Date.now(), ...payload, tags:[] });
+      }
+      this.form=null;
+    },
+
+    // ── Merge ─────────────────────────────────────────────────────────────────────
+    openMerge(c){ this.mergeSourceId=''; this.mergeTarget=c; },
+    doMerge(){
+      if(!this.mergeSourceId) return;
+      // POST /api/v1/contacts/:id/merge { sourceContactId }
+      this.list = this.list.filter(x=>x.id!==this.mergeSourceId);
+      this.mergeTarget=null;
+    },
+
+    // ── Bulk assign ───────────────────────────────────────────────────────────────
+    openBulkAssign(){ this.bulkAssignUser=''; this.bulkAssignOpen=true; },
+    doBulkAssign(){
+      if(!this.bulkAssignUser) return;
+      this.list.filter(c=>this.selected.includes(c.id)).forEach(c=>{ c.assignedTo=this.bulkAssignUser; });
+      this.selected=[];
+      this.bulkAssignOpen=false;
+    },
+
+    // ── Delete ────────────────────────────────────────────────────────────────────
+    askDelete(c){ if(confirm('حذف جهة الاتصال '+this.fullName(c)+'؟')) this.list=this.list.filter(x=>x.id!==c.id); },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'contacts';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0,
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
+      fmClose(){ this.fmId=null; },
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>

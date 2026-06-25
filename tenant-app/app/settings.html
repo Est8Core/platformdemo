@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · الإعدادات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- S-052 · إعدادات الحساب · FN settings
+     GET  /api/v1/settings/company-profile         PUT /api/v1/settings/company-profile
+     GET  /api/v1/settings/currency                PUT /api/v1/settings/currency
+     GET  /api/v1/settings/language                PUT /api/v1/settings/language
+     GET  /api/v1/settings/stages                  POST /api/v1/settings/stages
+     PUT  /api/v1/settings/stages/reorder          PUT /api/v1/settings/stages/:id
+     DELETE /api/v1/settings/stages/:id
+     GET  /api/v1/settings/lookups/:type           POST /api/v1/settings/lookups/:type
+     PUT  /api/v1/settings/lookups/:type/:id       DELETE /api/v1/settings/lookups/:type/:id
+     GET  /api/v1/settings/custom-fields           POST /api/v1/settings/custom-fields
+     PUT  /api/v1/settings/custom-fields/reorder   PUT /api/v1/settings/custom-fields/:id
+     DELETE /api/v1/settings/custom-fields/:id
+     GET  /api/v1/settings/commission              PUT /api/v1/settings/commission
+     GET  /api/v1/settings/assignment-rules        PUT /api/v1/settings/assignment-rules
+     GET  /api/v1/settings/assignment-config       PUT /api/v1/settings/assignment-config
+     GET  /api/v1/settings/sla                     PUT /api/v1/settings/sla
+     GET  /api/v1/settings/permissions             PUT /api/v1/settings/permissions/:id
+     GET  /api/v1/settings/integrations            POST /api/v1/settings/integrations
+     PUT  /api/v1/settings/integrations/:id        DELETE /api/v1/settings/integrations/:id
+     GET  /api/v1/settings/billing                 GET /api/v1/settings/billing/full
+     GET  /api/v1/settings/billing/invoices        GET /api/v1/settings/billing/invoices/:id
+     GET  /api/v1/settings/audit-log
+     POST /api/v1/settings/export
+     GET  /api/v1/settings/notifications/preferences  PUT /api/v1/settings/notifications/preferences
+     GET  /api/v1/settings/report-schedules
+-->
+<div x-data="settings()">
+
+  <!-- ===== Page header ===== -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">إعدادات الحساب</h1>
+      <p class="adm-page-sub">تحكّم بكل جوانب نظامك: بيانات الشركة · المراحل · الصلاحيات · التكاملات · الفوترة</p>
+    </div>
+    <div x-show="dirty" x-transition class="flex items-center gap-2">
+      <span class="text-xs text-warning font-semibold flex items-center gap-1.5">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2 1.5"/></svg>
+        تغييرات غير محفوظة
+      </span>
+      <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="cancel()">إلغاء</button>
+      <button class="adm-btn adm-btn-primary adm-btn-sm" @click="save()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8.5l3 3 7-7"/></svg>
+        حفظ
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== Save toast ===== -->
+  <div x-show="saved" x-transition.opacity
+       class="fixed bottom-6 end-6 z-50 flex items-center gap-2.5 bg-success text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-xl">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l3 3 7-7"/></svg>
+    تم الحفظ بنجاح
+  </div>
+
+  <!-- ===== Two-column layout ===== -->
+  <div class="flex gap-5 items-start">
+
+    <!-- ── Side nav ── -->
+    <div class="adm-card shrink-0 w-56 sticky top-20">
+      <div class="p-2 flex flex-col gap-0.5">
+        <template x-for="g in groups" :key="g.id">
+          <button
+            @click="active=g.id"
+            class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-start"
+            :class="active===g.id ? 'bg-primary-800 text-white font-semibold' : 'text-neutral-600 hover:bg-neutral-50 hover:text-primary-800'">
+            <span x-html="g.icon"
+                  class="shrink-0 w-[18px] h-[18px] flex items-center justify-center"
+                  :class="active===g.id ? 'text-accent-300' : 'text-neutral-400'"></span>
+            <span x-text="g.label" class="flex-1 truncate"></span>
+            <span x-show="g.ro" class="text-[.62rem] bg-neutral-100 text-neutral-500 px-1.5 py-px rounded font-bold shrink-0">عرض</span>
+          </button>
+        </template>
+      </div>
+    </div>
+
+    <!-- ── Content pane ── -->
+    <div class="flex-1 min-w-0 pb-24">
+
+      <!-- ════════════════════════════════════════════════════
+           بيانات الشركة  ← GET/PUT /settings/company-profile
+               + GET/PUT /settings/currency + /language
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='company'" x-cloak>
+
+        <!-- البيانات الأساسية -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head"><div class="adm-card-title">بيانات الشركة</div></div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div class="sm:col-span-2 flex items-start gap-5">
+                <div class="relative group cursor-pointer shrink-0">
+                  <div class="w-20 h-20 rounded-xl bg-primary-50 border-2 border-dashed border-primary-200 flex items-center justify-center overflow-hidden">
+                    <img x-show="s.company.logoUrl" :src="s.company.logoUrl" class="w-full h-full object-contain" />
+                    <svg x-show="!s.company.logoUrl" class="text-primary-300" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  </div>
+                  <div class="absolute inset-0 rounded-xl bg-primary-900/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                    <svg class="text-white" width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12V10l3-3 3 3 2.5-2.5L14 11v1H2z"/><path d="M11 5a1 1 0 100-2 1 1 0 000 2z" fill="currentColor"/></svg>
+                  </div>
+                </div>
+                <div class="min-w-0">
+                  <label class="ec-label">اسم الشركة</label>
+                  <input type="text" class="ec-input" x-model="s.company.name" placeholder="شركة مسكن للوساطة العقارية" />
+                  <p class="text-xs text-neutral-400 mt-1">يظهر في الفواتير والتقارير وواجهة النظام</p>
+                </div>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="ec-label">وصف الشركة</label>
+                <textarea class="ec-input" rows="2" x-model="s.company.description" placeholder="وصف مختصر يظهر في ملف الشركة والتقارير"></textarea>
+              </div>
+              <div>
+                <label class="ec-label">الموقع / المدينة</label>
+                <input type="text" class="ec-input" x-model="s.company.location" placeholder="الرياض، المملكة العربية السعودية" />
+              </div>
+              <div>
+                <label class="ec-label">المنطقة الزمنية</label>
+                <select class="ec-input" x-model="s.company.timezone">
+                  <option value="Asia/Riyadh">Asia/Riyadh (AST +3)</option>
+                  <option value="Asia/Dubai">Asia/Dubai (GST +4)</option>
+                  <option value="Asia/Kuwait">Asia/Kuwait (AST +3)</option>
+                  <option value="Asia/Qatar">Asia/Qatar (AST +3)</option>
+                  <option value="Africa/Cairo">Africa/Cairo (EET +2)</option>
+                  <option value="Africa/Casablanca">Africa/Casablanca (WET +1)</option>
+                  <option value="Europe/London">Europe/London (GMT)</option>
+                  <option value="UTC">UTC</option>
+                </select>
+              </div>
+              <div>
+                <label class="ec-label">العملة الافتراضية</label>
+                <select class="ec-input" x-model="s.company.currency">
+                  <option value="SAR">ريال سعودي (SAR)</option>
+                  <option value="AED">درهم إماراتي (AED)</option>
+                  <option value="EGP">جنيه مصري (EGP)</option>
+                  <option value="KWD">دينار كويتي (KWD)</option>
+                  <option value="QAR">ريال قطري (QAR)</option>
+                  <option value="BHD">دينار بحريني (BHD)</option>
+                  <option value="OMR">ريال عُماني (OMR)</option>
+                  <option value="USD">دولار أمريكي (USD)</option>
+                  <option value="EUR">يورو (EUR)</option>
+                </select>
+              </div>
+              <div>
+                <label class="ec-label">لغة النظام الافتراضية</label>
+                <select class="ec-input" x-model="s.company.language">
+                  <option value="ar">العربية</option>
+                  <option value="en">الإنجليزية</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ضرائب وفواتير -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head"><div class="adm-card-title">الضرائب والفواتير</div></div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">الرقم الضريبي</label>
+                <input type="text" class="ec-input font-latin" x-model="s.company.taxNumber" placeholder="300XXXXXXXXX0003" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">نسبة الضريبة (%)</label>
+                <input type="number" min="0" max="100" step="0.01" class="ec-input" x-model.number="s.company.taxRate" placeholder="15" />
+              </div>
+              <div>
+                <label class="ec-label">بداية السنة المالية (شهر)</label>
+                <select class="ec-input" x-model.number="s.company.fiscalYearStart">
+                  <option value="1">يناير</option><option value="4">أبريل</option>
+                  <option value="7">يوليو</option><option value="10">أكتوبر</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="ec-label">ترويسة الفاتورة PDF</label>
+                <textarea class="ec-input" rows="2" x-model="s.company.pdfHeader" placeholder="نص أو HTML يظهر في رأس الفاتورة"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /company -->
+
+      <!-- ════════════════════════════════════════════════════
+           مراحل العملاء  ← GET/POST /settings/stages
+                           PUT /settings/stages/reorder
+                           PUT/DELETE /settings/stages/:id
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='stages'" x-cloak>
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">مراحل خط الأنابيب</div>
+              <p class="text-xs text-neutral-500 mt-0.5">اسحب لإعادة الترتيب — يُرسَل عبر PUT /settings/stages/reorder</p>
+            </div>
+            <button class="adm-btn adm-btn-gold adm-btn-sm" @click="stageModal=true; editStage=null">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> مرحلة جديدة
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex flex-col gap-2" id="stages-list">
+              <template x-for="(st, i) in s.stages" :key="st.id">
+                <div class="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl border border-neutral-100 group">
+                  <!-- drag handle -->
+                  <div class="cursor-grab text-neutral-300 hover:text-neutral-500 shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="5.5" cy="4" r="1.2"/><circle cx="10.5" cy="4" r="1.2"/><circle cx="5.5" cy="8" r="1.2"/><circle cx="10.5" cy="8" r="1.2"/><circle cx="5.5" cy="12" r="1.2"/><circle cx="10.5" cy="12" r="1.2"/></svg>
+                  </div>
+                  <!-- color dot + name -->
+                  <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                    <div class="w-4 h-4 rounded-full shrink-0 border-2 border-white shadow-sm" :style="'background:'+st.color"></div>
+                    <span class="font-semibold text-sm text-primary-800 truncate" x-text="st.name"></span>
+                    <span x-show="st.isWon"  class="adm-badge b-success text-[.65rem]">إغلاق (مكسوب)</span>
+                    <span x-show="st.isLost" class="adm-badge b-danger text-[.65rem]">إغلاق (خاسر)</span>
+                  </div>
+                  <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                    <button class="adm-icon-btn w-7 h-7" @click="openEditStage(st)" title="تعديل">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                    </button>
+                    <button class="adm-icon-btn w-7 h-7 text-danger" @click="confirmDeleteStage(st)" :disabled="st.isWon||st.isLost" title="حذف">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </template>
+              <template x-if="!s.stages.length">
+                <div class="adm-empty">لا مراحل بعد — أضف أول مرحلة</div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stage modal -->
+        <div x-show="stageModal" x-transition class="adm-overlay" @click.self="stageModal=false">
+          <div class="adm-modal">
+            <div class="adm-modal-head">
+              <span class="font-bold text-primary-800" x-text="editStage ? 'تعديل المرحلة' : 'مرحلة جديدة'"></span>
+              <button @click="stageModal=false" class="adm-icon-btn w-8 h-8">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg>
+              </button>
+            </div>
+            <div class="adm-modal-body flex flex-col gap-4">
+              <div>
+                <label class="ec-label">اسم المرحلة</label>
+                <input type="text" class="ec-input" x-model="stageForm.name" placeholder="مثال: قيد التفاوض" />
+              </div>
+              <div>
+                <label class="ec-label">اللون</label>
+                <div class="flex items-center gap-3 flex-wrap mt-1">
+                  <template x-for="c in stageColors" :key="c">
+                    <button
+                      @click="stageForm.color=c"
+                      class="w-8 h-8 rounded-full border-4 transition-all"
+                      :style="'background:'+c+';border-color:'+(stageForm.color===c?c:'transparent')"
+                      :class="stageForm.color===c ? 'scale-110 shadow-md' : 'border-transparent'">
+                    </button>
+                  </template>
+                  <input type="color" class="w-8 h-8 rounded-full cursor-pointer border border-neutral-200" x-model="stageForm.color" title="لون مخصص" />
+                </div>
+              </div>
+              <div class="flex flex-col gap-3">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <div class="adm-switch" :class="stageForm.isWon&&'on'" @click="stageForm.isWon=!stageForm.isWon; if(stageForm.isWon) stageForm.isLost=false"></div>
+                  <div><p class="text-sm font-semibold text-neutral-800">مرحلة إغلاق (مكسوب)</p><p class="text-xs text-neutral-500">تُسجَّل الصفقة كمكسوبة عند الوصول لهذه المرحلة</p></div>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <div class="adm-switch" :class="stageForm.isLost&&'on'" @click="stageForm.isLost=!stageForm.isLost; if(stageForm.isLost) stageForm.isWon=false"></div>
+                  <div><p class="text-sm font-semibold text-neutral-800">مرحلة إغلاق (خاسر)</p><p class="text-xs text-neutral-500">تُصنَّف الصفقة كخاسرة عند الوصول لهذه المرحلة</p></div>
+                </label>
+              </div>
+            </div>
+            <div class="adm-modal-foot gap-2">
+              <button class="adm-btn adm-btn-primary" @click="saveStage()">حفظ</button>
+              <button class="adm-btn adm-btn-ghost" @click="stageModal=false">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /stages -->
+
+      <!-- ════════════════════════════════════════════════════
+           القوائم المرجعية  ← GET/POST /settings/lookups/:type
+                               PUT/DELETE /settings/lookups/:type/:id
+           أنواع: lead_sources · property_types · deal_types ·
+                  activity_types · loss_reasons · amenities
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='lookups'" x-cloak>
+
+        <!-- Lookup type tabs -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head pb-0 border-b-0">
+            <div class="adm-card-title">القوائم المرجعية</div>
+          </div>
+          <div class="px-4">
+            <div class="adm-tabs">
+              <template x-for="lt in lookupTypes" :key="lt.key">
+                <button class="adm-tab" :class="activeLookup===lt.key&&'on'" @click="activeLookup=lt.key" x-text="lt.label"></button>
+              </template>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center gap-2 mb-3">
+              <input type="text" class="ec-input flex-1" x-model="newLookupName" :placeholder="'اسم '+(lookupTypes.find(l=>l.key===activeLookup)?.singular||'العنصر')+' الجديد'" @keydown.enter="addLookup()" />
+              <input type="color" class="w-9 h-9 rounded-lg cursor-pointer border border-neutral-200 p-0.5" x-model="newLookupColor" title="لون" />
+              <button class="adm-btn adm-btn-gold adm-btn-sm" @click="addLookup()">إضافة</button>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <template x-for="item in activeLookupItems" :key="item.id">
+                <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-50 group border border-transparent hover:border-neutral-100">
+                  <div x-show="item.color" class="w-3 h-3 rounded-full shrink-0" :style="'background:'+(item.color||'#ccc')"></div>
+                  <span class="flex-1 text-sm text-neutral-800 font-medium" x-text="item.name"></span>
+                  <span x-show="item.slug" class="text-xs text-neutral-400 font-latin" x-text="item.slug"></span>
+                  <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                    <button class="adm-icon-btn w-7 h-7" @click="editLookupItem=item; editLookupModal=true" title="تعديل">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                    </button>
+                    <button class="adm-icon-btn w-7 h-7 text-danger" @click="deleteLookup(item)" title="حذف">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M5 4.5l.5 8h5l.5-8"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </template>
+              <template x-if="!activeLookupItems.length">
+                <div class="adm-empty text-sm">لا عناصر بعد — أضف أول عنصر أعلاه</div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit lookup modal -->
+        <div x-show="editLookupModal" x-transition class="adm-overlay" @click.self="editLookupModal=false">
+          <div class="adm-modal">
+            <div class="adm-modal-head">
+              <span class="font-bold text-primary-800">تعديل العنصر</span>
+              <button @click="editLookupModal=false" class="adm-icon-btn w-8 h-8"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+            </div>
+            <div class="adm-modal-body flex flex-col gap-3">
+              <div>
+                <label class="ec-label">الاسم</label>
+                <input type="text" class="ec-input" x-model="editLookupItem.name" />
+              </div>
+              <div>
+                <label class="ec-label">اللون</label>
+                <input type="color" class="w-10 h-10 rounded-lg cursor-pointer border border-neutral-200 p-0.5" x-model="editLookupItem.color" />
+              </div>
+            </div>
+            <div class="adm-modal-foot">
+              <button class="adm-btn adm-btn-primary" @click="saveLookupEdit()">حفظ</button>
+              <button class="adm-btn adm-btn-ghost" @click="editLookupModal=false">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /lookups -->
+
+      <!-- ════════════════════════════════════════════════════
+           الحقول المخصصة  ← GET/POST /settings/custom-fields
+                              PUT /settings/custom-fields/reorder
+                              PUT/DELETE /settings/custom-fields/:id
+           entityType: lead | contact | property | deal
+           type: text | number | date | boolean | select | multi_select
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='custom-fields'" x-cloak>
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">الحقول المخصصة</div>
+              <p class="text-xs text-neutral-500 mt-0.5">تظهر تلقائياً في نماذج الإنشاء والتعديل والفلاتر</p>
+            </div>
+            <button class="adm-btn adm-btn-gold adm-btn-sm" @click="cfModal=true; editCf=null; cfForm={entityType:'lead',name:'',type:'text',isRequired:false,options:[]}">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> حقل جديد
+            </button>
+          </div>
+          <!-- entity tabs -->
+          <div class="px-4">
+            <div class="adm-tabs">
+              <button class="adm-tab" :class="cfEntity==='lead'&&'on'"     @click="cfEntity='lead'">العملاء</button>
+              <button class="adm-tab" :class="cfEntity==='contact'&&'on'"  @click="cfEntity='contact'">جهات الاتصال</button>
+              <button class="adm-tab" :class="cfEntity==='property'&&'on'" @click="cfEntity='property'">العقارات</button>
+              <button class="adm-tab" :class="cfEntity==='deal'&&'on'"     @click="cfEntity='deal'">الصفقات</button>
+            </div>
+          </div>
+          <div class="p-4">
+            <template x-for="cf in cfByEntity" :key="cf.id">
+              <div class="flex items-center gap-3 p-3 rounded-xl border border-neutral-100 bg-neutral-50 mb-2 group">
+                <div class="cursor-grab text-neutral-300 shrink-0">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="5.5" cy="4" r="1.2"/><circle cx="10.5" cy="4" r="1.2"/><circle cx="5.5" cy="8" r="1.2"/><circle cx="10.5" cy="8" r="1.2"/><circle cx="5.5" cy="12" r="1.2"/><circle cx="10.5" cy="12" r="1.2"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-semibold text-sm text-primary-800" x-text="cf.name"></span>
+                    <span class="adm-badge b-info text-[.65rem]" x-text="cfTypeLabel(cf.type)"></span>
+                    <span x-show="cf.isRequired" class="adm-badge b-warning text-[.65rem]">مطلوب</span>
+                  </div>
+                  <span class="text-xs text-neutral-400 font-latin" x-text="cf.key"></span>
+                </div>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
+                  <button class="adm-icon-btn w-7 h-7" @click="openEditCf(cf)">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                  </button>
+                  <button class="adm-icon-btn w-7 h-7 text-danger" @click="deleteCf(cf)">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M5 4.5l.5 8h5l.5-8"/></svg>
+                  </button>
+                </div>
+              </div>
+            </template>
+            <template x-if="!cfByEntity.length">
+              <div class="adm-empty text-sm">لا حقول مخصصة لهذا الكيان — أضف أول حقل</div>
+            </template>
+          </div>
+        </div>
+
+        <!-- CF Modal -->
+        <div x-show="cfModal" x-transition class="adm-overlay" @click.self="cfModal=false">
+          <div class="adm-modal">
+            <div class="adm-modal-head">
+              <span class="font-bold text-primary-800" x-text="editCf ? 'تعديل الحقل' : 'حقل مخصص جديد'"></span>
+              <button @click="cfModal=false" class="adm-icon-btn w-8 h-8"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+            </div>
+            <div class="adm-modal-body flex flex-col gap-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="ec-label">الكيان</label>
+                  <select class="ec-input" x-model="cfForm.entityType" :disabled="!!editCf">
+                    <option value="lead">عميل محتمل</option>
+                    <option value="contact">جهة اتصال</option>
+                    <option value="property">عقار</option>
+                    <option value="deal">صفقة</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="ec-label">نوع الحقل</label>
+                  <select class="ec-input" x-model="cfForm.type">
+                    <option value="text">نص</option>
+                    <option value="number">رقم</option>
+                    <option value="date">تاريخ</option>
+                    <option value="boolean">نعم/لا</option>
+                    <option value="select">اختيار منفرد</option>
+                    <option value="multi_select">اختيار متعدد</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="ec-label">اسم الحقل</label>
+                <input type="text" class="ec-input" x-model="cfForm.name" placeholder="مثال: المنطقة المفضلة" />
+              </div>
+              <!-- options for select types -->
+              <div x-show="cfForm.type==='select'||cfForm.type==='multi_select'" x-collapse>
+                <label class="ec-label">خيارات القائمة</label>
+                <div class="flex flex-col gap-1.5 mb-2">
+                  <template x-for="(opt,i) in cfForm.options" :key="i">
+                    <div class="flex items-center gap-2">
+                      <input type="text" class="ec-input flex-1" :placeholder="'خيار '+(i+1)" x-model="opt.label" />
+                      <button class="adm-icon-btn w-8 h-8 text-danger shrink-0" @click="cfForm.options.splice(i,1)">
+                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3l10 10M13 3L3 13"/></svg>
+                      </button>
+                    </div>
+                  </template>
+                </div>
+                <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="cfForm.options.push({label:'',value:''})">+ خيار</button>
+              </div>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <div class="adm-switch" :class="cfForm.isRequired&&'on'" @click="cfForm.isRequired=!cfForm.isRequired"></div>
+                <span class="text-sm font-semibold text-neutral-800">حقل مطلوب</span>
+              </label>
+            </div>
+            <div class="adm-modal-foot">
+              <button class="adm-btn adm-btn-primary" @click="saveCf()">حفظ</button>
+              <button class="adm-btn adm-btn-ghost" @click="cfModal=false">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /custom-fields -->
+
+      <!-- ════════════════════════════════════════════════════
+           العمولات  ← GET/PUT /settings/commission
+           CommissionSettingsSchema:
+             defaultCommissionPct · companyCommissionSplit ·
+             agentCommissionSplit · sharedDealSplit
+           Invariant: company + agent = 100
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='commission'" x-cloak>
+        <div class="adm-card mb-4">
+          <div class="adm-card-head"><div class="adm-card-title">إعدادات العمولة الافتراضية</div></div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-xl">
+              <div class="sm:col-span-2">
+                <label class="ec-label">نسبة العمولة الافتراضية (%)</label>
+                <p class="text-xs text-neutral-500 mb-2">تُطبَّق تلقائياً عند إنشاء صفقة جديدة — يمكن تعديلها per-صفقة</p>
+                <input type="number" min="0" max="100" step="0.1" class="ec-input" x-model.number="s.commission.defaultCommissionPct" placeholder="2.5" />
+              </div>
+              <div>
+                <label class="ec-label">حصة الشركة (%)</label>
+                <input type="number" min="0" max="100" step="0.1" class="ec-input"
+                       x-model.number="s.commission.companyCommissionSplit"
+                       @input="s.commission.agentCommissionSplit = Math.max(0, 100 - s.commission.companyCommissionSplit)"
+                       placeholder="30" />
+              </div>
+              <div>
+                <label class="ec-label">حصة الوكيل (%)</label>
+                <input type="number" min="0" max="100" step="0.1" class="ec-input"
+                       x-model.number="s.commission.agentCommissionSplit"
+                       @input="s.commission.companyCommissionSplit = Math.max(0, 100 - s.commission.agentCommissionSplit)"
+                       placeholder="70" />
+              </div>
+              <div class="sm:col-span-2">
+                <div class="h-2.5 bg-neutral-100 rounded-full overflow-hidden flex">
+                  <div class="h-full bg-primary-700 transition-all" :style="'width:'+Math.min(s.commission.companyCommissionSplit,100)+'%'"></div>
+                  <div class="h-full bg-accent-500 transition-all" :style="'width:'+Math.min(s.commission.agentCommissionSplit,100)+'%'"></div>
+                </div>
+                <div class="flex justify-between mt-1">
+                  <span class="text-xs text-primary-700 font-semibold">الشركة: <span x-text="s.commission.companyCommissionSplit"></span>%</span>
+                  <span class="text-xs text-accent-700 font-semibold">الوكيل: <span x-text="s.commission.agentCommissionSplit"></span>%</span>
+                </div>
+                <p x-show="Math.abs(s.commission.companyCommissionSplit + s.commission.agentCommissionSplit - 100) > 0.01"
+                   class="text-xs text-danger mt-1 font-semibold">تحذير: مجموع الحصتين يجب أن يساوي 100%</p>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="ec-label">خصم الصفقات المشتركة (Co-brokerage) (%)</label>
+                <p class="text-xs text-neutral-500 mb-2">نسبة تُخصَم من العمولة الإجمالية عند مشاركة صفقة مع وساطة خارجية</p>
+                <input type="number" min="0" max="100" step="0.1" class="ec-input max-w-xs" x-model.number="s.commission.sharedDealSplit" placeholder="50" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /commission -->
+
+      <!-- ════════════════════════════════════════════════════
+           قواعد الإسناد + SLA
+           GET/PUT /settings/assignment-rules  (enabled · maxPerAgent)
+           GET/PUT /settings/assignment-config (agentSpecializations)
+           GET/PUT /settings/sla
+             (whatsappReplySlaHours · leadInactivityDays · whatsappAutoCloseDays)
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='assignment'" x-cloak>
+
+        <!-- round robin -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">توزيع العملاء التلقائي (Round Robin)</div>
+              <p class="text-xs text-neutral-500 mt-0.5">PUT /settings/assignment-rules</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500" x-text="s.assignment.enabled ? 'مفعّل' : 'يدوي'"></span>
+              <div class="adm-switch" :class="s.assignment.enabled&&'on'" @click="s.assignment.enabled=!s.assignment.enabled" role="switch" :aria-checked="s.assignment.enabled"></div>
+            </div>
+          </div>
+          <div x-show="s.assignment.enabled" x-collapse class="p-5">
+            <div class="max-w-xs">
+              <label class="ec-label">الحد الأقصى per-وكيل</label>
+              <p class="text-xs text-neutral-500 mb-2">maxPerAgent — أقصى عدد عملاء نشطين per-وكيل (1-500)</p>
+              <input type="number" min="1" max="500" class="ec-input" x-model.number="s.assignment.maxPerAgent" placeholder="50" />
+            </div>
+          </div>
+        </div>
+
+        <!-- SLA -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div class="adm-card-title">إعدادات مستوى الخدمة (SLA)</div>
+            <p class="text-xs text-neutral-500 mt-0.5">PUT /settings/sla</p>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">مدة الرد على واتساب (ساعة)</label>
+                <p class="text-xs text-neutral-500 mb-2">whatsappReplySlaHours</p>
+                <input type="number" min="1" max="8760" class="ec-input" x-model.number="s.sla.whatsappReplySlaHours" placeholder="4" />
+              </div>
+              <div>
+                <label class="ec-label">أيام خمول العميل</label>
+                <p class="text-xs text-neutral-500 mb-2">leadInactivityDays</p>
+                <input type="number" min="1" max="365" class="ec-input" x-model.number="s.sla.leadInactivityDays" placeholder="7" />
+              </div>
+              <div>
+                <label class="ec-label">إغلاق واتساب تلقائياً (يوم)</label>
+                <p class="text-xs text-neutral-500 mb-2">whatsappAutoCloseDays</p>
+                <input type="number" min="1" max="365" class="ec-input" x-model.number="s.sla.whatsappAutoCloseDays" placeholder="30" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /assignment -->
+
+      <!-- ════════════════════════════════════════════════════
+           الصلاحيات  ← GET /settings/permissions
+                         PUT /settings/permissions/:roleId
+           مصفوفة: دور × صلاحية (switches)
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='permissions'" x-cloak>
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">مصفوفة الصلاحيات</div>
+              <p class="text-xs text-neutral-500 mt-0.5">GET /settings/permissions — تعديل محدود ضمن الحدود المسموحة</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto p-4">
+            <table class="adm-table min-w-max">
+              <thead>
+                <tr>
+                  <th class="min-w-[200px]">الصلاحية</th>
+                  <template x-for="role in s.permMatrix.roles" :key="role.id">
+                    <th class="text-center min-w-[100px]">
+                      <div x-text="role.label" class="font-bold text-primary-800 text-sm"></div>
+                      <div x-show="!role.isEditable" class="text-[.64rem] text-neutral-400 font-normal mt-0.5">ثابت</div>
+                    </th>
+                  </template>
+                </tr>
+              </thead>
+              <!-- NOTE: outer x-for wraps a <tbody> so each iteration has ONE root element -->
+              <template x-for="group in s.permMatrix.groups" :key="group.label">
+                <tbody>
+                  <tr>
+                    <td colspan="100" class="bg-neutral-50 text-xs font-bold text-neutral-500 py-2 uppercase tracking-wide" x-text="group.label"></td>
+                  </tr>
+                  <template x-for="perm in group.perms" :key="perm.key">
+                    <tr>
+                      <td>
+                        <div class="font-medium text-sm text-neutral-800" x-text="perm.label"></div>
+                        <div class="text-xs text-neutral-400 font-latin" x-text="perm.key"></div>
+                      </td>
+                      <template x-for="role in s.permMatrix.roles" :key="role.id">
+                        <td class="text-center">
+                          <div x-show="role.isEditable"
+                               class="adm-switch mx-auto"
+                               :class="hasPermission(role.id,perm.key)&&'on'"
+                               @click="togglePermission(role.id,perm.key)"
+                               role="switch"
+                               :aria-checked="hasPermission(role.id,perm.key)">
+                          </div>
+                          <div x-show="!role.isEditable">
+                            <svg x-show="hasPermission(role.id,perm.key)" class="mx-auto text-success" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l3 3 7-7"/></svg>
+                            <svg x-show="!hasPermission(role.id,perm.key)" class="mx-auto text-neutral-300" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4L4 12"/></svg>
+                          </div>
+                        </td>
+                      </template>
+                    </tr>
+                  </template>
+                </tbody>
+              </template>
+            </table>
+          </div>
+        </div>
+      </div><!-- /permissions -->
+
+      <!-- ════════════════════════════════════════════════════
+           التكاملات  ← GET/POST /settings/integrations
+                         PUT/DELETE /settings/integrations/:id
+           types: google_calendar | bayut | aqar | property_finder | webhook
+           statuses: active | pending | error | revoked
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='integrations'" x-cloak>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <template x-for="intg in s.integrations" :key="intg.id">
+            <div class="adm-card">
+              <div class="p-4">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                         :class="intg.type==='google_calendar'?'bg-blue-50':(intg.type==='webhook'?'bg-neutral-100':'bg-orange-50')">
+                      <span x-html="integIcon(intg.type)" class="w-5 h-5"></span>
+                    </div>
+                    <div>
+                      <div class="font-bold text-sm text-primary-800" x-text="intg.name"></div>
+                      <div class="text-xs text-neutral-400 mt-0.5" x-text="integTypeLabel(intg.type)"></div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="adm-badge" :class="integStatusCls(intg.status)" x-text="integStatusLabel(intg.status)"></span>
+                    <button class="adm-icon-btn w-8 h-8" @click="openEditInteg(intg)">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                    </button>
+                    <button class="adm-icon-btn w-8 h-8 text-danger" @click="deleteInteg(intg)">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M5 4.5l.5 8h5l.5-8"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div x-show="intg.type==='webhook'" class="mt-3 px-3 py-2 bg-neutral-50 rounded-lg">
+                  <span class="text-xs font-latin text-neutral-500 break-all" x-text="intg.configJson?.url||'لم يُحدَّد رابط'"></span>
+                </div>
+                <div x-show="intg.type==='google_calendar'" class="mt-3 px-3 py-2 bg-blue-50/60 rounded-lg text-xs text-blue-700" x-text="intg.configJson?.calendarId||'لم يُربط بعد'"></div>
+              </div>
+            </div>
+          </template>
+          <template x-if="!s.integrations.length">
+            <div class="adm-card sm:col-span-2"><div class="adm-empty">لا تكاملات مُضافة — أضف أول تكامل</div></div>
+          </template>
+        </div>
+
+        <button class="adm-btn adm-btn-gold" @click="editInteg=null; integForm={type:'google_calendar',name:'',configJson:{},secretValue:''}; integModal=true">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إضافة تكامل
+        </button>
+
+        <!-- Integration modal -->
+        <div x-show="integModal" x-transition class="adm-overlay" @click.self="integModal=false">
+          <div class="adm-modal">
+            <div class="adm-modal-head">
+              <span class="font-bold text-primary-800" x-text="editInteg ? 'تعديل التكامل' : 'تكامل جديد'"></span>
+              <button @click="integModal=false" class="adm-icon-btn w-8 h-8"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+            </div>
+            <div class="adm-modal-body flex flex-col gap-4">
+              <div>
+                <label class="ec-label">نوع التكامل</label>
+                <select class="ec-input" x-model="integForm.type" :disabled="!!editInteg">
+                  <option value="google_calendar">Google Calendar</option>
+                  <option value="bayut">بيوت (Bayut)</option>
+                  <option value="aqar">عقار (Aqar)</option>
+                  <option value="property_finder">Property Finder</option>
+                  <option value="webhook">Webhook مخصص</option>
+                </select>
+              </div>
+              <div>
+                <label class="ec-label">الاسم</label>
+                <input type="text" class="ec-input" x-model="integForm.name" placeholder="مثال: تقويم فريق المبيعات" />
+              </div>
+              <!-- Google Calendar -->
+              <div x-show="integForm.type==='google_calendar'" x-collapse>
+                <label class="ec-label">معرّف التقويم</label>
+                <input type="text" class="ec-input font-latin" x-model="integForm.configJson.calendarId" placeholder="xxxx@group.calendar.google.com" dir="ltr" />
+                <p class="text-xs text-neutral-400 mt-1">يُكتمَل الربط عبر OAuth بعد الحفظ</p>
+              </div>
+              <!-- Portal integrations (bayut / aqar / property_finder) -->
+              <div x-show="['bayut','aqar','property_finder'].includes(integForm.type)" x-collapse>
+                <label class="ec-label">مفتاح API</label>
+                <input type="password" class="ec-input font-latin" x-model="integForm.secretValue" placeholder="••••••••••••" autocomplete="off" />
+              </div>
+              <!-- Webhook -->
+              <div x-show="integForm.type==='webhook'" x-collapse>
+                <label class="ec-label">رابط الـ Webhook</label>
+                <input type="url" class="ec-input font-latin" x-model="integForm.configJson.url" placeholder="https://your-server.com/webhook" dir="ltr" />
+                <label class="ec-label mt-3">رمز التحقق السري (Signing Secret)</label>
+                <input type="password" class="ec-input font-latin" x-model="integForm.secretValue" placeholder="••••••••••••" autocomplete="off" />
+              </div>
+              <!-- Status (edit only) -->
+              <div x-show="editInteg">
+                <label class="ec-label">الحالة</label>
+                <select class="ec-input" x-model="integForm.status">
+                  <option value="active">نشط</option>
+                  <option value="pending">قيد التفعيل</option>
+                  <option value="error">خطأ</option>
+                  <option value="revoked">مُلغى</option>
+                </select>
+              </div>
+            </div>
+            <div class="adm-modal-foot">
+              <button class="adm-btn adm-btn-primary" @click="saveInteg()">حفظ</button>
+              <button class="adm-btn adm-btn-ghost" @click="integModal=false">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      </div><!-- /integrations -->
+
+      <!-- ════════════════════════════════════════════════════
+           الفوترة (للقراءة فقط)
+           GET /settings/billing/full
+           GET /settings/billing/invoices
+           GET /settings/billing/invoices/:id
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='billing'" x-cloak>
+
+        <!-- خلاصة الاشتراك -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div class="adm-card-title">الاشتراك الحالي</div>
+            <span class="adm-badge b-success">نشط</span>
+          </div>
+          <div class="p-5">
+            <dl class="adm-info">
+              <div><dt>الباقة</dt><dd class="flex items-center gap-2"><span class="font-bold text-primary-800" x-text="s.billing.planName"></span><span class="adm-badge b-accent" x-text="s.billing.planType"></span></dd></div>
+              <div><dt>تاريخ التجديد</dt><dd x-text="fmtDate(s.billing.renewalDate)"></dd></div>
+              <div><dt>المستخدمون</dt><dd><span x-text="s.billing.usedSeats"></span> / <span x-text="s.billing.maxSeats"></span> مقعد</dd></div>
+              <div><dt>تاريخ بداية الاشتراك</dt><dd x-text="fmtDate(s.billing.startDate)"></dd></div>
+              <div><dt>دورة الفوترة</dt><dd x-text="s.billing.interval==='monthly'?'شهري':'سنوي'"></dd></div>
+              <div><dt>قيمة الاشتراك</dt><dd class="font-bold font-latin" x-text="Number(s.billing.amount).toLocaleString('en-US')+' '+s.billing.currency"></dd></div>
+            </dl>
+            <div class="mt-4 max-w-sm">
+              <div class="flex justify-between text-xs text-neutral-500 mb-1">
+                <span>المقاعد المستخدمة</span>
+                <span><span x-text="s.billing.usedSeats"></span> / <span x-text="s.billing.maxSeats"></span></span>
+              </div>
+              <div class="adm-progress" :class="s.billing.usedSeats/s.billing.maxSeats>.9?'danger':(s.billing.usedSeats/s.billing.maxSeats>.7?'warn':'')">
+                <span :style="'width:'+Math.min((s.billing.usedSeats/s.billing.maxSeats)*100,100)+'%'"></span>
+              </div>
+            </div>
+          </div>
+          <div class="px-5 pb-4">
+            <p class="text-xs text-neutral-500">للترقية أو تعديل الاشتراك تواصل مع الدعم</p>
+            <button class="adm-btn adm-btn-ghost adm-btn-sm mt-2">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h8v9H7l-3 3z"/><path d="M7 7h4M7 9.5h2.5"/></svg>
+              طلب دعم
+            </button>
+          </div>
+        </div>
+
+        <!-- الفواتير -->
+        <div class="adm-card">
+          <div class="adm-card-head"><div class="adm-card-title">الفواتير</div></div>
+          <div class="overflow-x-auto">
+            <table class="adm-table">
+              <thead>
+                <tr>
+                  <th>رقم الفاتورة</th><th>الفترة</th><th>المبلغ</th><th>الحالة</th><th>التاريخ</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="inv in s.billing.invoices" :key="inv.id">
+                  <tr>
+                    <td class="font-latin text-sm" x-text="inv.number"></td>
+                    <td class="text-sm" x-text="inv.period"></td>
+                    <td class="font-latin font-semibold" x-text="Number(inv.amount).toLocaleString('en-US')+' '+s.billing.currency"></td>
+                    <td>
+                      <span class="adm-badge" :class="inv.status==='paid'?'b-success':(inv.status==='open'?'b-warning':'b-neutral')"
+                            x-text="inv.status==='paid'?'مدفوعة':(inv.status==='open'?'مفتوحة':'ملغاة')"></span>
+                    </td>
+                    <td class="text-sm text-neutral-500" x-text="fmtDate(inv.date)"></td>
+                    <td>
+                      <button class="adm-btn adm-btn-ghost adm-btn-sm" :disabled="inv.status!=='paid'" title="تحميل PDF">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v7M5 8l3 3 3-3M3 13h10"/></svg>
+                        PDF
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <template x-if="!s.billing.invoices.length"><div class="adm-empty">لا فواتير بعد</div></template>
+        </div>
+      </div><!-- /billing -->
+
+      <!-- ════════════════════════════════════════════════════
+           سجل التدقيق  ← GET /settings/audit-log
+           ?actorId=&action=&resource=&from=&to=&page=&limit=
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='audit'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">سجل التدقيق</div>
+            <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="exportAuditLog()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v7M5 8l3 3 3-3M3 13h10"/></svg>
+              تصدير CSV
+            </button>
+          </div>
+          <!-- filters -->
+          <div class="p-4 flex flex-wrap gap-3 border-b border-neutral-50">
+            <div class="relative flex-1 min-w-[200px]">
+              <input type="search" class="ec-input ps-9" x-model="auditSearch" placeholder="بحث باسم المستخدم أو الإجراء…" />
+              <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+            </div>
+            <select class="ec-input w-auto" x-model="auditAction">
+              <option value="">كل الإجراءات</option>
+              <option value="create">إنشاء</option>
+              <option value="update">تعديل</option>
+              <option value="delete">حذف</option>
+              <option value="login">دخول</option>
+            </select>
+            <input type="date" class="ec-input w-auto" x-model="auditFrom" title="من" />
+            <input type="date" class="ec-input w-auto" x-model="auditTo" title="إلى" />
+          </div>
+          <div class="overflow-x-auto">
+            <table class="adm-table">
+              <thead>
+                <tr><th>المستخدم</th><th>الإجراء</th><th>الموديول</th><th>السجل</th><th>التاريخ</th></tr>
+              </thead>
+              <tbody>
+                <template x-for="log in filteredAuditLogs" :key="log.id">
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <span class="adm-avatar w-7 h-7 bg-primary-50 text-primary-700 text-[.65rem]" x-text="log.actorName.split(' ').map(n=>n[0]).join('')"></span>
+                        <span class="text-sm font-medium" x-text="log.actorName"></span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="adm-badge"
+                            :class="log.action==='delete'?'b-danger':(log.action==='create'?'b-success':(log.action==='login'?'b-info':'b-neutral'))"
+                            x-text="log.action==='create'?'إنشاء':(log.action==='update'?'تعديل':(log.action==='delete'?'حذف':'دخول'))"></span>
+                    </td>
+                    <td class="text-sm text-neutral-600" x-text="log.resource"></td>
+                    <td class="text-xs font-latin text-neutral-500" x-text="log.resourceId"></td>
+                    <td class="text-xs text-neutral-500" x-text="timeAgo(log.createdAt)"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <template x-if="!filteredAuditLogs.length"><div class="adm-empty">لا سجلات مطابقة</div></template>
+        </div>
+      </div><!-- /audit -->
+
+      <!-- ════════════════════════════════════════════════════
+           تصدير البيانات  ← POST /settings/export
+           entityType: leads | properties | deals | contacts
+           format: csv | xlsx | json | pdf
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='export'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">تصدير بيانات الحساب</div>
+              <p class="text-xs text-neutral-500 mt-0.5">POST /settings/export — يُنشئ مهمة تصدير وتُنبَّه عند الاكتمال</p>
+            </div>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-2xl">
+              <div>
+                <label class="ec-label">نوع البيانات</label>
+                <select class="ec-input" x-model="exportForm.entityType">
+                  <option value="leads">العملاء المحتملون</option>
+                  <option value="contacts">جهات الاتصال</option>
+                  <option value="properties">العقارات</option>
+                  <option value="deals">الصفقات</option>
+                </select>
+              </div>
+              <div>
+                <label class="ec-label">صيغة الملف</label>
+                <select class="ec-input" x-model="exportForm.format">
+                  <option value="csv">CSV</option>
+                  <option value="xlsx">Excel (XLSX)</option>
+                  <option value="json">JSON</option>
+                  <option value="pdf">PDF</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <div class="flex items-start gap-4 p-4 bg-primary-50 rounded-xl border border-primary-100">
+                  <svg class="text-primary-600 shrink-0 mt-0.5" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5h.01"/></svg>
+                  <p class="text-sm text-primary-700">التصدير يُعمَل في الخلفية — ستتلقى إشعاراً عند اكتمال الملف ليصبح جاهزاً للتحميل. تنطبق قيود الفوترة وحد المهام النشطة.</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 flex items-center gap-3">
+              <button class="adm-btn adm-btn-primary" @click="startExport()" :disabled="exportRunning">
+                <svg x-show="!exportRunning" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3v7M5 8l3 3 3-3M3 13h10"/></svg>
+                <span x-show="exportRunning" class="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin"></span>
+                <span x-text="exportRunning ? 'جارٍ التصدير…' : 'بدء التصدير'"></span>
+              </button>
+            </div>
+            <!-- recent jobs -->
+            <div x-show="s.exportJobs.length" class="mt-6">
+              <div class="text-sm font-bold text-neutral-700 mb-2">مهام التصدير الأخيرة</div>
+              <div class="flex flex-col gap-2">
+                <template x-for="job in s.exportJobs" :key="job.id">
+                  <div class="flex items-center gap-3 p-3 rounded-xl border border-neutral-100 bg-neutral-50">
+                    <div class="flex-1">
+                      <span class="font-semibold text-sm text-primary-800" x-text="job.entityLabel+' — '+job.format.toUpperCase()"></span>
+                      <div class="text-xs text-neutral-400 mt-0.5" x-text="timeAgo(job.createdAt)"></div>
+                    </div>
+                    <span class="adm-badge" :class="job.status==='done'?'b-success':(job.status==='running'?'b-info':'b-warning')"
+                          x-text="job.status==='done'?'جاهز':(job.status==='running'?'جارٍ':'في الانتظار')"></span>
+                    <button x-show="job.status==='done'" class="adm-btn adm-btn-ghost adm-btn-sm">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v7M5 8l3 3 3-3M3 13h10"/></svg>
+                      تحميل
+                    </button>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /export -->
+
+      <!-- ════════════════════════════════════════════════════
+           تفضيلات الإشعارات (per-user)
+           GET/PUT /settings/notifications/preferences
+      ════════════════════════════════════════════════════ -->
+      <div x-show="active==='notifications'" x-cloak>
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div class="adm-card-title">تفضيلات الإشعارات</div>
+            <p class="text-xs text-neutral-500">خاصة بحسابك — لا تؤثر على بقية الفريق</p>
+          </div>
+          <div class="p-5 flex flex-col gap-5 max-w-lg">
+            <!-- Channels -->
+            <div>
+              <div class="text-sm font-bold text-neutral-700 mb-3">قنوات الاستقبال</div>
+              <div class="flex flex-col gap-3">
+                <template x-for="ch in notifChannelDefs" :key="ch.key">
+                  <label class="flex items-center justify-between gap-4 cursor-pointer">
+                    <div>
+                      <p class="text-sm font-semibold text-neutral-800" x-text="ch.label"></p>
+                      <p class="text-xs text-neutral-500" x-text="ch.desc"></p>
+                    </div>
+                    <div class="adm-switch" :class="s.notifPrefs.channels[ch.key]&&'on'"
+                         @click="s.notifPrefs.channels[ch.key]=!s.notifPrefs.channels[ch.key]"
+                         role="switch" :aria-checked="s.notifPrefs.channels[ch.key]"></div>
+                  </label>
+                </template>
+              </div>
+            </div>
+            <!-- Events -->
+            <div>
+              <div class="text-sm font-bold text-neutral-700 mb-3">أحداث الإشعار</div>
+              <div class="flex flex-col gap-3">
+                <template x-for="ev in notifEventDefs" :key="ev.key">
+                  <label class="flex items-center justify-between gap-4 cursor-pointer">
+                    <div>
+                      <p class="text-sm font-semibold text-neutral-800" x-text="ev.label"></p>
+                      <p class="text-xs text-neutral-500" x-text="ev.desc"></p>
+                    </div>
+                    <div class="adm-switch" :class="s.notifPrefs.events[ev.key]&&'on'"
+                         @click="s.notifPrefs.events[ev.key]=!s.notifPrefs.events[ev.key]"
+                         role="switch" :aria-checked="s.notifPrefs.events[ev.key]"></div>
+                  </label>
+                </template>
+              </div>
+            </div>
+            <!-- Quiet hours -->
+            <div class="border-t border-neutral-100 pt-4">
+              <label class="flex items-center justify-between gap-4 cursor-pointer mb-3">
+                <div>
+                  <p class="text-sm font-bold text-neutral-800">ساعات الصمت</p>
+                  <p class="text-xs text-neutral-500">لا إشعارات خلال الفترة المحددة</p>
+                </div>
+                <div class="adm-switch" :class="s.notifPrefs.quietHoursEnabled&&'on'"
+                     @click="s.notifPrefs.quietHoursEnabled=!s.notifPrefs.quietHoursEnabled"
+                     role="switch" :aria-checked="s.notifPrefs.quietHoursEnabled"></div>
+              </label>
+              <div x-show="s.notifPrefs.quietHoursEnabled" x-collapse class="flex items-center gap-3 flex-wrap">
+                <div>
+                  <label class="ec-label text-[.75rem]">من</label>
+                  <input type="time" class="ec-input w-32 font-latin" x-model="s.notifPrefs.quietFrom" dir="ltr" />
+                </div>
+                <span class="text-neutral-400 mt-4">—</span>
+                <div>
+                  <label class="ec-label text-[.75rem]">إلى</label>
+                  <input type="time" class="ec-input w-32 font-latin" x-model="s.notifPrefs.quietTo" dir="ltr" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /notifications -->
+
+    </div><!-- /content pane -->
+  </div><!-- /two-column -->
+
+  <!-- ===== Sticky save bar ===== -->
+  <div x-show="dirty" x-transition
+       class="fixed bottom-0 start-0 end-0 z-40 bg-white border-t border-neutral-200 shadow-xl flex items-center justify-end gap-3 px-6 py-3.5">
+    <span class="text-xs text-warning font-semibold me-auto flex items-center gap-1.5">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2 1.5"/></svg>
+      لديك تغييرات غير محفوظة
+    </span>
+    <button class="adm-btn adm-btn-ghost" @click="cancel()">إلغاء</button>
+    <button class="adm-btn adm-btn-primary" @click="save()">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8.5l3 3 7-7"/></svg>
+      حفظ التغييرات
+    </button>
+  </div>
+
+  <!-- ===== Confirm delete dialog ===== -->
+  <div x-show="confirmDialog.open" x-transition class="adm-overlay" @click.self="confirmDialog.open=false">
+    <div class="adm-modal mt-[20vh]">
+      <div class="adm-modal-head">
+        <span class="font-bold text-danger" x-text="confirmDialog.title"></span>
+        <button @click="confirmDialog.open=false" class="adm-icon-btn w-8 h-8"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+      </div>
+      <div class="adm-modal-body">
+        <p class="text-sm text-neutral-700" x-text="confirmDialog.msg"></p>
+      </div>
+      <div class="adm-modal-foot">
+        <button class="adm-btn adm-btn-danger-solid" @click="confirmDialog.onConfirm(); confirmDialog.open=false" x-text="confirmDialog.confirmLabel||'حذف'"></button>
+        <button class="adm-btn adm-btn-ghost" @click="confirmDialog.open=false">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /x-data="settings()" -->
+
+<script>
+function settings() {
+  return {
+    active: 'company',
+    saved: false,
+    _saveTimer: null,
+
+    // ── Side nav groups ──────────────────────────────────────────
+    groups: [
+      { id:'company',      label:'بيانات الشركة',      ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>' },
+      { id:'stages',       label:'مراحل العملاء',       ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10h14M3 5h7M3 15h10"/></svg>' },
+      { id:'lookups',      label:'القوائم المرجعية',    ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5h10M5 10h7M5 15h4"/></svg>' },
+      { id:'custom-fields',label:'الحقول المخصصة',     ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="3" rx="1.5"/><rect x="3" y="9" width="14" height="3" rx="1.5"/><rect x="3" y="14" width="8" height="3" rx="1.5"/></svg>' },
+      { id:'commission',   label:'العمولات',            ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M10 6.5v7M7.5 8.5c0-1.1.9-2 2.5-2s2.5.9 2.5 2-2.5 2-2.5 2-2.5.9-2.5 2 .9 2 2.5 2 2.5-.9 2.5-2"/></svg>' },
+      { id:'assignment',   label:'الإسناد + SLA',       ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="6.5" r="2.5"/><path d="M3 16c0-2.8 2.2-5 5-5h1M14 10l3 3-3 3M10 13h7"/></svg>' },
+      { id:'permissions',  label:'الصلاحيات',           ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5L4 5v5c0 3.5 2.7 6.8 6 7.5 3.3-.7 6-4 6-7.5V5l-6-2.5z"/><path d="M7 10l2 2 4-4"/></svg>' },
+      { id:'integrations', label:'التكاملات',            ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10h4M13 10h4M7 10a3 3 0 006 0 3 3 0 00-6 0z"/></svg>' },
+      { id:'notifications',label:'الإشعارات',           ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16.5a1.5 1.5 0 003 0"/></svg>' },
+      { id:'billing',      label:'الفوترة',              ro:true,  icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="M2.5 8.5h15M6 13h2"/></svg>' },
+      { id:'audit',        label:'سجل التدقيق',         ro:true,  icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v12H4z"/><path d="M7 8h6M7 12h4"/></svg>' },
+      { id:'export',       label:'تصدير البيانات',      ro:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3v9M7 9l3 3 3-3M4 15h12"/></svg>' },
+    ],
+
+    // ── Stage modal ──────────────────────────────────────────────
+    stageModal: false,
+    editStage: null,
+    stageForm: { name:'', color:'#4A75B4', isWon:false, isLost:false },
+    stageColors: ['#4A75B4','#1A8C4E','#C8A24B','#C0392B','#9B59B6','#1565C0','#D4860A','#4D5F7A','#2ECC71','#E74C3C'],
+
+    openEditStage(st) {
+      this.editStage = st;
+      this.stageForm = { name:st.name, color:st.color, isWon:st.isWon, isLost:st.isLost };
+      this.stageModal = true;
+    },
+    saveStage() {
+      if (this.editStage) {
+        Object.assign(this.editStage, this.stageForm);
+      } else {
+        this.s.stages.push({ id:'st-'+Date.now(), ...this.stageForm, sortOrder:this.s.stages.length });
+      }
+      this.stageModal = false;
+    },
+    confirmDeleteStage(st) {
+      this.confirmDialog = {
+        open: true, title:'حذف المرحلة',
+        msg: 'هل أنت متأكد من حذف مرحلة "'+st.name+'"؟ تأكد من نقل العملاء المحتملين منها أولاً.',
+        onConfirm: () => { this.s.stages = this.s.stages.filter(s=>s.id!==st.id); }
+      };
+    },
+
+    // ── Lookup tables ────────────────────────────────────────────
+    activeLookup: 'lead_sources',
+    newLookupName: '',
+    newLookupColor: '#4A75B4',
+    editLookupModal: false,
+    editLookupItem: { name:'', color:'' },
+    lookupTypes: [
+      { key:'lead_sources',    label:'مصادر العملاء', singular:'مصدر' },
+      { key:'deal_types',      label:'أنواع الصفقات', singular:'نوع' },
+      { key:'property_types',  label:'أنواع العقارات', singular:'نوع' },
+      { key:'activity_types',  label:'أنواع الأنشطة', singular:'نشاط' },
+      { key:'loss_reasons',    label:'أسباب الخسارة', singular:'سبب' },
+      { key:'amenities',       label:'المميزات (Amenities)', singular:'ميزة' },
+    ],
+    get activeLookupItems() {
+      return this.s.lookups[this.activeLookup] || [];
+    },
+    addLookup() {
+      if (!this.newLookupName.trim()) return;
+      if (!this.s.lookups[this.activeLookup]) this.s.lookups[this.activeLookup] = [];
+      const slug = this.newLookupName.trim().toLowerCase().replace(/\s+/g,'-');
+      this.s.lookups[this.activeLookup].push({ id:'lk-'+Date.now(), name:this.newLookupName.trim(), color:this.newLookupColor, slug, isActive:true, sortOrder:this.s.lookups[this.activeLookup].length });
+      this.newLookupName = '';
+    },
+    saveLookupEdit() {
+      this.editLookupModal = false;
+    },
+    deleteLookup(item) {
+      this.confirmDialog = {
+        open:true, title:'حذف العنصر', msg:'هل تريد حذف "'+item.name+'"؟',
+        onConfirm: () => { this.s.lookups[this.activeLookup] = this.s.lookups[this.activeLookup].filter(l=>l.id!==item.id); }
+      };
+    },
+
+    // ── Custom fields ────────────────────────────────────────────
+    cfModal: false,
+    editCf: null,
+    cfEntity: 'lead',
+    cfForm: { entityType:'lead', name:'', type:'text', isRequired:false, options:[] },
+    get cfByEntity() { return this.s.customFields.filter(f=>f.entityType===this.cfEntity); },
+    cfTypeLabel(t) {
+      const m = { text:'نص', number:'رقم', date:'تاريخ', boolean:'نعم/لا', select:'اختيار', multi_select:'متعدد' };
+      return m[t]||t;
+    },
+    openEditCf(cf) {
+      this.editCf = cf;
+      this.cfForm = { entityType:cf.entityType, name:cf.name, type:cf.type, isRequired:cf.isRequired, options:[...(cf.options||[])] };
+      this.cfModal = true;
+    },
+    saveCf() {
+      if (this.editCf) {
+        Object.assign(this.editCf, { name:this.cfForm.name, type:this.cfForm.type, isRequired:this.cfForm.isRequired, options:this.cfForm.options });
+      } else {
+        const key = this.cfForm.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+        this.s.customFields.push({ id:'cf-'+Date.now(), ...this.cfForm, key:key||'field_'+Date.now(), isActive:true, displayOrder:this.s.customFields.length });
+      }
+      this.cfModal = false;
+    },
+    deleteCf(cf) {
+      this.confirmDialog = {
+        open:true, title:'حذف الحقل', msg:'حذف "'+cf.name+'" يزيله من جميع النماذج والفلاتر.',
+        onConfirm: () => { this.s.customFields = this.s.customFields.filter(f=>f.id!==cf.id); }
+      };
+    },
+
+    // ── Integrations ─────────────────────────────────────────────
+    integModal: false,
+    editInteg: null,
+    integForm: { type:'google_calendar', name:'', configJson:{}, secretValue:'', status:'pending' },
+    integTypeLabel(t) {
+      const m = { google_calendar:'Google Calendar', bayut:'بيوت (Bayut)', aqar:'عقار (Aqar)', property_finder:'Property Finder', webhook:'Webhook مخصص' };
+      return m[t]||t;
+    },
+    integStatusLabel(s) {
+      const m = { active:'نشط', pending:'قيد التفعيل', error:'خطأ', revoked:'مُلغى' };
+      return m[s]||s;
+    },
+    integStatusCls(s) {
+      return s==='active'?'b-success':(s==='pending'?'b-warning':(s==='error'?'b-danger':'b-neutral'));
+    },
+    integIcon(type) {
+      const icons = {
+        google_calendar:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#fff" stroke="#DDE1EA"/><path d="M7 2v4M17 2v4M3 9h18" stroke="#4285F4" stroke-width="1.5"/><text x="12" y="19" text-anchor="middle" fill="#1565C0" font-size="9" font-weight="700">CAL</text></svg>',
+        bayut:'<svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#FF6C00"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">B</text></svg>',
+        aqar:'<svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#00A651"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">A</text></svg>',
+        property_finder:'<svg viewBox="0 0 24 24" fill="none"><rect width="24" height="24" rx="4" fill="#1565C0"/><text x="12" y="17" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">PF</text></svg>',
+        webhook:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10h4M13 10h4M7 10a3 3 0 006 0 3 3 0 00-6 0z"/></svg>',
+      };
+      return icons[type]||'';
+    },
+    openEditInteg(intg) {
+      this.editInteg = intg;
+      this.integForm = {
+        type: intg.type,
+        name: intg.name,
+        configJson: JSON.parse(JSON.stringify(intg.configJson||{})),
+        secretValue: '',
+        status: intg.status,
+      };
+      this.integModal = true;
+    },
+    saveInteg() {
+      if (this.editInteg) {
+        Object.assign(this.editInteg, { name:this.integForm.name, configJson:this.integForm.configJson, status:this.integForm.status||this.editInteg.status });
+      } else {
+        this.s.integrations.push({ id:'intg-'+Date.now(), type:this.integForm.type, name:this.integForm.name, configJson:{...this.integForm.configJson}, status:'pending', isActive:true });
+      }
+      this.integModal = false;
+    },
+    deleteInteg(intg) {
+      this.confirmDialog = {
+        open:true, title:'حذف التكامل', msg:'هل تريد حذف التكامل "'+intg.name+'"؟',
+        onConfirm: () => { this.s.integrations = this.s.integrations.filter(i=>i.id!==intg.id); }
+      };
+    },
+
+    // ── Audit log ────────────────────────────────────────────────
+    auditSearch: '',
+    auditAction: '',
+    auditFrom: '',
+    auditTo: '',
+    get filteredAuditLogs() {
+      return this.s.auditLogs.filter(l => {
+        const q = this.auditSearch.toLowerCase();
+        if (q && !l.actorName.toLowerCase().includes(q) && !l.resource.toLowerCase().includes(q)) return false;
+        if (this.auditAction && l.action !== this.auditAction) return false;
+        return true;
+      });
+    },
+    exportAuditLog() {
+      // POST /settings/export with entityType=audit or GET /settings/audit-log?format=csv
+      alert('جارٍ تصدير سجل التدقيق…');
+    },
+
+    // ── Export ───────────────────────────────────────────────────
+    exportForm: { entityType:'leads', format:'csv' },
+    exportRunning: false,
+    startExport() {
+      this.exportRunning = true;
+      setTimeout(() => {
+        this.s.exportJobs.unshift({ id:'job-'+Date.now(), entityLabel:this.entityLabel(), format:this.exportForm.format, status:'running', createdAt:new Date().toISOString() });
+        this.exportRunning = false;
+      }, 1200);
+    },
+    entityLabel() {
+      const m = { leads:'العملاء المحتملون', contacts:'جهات الاتصال', properties:'العقارات', deals:'الصفقات' };
+      return m[this.exportForm.entityType]||'';
+    },
+
+    // ── Permissions matrix helpers ───────────────────────────────
+    hasPermission(roleId, perm) {
+      const role = this.s.permMatrix.roles.find(r=>r.id===roleId);
+      return role ? role.permissions.includes(perm) : false;
+    },
+    togglePermission(roleId, perm) {
+      const role = this.s.permMatrix.roles.find(r=>r.id===roleId);
+      if (!role || !role.isEditable) return;
+      const idx = role.permissions.indexOf(perm);
+      if (idx>=0) role.permissions.splice(idx,1);
+      else role.permissions.push(perm);
+    },
+
+    // ── Notification defs ────────────────────────────────────────
+    notifChannelDefs: [
+      { key:'inApp',    label:'داخل النظام', desc:'إشعارات الجرس في الواجهة' },
+      { key:'email',    label:'البريد الإلكتروني', desc:'إرسال بريد عند كل حدث' },
+      { key:'whatsapp', label:'واتساب', desc:'يتطلب ربط رقم واتساب' },
+      { key:'sms',      label:'رسائل نصية (SMS)', desc:'يتطلب ضبط مزوّد SMS' },
+    ],
+    notifEventDefs: [
+      { key:'lead_assigned',      label:'إسناد عميل محتمل', desc:'عند إسناد عميل جديد لي' },
+      { key:'deal_closed',        label:'إغلاق صفقة', desc:'عند إغلاق صفقة مرتبطة بي' },
+      { key:'follow_up_overdue',  label:'متابعة متأخرة', desc:'عند تجاوز موعد متابعة عميل' },
+      { key:'activity_reminder',  label:'تذكير بنشاط', desc:'قبل موعد نشاط مجدوَل' },
+      { key:'approval_required',  label:'طلب موافقة', desc:'عند احتياج صفقة لموافقتي' },
+    ],
+
+    // ── Confirm dialog ───────────────────────────────────────────
+    confirmDialog: { open:false, title:'', msg:'', confirmLabel:'حذف', onConfirm:()=>{} },
+
+    // ── Data model ───────────────────────────────────────────────
+    // NOTE: never structuredClone an Alpine reactive proxy (DataCloneError).
+    // Snapshot and restore via JSON.parse(JSON.stringify(…)) only.
+    s: {
+      company: {
+        name: 'شركة مسكن للوساطة العقارية',
+        logoUrl: '',
+        description: 'وساطة عقارية متكاملة — فلل، شقق، أراضٍ في الرياض والمنطقة الشرقية',
+        location: 'الرياض، المملكة العربية السعودية',
+        timezone: 'Asia/Riyadh',
+        currency: 'SAR',
+        language: 'ar',
+        taxNumber: '3101234567890',
+        taxRate: 15,
+        fiscalYearStart: 1,
+        pdfHeader: 'شركة مسكن للوساطة العقارية — ترخيص فال: 1234567890',
+      },
+      stages: [
+        { id:'st-1', name:'عميل جديد',       color:'#4D5F7A', isWon:false, isLost:false, sortOrder:0 },
+        { id:'st-2', name:'تواصل أولي',      color:'#1565C0', isWon:false, isLost:false, sortOrder:1 },
+        { id:'st-3', name:'تأهيل العميل',    color:'#4A75B4', isWon:false, isLost:false, sortOrder:2 },
+        { id:'st-4', name:'عرض عقارات',      color:'#D4860A', isWon:false, isLost:false, sortOrder:3 },
+        { id:'st-5', name:'قيد التفاوض',     color:'#9B59B6', isWon:false, isLost:false, sortOrder:4 },
+        { id:'st-6', name:'مكتمل (مكسوب)',  color:'#1A8C4E', isWon:true,  isLost:false, sortOrder:5 },
+        { id:'st-7', name:'خاسر',            color:'#C0392B', isWon:false, isLost:true,  sortOrder:6 },
+      ],
+      lookups: {
+        lead_sources: [
+          { id:'ls-1', name:'موقع الإلكتروني',    color:'#4A75B4', slug:'website',         isActive:true, sortOrder:0 },
+          { id:'ls-2', name:'توصية شخصية',        color:'#1A8C4E', slug:'referral',        isActive:true, sortOrder:1 },
+          { id:'ls-3', name:'إعلان إنستجرام',     color:'#9B59B6', slug:'instagram_ad',   isActive:true, sortOrder:2 },
+          { id:'ls-4', name:'بوابة بيوت',         color:'#FF6C00', slug:'bayut',          isActive:true, sortOrder:3 },
+          { id:'ls-5', name:'بوابة عقار',         color:'#00A651', slug:'aqar',           isActive:true, sortOrder:4 },
+          { id:'ls-6', name:'Property Finder',     color:'#1565C0', slug:'property_finder',isActive:true, sortOrder:5 },
+        ],
+        deal_types: [
+          { id:'dt-1', name:'بيع',         color:'#1A8C4E', slug:'sale',   isActive:true, sortOrder:0 },
+          { id:'dt-2', name:'إيجار',       color:'#4A75B4', slug:'rent',   isActive:true, sortOrder:1 },
+          { id:'dt-3', name:'إيجار تجاري', color:'#D4860A', slug:'commercial_rent', isActive:true, sortOrder:2 },
+        ],
+        property_types: [
+          { id:'pt-1', name:'فيلا',            slug:'villa',       isActive:true, sortOrder:0 },
+          { id:'pt-2', name:'شقة',             slug:'apartment',   isActive:true, sortOrder:1 },
+          { id:'pt-3', name:'أرض',             slug:'land',        isActive:true, sortOrder:2 },
+          { id:'pt-4', name:'مكتب تجاري',     slug:'office',      isActive:true, sortOrder:3 },
+          { id:'pt-5', name:'مستودع',          slug:'warehouse',   isActive:true, sortOrder:4 },
+        ],
+        activity_types: [
+          { id:'at-1', name:'مكالمة هاتفية',  color:'#1565C0', slug:'call',    isActive:true, sortOrder:0 },
+          { id:'at-2', name:'زيارة عقار',     color:'#1A8C4E', slug:'visit',   isActive:true, sortOrder:1 },
+          { id:'at-3', name:'اجتماع',          color:'#9B59B6', slug:'meeting', isActive:true, sortOrder:2 },
+          { id:'at-4', name:'رسالة واتساب',   color:'#25D366', slug:'whatsapp',isActive:true, sortOrder:3 },
+        ],
+        loss_reasons: [
+          { id:'lr-1', name:'السعر مرتفع',   slug:'price_high',  isActive:true, sortOrder:0 },
+          { id:'lr-2', name:'اختار منافساً', slug:'competitor',  isActive:true, sortOrder:1 },
+          { id:'lr-3', name:'الموقع غير مناسب', slug:'location', isActive:true, sortOrder:2 },
+          { id:'lr-4', name:'تأجيل القرار',  slug:'postponed',   isActive:true, sortOrder:3 },
+        ],
+        amenities: [
+          { id:'am-1', name:'مسبح',          slug:'pool',       isActive:true, sortOrder:0 },
+          { id:'am-2', name:'مكيّف مركزي',  slug:'ac_central', isActive:true, sortOrder:1 },
+          { id:'am-3', name:'حديقة',         slug:'garden',     isActive:true, sortOrder:2 },
+          { id:'am-4', name:'موقف خاص',      slug:'parking',    isActive:true, sortOrder:3 },
+          { id:'am-5', name:'أمن 24 ساعة',   slug:'security',   isActive:true, sortOrder:4 },
+        ],
+      },
+      customFields: [
+        { id:'cf-1', entityType:'lead', name:'المنطقة المفضلة',      key:'preferred_area',   type:'text',   isRequired:false, options:[], isActive:true, displayOrder:0 },
+        { id:'cf-2', entityType:'lead', name:'الميزانية القصوى',     key:'max_budget',        type:'number', isRequired:false, options:[], isActive:true, displayOrder:1 },
+        { id:'cf-3', entityType:'lead', name:'مصدر الشراء',          key:'purchase_source',   type:'select', isRequired:false, options:[{label:'نقدي',value:'cash'},{label:'تمويل بنكي',value:'mortgage'},{label:'دفع مؤجل',value:'deferred'}], isActive:true, displayOrder:2 },
+        { id:'cf-4', entityType:'contact', name:'جهة العمل',         key:'employer',          type:'text',   isRequired:false, options:[], isActive:true, displayOrder:0 },
+        { id:'cf-5', entityType:'property', name:'نوع الإطلالة',     key:'view_type',         type:'select', isRequired:false, options:[{label:'بحر',value:'sea'},{label:'حديقة',value:'garden'},{label:'شارع',value:'street'}], isActive:true, displayOrder:0 },
+        { id:'cf-6', entityType:'deal',    name:'نوع التمويل',       key:'finance_type',      type:'select', isRequired:false, options:[{label:'نقدي',value:'cash'},{label:'بنك',value:'bank'},{label:'أوف-بلان',value:'offplan'}], isActive:true, displayOrder:0 },
+      ],
+      commission: {
+        defaultCommissionPct: 2.5,
+        companyCommissionSplit: 30,
+        agentCommissionSplit: 70,
+        sharedDealSplit: 50,
+      },
+      assignment: {
+        enabled: true,
+        maxPerAgent: 50,
+      },
+      sla: {
+        whatsappReplySlaHours: 4,
+        leadInactivityDays: 7,
+        whatsappAutoCloseDays: 30,
+      },
+      permMatrix: {
+        roles: [
+          { id:'owner',          label:'المالك',        isEditable:false, permissions:['leads.view','leads.create','leads.update','leads.delete','leads.assign','contacts.view','contacts.create','contacts.update','contacts.delete','deals.view','deals.create','deals.update','deals.close','properties.view','properties.create','properties.update','properties.delete','reports.view','settings.view','settings.manage'] },
+          { id:'branch_manager', label:'مدير الفرع',   isEditable:true,  permissions:['leads.view','leads.create','leads.update','leads.assign','contacts.view','contacts.create','contacts.update','deals.view','deals.create','deals.update','properties.view','properties.create','properties.update','reports.view','settings.view'] },
+          { id:'team_leader',    label:'قائد الفريق',  isEditable:true,  permissions:['leads.view','leads.create','leads.update','leads.assign','contacts.view','contacts.create','deals.view','deals.create','deals.update','properties.view','reports.view'] },
+          { id:'sales_agent',    label:'وكيل المبيعات',isEditable:true,  permissions:['leads.view','leads.create','leads.update','contacts.view','contacts.create','deals.view','deals.create','properties.view'] },
+        ],
+        groups: [
+          { label:'العملاء المحتملون', perms:[
+            { key:'leads.view',   label:'عرض العملاء' },
+            { key:'leads.create', label:'إضافة عميل' },
+            { key:'leads.update', label:'تعديل عميل' },
+            { key:'leads.delete', label:'حذف عميل' },
+            { key:'leads.assign', label:'إسناد عميل' },
+          ]},
+          { label:'جهات الاتصال', perms:[
+            { key:'contacts.view',   label:'عرض جهات الاتصال' },
+            { key:'contacts.create', label:'إضافة جهة اتصال' },
+            { key:'contacts.update', label:'تعديل جهة اتصال' },
+            { key:'contacts.delete', label:'حذف جهة اتصال' },
+          ]},
+          { label:'الصفقات', perms:[
+            { key:'deals.view',   label:'عرض الصفقات' },
+            { key:'deals.create', label:'إنشاء صفقة' },
+            { key:'deals.update', label:'تعديل صفقة' },
+            { key:'deals.close',  label:'إغلاق صفقة' },
+          ]},
+          { label:'العقارات', perms:[
+            { key:'properties.view',   label:'عرض العقارات' },
+            { key:'properties.create', label:'إضافة عقار' },
+            { key:'properties.update', label:'تعديل عقار' },
+            { key:'properties.delete', label:'حذف عقار' },
+          ]},
+          { label:'التقارير والإعدادات', perms:[
+            { key:'reports.view',      label:'عرض التقارير' },
+            { key:'settings.view',     label:'عرض الإعدادات' },
+            { key:'settings.manage',   label:'إدارة الإعدادات' },
+          ]},
+        ],
+      },
+      integrations: [
+        { id:'intg-1', type:'google_calendar', name:'تقويم فريق المبيعات', configJson:{ calendarId:'sales@mskn.com.sa' }, status:'active',  isActive:true },
+        { id:'intg-2', type:'bayut',           name:'بيوت — الرياض',        configJson:{},                                   status:'active',  isActive:true },
+        { id:'intg-3', type:'aqar',            name:'عقار.كوم',             configJson:{},                                   status:'pending', isActive:true },
+        { id:'intg-4', type:'webhook',         name:'CRM الداخلي',          configJson:{ url:'https://crm.mskn.com.sa/hook'}, status:'active',  isActive:true },
+      ],
+      billing: {
+        planName: 'باقة الأعمال',
+        planType: 'سنوي',
+        interval: 'yearly',
+        renewalDate: '2027-05-01T00:00:00Z',
+        startDate: '2026-05-01T00:00:00Z',
+        usedSeats: 7,
+        maxSeats: 10,
+        amount: 2990,
+        currency: 'SAR',
+        invoices: [
+          { id:'inv-1', number:'INV-2026-001', period:'مايو 2026 — أبريل 2027', amount:2990, status:'paid', date:'2026-05-01T00:00:00Z' },
+          { id:'inv-2', number:'INV-2025-001', period:'مايو 2025 — أبريل 2026', amount:2490, status:'paid', date:'2025-05-01T00:00:00Z' },
+        ],
+      },
+      auditLogs: [
+        { id:'al-1', actorName:'سعد الحربي',    action:'create', resource:'leads',    resourceId:'lead-00a1', createdAt:'2026-06-25T09:14:22Z' },
+        { id:'al-2', actorName:'نورة الغامدي',  action:'update', resource:'deals',    resourceId:'deal-00b2', createdAt:'2026-06-25T10:02:11Z' },
+        { id:'al-3', actorName:'محمد القحطاني', action:'delete', resource:'contacts', resourceId:'con-00c3',  createdAt:'2026-06-24T15:47:33Z' },
+        { id:'al-4', actorName:'ريم العتيبي',   action:'login',  resource:'auth',     resourceId:'—',         createdAt:'2026-06-24T08:00:05Z' },
+        { id:'al-5', actorName:'سعد الحربي',    action:'update', resource:'settings', resourceId:'commission', createdAt:'2026-06-23T12:30:00Z' },
+        { id:'al-6', actorName:'نورة الغامدي',  action:'create', resource:'properties',resourceId:'prop-00d4', createdAt:'2026-06-23T11:22:19Z' },
+        { id:'al-7', actorName:'محمد القحطاني', action:'update', resource:'leads',    resourceId:'lead-00e5', createdAt:'2026-06-22T16:05:44Z' },
+        { id:'al-8', actorName:'ريم العتيبي',   action:'login',  resource:'auth',     resourceId:'—',         createdAt:'2026-06-22T07:58:12Z' },
+      ],
+      notifPrefs: {
+        channels: { inApp:true, email:true, whatsapp:false, sms:false },
+        quietHoursEnabled: false,
+        quietFrom: '22:00',
+        quietTo: '08:00',
+        events: { lead_assigned:true, deal_closed:true, follow_up_overdue:true, activity_reminder:true, approval_required:true },
+      },
+      exportJobs: [
+        { id:'ej-1', entityLabel:'العملاء المحتملون', format:'csv', status:'done',    createdAt:'2026-06-24T10:00:00Z' },
+        { id:'ej-2', entityLabel:'الصفقات',          format:'xlsx', status:'done',    createdAt:'2026-06-20T14:30:00Z' },
+      ],
+    },
+
+    original: '',
+
+    // NOTE: structuredClone throws DataCloneError on Alpine reactive proxies.
+    // Always snapshot/restore via JSON.parse(JSON.stringify(…)).
+    init() {
+      this.original = JSON.stringify(this.s);
+    },
+
+    get dirty() {
+      return JSON.stringify(this.s) !== this.original;
+    },
+
+    cancel() {
+      this.s = JSON.parse(this.original);
+    },
+
+    save() {
+      // In production: PUT per-section endpoint(s) for changed sections only.
+      this.original = JSON.stringify(this.s);
+      this.saved = true;
+      clearTimeout(this._saveTimer);
+      this._saveTimer = setTimeout(() => { this.saved = false; }, 2800);
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'settings';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0,
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
+      fmClose(){ this.fmId=null; },
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>

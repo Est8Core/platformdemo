@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · تفاصيل العقار</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- property-detail.html — Est8Core CRM — Arabic RTL -->
+<!-- Tailwind CDN + Alpine v3 + .adm-* design system from shell-head.html -->
+<!-- NO shell tags, NO redefined globals (fmtNum/fmtMoney/fmtDate/fmtDateTime/timeAgo come from shell) -->
+
+<div x-data="propertyDetail()" x-cloak>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       BREADCRUMB
+  ═══════════════════════════════════════════════════════════════ -->
+  <nav class="flex items-center gap-2 text-sm text-neutral-500 mb-4">
+    <a href="#" class="hover:text-primary-800 transition-colors">العقارات</a>
+    <span class="text-neutral-300">/</span>
+    <span class="text-primary-900 font-medium" x-text="property.title"></span>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       "قريباً" — COMING SOON BANNER (near TOP, clearly non-working)
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="adm-card mb-5 border-amber-200 bg-amber-50/60 overflow-hidden">
+    <div class="flex items-start gap-3.5 p-4">
+      <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0 text-amber-600 text-xl mt-0.5">
+        🕐
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-1.5">
+          <span class="font-bold text-amber-900 text-base">النشر الخارجي والتكامل مع المنصات</span>
+          <span class="adm-badge text-xs font-bold px-2.5 py-1" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">🚀 قريباً</span>
+        </div>
+        <p class="text-amber-700 text-sm mb-3">سيتيح لك Est8Core نشر عقاراتك مباشرةً على المنصات الخارجية الكبرى بنقرة واحدة. هذه الميزة قيد التطوير حالياً.</p>
+        <div class="flex flex-wrap gap-2">
+          <div class="flex items-center gap-1.5 bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-amber-800 font-medium">
+            <span>🏘️</span> Bayut
+          </div>
+          <div class="flex items-center gap-1.5 bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-amber-800 font-medium">
+            <span>🏠</span> Aqar
+          </div>
+          <div class="flex items-center gap-1.5 bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-amber-800 font-medium">
+            <span>🔍</span> PropertyFinder
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       PAGE HEADER — title + status badge + action buttons
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="flex items-start justify-between gap-4 mb-5 flex-wrap">
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 flex-wrap mb-1">
+        <span class="adm-badge text-xs" :style="purposeStyle(property.purpose)" x-text="purposeLabel(property.purpose)"></span>
+        <span class="adm-badge text-xs" :style="statusStyle(property.status)" x-text="statusLabel(property.status)"></span>
+        <span x-show="property.isExclusive" class="adm-badge text-xs" style="background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA;">حصري</span>
+        <span x-show="property.featured" class="adm-badge text-xs" style="background:#FEF9C3;color:#854D0E;border:1px solid #FEF08A;">⭐ مميّز</span>
+      </div>
+      <h1 class="text-2xl font-bold text-primary-900 leading-tight" x-text="property.title"></h1>
+      <p class="text-neutral-500 text-sm mt-1" x-text="[property.area, property.city, property.country].filter(Boolean).join(' · ')"></p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap shrink-0">
+      <button class="adm-btn adm-btn-ghost text-sm" @click="openStatusModal()">
+        <span class="me-1">🔄</span> تغيير الحالة
+      </button>
+      <button class="adm-btn adm-btn-ghost text-sm" @click="openShare()">
+        <span class="me-1">🔗</span> مشاركة
+      </button>
+      <button class="adm-btn adm-btn-gold text-sm" @click="openScheduleViewing()">
+        <span class="me-1">📅</span> جدولة معاينة
+      </button>
+      <button class="adm-btn adm-btn-primary text-sm" @click="goToEdit()">
+        <span class="me-1">✏️</span> تعديل
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MAIN LAYOUT — two columns: gallery+tabs  |  sticky summary
+  ═══════════════════════════════════════════════════════════════ -->
+  <div class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-5 items-start">
+
+    <!-- ─────────────────── LEFT / MAIN COLUMN ─────────────────── -->
+    <div class="min-w-0 flex flex-col gap-5">
+
+      <!-- ┌──────────────────────────────────────────────┐
+           │  MEDIA GALLERY — lightbox with prev/next     │
+           └──────────────────────────────────────────────┘ -->
+      <div class="adm-card overflow-hidden" x-show="media.length > 0">
+
+        <!-- Main viewer (class adm-gallery-main lets the وسائط tab scroll here) -->
+        <div class="adm-gallery-main relative bg-neutral-900 overflow-hidden" style="aspect-ratio:16/9;">
+
+          <!-- IMAGE -->
+          <template x-if="activeMedia && activeMedia.type === 'image'">
+            <img :src="activeMedia.url" :alt="property.title"
+                 class="w-full h-full object-cover transition-opacity duration-300" loading="lazy">
+          </template>
+
+          <!-- VIDEO -->
+          <template x-if="activeMedia && activeMedia.type === 'video'">
+            <div class="w-full h-full flex flex-col items-center justify-center text-white gap-3">
+              <div class="w-20 h-20 rounded-full bg-white/20 border-2 border-white/60 flex items-center justify-center text-4xl cursor-pointer hover:bg-white/30 transition-colors" title="تشغيل الفيديو">▶</div>
+              <p class="text-sm text-white/70">فيديو العقار</p>
+              <a :href="activeMedia.url" target="_blank" class="adm-btn adm-btn-ghost text-sm mt-1 border-white/40 text-white hover:bg-white/10">فتح الفيديو ↗</a>
+            </div>
+          </template>
+
+          <!-- PDF -->
+          <template x-if="activeMedia && activeMedia.type === 'pdf'">
+            <div class="w-full h-full flex flex-col items-center justify-center text-white gap-3">
+              <div class="text-7xl">📄</div>
+              <p class="font-semibold text-lg">مستند PDF</p>
+              <a :href="activeMedia.url" target="_blank" class="adm-btn adm-btn-ghost text-sm border-white/40 text-white hover:bg-white/10">عرض المستند ↗</a>
+            </div>
+          </template>
+
+          <!-- EXCEL / WORD / OTHER -->
+          <template x-if="activeMedia && !['image','video','pdf'].includes(activeMedia.type)">
+            <div class="w-full h-full flex flex-col items-center justify-center text-white gap-3">
+              <div class="text-7xl" x-text="activeMedia.type === 'excel' ? '📊' : activeMedia.type === 'word' ? '📝' : '📎'"></div>
+              <p class="font-semibold text-lg" x-text="activeMedia.type === 'excel' ? 'جدول بيانات' : activeMedia.type === 'word' ? 'مستند Word' : 'ملف مرفق'"></p>
+              <a :href="activeMedia.url" target="_blank" class="adm-btn adm-btn-ghost text-sm border-white/40 text-white hover:bg-white/10">تحميل ↗</a>
+            </div>
+          </template>
+
+          <!-- Empty state -->
+          <template x-if="!activeMedia">
+            <div class="w-full h-full flex items-center justify-center text-neutral-400">
+              <span class="text-5xl">🖼️</span>
+            </div>
+          </template>
+
+          <!-- Prev / Next arrows (only when > 1 media) -->
+          <template x-if="media.length > 1">
+            <div>
+              <!-- Next (inline-end = right in RTL → visually left nav = "next" in reading direction) -->
+              <button
+                @click="nextMedia()"
+                class="absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-colors text-xl z-10"
+                style="inset-inline-end:0.75rem;"
+                title="التالي">›</button>
+              <!-- Prev (inline-start = left in RTL → visually right nav = "prev" in reading direction) -->
+              <button
+                @click="prevMedia()"
+                class="absolute top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/75 text-white flex items-center justify-center transition-colors text-xl z-10"
+                style="inset-inline-start:0.75rem;"
+                title="السابق">‹</button>
+            </div>
+          </template>
+
+          <!-- Counter badge -->
+          <div class="absolute bottom-3 z-10 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full"
+               style="inset-inline-end:0.75rem;"
+               x-text="`${activeIndex + 1} / ${media.length}`"
+               x-show="media.length > 1">
+          </div>
+
+          <!-- Type badge -->
+          <template x-if="activeMedia">
+            <div class="absolute top-3 z-10" style="inset-inline-start:0.75rem;">
+              <span class="adm-badge text-xs" :style="mediaTypeBadgeStyle(activeMedia.type)" x-text="mediaTypeLabel(activeMedia.type)"></span>
+            </div>
+          </template>
+        </div>
+
+        <!-- Thumbnail strip -->
+        <div class="flex gap-2 p-3 overflow-x-auto" x-show="media.length > 1">
+          <template x-for="(m, i) in media" :key="m.id">
+            <button
+              @click="activeIndex = i"
+              :class="activeIndex === i ? 'ring-2 ring-offset-1 ring-amber-500' : 'opacity-60 hover:opacity-90'"
+              class="shrink-0 w-16 h-14 rounded-lg overflow-hidden bg-neutral-100 border border-neutral-200 transition-all relative">
+              <!-- Image thumbnail -->
+              <template x-if="m.type === 'image'">
+                <img :src="m.url" class="w-full h-full object-cover" loading="lazy">
+              </template>
+              <!-- Non-image thumbnail icon -->
+              <template x-if="m.type !== 'image'">
+                <div class="w-full h-full flex items-center justify-center text-2xl">
+                  <span x-text="m.type === 'video' ? '🎬' : m.type === 'pdf' ? '📄' : m.type === 'excel' ? '📊' : m.type === 'word' ? '📝' : '📎'"></span>
+                </div>
+              </template>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <!-- ┌──────────────────────────────────────────────┐
+           │  TABS                                        │
+           └──────────────────────────────────────────────┘ -->
+      <div class="adm-card">
+        <div class="adm-tabs border-b border-neutral-100 px-4">
+          <button class="adm-tab" :class="activeTab === 'التفاصيل' && 'on'" @click="activeTab = 'التفاصيل'">التفاصيل</button>
+          <button class="adm-tab" :class="activeTab === 'الوسائط' && 'on'" @click="activeTab = 'الوسائط'">
+            الوسائط <span class="cnt" x-text="media.length"></span>
+          </button>
+          <button class="adm-tab" :class="activeTab === 'المعاينات' && 'on'" @click="activeTab = 'المعاينات'">
+            المعاينات <span class="cnt" x-text="viewings.length"></span>
+          </button>
+          <button class="adm-tab" :class="activeTab === 'المستندات' && 'on'" @click="activeTab = 'المستندات'">
+            المستندات <span class="cnt" x-text="documents.length"></span>
+          </button>
+        </div>
+
+        <!-- ─── TAB: التفاصيل ─── -->
+        <div x-show="activeTab === 'التفاصيل'" class="p-5">
+
+          <!-- Description -->
+          <div class="mb-5" x-show="property.description">
+            <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-2">الوصف</h3>
+            <p class="text-neutral-700 text-sm leading-relaxed" x-text="property.description"></p>
+          </div>
+
+          <!-- Specs grid -->
+          <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3">المواصفات</h3>
+          <div class="adm-info mb-5">
+            <dl>
+              <dt>رقم المرجع</dt>
+              <dd x-text="property.referenceNumber || '—'"></dd>
+            </dl>
+            <dl>
+              <dt>الغرض</dt>
+              <dd x-text="purposeLabel(property.purpose)"></dd>
+            </dl>
+            <dl>
+              <dt>نوع العقار</dt>
+              <dd x-text="property.typeName || '—'"></dd>
+            </dl>
+            <dl>
+              <dt>الحالة</dt>
+              <dd x-text="statusLabel(property.status)"></dd>
+            </dl>
+            <dl x-show="property.bedrooms != null">
+              <dt>غرف النوم</dt>
+              <dd x-text="property.bedrooms + ' غرفة'"></dd>
+            </dl>
+            <dl x-show="property.bathrooms != null">
+              <dt>الحمامات</dt>
+              <dd x-text="property.bathrooms + ' حمام'"></dd>
+            </dl>
+            <dl x-show="property.size">
+              <dt>المساحة</dt>
+              <dd x-text="fmtNum(property.size) + ' م²'"></dd>
+            </dl>
+            <dl x-show="property.finishing">
+              <dt>التشطيب</dt>
+              <dd x-text="property.finishing"></dd>
+            </dl>
+            <dl x-show="property.furnished">
+              <dt>التأثيث</dt>
+              <dd x-text="property.furnished === 'furnished' ? 'مؤثَّث' : property.furnished === 'semi' ? 'نصف مؤثَّث' : 'غير مؤثَّث'"></dd>
+            </dl>
+            <dl x-show="property.commission">
+              <dt>العمولة</dt>
+              <dd x-text="property.commission + '%'"></dd>
+            </dl>
+            <dl x-show="property.listingExpiryDate">
+              <dt>انتهاء القائمة</dt>
+              <dd x-text="fmtDate(property.listingExpiryDate)"></dd>
+            </dl>
+            <dl>
+              <dt>تاريخ الإضافة</dt>
+              <dd x-text="fmtDate(property.createdAt)"></dd>
+            </dl>
+          </div>
+
+          <!-- Features -->
+          <div class="mb-5" x-show="property.features && property.features.length">
+            <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3">الميزات</h3>
+            <div class="flex flex-wrap gap-2">
+              <template x-for="feat in (property.features || [])" :key="feat">
+                <span class="adm-badge text-xs" style="background:#EFF6FF;color:#1D4ED8;" x-text="feat"></span>
+              </template>
+            </div>
+          </div>
+
+          <!-- Amenities -->
+          <div class="mb-5" x-show="property.amenities && property.amenities.length">
+            <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3">المرافق</h3>
+            <div class="flex flex-wrap gap-2">
+              <template x-for="am in (property.amenities || [])" :key="am">
+                <span class="adm-badge text-xs" style="background:#F0FDF4;color:#166534;" x-text="am"></span>
+              </template>
+            </div>
+          </div>
+
+          <!-- Price history timeline -->
+          <div x-show="property.priceHistory && property.priceHistory.length">
+            <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3">سجل الأسعار</h3>
+            <div class="relative ps-5 border-s-2 border-amber-200 flex flex-col gap-4">
+              <template x-for="(entry, idx) in [...(property.priceHistory || [])].reverse()" :key="idx">
+                <div class="relative">
+                  <div class="absolute top-1.5 w-3 h-3 rounded-full border-2"
+                       :class="idx === 0 ? 'bg-amber-500 border-amber-500' : 'bg-white border-neutral-300'"
+                       style="inset-inline-start:-1.45rem;"></div>
+                  <div class="bg-neutral-50 rounded-lg p-3 border border-neutral-100">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="font-bold text-primary-900 text-base" x-text="fmtMoney(entry.price, property.currency)"></span>
+                      <span class="text-xs text-neutral-500" x-text="fmtDate(entry.changedAt)"></span>
+                    </div>
+                    <p class="text-xs text-neutral-500 mt-1" x-show="entry.reason" x-text="'السبب: ' + entry.reason"></p>
+                    <p class="text-xs text-neutral-400 mt-0.5" x-text="'بواسطة: ' + (entry.changedBy || '—')"></p>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <div class="mt-5" x-show="property.address || property.city">
+            <h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3">الموقع</h3>
+            <div class="bg-neutral-50 border border-neutral-100 rounded-lg p-3 flex items-start gap-2">
+              <span class="text-neutral-400 mt-0.5">📍</span>
+              <div class="text-sm text-neutral-700">
+                <p x-show="property.address" x-text="property.address"></p>
+                <p class="text-neutral-500 mt-0.5" x-text="[property.area, property.city, property.country].filter(Boolean).join('، ')"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── TAB: الوسائط ─── -->
+        <div x-show="activeTab === 'الوسائط'" class="p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-primary-900">وسائط العقار</h3>
+            <button class="adm-btn adm-btn-primary text-sm" @click="openUploadMedia()">
+              <span class="me-1">📎</span> رفع وسائط
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" x-show="media.length">
+            <template x-for="(m, i) in media" :key="m.id">
+              <div class="relative group cursor-pointer rounded-xl overflow-hidden border border-neutral-200 bg-neutral-50 hover:shadow-md transition-shadow"
+                   style="aspect-ratio:4/3;"
+                   @click="activeIndex = i; $nextTick(() => document.querySelector('.adm-gallery-main')?.scrollIntoView({behavior:'smooth'}))">
+                <!-- Image thumb -->
+                <template x-if="m.type === 'image'">
+                  <img :src="m.url" class="w-full h-full object-cover" loading="lazy">
+                </template>
+                <!-- Non-image thumb -->
+                <template x-if="m.type !== 'image'">
+                  <div class="w-full h-full flex flex-col items-center justify-center gap-1 text-neutral-500">
+                    <span class="text-4xl" x-text="m.type === 'video' ? '🎬' : m.type === 'pdf' ? '📄' : m.type === 'excel' ? '📊' : m.type === 'word' ? '📝' : '📎'"></span>
+                    <span class="text-xs uppercase font-medium" x-text="m.type"></span>
+                  </div>
+                </template>
+
+                <!-- Overlay on hover -->
+                <div class="absolute inset-0 bg-primary-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span class="text-white text-xs font-medium px-3 py-1.5 rounded-lg bg-white/20">عرض</span>
+                </div>
+
+                <!-- Primary badge -->
+                <template x-if="m.isPrimary">
+                  <div class="absolute top-2" style="inset-inline-start:0.5rem;">
+                    <span class="adm-badge text-xs" style="background:#0B1F3A;color:#fff;">رئيسية</span>
+                  </div>
+                </template>
+
+                <!-- Type badge -->
+                <div class="absolute bottom-2" style="inset-inline-end:0.5rem;">
+                  <span class="adm-badge text-xs" :style="mediaTypeBadgeStyle(m.type)" x-text="mediaTypeLabel(m.type)"></span>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <div x-show="!media.length" class="text-center py-12 text-neutral-400">
+            <span class="text-5xl block mb-3">🖼️</span>
+            <p class="text-sm">لا توجد وسائط مضافة بعد</p>
+          </div>
+        </div>
+
+        <!-- ─── TAB: المعاينات ─── -->
+        <div x-show="activeTab === 'المعاينات'" class="p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-primary-900">المعاينات المجدولة</h3>
+            <button class="adm-btn adm-btn-primary text-sm" @click="openScheduleViewing()">
+              <span class="me-1">📅</span> جدولة معاينة
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-3" x-show="viewings.length">
+            <template x-for="v in viewings" :key="v.id">
+              <div class="border border-neutral-100 rounded-xl p-4 hover:bg-neutral-50 transition-colors">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap mb-2">
+                      <span class="adm-badge text-xs" :style="viewingStatusStyle(v.status)" x-text="viewingStatusLabel(v.status)"></span>
+                      <span class="text-sm font-semibold text-primary-900" x-text="fmtDateTime(v.scheduledAt)"></span>
+                      <template x-if="v.endAt">
+                        <span class="text-xs text-neutral-500" x-text="'← ' + fmtDateTime(v.endAt)"></span>
+                      </template>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                      <div x-show="v.contactName">
+                        <span class="text-neutral-400 text-xs">العميل: </span>
+                        <span class="text-neutral-700" x-text="v.contactName || '—'"></span>
+                      </div>
+                      <div x-show="v.leadTitle">
+                        <span class="text-neutral-400 text-xs">الـ Lead: </span>
+                        <span class="text-neutral-700" x-text="v.leadTitle || '—'"></span>
+                      </div>
+                      <div x-show="v.agentName">
+                        <span class="text-neutral-400 text-xs">الإيجنت: </span>
+                        <span class="text-neutral-700" x-text="v.agentName || '—'"></span>
+                      </div>
+                    </div>
+                    <div class="text-xs text-neutral-500 mt-2 italic" x-show="v.feedback" x-text="'ملاحظات: ' + v.feedback"></div>
+                  </div>
+                  <div class="flex gap-1 shrink-0">
+                    <button class="adm-icon-btn text-sm" title="تعديل" @click="editViewing(v)">✏️</button>
+                    <button class="adm-icon-btn text-sm text-red-500" title="إلغاء" @click="cancelViewing(v)" x-show="v.status === 'scheduled'">✕</button>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <div x-show="!viewings.length" class="text-center py-12 text-neutral-400">
+            <span class="text-5xl block mb-3">📅</span>
+            <p class="text-sm">لا توجد معاينات مجدولة</p>
+            <button class="adm-btn adm-btn-primary text-sm mt-4" @click="openScheduleViewing()">جدولة أول معاينة</button>
+          </div>
+        </div>
+
+        <!-- ─── TAB: المستندات ─── -->
+        <div x-show="activeTab === 'المستندات'" class="p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-semibold text-primary-900">مستندات العقار</h3>
+            <button class="adm-btn adm-btn-primary text-sm" @click="openUploadDocument()">
+              <span class="me-1">📤</span> رفع مستند
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-3" x-show="documents.length">
+            <template x-for="doc in documents" :key="doc.id">
+              <div class="flex items-center gap-3 border border-neutral-100 rounded-xl p-3.5 hover:bg-neutral-50 transition-colors">
+                <div class="w-10 h-10 rounded-lg bg-neutral-100 flex items-center justify-center text-xl shrink-0"
+                     x-text="doc.category === 'deed' ? '📜' : doc.category === 'license' ? '🪪' : doc.category === 'plan' ? '📐' : doc.category === 'contract' ? '📋' : doc.category === 'noc' ? '✅' : doc.category === 'survey' ? '🗺️' : '📄'">
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-primary-900 text-sm truncate" x-text="doc.name"></p>
+                  <div class="flex items-center gap-2 text-xs text-neutral-500 mt-0.5 flex-wrap">
+                    <span x-text="docCategoryLabel(doc.category)"></span>
+                    <template x-if="doc.expiryDate">
+                      <span>· تنتهي: <span x-text="fmtDate(doc.expiryDate)"></span></span>
+                    </template>
+                    <span>· <span x-text="fmtDate(doc.createdAt)"></span></span>
+                  </div>
+                  <p class="text-xs text-neutral-400 mt-0.5" x-show="doc.notes" x-text="doc.notes"></p>
+                </div>
+                <div class="flex gap-1 shrink-0">
+                  <a :href="doc.url || '#'" target="_blank" class="adm-icon-btn text-sm" title="تحميل">⬇️</a>
+                  <button class="adm-icon-btn text-sm" title="حذف" @click="deleteDocument(doc)" style="color:#EF4444;">🗑️</button>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <div x-show="!documents.length" class="text-center py-12 text-neutral-400">
+            <span class="text-5xl block mb-3">📁</span>
+            <p class="text-sm">لا توجد مستندات مرفوعة</p>
+            <button class="adm-btn adm-btn-primary text-sm mt-4" @click="openUploadDocument()">رفع أول مستند</button>
+          </div>
+        </div>
+
+      </div><!-- /adm-card tabs -->
+    </div><!-- /left column -->
+
+    <!-- ─────────────────── RIGHT / STICKY SUMMARY ─────────────────── -->
+    <aside class="lg:sticky lg:top-5 flex flex-col gap-4">
+
+      <!-- Price card -->
+      <div class="adm-card p-5">
+        <p class="text-xs text-neutral-400 uppercase tracking-wide mb-1">السعر</p>
+        <p class="text-3xl font-extrabold text-primary-900 leading-tight" x-text="fmtMoney(property.price, property.currency)"></p>
+        <div class="flex items-center gap-2 mt-2 flex-wrap">
+          <span class="adm-badge text-xs" :style="statusStyle(property.status)" x-text="statusLabel(property.status)"></span>
+          <span class="adm-badge text-xs" :style="purposeStyle(property.purpose)" x-text="purposeLabel(property.purpose)"></span>
+        </div>
+        <div class="mt-3 pt-3 border-t border-neutral-100 text-sm text-neutral-600 flex items-center gap-2" x-show="property.discount">
+          <span class="text-red-500 font-semibold">🏷️ خصم <span x-text="property.discount + '%'"></span></span>
+        </div>
+      </div>
+
+      <!-- Property info -->
+      <div class="adm-card p-5">
+        <h3 class="text-sm font-bold text-primary-900 mb-3">معلومات العقار</h3>
+        <div class="flex flex-col gap-2.5 text-sm">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-neutral-400">الرقم المرجعي</span>
+            <span class="font-mono text-xs bg-neutral-100 px-2 py-0.5 rounded text-neutral-700 font-semibold" x-text="property.referenceNumber || '—'"></span>
+          </div>
+          <div class="flex items-center justify-between gap-2" x-show="property.bedrooms != null">
+            <span class="text-neutral-400">غرف النوم</span>
+            <span class="font-semibold text-neutral-800" x-text="property.bedrooms + ' 🛏️'"></span>
+          </div>
+          <div class="flex items-center justify-between gap-2" x-show="property.bathrooms != null">
+            <span class="text-neutral-400">الحمامات</span>
+            <span class="font-semibold text-neutral-800" x-text="property.bathrooms + ' 🚿'"></span>
+          </div>
+          <div class="flex items-center justify-between gap-2" x-show="property.size">
+            <span class="text-neutral-400">المساحة</span>
+            <span class="font-semibold text-neutral-800" x-text="fmtNum(property.size) + ' م²'"></span>
+          </div>
+          <div class="flex items-center justify-between gap-2" x-show="property.city">
+            <span class="text-neutral-400">المدينة</span>
+            <span class="font-semibold text-neutral-800" x-text="property.city"></span>
+          </div>
+          <div class="flex items-center justify-between gap-2" x-show="property.area">
+            <span class="text-neutral-400">الحي</span>
+            <span class="font-semibold text-neutral-800 text-xs" x-text="property.area"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Owner contact -->
+      <div class="adm-card p-5" x-show="ownerContact">
+        <h3 class="text-sm font-bold text-primary-900 mb-3">المالك</h3>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-sm shrink-0"
+               x-text="ownerContact ? ownerContact.name.charAt(0) : ''"></div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-primary-900 truncate text-sm" x-text="ownerContact && ownerContact.name"></p>
+            <p class="text-xs text-neutral-500 truncate" x-text="ownerContact && ownerContact.phone"></p>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-neutral-100 text-xs text-neutral-500" x-show="property.commissionAgreement">
+          اتفاقية عمولة: <span class="font-semibold text-neutral-700" x-text="property.commissionAgreement + '%'"></span>
+        </div>
+      </div>
+
+      <!-- Listing agent -->
+      <div class="adm-card p-5" x-show="listingAgent">
+        <h3 class="text-sm font-bold text-primary-900 mb-3">إيجنت التقييد</h3>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-sm shrink-0"
+               x-text="listingAgent ? listingAgent.name.charAt(0) : ''"></div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-primary-900 truncate text-sm" x-text="listingAgent && listingAgent.name"></p>
+            <p class="text-xs text-neutral-500 truncate" x-text="listingAgent && listingAgent.email"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Internal publish + share stats -->
+      <div class="adm-card p-5">
+        <h3 class="text-sm font-bold text-primary-900 mb-3">النشر والمشاركة</h3>
+        <!-- Internal publish toggle -->
+        <div class="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-neutral-100">
+          <div>
+            <p class="text-sm font-medium text-neutral-700">النشر الداخلي</p>
+            <p class="text-xs text-neutral-400">نشر الصفحة العامة للعقار</p>
+          </div>
+          <button class="adm-switch" :class="property.isPublished && 'on'" @click="togglePublish()"></button>
+        </div>
+        <!-- Public URL (when published) -->
+        <div x-show="property.isPublished" class="mb-3 pb-3 border-b border-neutral-100">
+          <p class="text-xs text-neutral-400 mb-1">الرابط العام</p>
+          <div class="flex items-center gap-2">
+            <a :href="publicUrl" target="_blank" class="text-xs text-blue-600 hover:underline truncate flex-1" x-text="publicUrl"></a>
+            <button class="adm-icon-btn text-xs" title="نسخ الرابط" @click="copyLink(publicUrl)">📋</button>
+          </div>
+        </div>
+        <!-- Share stats -->
+        <div class="flex gap-4 text-center">
+          <div class="flex-1">
+            <p class="text-2xl font-bold text-primary-900" x-text="shares.length"></p>
+            <p class="text-xs text-neutral-400">روابط مشاركة</p>
+          </div>
+          <div class="w-px bg-neutral-100"></div>
+          <div class="flex-1">
+            <p class="text-2xl font-bold text-primary-900" x-text="totalVisits"></p>
+            <p class="text-xs text-neutral-400">إجمالي الزيارات</p>
+          </div>
+        </div>
+        <button class="adm-btn adm-btn-ghost w-full mt-3 text-sm" @click="openShare()">
+          <span class="me-1">🔗</span> إنشاء رابط مشاركة
+        </button>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="adm-card p-5">
+        <h3 class="text-sm font-bold text-primary-900 mb-3">إجراءات سريعة</h3>
+        <div class="flex flex-col gap-2">
+          <button class="adm-btn adm-btn-gold w-full text-sm" @click="openScheduleViewing()">
+            📅 جدولة معاينة
+          </button>
+          <button class="adm-btn adm-btn-primary w-full text-sm" @click="goToEdit()">
+            ✏️ تعديل العقار
+          </button>
+          <button class="adm-btn adm-btn-ghost w-full text-sm" @click="openStatusModal()">
+            🔄 تغيير الحالة
+          </button>
+          <button class="adm-btn adm-btn-ghost w-full text-sm" @click="openUploadDocument()">
+            📤 رفع مستند
+          </button>
+        </div>
+      </div>
+
+    </aside><!-- /sticky summary -->
+  </div><!-- /main grid -->
+
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODALS
+  ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- ─── MODAL: مشاركة ─── -->
+  <template x-if="shareModal">
+    <div class="adm-overlay" @click.self="shareModal = false">
+      <div class="adm-modal" style="max-width:520px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">مشاركة العقار</div>
+          <button @click="shareModal = false" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-4">
+
+          <!-- Public link row -->
+          <div>
+            <label class="ec-label mb-1.5">الرابط العام</label>
+            <div class="flex gap-2">
+              <input type="text" class="ec-input flex-1 text-sm font-mono" :value="publicUrl" readonly>
+              <button class="adm-btn adm-btn-ghost text-sm px-3" @click="copyLink(publicUrl)" title="نسخ">📋</button>
+              <a :href="'https://wa.me/?text=' + encodeURIComponent(property.title + '\n' + publicUrl)"
+                 target="_blank"
+                 class="adm-btn adm-btn-ghost text-sm px-3" title="واتساب">💬</a>
+            </div>
+          </div>
+
+          <!-- QR placeholder -->
+          <div class="flex flex-col items-center gap-2 p-5 bg-neutral-50 border border-dashed border-neutral-200 rounded-xl">
+            <div class="w-32 h-32 bg-neutral-200 rounded-lg flex items-center justify-center text-neutral-400 text-4xl">◼</div>
+            <p class="text-xs text-neutral-400">QR Code — يتوفر عند الإطلاق الرسمي لهذه الميزة</p>
+          </div>
+
+          <!-- Existing share links -->
+          <div x-show="shares.length">
+            <label class="ec-label mb-2">روابط مشاركة سابقة</label>
+            <div class="flex flex-col gap-2">
+              <template x-for="sh in shares" :key="sh.id">
+                <div class="flex items-center gap-2 text-sm border border-neutral-100 rounded-lg p-2.5">
+                  <span class="text-neutral-400 text-xs font-mono truncate flex-1" x-text="shareUrl(sh.token)"></span>
+                  <span class="text-xs text-neutral-400" x-text="sh.visitCount + ' زيارة'"></span>
+                  <button class="adm-icon-btn text-xs" @click="copyLink(shareUrl(sh.token))" title="نسخ">📋</button>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Generate new link -->
+          <button class="adm-btn adm-btn-primary text-sm w-full" @click="generateShareLink()">
+            <span class="me-1">➕</span> إنشاء رابط مشاركة جديد
+          </button>
+        </div>
+        <div class="adm-modal-foot">
+          <button class="adm-btn adm-btn-ghost" @click="shareModal = false">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ─── MODAL: جدولة / تعديل معاينة ─── -->
+  <template x-if="viewingForm !== null">
+    <div class="adm-overlay" @click.self="viewingForm = null">
+      <div class="adm-modal" style="max-width:540px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800" x-text="viewingForm.id ? 'تعديل المعاينة' : 'جدولة معاينة جديدة'"></div>
+          <button @click="viewingForm = null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+
+          <div class="sm:col-span-2">
+            <label class="ec-label">اسم العميل / المتصفِّح</label>
+            <input type="text" class="ec-input mt-1" x-model="viewingForm.contactName" placeholder="اسم العميل أو رقم Lead">
+          </div>
+
+          <div>
+            <label class="ec-label">تاريخ ووقت البداية <span class="text-red-500">*</span></label>
+            <input type="datetime-local" class="ec-input mt-1" x-model="viewingForm.scheduledAt">
+          </div>
+
+          <div>
+            <label class="ec-label">وقت الانتهاء</label>
+            <input type="datetime-local" class="ec-input mt-1" x-model="viewingForm.endAt">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="ec-label">الإيجنت المسؤول</label>
+            <input type="text" class="ec-input mt-1" x-model="viewingForm.agentName" placeholder="اسم الإيجنت">
+          </div>
+
+          <div x-show="viewingForm.id">
+            <label class="ec-label">الحالة</label>
+            <select class="ec-input mt-1" x-model="viewingForm.status">
+              <option value="scheduled">مجدولة</option>
+              <option value="done">مكتملة</option>
+              <option value="cancelled">ملغاة</option>
+            </select>
+          </div>
+
+          <div :class="viewingForm.id ? '' : 'sm:col-span-2'">
+            <label class="ec-label">ملاحظات</label>
+            <textarea class="ec-input mt-1" rows="2" x-model="viewingForm.feedback" placeholder="ملاحظات بعد المعاينة..."></textarea>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button class="adm-btn adm-btn-primary" @click="saveViewing()" :disabled="!viewingForm.scheduledAt">
+            <span x-text="viewingForm.id ? 'حفظ التعديلات' : 'تأكيد الجدولة'"></span>
+          </button>
+          <button class="adm-btn adm-btn-ghost" @click="viewingForm = null">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ─── MODAL: رفع مستند ─── -->
+  <template x-if="documentForm !== null">
+    <div class="adm-overlay" @click.self="documentForm = null">
+      <div class="adm-modal" style="max-width:480px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">رفع مستند جديد</div>
+          <button @click="documentForm = null" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+
+          <div class="sm:col-span-2">
+            <label class="ec-label">اسم المستند <span class="text-red-500">*</span></label>
+            <input type="text" class="ec-input mt-1" x-model="documentForm.name" placeholder="مثال: عقد البيع">
+          </div>
+
+          <div>
+            <label class="ec-label">التصنيف</label>
+            <select class="ec-input mt-1" x-model="documentForm.category">
+              <option value="deed">صك ملكية</option>
+              <option value="license">رخصة</option>
+              <option value="plan">مخطط</option>
+              <option value="contract">عقد</option>
+              <option value="noc">إفادة عدم ممانعة</option>
+              <option value="survey">مسح</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="ec-label">تاريخ الانتهاء</label>
+            <input type="date" class="ec-input mt-1" x-model="documentForm.expiryDate">
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="ec-label">ملف المستند</label>
+            <div class="mt-1 border-2 border-dashed border-neutral-200 rounded-xl p-6 text-center text-neutral-400 text-sm hover:border-primary-300 transition-colors cursor-pointer"
+                 @click="$refs.docFile.click()">
+              <span class="text-3xl block mb-2">📁</span>
+              PDF, Word, Excel, صور (حتى 20MB)
+              <input type="file" class="hidden" x-ref="docFile" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*" @change="documentForm.file = $event.target.files[0]">
+            </div>
+            <p class="text-xs text-neutral-500 mt-1.5" x-show="documentForm.file" x-text="'الملف: ' + (documentForm.file && documentForm.file.name)"></p>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label class="ec-label">ملاحظات</label>
+            <textarea class="ec-input mt-1" rows="2" x-model="documentForm.notes" placeholder="ملاحظات اختيارية..."></textarea>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button class="adm-btn adm-btn-primary" @click="saveDocument()" :disabled="!documentForm.name">رفع المستند</button>
+          <button class="adm-btn adm-btn-ghost" @click="documentForm = null">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ─── MODAL: رفع وسائط ─── -->
+  <template x-if="uploadMediaModal">
+    <div class="adm-overlay" @click.self="uploadMediaModal = false">
+      <div class="adm-modal" style="max-width:480px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">رفع وسائط جديدة</div>
+          <button @click="uploadMediaModal = false" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-4">
+          <div class="border-2 border-dashed border-neutral-200 rounded-xl p-8 text-center text-neutral-400 text-sm hover:border-primary-300 transition-colors cursor-pointer"
+               @click="$refs.mediaFile.click()">
+            <span class="text-4xl block mb-2">🖼️</span>
+            <p class="font-medium text-neutral-600 mb-1">اختر ملفات أو اسحبها هنا</p>
+            <p class="text-xs">صور، فيديوهات، PDF (حتى 50MB لكل ملف)</p>
+            <input type="file" class="hidden" x-ref="mediaFile" accept="image/*,video/*,.pdf" multiple
+                   @change="handleMediaFiles($event)">
+          </div>
+          <div x-show="uploadMediaForm.files && uploadMediaForm.files.length" class="flex flex-col gap-2">
+            <template x-for="(f, i) in (uploadMediaForm.files || [])" :key="i">
+              <div class="flex items-center gap-2 text-sm border border-neutral-100 rounded-lg p-2.5">
+                <span class="text-neutral-500" x-text="f.type.startsWith('image') ? '🖼️' : f.type.startsWith('video') ? '🎬' : '📄'"></span>
+                <span class="flex-1 truncate text-neutral-700" x-text="f.name"></span>
+                <span class="text-xs text-neutral-400" x-text="Math.round(f.size / 1024) + ' KB'"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button class="adm-btn adm-btn-primary" @click="saveMedia()"
+                  :disabled="!uploadMediaForm.files || !uploadMediaForm.files.length">
+            رفع الملفات
+          </button>
+          <button class="adm-btn adm-btn-ghost" @click="uploadMediaModal = false">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ─── MODAL: تغيير الحالة ─── -->
+  <template x-if="statusModal">
+    <div class="adm-overlay" @click.self="statusModal = false">
+      <div class="adm-modal" style="max-width:400px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">تغيير حالة العقار</div>
+          <button @click="statusModal = false" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-3">
+          <p class="text-sm text-neutral-500 mb-1">
+            الحالة الحالية:
+            <span class="font-semibold text-primary-900" x-text="statusLabel(property.status)"></span>
+          </p>
+          <div class="flex flex-col gap-2">
+            <template x-for="s in statusOptions" :key="s.value">
+              <button
+                class="flex items-center gap-3 p-3.5 rounded-xl border-2 transition-colors text-start text-sm font-medium"
+                :class="property.status === s.value
+                  ? 'border-primary-500 bg-primary-50 text-primary-900'
+                  : 'border-neutral-100 hover:border-primary-200 hover:bg-neutral-50 text-neutral-700'"
+                @click="changeStatus(s.value)">
+                <span x-text="s.icon"></span>
+                <span x-text="s.label"></span>
+                <span x-show="property.status === s.value" class="ms-auto text-primary-500 font-bold">✓</span>
+              </button>
+            </template>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button class="adm-btn adm-btn-ghost" @click="statusModal = false">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TOAST
+  ════════════════════════════════════════════════════════════ -->
+  <div
+    x-show="toast"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 translate-y-2"
+    x-transition:enter-end="opacity-100 translate-y-0"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-primary-900 text-white text-sm px-5 py-2.5 rounded-full shadow-lg pointer-events-none"
+    x-text="toast">
+  </div>
+
+</div><!-- /x-data propertyDetail -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     ALPINE COMPONENT — propertyDetail()
+     - globals from shell (never redefined here):
+       fmtNum, fmtMoney, fmtDate, fmtDateTime, timeAgo, floatMenu
+     - model fields grounded on:
+       Property / PropertyMedia / PropertyDocument /
+       PropertyViewing / PropertyShare models
+═══════════════════════════════════════════════════════════════ -->
+<script>
+function propertyDetail() {
+  return {
+    // Spread floatMenu mixin (provides fmId, fmOpen, fmClose, fmStyle)
+    ...floatMenu(),
+
+    // ── UI state ──────────────────────────────────────────────
+    activeTab:        'التفاصيل',
+    activeIndex:      0,          // lightbox: index into media[]
+    shareModal:       false,
+    viewingForm:      null,       // null = closed; object = open
+    documentForm:     null,
+    uploadMediaModal: false,
+    uploadMediaForm:  { files: [] },
+    statusModal:      false,
+    toast:            '',
+    _toastTimer:      null,
+
+    // ── Status options (Property status enum) ─────────────────
+    statusOptions: [
+      { value: 'available',          label: 'متاح',        icon: '🟢' },
+      { value: 'reserved',           label: 'محجوز',       icon: '🟡' },
+      { value: 'under_negotiation',  label: 'قيد التفاوض', icon: '🔵' },
+      { value: 'sold',               label: 'مباع',         icon: '🔴' },
+      { value: 'rented',             label: 'مؤجَّر',       icon: '🟣' },
+    ],
+
+    // ════════════════════════════════════════════════════════════
+    //  SEED DATA — grounded on Property model fields
+    //  property_purpose: "sale" | "rent"
+    //  property_status:  "available" | "reserved" | "sold" | "rented" | "under_negotiation"
+    // ════════════════════════════════════════════════════════════
+    property: {
+      id:                   'prop-0042-uuid',
+      referenceNumber:      'PROP-0042',
+      slug:                 'riyadh-luxury-apartment-0042',
+      title:                'شقة فاخرة في الرياض — حي العليا',
+      description:          'شقة راقية بتشطيبات عالية الجودة في قلب حي العليا التجاري، تتميّز بإطلالة بانورامية على أفق الرياض وموقع مميّز بالقرب من كبرى المراكز التجارية. تشمل غرفة معيشة رحبة، مطبخ مفتوح مجهّز بأحدث الأجهزة، وبلكون خاص.',
+      purpose:              'sale',               // PropertyPurposeEnum
+      status:               'available',          // PropertyStatusEnum
+      price:                '2500000',
+      currency:             'SAR',
+      discount:             null,
+      commission:           '2.5',
+      commissionAgreement:  '3',
+      country:              'المملكة العربية السعودية',
+      city:                 'الرياض',
+      area:                 'حي العليا',
+      address:              'شارع العليا العام، مجمع العليا التجاري، الطابق 14',
+      bedrooms:             3,
+      bathrooms:            2,
+      size:                 '185',
+      finishing:            'سوبر لوكس',
+      furnished:            'unfurnished',
+      features:             ['بلكون بانورامي', 'موقف خاص', 'أمن 24 ساعة', 'مصعد ذكي'],
+      amenities:            ['صالة رياضية', 'مسبح', 'غرفة إدارة', 'مولد كهربائي'],
+      featured:             true,
+      isExclusive:          true,
+      isPublished:          true,
+      publishedAt:          '2026-05-10T09:00:00Z',
+      listingExpiryDate:    '2026-12-31T00:00:00Z',
+      ownerContactId:       'contact-owner-001',
+      listingAgentId:       'agent-user-007',
+      typeName:             'شقة',
+      // priceHistory: jsonb array {price, changedAt, changedBy, reason?}
+      priceHistory: [
+        { price: '2800000', changedAt: '2026-03-01T10:00:00Z', changedBy: 'أحمد السيد',     reason: 'سعر الإدراج الأولي' },
+        { price: '2650000', changedAt: '2026-04-15T14:30:00Z', changedBy: 'أحمد السيد',     reason: 'مراجعة دورية — ضعف الطلب' },
+        { price: '2500000', changedAt: '2026-05-20T11:00:00Z', changedBy: 'محمد الشمري',    reason: 'تخفيض لتسريع البيع' },
+      ],
+      createdAt:  '2026-03-01T08:00:00Z',
+      updatedAt:  '2026-05-20T11:00:00Z',
+    },
+
+    // PropertyMedia — type: MediaTypeEnum "image"|"video"|"pdf"|"excel"|"word"|"other"
+    media: [
+      { id: 'm-001', type: 'image', isPrimary: true,  sortOrder: 0, url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80', linktype: 'remote' },
+      { id: 'm-002', type: 'image', isPrimary: false, sortOrder: 1, url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80', linktype: 'remote' },
+      { id: 'm-003', type: 'image', isPrimary: false, sortOrder: 2, url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80', linktype: 'remote' },
+      { id: 'm-004', type: 'video', isPrimary: false, sortOrder: 3, url: '#video-placeholder', linktype: 'local' },
+      { id: 'm-005', type: 'pdf',   isPrimary: false, sortOrder: 4, url: '#pdf-placeholder',   linktype: 'local' },
+    ],
+
+    // PropertyDocument — category: "deed"|"license"|"plan"|"contract"|"noc"|"survey"|"other"
+    documents: [
+      { id: 'd-001', name: 'صك الملكية',         category: 'deed',     expiryDate: null,                     notes: 'موثّق رسمياً',        createdAt: '2026-03-05T10:00:00Z', url: '#' },
+      { id: 'd-002', name: 'رخصة البناء',        category: 'license',  expiryDate: '2027-06-30T00:00:00Z',  notes: null,                  createdAt: '2026-03-05T10:30:00Z', url: '#' },
+      { id: 'd-003', name: 'مخطط الشقة',         category: 'plan',     expiryDate: null,                     notes: 'AutoCAD 2024',         createdAt: '2026-03-06T09:00:00Z', url: '#' },
+      { id: 'd-004', name: 'إفادة عدم ممانعة',  category: 'noc',      expiryDate: '2026-12-01T00:00:00Z',  notes: 'صادر من البلدية',     createdAt: '2026-04-10T14:00:00Z', url: '#' },
+    ],
+
+    // PropertyViewing — status: "scheduled"|"done"|"cancelled"
+    // leadId / contactId are soft-links (nullable). agentId required.
+    viewings: [
+      { id: 'v-001', scheduledAt: '2026-06-28T10:00:00Z', endAt: '2026-06-28T11:00:00Z', status: 'scheduled', contactName: 'فيصل الحربي',   leadTitle: 'Lead #L-202', agentName: 'سارة المطيري', feedback: null },
+      { id: 'v-002', scheduledAt: '2026-06-22T14:00:00Z', endAt: null,                   status: 'done',      contactName: 'نورة القحطاني', leadTitle: null,           agentName: 'محمد الشمري', feedback: 'أبدى اهتماماً كبيراً — يحتاج تمويل بنكي' },
+      { id: 'v-003', scheduledAt: '2026-06-18T09:30:00Z', endAt: null,                   status: 'cancelled', contactName: 'خالد العتيبي',  leadTitle: 'Lead #L-198', agentName: 'سارة المطيري', feedback: 'لم يحضر بدون إشعار' },
+    ],
+
+    // PropertyShare — token (URL-safe random), visitCount (atomic)
+    shares: [
+      { id: 'sh-001', token: 'abc123xyz', expiresAt: null,                    visitCount: 24, createdAt: '2026-05-12T10:00:00Z' },
+      { id: 'sh-002', token: 'qrst456uv', expiresAt: '2026-07-01T00:00:00Z', visitCount: 8,  createdAt: '2026-06-01T09:00:00Z' },
+    ],
+
+    // Related entities (soft-linked via ownerContactId / listingAgentId)
+    ownerContact: {
+      id:    'contact-owner-001',
+      name:  'عبدالرحمن الغامدي',
+      phone: '+966 55 234 5678',
+      email: 'abdulrahman@example.sa',
+    },
+    listingAgent: {
+      id:    'agent-user-007',
+      name:  'سارة المطيري',
+      email: 'sara@est8core.com',
+    },
+
+    // ════════════════════════════════════════════════════════════
+    //  COMPUTED
+    // ════════════════════════════════════════════════════════════
+    get activeMedia() {
+      return this.media[this.activeIndex] || null;
+    },
+
+    get totalVisits() {
+      return this.shares.reduce((s, sh) => s + (sh.visitCount || 0), 0);
+    },
+
+    get publicUrl() {
+      return `https://app.est8core.com/p/${this.property.slug || this.property.referenceNumber}`;
+    },
+
+    // ════════════════════════════════════════════════════════════
+    //  LIGHTBOX NAVIGATION
+    // ════════════════════════════════════════════════════════════
+    prevMedia() {
+      this.activeIndex = (this.activeIndex - 1 + this.media.length) % this.media.length;
+    },
+
+    nextMedia() {
+      this.activeIndex = (this.activeIndex + 1) % this.media.length;
+    },
+
+    // ════════════════════════════════════════════════════════════
+    //  LABEL / STYLE HELPERS
+    //  (pure display helpers — no globals shadowed)
+    // ════════════════════════════════════════════════════════════
+    statusLabel(s) {
+      const m = { available: 'متاح', reserved: 'محجوز', sold: 'مباع', rented: 'مؤجَّر', under_negotiation: 'قيد التفاوض' };
+      return m[s] || s;
+    },
+    statusStyle(s) {
+      const m = {
+        available:         'background:#DCFCE7;color:#166534;border:1px solid #BBF7D0;',
+        reserved:          'background:#FEF9C3;color:#854D0E;border:1px solid #FEF08A;',
+        sold:              'background:#FEE2E2;color:#991B1B;border:1px solid #FECACA;',
+        rented:            'background:#EDE9FE;color:#5B21B6;border:1px solid #DDD6FE;',
+        under_negotiation: 'background:#DBEAFE;color:#1E40AF;border:1px solid #BFDBFE;',
+      };
+      return m[s] || 'background:#F3F4F6;color:#374151;';
+    },
+    purposeLabel(p) {
+      return p === 'sale' ? 'للبيع' : p === 'rent' ? 'للإيجار' : p;
+    },
+    purposeStyle(p) {
+      return p === 'sale'
+        ? 'background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA;'
+        : 'background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;';
+    },
+    viewingStatusLabel(s) {
+      return { scheduled: 'مجدولة', done: 'مكتملة', cancelled: 'ملغاة' }[s] || s;
+    },
+    viewingStatusStyle(s) {
+      const m = {
+        scheduled: 'background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;',
+        done:      'background:#DCFCE7;color:#166534;border:1px solid #BBF7D0;',
+        cancelled: 'background:#FEE2E2;color:#991B1B;border:1px solid #FECACA;',
+      };
+      return m[s] || '';
+    },
+    mediaTypeLabel(t) {
+      return { image: 'صورة', video: 'فيديو', pdf: 'PDF', excel: 'Excel', word: 'Word', other: 'ملف' }[t] || t;
+    },
+    mediaTypeBadgeStyle(t) {
+      const m = {
+        image: 'background:#EFF6FF;color:#1D4ED8;',
+        video: 'background:#FDF4FF;color:#7E22CE;',
+        pdf:   'background:#FEF2F2;color:#991B1B;',
+        excel: 'background:#F0FDF4;color:#166534;',
+        word:  'background:#EFF6FF;color:#1E40AF;',
+        other: 'background:#F3F4F6;color:#374151;',
+      };
+      return m[t] || 'background:#F3F4F6;color:#374151;';
+    },
+    docCategoryLabel(c) {
+      return { deed: 'صك ملكية', license: 'رخصة', plan: 'مخطط', contract: 'عقد', noc: 'إفادة ع.م.', survey: 'مسح', other: 'أخرى' }[c] || c;
+    },
+    shareUrl(token) {
+      return `https://app.est8core.com/share/${token}`;
+    },
+
+    // ════════════════════════════════════════════════════════════
+    //  ACTIONS
+    // ════════════════════════════════════════════════════════════
+
+    openShare() {
+      this.shareModal = true;
+    },
+
+    openScheduleViewing() {
+      this.viewingForm = {
+        id:          null,
+        contactName: '',
+        scheduledAt: '',
+        endAt:       '',
+        agentName:   this.listingAgent ? this.listingAgent.name : '',
+        status:      'scheduled',
+        feedback:    '',
+      };
+    },
+
+    editViewing(v) {
+      this.viewingForm = {
+        id:          v.id,
+        contactName: v.contactName || '',
+        scheduledAt: v.scheduledAt ? v.scheduledAt.slice(0, 16) : '',
+        endAt:       v.endAt ? v.endAt.slice(0, 16) : '',
+        agentName:   v.agentName || '',
+        status:      v.status,
+        feedback:    v.feedback || '',
+      };
+    },
+
+    saveViewing() {
+      if (!this.viewingForm.scheduledAt) return;
+      if (this.viewingForm.id) {
+        const idx = this.viewings.findIndex(v => v.id === this.viewingForm.id);
+        if (idx !== -1) {
+          this.viewings[idx] = {
+            ...this.viewings[idx],
+            contactName: this.viewingForm.contactName,
+            scheduledAt: this.viewingForm.scheduledAt,
+            endAt:       this.viewingForm.endAt || null,
+            agentName:   this.viewingForm.agentName,
+            status:      this.viewingForm.status,
+            feedback:    this.viewingForm.feedback,
+          };
+        }
+      } else {
+        this.viewings.unshift({
+          id:          'v-new-' + Date.now(),
+          contactName: this.viewingForm.contactName,
+          leadTitle:   null,
+          scheduledAt: this.viewingForm.scheduledAt,
+          endAt:       this.viewingForm.endAt || null,
+          agentName:   this.viewingForm.agentName,
+          status:      'scheduled',
+          feedback:    this.viewingForm.feedback,
+        });
+      }
+      this.viewingForm = null;
+      this.showToast('تم حفظ المعاينة بنجاح ✓');
+    },
+
+    cancelViewing(v) {
+      v.status = 'cancelled';
+      this.showToast('تم إلغاء المعاينة');
+    },
+
+    openUploadDocument() {
+      this.documentForm = { name: '', category: 'other', expiryDate: '', notes: '', file: null };
+    },
+
+    saveDocument() {
+      if (!this.documentForm.name) return;
+      this.documents.unshift({
+        id:         'd-new-' + Date.now(),
+        name:       this.documentForm.name,
+        category:   this.documentForm.category,
+        expiryDate: this.documentForm.expiryDate || null,
+        notes:      this.documentForm.notes || null,
+        createdAt:  new Date().toISOString(),
+        url:        '#',
+      });
+      this.documentForm = null;
+      this.showToast('تم رفع المستند بنجاح ✓');
+    },
+
+    deleteDocument(doc) {
+      this.documents = this.documents.filter(d => d.id !== doc.id);
+      this.showToast('تم حذف المستند');
+    },
+
+    openUploadMedia() {
+      this.uploadMediaForm = { files: [] };
+      this.uploadMediaModal = true;
+    },
+
+    handleMediaFiles(event) {
+      this.uploadMediaForm.files = Array.from(event.target.files);
+    },
+
+    saveMedia() {
+      if (!this.uploadMediaForm.files.length) return;
+      this.uploadMediaForm.files.forEach((f, i) => {
+        const type = f.type.startsWith('image') ? 'image'
+                   : f.type.startsWith('video') ? 'video'
+                   : 'pdf';
+        this.media.push({
+          id:        'm-new-' + Date.now() + i,
+          type,
+          isPrimary: false,
+          sortOrder: this.media.length,
+          url:       URL.createObjectURL(f),
+          linktype:  'local',
+        });
+      });
+      this.uploadMediaModal = false;
+      this.uploadMediaForm = { files: [] };
+      this.showToast('تم رفع الوسائط بنجاح ✓');
+    },
+
+    openStatusModal() {
+      this.statusModal = true;
+    },
+
+    changeStatus(newStatus) {
+      this.property.status = newStatus;
+      this.statusModal = false;
+      this.showToast('تم تحديث الحالة: ' + this.statusLabel(newStatus));
+    },
+
+    togglePublish() {
+      this.property.isPublished = !this.property.isPublished;
+      if (this.property.isPublished) {
+        this.property.publishedAt = new Date().toISOString();
+      }
+      this.showToast(this.property.isPublished ? 'تم نشر العقار ✓' : 'تم إلغاء النشر');
+    },
+
+    goToEdit() {
+      window.location.href = `/properties/${this.property.id}/edit`;
+    },
+
+    copyLink(url) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => this.showToast('تم نسخ الرابط ✓'));
+      } else {
+        const el = document.createElement('textarea');
+        el.value = url;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        this.showToast('تم نسخ الرابط ✓');
+      }
+    },
+
+    generateShareLink() {
+      const token = Math.random().toString(36).slice(2, 10);
+      this.shares.unshift({
+        id:         'sh-new-' + Date.now(),
+        token,
+        expiresAt:  null,
+        visitCount: 0,
+        createdAt:  new Date().toISOString(),
+      });
+      this.showToast('تم إنشاء رابط مشاركة جديد ✓');
+    },
+
+    showToast(msg) {
+      this.toast = msg;
+      if (this._toastTimer) clearTimeout(this._toastTimer);
+      this._toastTimer = setTimeout(() => { this.toast = ''; }, 2800);
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'properties';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0,
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
+      fmClose(){ this.fmId=null; },
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>

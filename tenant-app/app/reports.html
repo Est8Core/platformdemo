@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · التقارير</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- S-044 · FN reports · التقارير
+     Endpoints (Server/Src/Modules/Reports/Reports.Routes.ts):
+       GET /api/v1/reports/leads-summary       → TLeadSummary  (byStage, bySource, byStatus, conversionRate, avgTimeToClose)
+       GET /api/v1/reports/deals-summary       → TDealSummary  (total, totalRevenue, avgDealValue, byType, byAgent, closedThisPeriod)
+       GET /api/v1/reports/activities-summary  → TActivitiesSummary (byType, byAgent, completionRate)
+       GET /api/v1/reports/commission-detail   → TCommissionDetail[]  (UX-R20 / per-deal)
+       GET /api/v1/reports/agent-activity      → per-agent rows  (RPT-L)
+       GET /api/v1/reports/funnel              → funnel dwell times (RPT-K)
+       GET /api/v1/reports/period-comparison   → dual-period delta (RPT-H)
+       GET /api/v1/reports/executive-dashboard → owner executive dashboard (RPT-I)
+       POST /api/v1/reports/export             → async PDF/Excel (RPT-C)
+     Filters: ?from=&to=&branchId=&teamId=&agentId= (scope-gated by RBAC)
+     Drill-down: Company → Branch → Team → Agent  (UX-R2)
+     CSS-bar charts only (no chart library) — same pattern as dashboard.html
+     Globals used: fmtNum / fmtMoney (defined in shell-foot; never redefined here)
+-->
+<div x-data="reports()">
+
+  <!-- ===== Page head ===== -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">التقارير</h1>
+      <p class="adm-page-sub">تحليلات الأداء · العملاء · الصفقات · العمولات · المقارنة</p>
+    </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="exportReport('excel')">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6l2 2-2 2M9 10h2"/></svg>
+        تصدير Excel
+      </button>
+      <button class="adm-btn adm-btn-primary adm-btn-sm" @click="exportReport('pdf')">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 2h6l4 4v8H4z"/><path d="M10 2v4h4"/><path d="M6 9h4M6 11h2"/></svg>
+        تصدير PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== Filters bar ===== -->
+  <div class="adm-card mb-5">
+    <div class="p-4 flex flex-wrap items-end gap-3">
+      <!-- Period presets -->
+      <div>
+        <label class="ec-label">الفترة الزمنية</label>
+        <div class="flex gap-1.5 flex-wrap">
+          <template x-for="p in periods" :key="p.key">
+            <button class="adm-pill adm-btn-sm" :class="period===p.key && 'on'" @click="setPeriod(p.key)" x-text="p.label"></button>
+          </template>
+        </div>
+      </div>
+      <!-- Custom dates -->
+      <div class="flex items-end gap-2">
+        <div>
+          <label class="ec-label">من</label>
+          <input type="date" x-model="fromDate" class="ec-input w-36" @change="period='custom'" />
+        </div>
+        <div>
+          <label class="ec-label">إلى</label>
+          <input type="date" x-model="toDate" class="ec-input w-36" @change="period='custom'" />
+        </div>
+      </div>
+      <!-- Drill-down level -->
+      <div>
+        <label class="ec-label">المستوى</label>
+        <select x-model="drillLevel" class="ec-input w-auto" @change="onDrillChange()">
+          <option value="company">الشركة</option>
+          <option value="branch">الفرع</option>
+          <option value="team">الفريق</option>
+          <option value="agent">الوكيل</option>
+        </select>
+      </div>
+      <!-- Branch/Team/Agent selector — shown conditionally -->
+      <div x-show="drillLevel !== 'company'" x-transition>
+        <label class="ec-label" x-text="drillLabel"></label>
+        <select x-model="drillId" class="ec-input w-auto">
+          <option value="">الكل</option>
+          <template x-for="opt in drillOptions" :key="opt.id">
+            <option :value="opt.id" x-text="opt.name"></option>
+          </template>
+        </select>
+      </div>
+      <!-- Source filter (leads tab) -->
+      <div x-show="activeTab==='leads'" x-transition>
+        <label class="ec-label">المصدر</label>
+        <select x-model="fSource" class="ec-input w-auto">
+          <option value="">كل المصادر</option>
+          <template x-for="s in allSources" :key="s.id">
+            <option :value="s.id" x-text="s.name"></option>
+          </template>
+        </select>
+      </div>
+      <!-- Comparison toggle -->
+      <div class="ms-auto flex items-center gap-2 self-end">
+        <span class="text-sm text-neutral-600">مقارنة فترتين</span>
+        <div class="adm-switch" :class="compareMode && 'on'" @click="compareMode=!compareMode"></div>
+      </div>
+    </div>
+    <!-- Compare previous period info -->
+    <div x-show="compareMode" x-transition class="px-4 pb-3 border-t border-neutral-50 pt-3">
+      <div class="flex flex-wrap items-end gap-3">
+        <div>
+          <label class="ec-label">فترة المقارنة — من</label>
+          <input type="date" x-model="cmpFrom" class="ec-input w-36" />
+        </div>
+        <div>
+          <label class="ec-label">إلى</label>
+          <input type="date" x-model="cmpTo" class="ec-input w-36" />
+        </div>
+        <span class="text-xs text-neutral-400 self-end pb-2">الفترة الحالية مقابل الفترة المقارَنة — دلتا تظهر بجانب كل KPI</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Tabs ===== -->
+  <div class="adm-tabs mb-5">
+    <button class="adm-tab" :class="activeTab==='leads'&&'on'"       @click="activeTab='leads'">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4m5-2l2 2-2 2"/></svg>
+      العملاء المحتملون
+    </button>
+    <button class="adm-tab" :class="activeTab==='deals'&&'on'"       @click="activeTab='deals'">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5l-3.9 2.1 1-4L2 5.9 6.1 5.5z"/></svg>
+      الصفقات
+    </button>
+    <button class="adm-tab" :class="activeTab==='activities'&&'on'"  @click="activeTab='activities'">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M8 8v3M6.5 9.5h3"/></svg>
+      الأنشطة
+    </button>
+    <button class="adm-tab" :class="activeTab==='commissions'&&'on'" @click="activeTab='commissions'">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5v7M6 6c0-.8.9-1.5 2-1.5s2 .7 2 1.5-1 1.5-2 1.5-2 .7-2 1.5.9 1.5 2 1.5 2-.7 2-1.5"/></svg>
+      العمولات
+    </button>
+    <button class="adm-tab" :class="activeTab==='performance'&&'on'" @click="activeTab='performance'">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V4M2 14h12M5 11l2-3 2 2 4-5"/></svg>
+      الأداء
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       TAB 1 — العملاء المحتملون
+       Source: GET /api/v1/reports/leads-summary
+       Fields: total, byStage, bySource, byStatus, conversionRate, avgTimeToClose
+  ═══════════════════════════════════════════════════════════ -->
+  <div x-show="activeTab==='leads'" x-transition>
+
+    <!-- KPI row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <template x-for="k in leadsKpis" :key="k.label">
+        <div class="adm-kpi">
+          <div class="adm-kpi-label"><span class="adm-kpi-ico" x-html="k.icon"></span><span x-text="k.label"></span></div>
+          <div class="adm-kpi-val" x-text="k.val"></div>
+          <div class="flex items-center justify-between mt-1.5 flex-wrap gap-1">
+            <div class="adm-trend" :class="k.trendType"><span x-text="k.trend"></span><span class="text-neutral-400 font-normal ms-1" x-show="compareMode">مقارنةً بالفترة السابقة</span><span class="text-neutral-400 font-normal ms-1" x-show="!compareMode">عن الشهر الماضي</span></div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Funnel + Sources -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+      <!-- Conversion funnel (RPT-K / UX-R7) — CSS bars -->
+      <div class="adm-card lg:col-span-2">
+        <div class="adm-card-head">
+          <div class="adm-card-title">قمع التحويل</div>
+          <span class="text-xs text-neutral-400">متوسط الأيام بين المراحل من مسار <span class="font-semibold text-primary-700">GET /reports/funnel</span></span>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <template x-for="(f,i) in leadsData.funnel" :key="f.stage">
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-neutral-700" x-text="f.stage"></span>
+                  <span x-show="f.avgDays" class="text-[.7rem] bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full" x-text="'متوسط '+f.avgDays+' يوم'"></span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="font-bold text-primary-800 font-latin" x-text="f.count"></span>
+                  <span x-show="i>0" class="text-xs px-2 py-0.5 rounded-full font-semibold" :class="f.conv>=60?'bg-success/10 text-success':(f.conv>=40?'bg-warning/10 text-warning':'bg-danger/10 text-danger')" x-text="'تحوّل '+f.conv+'٪'"></span>
+                </div>
+              </div>
+              <div class="h-7 rounded-lg bg-neutral-50 overflow-hidden relative">
+                <div class="h-full rounded-lg transition-all duration-500" :style="'width:'+f.pct+'%; background:'+f.color"></div>
+              </div>
+            </div>
+          </template>
+          <!-- Summary row -->
+          <div class="mt-1 pt-3 border-t border-neutral-100 flex items-center justify-between text-sm">
+            <span class="text-neutral-500">معدل الإغلاق الإجمالي</span>
+            <span class="font-bold text-success text-lg" x-text="leadsData.conversionRate+'٪'"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leads by source (bySource from /leads-summary) -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">حسب المصدر</div>
+          <span class="adm-badge b-neutral" x-text="leadsData.totalLeads + ' إجمالاً'"></span>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <template x-for="s in leadsData.bySource" :key="s.name">
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" :style="'background:'+s.color"></span><span class="text-neutral-700" x-text="s.name"></span></span>
+                <span class="text-neutral-500"><span class="font-bold text-neutral-800 font-latin" x-text="s.count"></span> · <span class="font-latin" x-text="s.pct+'٪'"></span></span>
+              </div>
+              <div class="adm-progress"><span :style="'width:'+s.pct+'%; background:'+s.color"></span></div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly trend (CSS bars) + Status breakdown -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+      <!-- Trend chart -->
+      <div class="adm-card lg:col-span-2">
+        <div class="adm-card-head">
+          <div class="adm-card-title">الاتجاه الزمني — العملاء المحتملون</div>
+          <div class="flex items-center gap-3 text-xs text-neutral-500">
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-primary-600"></span> جديد</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-success"></span> مُغلَق-مكسوب</span>
+            <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-danger"></span> خسارة</span>
+          </div>
+        </div>
+        <div class="p-5">
+          <div class="flex items-end justify-between gap-2 h-44">
+            <template x-for="t in leadsData.trend" :key="t.label">
+              <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                <div class="w-full flex items-end justify-center gap-0.5 h-full">
+                  <div class="flex-1 max-w-[12px] rounded-t bg-primary-600 transition-all" :style="'height:'+Math.max(3,(t.new/maxLeadTrend*100))+'%'" :title="t.new+' جديد'"></div>
+                  <div class="flex-1 max-w-[12px] rounded-t bg-success transition-all"    :style="'height:'+Math.max(3,(t.won/maxLeadTrend*100))+'%'" :title="t.won+' مكسوب'"></div>
+                  <div class="flex-1 max-w-[12px] rounded-t bg-danger transition-all"    :style="'height:'+Math.max(3,(t.lost/maxLeadTrend*100))+'%'" :title="t.lost+' خسارة'"></div>
+                </div>
+                <span class="text-[.65rem] text-neutral-400" x-text="t.label"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status breakdown (byStatus from /leads-summary) -->
+      <div class="adm-card">
+        <div class="adm-card-head"><div class="adm-card-title">حسب الحالة</div></div>
+        <div class="p-5 flex flex-col gap-4">
+          <template x-for="s in leadsData.byStatus" :key="s.status">
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="text-neutral-700 flex items-center gap-2"><span class="w-2 h-2 rounded-full" :style="'background:'+s.color"></span><span x-text="s.label"></span></span>
+                <span class="font-bold font-latin text-neutral-800" x-text="s.count"></span>
+              </div>
+              <div class="adm-progress"><span :style="'width:'+s.pct+'%; background:'+s.color"></span></div>
+            </div>
+          </template>
+          <div class="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500">
+            <span>متوسط وقت الإغلاق</span>
+            <span class="font-bold text-primary-700 font-latin" x-text="leadsData.avgTimeToClose + ' يوم'"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       TAB 2 — الصفقات
+       Source: GET /api/v1/reports/deals-summary
+       Fields: total, totalRevenue, avgDealValue, byType, byAgent, closedThisPeriod, lostThisPeriod
+  ═══════════════════════════════════════════════════════════ -->
+  <div x-show="activeTab==='deals'" x-transition>
+
+    <!-- KPI row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <template x-for="k in dealsKpis" :key="k.label">
+        <div class="adm-kpi">
+          <div class="adm-kpi-label"><span class="adm-kpi-ico" x-html="k.icon"></span><span x-text="k.label"></span></div>
+          <div class="adm-kpi-val" x-text="k.val"></div>
+          <div class="flex items-center mt-1.5">
+            <div class="adm-trend" :class="k.trendType"><span x-text="k.trend"></span><span class="text-neutral-400 font-normal ms-1">عن الشهر الماضي</span></div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Deals by stage (CSS bars) + Pipeline value -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+      <!-- Deals by stage -->
+      <div class="adm-card lg:col-span-2">
+        <div class="adm-card-head">
+          <div class="adm-card-title">الصفقات حسب المرحلة</div>
+          <span class="text-xs text-neutral-400">قيمة خط الأنابيب: <span class="font-bold text-primary-800" x-text="dealsData.pipelineValue"></span></span>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <template x-for="st in dealsData.byStage" :key="st.stage">
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="font-semibold text-neutral-700" x-text="st.stage"></span>
+                <div class="flex items-center gap-3">
+                  <span class="font-bold font-latin text-neutral-800" x-text="st.count"></span>
+                  <span class="text-xs text-neutral-500 font-latin" x-text="st.value"></span>
+                </div>
+              </div>
+              <div class="h-6 rounded-lg bg-neutral-50 overflow-hidden">
+                <div class="h-full rounded-lg transition-all duration-500" :style="'width:'+st.pct+'%; background:'+st.color"></div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Deals by type + close metrics -->
+      <div class="adm-card">
+        <div class="adm-card-head"><div class="adm-card-title">نوع الصفقة وإحصاءات</div></div>
+        <div class="p-5 flex flex-col gap-4">
+          <template x-for="tp in dealsData.byType" :key="tp.type">
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="text-neutral-700 flex items-center gap-2"><span class="w-2 h-2 rounded-full" :style="'background:'+tp.color"></span><span x-text="tp.label"></span></span>
+                <span class="font-bold font-latin text-neutral-800" x-text="tp.count"></span>
+              </div>
+              <div class="adm-progress"><span :style="'width:'+tp.pct+'%; background:'+tp.color"></span></div>
+            </div>
+          </template>
+          <div class="pt-3 border-t border-neutral-100 grid grid-cols-2 gap-3">
+            <div class="text-center p-3 rounded-xl bg-success/5 border border-success/15">
+              <div class="text-xl font-bold font-latin text-success" x-text="dealsData.closeRate+'٪'"></div>
+              <div class="text-xs text-neutral-500 mt-0.5">معدل الإغلاق</div>
+            </div>
+            <div class="text-center p-3 rounded-xl bg-primary-50 border border-primary-100">
+              <div class="text-xl font-bold font-latin text-primary-800" x-text="dealsData.avgDaysToClose"></div>
+              <div class="text-xs text-neutral-500 mt-0.5">متوسط أيام الإغلاق</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Deals monthly trend -->
+    <div class="adm-card mb-5">
+      <div class="adm-card-head">
+        <div class="adm-card-title">الاتجاه الشهري — الصفقات</div>
+        <div class="flex items-center gap-3 text-xs text-neutral-500">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-accent-500"></span> مُغلَق-مكسوب</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-danger"></span> خسارة</span>
+        </div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-end justify-between gap-2 h-40">
+          <template x-for="t in dealsData.trend" :key="t.label">
+            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+              <div class="w-full flex items-end justify-center gap-1 h-full">
+                <div class="flex-1 max-w-[14px] rounded-t bg-accent-500 transition-all" :style="'height:'+Math.max(3,(t.won/maxDealTrend*100))+'%'" :title="t.won+' مكسوب'"></div>
+                <div class="flex-1 max-w-[14px] rounded-t bg-danger transition-all"    :style="'height:'+Math.max(3,(t.lost/maxDealTrend*100))+'%'" :title="t.lost+' خسارة'"></div>
+              </div>
+              <span class="text-[.65rem] text-neutral-400" x-text="t.label"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       TAB 3 — الأنشطة
+       Source: GET /api/v1/reports/activities-summary
+       Fields: byType (call/visit/email/task/other), byAgent, completionRate
+  ═══════════════════════════════════════════════════════════ -->
+  <div x-show="activeTab==='activities'" x-transition>
+
+    <!-- KPI row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <template x-for="k in activitiesKpis" :key="k.label">
+        <div class="adm-kpi">
+          <div class="adm-kpi-label"><span class="adm-kpi-ico" x-html="k.icon"></span><span x-text="k.label"></span></div>
+          <div class="adm-kpi-val" x-text="k.val"></div>
+          <div class="adm-trend mt-1.5" :class="k.trendType"><span x-text="k.trend"></span><span class="text-neutral-400 font-normal ms-1">عن الشهر الماضي</span></div>
+        </div>
+      </template>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+      <!-- Activities by type (CSS bars from byType) -->
+      <div class="adm-card">
+        <div class="adm-card-head"><div class="adm-card-title">توزيع الأنشطة حسب النوع</div></div>
+        <div class="p-5 flex flex-col gap-4">
+          <template x-for="tp in activitiesData.byType" :key="tp.type">
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="text-neutral-700 flex items-center gap-2" x-html="'<span class=\'w-2 h-2 rounded-full\' style=\'background:'+tp.color+'\'></span>'+tp.label"></span>
+                <span class="font-bold font-latin text-neutral-800" x-text="tp.count"></span>
+              </div>
+              <div class="adm-progress"><span :style="'width:'+tp.pct+'%; background:'+tp.color"></span></div>
+            </div>
+          </template>
+          <div class="pt-3 border-t border-neutral-100 flex items-center justify-between text-sm">
+            <span class="text-neutral-500">نسبة الإنجاز</span>
+            <span class="font-bold text-success" x-text="activitiesData.completionRate+'٪'"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activities by agent (from byAgent) -->
+      <div class="adm-card lg:col-span-2">
+        <div class="adm-card-head">
+          <div class="adm-card-title">أنشطة الوكلاء</div>
+          <span class="text-xs text-neutral-400">من <span class="font-semibold text-primary-700">GET /reports/agent-activity</span></span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="adm-table">
+            <thead><tr>
+              <th>الوكيل</th>
+              <th>مكالمات</th>
+              <th>معاينات</th>
+              <th>مهام</th>
+              <th>إجمالي</th>
+              <th>الإنجاز</th>
+            </tr></thead>
+            <tbody>
+              <template x-for="ag in activitiesData.byAgent" :key="ag.id">
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <span class="adm-avatar w-7 h-7 bg-primary-50 text-primary-800 text-[.7rem]" x-text="ag.initials"></span>
+                      <span class="font-medium text-primary-800 text-[.82rem]" x-text="ag.name"></span>
+                    </div>
+                  </td>
+                  <td class="font-latin" x-text="ag.calls"></td>
+                  <td class="font-latin" x-text="ag.visits"></td>
+                  <td class="font-latin" x-text="ag.tasks"></td>
+                  <td class="font-bold font-latin text-primary-800" x-text="ag.total"></td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="adm-progress flex-1 w-20"><span :style="'width:'+ag.completion+'%'" :class="ag.completion>=80?'':'[background:#D4860A]'"></span></div>
+                      <span class="text-xs font-semibold font-latin" :class="ag.completion>=80?'text-success':'text-warning'" x-text="ag.completion+'٪'"></span>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity trend (weekly) -->
+    <div class="adm-card mb-5">
+      <div class="adm-card-head">
+        <div class="adm-card-title">الاتجاه الأسبوعي — الأنشطة</div>
+        <div class="flex items-center gap-3 text-xs text-neutral-500">
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm" style="background:#3b82f6"></span> مكالمات</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm" style="background:#14b8a6"></span> معاينات</span>
+        </div>
+      </div>
+      <div class="p-5">
+        <div class="flex items-end justify-between gap-2 h-36">
+          <template x-for="t in activitiesData.trend" :key="t.label">
+            <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+              <div class="w-full flex items-end justify-center gap-0.5 h-full">
+                <div class="flex-1 max-w-[13px] rounded-t transition-all" style="background:#3b82f6" :style="'height:'+Math.max(3,(t.calls/maxActTrend*100))+'%; background:#3b82f6'" :title="t.calls+' مكالمة'"></div>
+                <div class="flex-1 max-w-[13px] rounded-t transition-all" style="background:#14b8a6" :style="'height:'+Math.max(3,(t.visits/maxActTrend*100))+'%; background:#14b8a6'" :title="t.visits+' معاينة'"></div>
+              </div>
+              <span class="text-[.65rem] text-neutral-400" x-text="t.label"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       TAB 4 — العمولات
+       Source: GET /api/v1/reports/commission-detail  (UX-R20)
+       Fields per row: dealTitle, dealValue, agentCommission, officeCommission, total, paymentStatus
+  ═══════════════════════════════════════════════════════════ -->
+  <div x-show="activeTab==='commissions'" x-transition>
+
+    <!-- KPI row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <template x-for="k in commissionsKpis" :key="k.label">
+        <div class="adm-kpi">
+          <div class="adm-kpi-label"><span class="adm-kpi-ico" x-html="k.icon"></span><span x-text="k.label"></span></div>
+          <div class="adm-kpi-val" x-text="k.val"></div>
+          <div class="adm-trend mt-1.5" :class="k.trendType"><span x-text="k.trend"></span><span class="text-neutral-400 font-normal ms-1">عن الشهر الماضي</span></div>
+        </div>
+      </template>
+    </div>
+
+    <!-- Commission detail table + summary -->
+    <div class="adm-card mb-5">
+      <div class="adm-card-head">
+        <div class="adm-card-title">تفاصيل العمولات — صفقة بصفقة</div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-neutral-400">من <span class="font-semibold text-primary-700">GET /reports/commission-detail</span></span>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="exportReport('excel')">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6l2 2-2 2M9 10h2"/></svg>
+            تصدير
+          </button>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead><tr>
+            <th>الصفقة</th>
+            <th>قيمة الصفقة</th>
+            <th>عمولة الوكيل</th>
+            <th>عمولة المكتب</th>
+            <th>الإجمالي</th>
+            <th>حالة الدفع</th>
+          </tr></thead>
+          <tbody>
+            <template x-for="row in commissionsData.rows" :key="row.id">
+              <tr>
+                <td>
+                  <div class="font-semibold text-primary-800 text-[.85rem]" x-text="row.dealTitle"></div>
+                  <div class="text-xs text-neutral-400" x-text="row.agent + ' · ' + row.date"></div>
+                </td>
+                <td class="font-latin font-semibold text-neutral-800" x-text="row.dealValue"></td>
+                <td>
+                  <div class="font-bold font-latin text-primary-700" x-text="row.agentCommission"></div>
+                  <div class="text-xs text-neutral-400 font-latin" x-text="row.agentPct+'٪'"></div>
+                </td>
+                <td>
+                  <div class="font-bold font-latin text-neutral-700" x-text="row.officeCommission"></div>
+                  <div class="text-xs text-neutral-400 font-latin" x-text="row.officePct+'٪'"></div>
+                </td>
+                <td class="font-bold font-latin text-primary-800" x-text="row.total"></td>
+                <td>
+                  <span class="adm-badge" :class="row.status==='paid'?'b-success':(row.status==='partial'?'b-warning':'b-neutral')" x-text="row.statusLabel"></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+          <!-- Totals footer -->
+          <tfoot>
+            <tr class="bg-primary-50">
+              <td class="font-bold text-primary-800 text-sm">الإجمالي</td>
+              <td class="font-bold font-latin text-primary-800" x-text="commissionsData.totalDealValue"></td>
+              <td class="font-bold font-latin text-primary-700" x-text="commissionsData.totalAgent"></td>
+              <td class="font-bold font-latin text-neutral-700" x-text="commissionsData.totalOffice"></td>
+              <td class="font-bold font-latin text-primary-800 text-base" x-text="commissionsData.totalAll"></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Commission by payment status (CSS bars) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="adm-card">
+        <div class="adm-card-head"><div class="adm-card-title">حالة الدفع — توزيع</div></div>
+        <div class="p-5 flex flex-col gap-4">
+          <template x-for="ps in commissionsData.byPayStatus" :key="ps.status">
+            <div>
+              <div class="flex items-center justify-between text-sm mb-1.5">
+                <span class="text-neutral-700 flex items-center gap-2"><span class="w-2 h-2 rounded-full" :style="'background:'+ps.color"></span><span x-text="ps.label"></span></span>
+                <span class="font-bold font-latin text-neutral-800" x-text="ps.amount"></span>
+              </div>
+              <div class="adm-progress"><span :style="'width:'+ps.pct+'%; background:'+ps.color"></span></div>
+            </div>
+          </template>
+        </div>
+      </div>
+      <!-- Monthly commission trend -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">اتجاه العمولات الشهري</div>
+        </div>
+        <div class="p-5">
+          <div class="flex items-end justify-between gap-2 h-36">
+            <template x-for="t in commissionsData.trend" :key="t.label">
+              <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                <div class="w-full flex items-end justify-center h-full">
+                  <div class="w-full max-w-[24px] rounded-t bg-accent-500 transition-all" :style="'height:'+Math.max(3,(t.amount/maxCommTrend*100))+'%'" :title="t.label"></div>
+                </div>
+                <span class="text-[.65rem] text-neutral-400" x-text="t.label"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       TAB 5 — الأداء
+       Source: GET /api/v1/reports/agent-activity + /reports/deals-summary (byAgent)
+       Fields: per-agent leads/deals/closeRate/commission — Leaderboard (UX-R5)
+  ═══════════════════════════════════════════════════════════ -->
+  <div x-show="activeTab==='performance'" x-transition>
+
+    <!-- KPI row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-5">
+      <template x-for="k in performanceKpis" :key="k.label">
+        <div class="adm-kpi">
+          <div class="adm-kpi-label"><span class="adm-kpi-ico" x-html="k.icon"></span><span x-text="k.label"></span></div>
+          <div class="adm-kpi-val" x-text="k.val"></div>
+          <div class="adm-trend mt-1.5" :class="k.trendType"><span x-text="k.trend"></span><span class="text-neutral-400 font-normal ms-1">عن الشهر الماضي</span></div>
+        </div>
+      </template>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-5">
+      <!-- Leaderboard -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">Leaderboard</div>
+          <span class="adm-badge b-accent">أفضل وكلاء الفترة</span>
+        </div>
+        <div class="p-4 flex flex-col gap-3">
+          <template x-for="(ag, idx) in performanceData.leaderboard" :key="ag.id">
+            <div class="flex items-center gap-3 p-2.5 rounded-xl" :class="idx===0?'bg-accent-50 ring-1 ring-accent-200':(idx===1?'bg-neutral-50':'')">
+              <!-- Rank badge -->
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm shrink-0"
+                :class="idx===0?'bg-accent-500 text-primary-900':(idx===1?'bg-neutral-300 text-neutral-800':(idx===2?'bg-amber-700/60 text-white':'bg-neutral-100 text-neutral-500'))"
+                x-text="idx+1"></div>
+              <span class="adm-avatar w-8 h-8 bg-primary-100 text-primary-800 text-[.72rem]" x-text="ag.initials"></span>
+              <div class="min-w-0 flex-1">
+                <div class="font-semibold text-primary-800 text-sm" x-text="ag.name"></div>
+                <div class="text-xs text-neutral-400" x-text="ag.dealsClosed + ' صفقة · ' + ag.commission"></div>
+              </div>
+              <span class="text-[.7rem] font-bold px-2 py-0.5 rounded-full" :class="ag.closeRate>=30?'bg-success/10 text-success':'bg-neutral-100 text-neutral-500'" x-text="ag.closeRate+'٪'"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Full performance table -->
+      <div class="adm-card lg:col-span-2">
+        <div class="adm-card-head">
+          <div class="adm-card-title">جدول الأداء التفصيلي</div>
+          <span class="text-xs text-neutral-400">من <span class="font-semibold text-primary-700">GET /reports/agent-activity + /reports/deals-summary</span></span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="adm-table">
+            <thead><tr>
+              <th>الوكيل</th>
+              <th>الفرع</th>
+              <th>عملاء محتملون</th>
+              <th>صفقات</th>
+              <th>معدل الإغلاق</th>
+              <th>العمولة</th>
+              <th>التقييم</th>
+            </tr></thead>
+            <tbody>
+              <template x-for="ag in performanceData.agents" :key="ag.id">
+                <tr>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <span class="adm-avatar w-7 h-7 bg-primary-50 text-primary-800 text-[.7rem]" x-text="ag.initials"></span>
+                      <span class="font-medium text-primary-800 text-[.82rem]" x-text="ag.name"></span>
+                    </div>
+                  </td>
+                  <td class="text-xs text-neutral-500" x-text="ag.branch"></td>
+                  <td class="font-latin text-center" x-text="ag.leads"></td>
+                  <td class="font-latin text-center font-semibold text-primary-800" x-text="ag.deals"></td>
+                  <td>
+                    <span class="adm-badge" :class="ag.closeRate>=30?'b-success':(ag.closeRate>=20?'b-warning':'b-neutral')" x-text="ag.closeRate+'٪'"></span>
+                  </td>
+                  <td class="font-latin font-bold text-accent-700" x-text="ag.commission"></td>
+                  <td>
+                    <!-- Star rating based on closeRate -->
+                    <div class="flex items-center gap-0.5">
+                      <template x-for="s in [1,2,3,4,5]" :key="s">
+                        <svg width="12" height="12" viewBox="0 0 16 16" :fill="s<=ag.stars?'#C8A24B':'#DDE1EA'"><path d="M8 1l1.9 4.1 4.1.4-3.1 2.7 1 4L8 10.3 4.1 12.2l1-4L2 5.5l4.1-.4z"/></svg>
+                      </template>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance trend by agent (grouped CSS bars) -->
+    <div class="adm-card">
+      <div class="adm-card-head">
+        <div class="adm-card-title">معدل الإغلاق — مقارنة الوكلاء</div>
+        <span class="text-xs text-neutral-400">نسبة صفقات الإغلاق من إجمالي العملاء المحتملين</span>
+      </div>
+      <div class="p-5 flex flex-col gap-3">
+        <template x-for="ag in performanceData.agents" :key="ag.id+'_bar'">
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-neutral-700 w-28 truncate shrink-0" x-text="ag.name"></span>
+            <div class="flex-1 h-6 rounded-lg bg-neutral-50 overflow-hidden">
+              <div class="h-full rounded-lg transition-all duration-500"
+                :style="'width:'+Math.min(ag.closeRate*2,100)+'%; background:'+(ag.closeRate>=30?'#1A8C4E':(ag.closeRate>=20?'#D4860A':'#9BA6BB'))"></div>
+            </div>
+            <span class="text-sm font-bold font-latin w-10 text-end" :class="ag.closeRate>=30?'text-success':(ag.closeRate>=20?'text-warning':'text-neutral-500')" x-text="ag.closeRate+'٪'"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== Export toast ===== -->
+  <div x-show="exportToast" x-transition class="fixed bottom-6 start-6 z-50 bg-primary-800 text-white px-5 py-3.5 rounded-xl shadow-xl2 flex items-center gap-3 text-sm font-semibold">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" class="text-accent-400 shrink-0"><path d="M10 2v10M5 8l5 4 5-4M3 17h14"/></svg>
+    <span x-text="exportMsg"></span>
+  </div>
+
+</div>
+
+<script>
+function reports(){
+  // ── Icon strings ──────────────────────────────────────────────────────────
+  const ico = {
+    lead:   '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="7" r="3"/><path d="M2.5 17c0-3 2.5-5.5 5.5-5.5S13.5 14 13.5 17"/><path d="M15 8l2 2-2 2"/></svg>',
+    deal:   '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>',
+    money:  '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v8M8 8.5c0-1 1-1.5 2-1.5s2 .5 2 1.5-1 1.5-2 1.5-2 .5-2 1.5 1 1.5 2 1.5 2-.5 2-1.5"/></svg>',
+    conv:   '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M6 13l3-4 3 2 4-6"/></svg>',
+    act:    '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>',
+    check:  '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 10l4 4 8-8"/><circle cx="10" cy="10" r="8"/></svg>',
+    agent:  '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="3"/><path d="M2 17c0-3 2.5-5 5-5s5 2 5 5"/><path d="M15 7l2 2-2 2"/></svg>',
+    time:   '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2"/></svg>',
+    office: '<svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>',
+  };
+
+  // ── Realistic mock data (matches TLeadSummary / TDealSummary / TActivitiesSummary / TCommissionDetail shapes) ──
+  // These would come from the endpoints listed in the comment above.
+
+  const leadsData = {
+    totalLeads: 147,
+    conversionRate: 26,
+    avgTimeToClose: 18,
+    funnel: [
+      { stage:'عملاء محتملون جدد', count:147, pct:100, conv:0,  avgDays:null, color:'#1A4590' },
+      { stage:'تأهيل',              count:112, pct:76,  conv:76, avgDays:3,    color:'#2458A5' },
+      { stage:'عرض وعاينة',        count:71,  pct:48,  conv:63, avgDays:7,    color:'#4A75B4' },
+      { stage:'تفاوض',             count:43,  pct:29,  conv:61, avgDays:11,   color:'#C8A24B' },
+      { stage:'إغلاق',             count:38,  pct:26,  conv:88, avgDays:5,    color:'#1A8C4E' },
+    ],
+    bySource: [
+      { name:'واتساب',    count:52, pct:35, color:'#22c55e' },
+      { name:'الموقع الإلكتروني', count:37, pct:25, color:'#14b8a6' },
+      { name:'فيسبوك',   count:26, pct:18, color:'#3b82f6' },
+      { name:'إحالة مباشرة', count:21, pct:14, color:'#8b5cf6' },
+      { name:'تسويق ميداني', count:11, pct:8,  color:'#f59e0b' },
+    ],
+    byStatus: [
+      { status:'new',    label:'جديد',          count:42, pct:29, color:'#3b82f6' },
+      { status:'active', label:'نشط',           count:67, pct:46, color:'#1A4590' },
+      { status:'won',    label:'مكسوب',         count:38, pct:26, color:'#1A8C4E' },
+      { status:'lost',   label:'خسارة',         count:18, pct:12, color:'#C0392B' },
+      { status:'paused', label:'في الانتظار',   count:14, pct:10, color:'#9BA6BB' },
+    ],
+    trend: [
+      {label:'يناير', new:28, won:8,  lost:5},
+      {label:'فبراير',new:35, won:11, lost:4},
+      {label:'مارس',  new:22, won:9,  lost:6},
+      {label:'أبريل', new:41, won:14, lost:3},
+      {label:'مايو',  new:38, won:13, lost:7},
+      {label:'يونيو', new:47, won:17, lost:4},
+    ],
+  };
+
+  const dealsData = {
+    pipelineValue: '₪ ٤٫٢م',
+    closeRate: 34,
+    avgDaysToClose: 22,
+    byStage: [
+      { stage:'تفاوض',        count:8,  pct:100, value:'₪ ١٫٨م', color:'#C8A24B' },
+      { stage:'عقد أولي',     count:5,  pct:63,  value:'₪ ١٫١م', color:'#4A75B4' },
+      { stage:'فحص العقار',   count:4,  pct:50,  value:'₪ ٧٥٠ك', color:'#2458A5' },
+      { stage:'التوقيع النهائي',count:3,pct:38,  value:'₪ ٥٦٠ك', color:'#1A8C4E' },
+    ],
+    byType: [
+      { type:'sale',  label:'بيع',   count:21, pct:72, color:'#1A4590' },
+      { type:'rent',  label:'إيجار', count:8,  pct:28, color:'#C8A24B' },
+    ],
+    trend: [
+      {label:'يناير', won:4, lost:2},
+      {label:'فبراير',won:5, lost:1},
+      {label:'مارس',  won:3, lost:3},
+      {label:'أبريل', won:7, lost:1},
+      {label:'مايو',  won:6, lost:2},
+      {label:'يونيو', won:8, lost:1},
+    ],
+  };
+
+  const activitiesData = {
+    completionRate: 78,
+    byType: [
+      { type:'call',    label:'مكالمات',    count:89, pct:38, color:'#3b82f6' },
+      { type:'visit',   label:'معاينات',    count:54, pct:23, color:'#14b8a6' },
+      { type:'email',   label:'بريد إلكتروني',count:47, pct:20, color:'#8b5cf6' },
+      { type:'task',    label:'مهام',       count:34, pct:14, color:'#f59e0b' },
+      { type:'other',   label:'أخرى',       count:11, pct:5,  color:'#9BA6BB' },
+    ],
+    byAgent: [
+      { id:'1', name:'سارة القحطاني',   initials:'سق', calls:28, visits:16, tasks:12, total:56, completion:89 },
+      { id:'2', name:'خالد العمري',     initials:'خع', calls:21, visits:14, tasks:9,  total:44, completion:82 },
+      { id:'3', name:'نورة الدوسري',    initials:'ند', calls:18, visits:11, tasks:8,  total:37, completion:74 },
+      { id:'4', name:'فهد الشمري',      initials:'فش', calls:13, visits:8,  total:6,  total:27, completion:63 },
+      { id:'5', name:'ريم العتيبي',     initials:'رع', calls:9,  visits:5,  tasks:5,  total:19, completion:58 },
+    ],
+    trend: [
+      {label:'سبت',   calls:18, visits:8},
+      {label:'أحد',   calls:24, visits:11},
+      {label:'إثنين', calls:16, visits:7},
+      {label:'ثلاثاء',calls:29, visits:14},
+      {label:'أربعاء',calls:22, visits:10},
+      {label:'خميس',  calls:31, visits:16},
+      {label:'جمعة',  calls:8,  visits:3},
+    ],
+  };
+
+  const commissionsData = {
+    rows: [
+      { id:'1', dealTitle:'فيلا الياسمين — بيع',      dealValue:'₪ ٢٬٤٠٠٬٠٠٠', agentCommission:'₪ ٣٦٬٠٠٠', agentPct:1.5, officeCommission:'₪ ٢٤٬٠٠٠', officePct:1,  total:'₪ ٦٠٬٠٠٠', agent:'سارة القحطاني',  date:'٢٠٢٦-٠٦-١٥', status:'paid',    statusLabel:'مدفوع' },
+      { id:'2', dealTitle:'برج المروج — شقة ٢٠٤',     dealValue:'₪ ٨٥٠٬٠٠٠',   agentCommission:'₪ ١٢٬٧٥٠', agentPct:1.5, officeCommission:'₪ ٨٬٥٠٠',   officePct:1,  total:'₪ ٢١٬٢٥٠', agent:'خالد العمري',    date:'٢٠٢٦-٠٦-١٢', status:'paid',    statusLabel:'مدفوع' },
+      { id:'3', dealTitle:'مكتب العليا التجاري',        dealValue:'₪ ١٬١٠٠٬٠٠٠', agentCommission:'₪ ١٦٬٥٠٠', agentPct:1.5, officeCommission:'₪ ١١٬٠٠٠', officePct:1,  total:'₪ ٢٧٬٥٠٠', agent:'نورة الدوسري',   date:'٢٠٢٦-٠٦-٠٩', status:'partial', statusLabel:'جزئي' },
+      { id:'4', dealTitle:'أرض حي العليا — بيع',       dealValue:'₪ ٣٬٢٠٠٬٠٠٠', agentCommission:'₪ ٤٨٬٠٠٠', agentPct:1.5, officeCommission:'₪ ٣٢٬٠٠٠', officePct:1,  total:'₪ ٨٠٬٠٠٠', agent:'فهد الشمري',     date:'٢٠٢٦-٠٦-٠٣', status:'paid',    statusLabel:'مدفوع' },
+      { id:'5', dealTitle:'شقة الملقا — إيجار سنوي',   dealValue:'₪ ١٢٠٬٠٠٠',   agentCommission:'₪ ٣٬٠٠٠',  agentPct:2.5, officeCommission:'₪ ٢٬٤٠٠',  officePct:2,  total:'₪ ٥٬٤٠٠',  agent:'ريم العتيبي',    date:'٢٠٢٦-٠٦-٠١', status:'pending', statusLabel:'انتظار' },
+    ],
+    totalDealValue:       '₪ ٧٬٦٧٠٬٠٠٠',
+    totalAgent:           '₪ ١١٦٬٢٥٠',
+    totalOffice:          '₪ ٧٧٬٩٠٠',
+    totalAll:             '₪ ١٩٤٬١٥٠',
+    byPayStatus: [
+      { status:'paid',    label:'مدفوع',      amount:'₪ ١٦٢٬٧٥٠', pct:84, color:'#1A8C4E' },
+      { status:'partial', label:'دفع جزئي',   amount:'₪ ٢٧٬٥٠٠',  pct:14, color:'#D4860A' },
+      { status:'pending', label:'في الانتظار', amount:'₪ ٥٬٤٠٠',   pct:3,  color:'#9BA6BB' },
+    ],
+    trend: [
+      {label:'يناير', amount:120},
+      {label:'فبراير',amount:98},
+      {label:'مارس',  amount:145},
+      {label:'أبريل', amount:172},
+      {label:'مايو',  amount:154},
+      {label:'يونيو', amount:194},
+    ],
+  };
+
+  const performanceData = {
+    leaderboard: [
+      { id:'1', name:'سارة القحطاني',  initials:'سق', dealsClosed:'١٢',commission:'₪ ٦٠٬٠٠٠', closeRate:38 },
+      { id:'2', name:'خالد العمري',    initials:'خع', dealsClosed:'٩', commission:'₪ ٤٤٬٢٥٠', closeRate:32 },
+      { id:'3', name:'نورة الدوسري',   initials:'ند', dealsClosed:'٧', commission:'₪ ٣١٬٠٠٠', closeRate:28 },
+      { id:'4', name:'فهد الشمري',     initials:'فش', dealsClosed:'٥', commission:'₪ ٢٢٬٥٠٠', closeRate:22 },
+    ],
+    agents: [
+      { id:'1', name:'سارة القحطاني',  initials:'سق', branch:'الرياض — فرع النخيل',  leads:32, deals:12, closeRate:38, commission:'₪ ٦٠٬٠٠٠', stars:5 },
+      { id:'2', name:'خالد العمري',    initials:'خع', branch:'الرياض — فرع النخيل',  leads:28, deals:9,  closeRate:32, commission:'₪ ٤٤٬٢٥٠', stars:4 },
+      { id:'3', name:'نورة الدوسري',   initials:'ند', branch:'جدة — فرع الروضة',      leads:25, deals:7,  closeRate:28, commission:'₪ ٣١٬٠٠٠', stars:4 },
+      { id:'4', name:'فهد الشمري',     initials:'فش', branch:'الدمام — فرع الشاطئ',  leads:23, deals:5,  closeRate:22, commission:'₪ ٢٢٬٥٠٠', stars:3 },
+      { id:'5', name:'ريم العتيبي',    initials:'رع', branch:'جدة — فرع الروضة',      leads:18, deals:3,  closeRate:17, commission:'₪ ١٢٬٠٠٠', stars:2 },
+    ],
+  };
+
+  return {
+    // ── State ──────────────────────────────────────────────────────────────
+    activeTab:   'leads',
+    period:      'month',
+    fromDate:    '2026-06-01',
+    toDate:      '2026-06-25',
+    compareMode: false,
+    cmpFrom:     '2026-05-01',
+    cmpTo:       '2026-05-31',
+    drillLevel:  'company',
+    drillId:     '',
+    fSource:     '',
+    exportToast: false,
+    exportMsg:   '',
+
+    // ── Drill-down options (owner sees all; branch-manager sees own branch etc.) ──
+    periods: [
+      {key:'today', label:'اليوم'},
+      {key:'week',  label:'الأسبوع'},
+      {key:'month', label:'الشهر'},
+      {key:'quarter',label:'الربع'},
+      {key:'year',  label:'السنة'},
+      {key:'custom',label:'مخصص'},
+    ],
+    allSources: [
+      {id:'whatsapp', name:'واتساب'},
+      {id:'website',  name:'الموقع الإلكتروني'},
+      {id:'facebook', name:'فيسبوك'},
+      {id:'referral', name:'إحالة مباشرة'},
+      {id:'field',    name:'تسويق ميداني'},
+    ],
+    get drillLabel(){
+      return {branch:'الفرع', team:'الفريق', agent:'الوكيل'}[this.drillLevel] || '';
+    },
+    get drillOptions(){
+      if(this.drillLevel==='branch') return [
+        {id:'b1', name:'الرياض — فرع النخيل'},
+        {id:'b2', name:'جدة — فرع الروضة'},
+        {id:'b3', name:'الدمام — فرع الشاطئ'},
+      ];
+      if(this.drillLevel==='team') return [
+        {id:'t1', name:'فريق المبيعات أ'},
+        {id:'t2', name:'فريق الإيجارات'},
+        {id:'t3', name:'فريق الشركات'},
+      ];
+      if(this.drillLevel==='agent') return performanceData.agents.map(a=>({id:a.id,name:a.name}));
+      return [];
+    },
+
+    // ── Data references (mocked from actual API shapes) ──────────────────
+    leadsData,
+    dealsData,
+    activitiesData,
+    commissionsData,
+    performanceData,
+
+    // ── Max values for CSS bar scaling ───────────────────────────────────
+    get maxLeadTrend(){ return Math.max(...leadsData.trend.map(t=>t.new), 1); },
+    get maxDealTrend(){ return Math.max(...dealsData.trend.map(t=>t.won+t.lost), 1); },
+    get maxActTrend(){  return Math.max(...activitiesData.trend.map(t=>t.calls), 1); },
+    get maxCommTrend(){ return Math.max(...commissionsData.trend.map(t=>t.amount), 1); },
+
+    // ── KPIs (per-tab) ───────────────────────────────────────────────────
+    get leadsKpis(){ return [
+      { label:'إجمالي العملاء',     val:'١٤٧',   icon:ico.lead,  trend:'+١٤٪', trendType:'up' },
+      { label:'معدل التحويل',       val:'٢٦٪',   icon:ico.conv,  trend:'+٣٪',  trendType:'up' },
+      { label:'متوسط الإغلاق',      val:'١٨ يوم',icon:ico.time,  trend:'-٢ أيام', trendType:'up' },
+      { label:'عملاء خاسرون',       val:'١٨',    icon:ico.agent, trend:'-٤',   trendType:'up' },
+    ]; },
+    get dealsKpis(){ return [
+      { label:'صفقات نشطة',          val:'٢٩',              icon:ico.deal,  trend:'+٥',    trendType:'up' },
+      { label:'إجمالي الإيرادات',    val:'₪ ٧٫٦٧م',         icon:ico.money, trend:'+٢٢٪', trendType:'up' },
+      { label:'متوسط قيمة الصفقة',   val:'₪ ٢٦٤٬٤٨٣',      icon:ico.money, trend:'+٧٪',  trendType:'up' },
+      { label:'صفقات مُغلقة',         val:'٢٩',              icon:ico.check, trend:'+٦',   trendType:'up' },
+    ]; },
+    get activitiesKpis(){ return [
+      { label:'إجمالي الأنشطة',      val:'٢٣٥',   icon:ico.act,   trend:'+١٨٪', trendType:'up' },
+      { label:'نسبة الإنجاز',        val:'٧٨٪',   icon:ico.check, trend:'+٥٪',  trendType:'up' },
+      { label:'مكالمات هذا الشهر',   val:'٨٩',    icon:ico.lead,  trend:'+٢٣',  trendType:'up' },
+      { label:'معاينات منجزة',       val:'٥٤',    icon:ico.conv,  trend:'+٨',   trendType:'up' },
+    ]; },
+    get commissionsKpis(){ return [
+      { label:'إجمالي العمولات',     val:'₪ ١٩٤٬١٥٠', icon:ico.money,  trend:'+٢٦٪', trendType:'up' },
+      { label:'عمولات الوكلاء',      val:'₪ ١١٦٬٢٥٠', icon:ico.agent,  trend:'+٢٤٪', trendType:'up' },
+      { label:'عمولات المكتب',       val:'₪ ٧٧٬٩٠٠',  icon:ico.office, trend:'+٢٩٪', trendType:'up' },
+      { label:'مدفوع / إجمالي',     val:'٨٤٪',         icon:ico.check,  trend:'+٣٪',  trendType:'up' },
+    ]; },
+    get performanceKpis(){ return [
+      { label:'أفضل وكيل',         val:'سارة القحطاني', icon:ico.agent,  trend:'٣٨٪ إغلاق', trendType:'up' },
+      { label:'متوسط الإغلاق — الفريق', val:'٢٧٪',     icon:ico.conv,   trend:'+٤٪',        trendType:'up' },
+      { label:'إجمالي الصفقات',    val:'٢٩',            icon:ico.deal,   trend:'+٦',         trendType:'up' },
+      { label:'إجمالي العمولات',   val:'₪ ١٩٤٬١٥٠',    icon:ico.money,  trend:'+٢٦٪',       trendType:'up' },
+    ]; },
+
+    // ── Methods ──────────────────────────────────────────────────────────
+    setPeriod(key){
+      this.period = key;
+      const today = new Date();
+      const pad = n => String(n).padStart(2,'0');
+      const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      if(key==='today'){   this.fromDate=fmt(today); this.toDate=fmt(today); }
+      else if(key==='week'){
+        const s=new Date(today); s.setDate(today.getDate()-6);
+        this.fromDate=fmt(s); this.toDate=fmt(today);
+      } else if(key==='month'){
+        this.fromDate=`${today.getFullYear()}-${pad(today.getMonth()+1)}-01`;
+        this.toDate=fmt(today);
+      } else if(key==='quarter'){
+        const q=Math.floor(today.getMonth()/3)*3;
+        this.fromDate=`${today.getFullYear()}-${pad(q+1)}-01`;
+        this.toDate=fmt(today);
+      } else if(key==='year'){
+        this.fromDate=`${today.getFullYear()}-01-01`; this.toDate=fmt(today);
+      }
+    },
+    onDrillChange(){
+      this.drillId = '';
+    },
+    exportReport(fmt){
+      // POST /api/v1/reports/export  → async job; show toast when queued
+      this.exportMsg = fmt==='pdf'
+        ? 'جاري إنشاء تقرير PDF… سيُرسَل إشعار عند الاكتمال.'
+        : 'جاري تصدير Excel… سيُرسَل إشعار عند الاكتمال.';
+      this.exportToast = true;
+      setTimeout(()=>{ this.exportToast=false; }, 4500);
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'reports';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0,
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
+      fmClose(){ this.fmId=null; },
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · تفاصيل الصفقة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- S-035 · تفاصيل الصفقة
+  GET    /api/v1/deals/:id                              → deal (dealNumber,status,stage,stageId,finalPrice,commissionRate,commissionAmount,agencyCommission,agentCommission,coBrokeCommission,sharedAgents,agentDisbursements,approvalStatus,approvalThreshold,approvedBy,approvedAt,rejectionReason,closeChecklist,lostReason,winReason,leadId,propertyId,buyerContactId,sellerContactId,sellerAgentId,currency,notes)
+  GET    /api/v1/deals/:id/timeline                     → [{id,type,title,description,at,userName}]
+  GET    /api/v1/deals/:id/installments                 → [{id,dueDate,amount,type,status,paidAt,paidAmount,notes}]
+  POST   /api/v1/deals/:id/installments                 → {dueDate,amount,type,notes}
+  PUT    /api/v1/deals/:id/installments/:instId         → {status:'pending'|'paid', paidAmount?, dueDate?, type?, notes?}
+  DELETE /api/v1/deals/:id/installments/:instId
+  PUT    /api/v1/deals/:id/approve                      → (manager only, no body)
+  PUT    /api/v1/deals/:id/reject                       → {rejectionReason}
+  POST   /api/v1/deals/:id/commission/recalculate       → {finalPrice?, commissionRate?}
+  PUT    /api/v1/deals/:id                              → {status?,stage?,lostReason?,winReason?,closeChecklist?,finalPrice?,notes?,sharedAgents?,...}
+-->
+<div x-data="dealDetail()">
+
+  <!-- Breadcrumb -->
+  <div class="adm-breadcrumb">
+    <a href="deals.html" class="hover:text-primary-800">الصفقات</a>
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 4L6 8l4 4"/></svg>
+    <span class="text-primary-700 font-semibold" x-text="'صفقة ' + deal.dealNumber"></span>
+  </div>
+
+  <!-- ===== HERO CARD ===== -->
+  <div class="adm-card mb-4 p-5">
+    <div class="flex flex-wrap gap-4 items-start">
+
+      <!-- Icon + deal number block -->
+      <div class="flex items-center gap-3.5 flex-1 min-w-[220px]">
+        <div class="adm-kpi-ico w-14 h-14 rounded-xl bg-primary-800 text-accent-400 flex items-center justify-center shrink-0">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l2.9 6 6.6.6L17 13l1.5 6.5L12 16.3 4.5 19.5 6 13 1.5 8.6l6.6-.6z"/></svg>
+        </div>
+        <div>
+          <h1 class="adm-page-title leading-tight font-latin" x-text="deal.dealNumber"></h1>
+          <div class="flex flex-wrap items-center gap-2 mt-1.5">
+            <!-- Status badge -->
+            <span class="adm-badge" :class="statusCls(deal.status)" x-text="statusLabel(deal.status)"></span>
+            <!-- Stage chip -->
+            <span class="adm-badge b-info" x-text="stageLabel(deal.stage)"></span>
+            <!-- Approval badge (shown when not_required is false) -->
+            <span x-show="deal.approvalStatus !== 'not_required'"
+              class="adm-badge" :class="approvalCls(deal.approvalStatus)" x-text="approvalLabel(deal.approvalStatus)"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final price big display -->
+      <div class="shrink-0 text-end">
+        <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-0.5">القيمة النهائية</div>
+        <div class="font-latin text-3xl font-black text-primary-800 leading-tight"
+          x-text="deal.finalPrice ? fmtMoney(Number(deal.finalPrice), deal.currency) : '—'"></div>
+        <div class="text-xs text-neutral-400 mt-0.5" x-text="'عمولة ' + (deal.commissionRate ? deal.commissionRate + '%' : '—')"></div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex flex-wrap gap-2 shrink-0 w-full sm:w-auto">
+        <button @click="editModal.open=true" class="adm-btn adm-btn-ghost adm-btn-sm">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+          تعديل
+        </button>
+        <button x-show="deal.approvalStatus === 'not_required' || deal.approvalStatus === 'rejected'"
+          @click="requestApproval()" class="adm-btn adm-btn-ghost adm-btn-sm">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1v7l3 3"/><circle cx="8" cy="8" r="6.5"/></svg>
+          طلب موافقة
+        </button>
+        <!-- Close deal — gated: checklist done + approval not blocking -->
+        <button @click="openCloseModal()"
+          :disabled="!canClose"
+          class="adm-btn adm-btn-sm"
+          :class="canClose ? 'adm-btn-gold' : 'adm-btn-ghost'"
+          :title="canClose ? 'تقفيل الصفقة' : closeBlockReason()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 4 6-7"/></svg>
+          تقفيل الصفقة
+          <span x-show="!canClose" class="text-[.68rem] opacity-70" x-text="closeBlockBadge()"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stage progress bar -->
+    <div class="mt-5 pt-4 border-t border-neutral-100">
+      <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2.5">مسار الصفقة</div>
+      <div class="flex gap-1 overflow-x-auto pb-1">
+        <template x-for="(s, idx) in stages" :key="s.key">
+          <div class="flex flex-col items-center gap-1 min-w-[68px]">
+            <div class="w-full h-2 rounded-full transition-colors"
+              :class="stageIndex(deal.stage) >= idx ? 'bg-primary-700' : 'bg-neutral-100'"></div>
+            <span class="text-[.65rem] font-semibold text-center leading-tight whitespace-nowrap"
+              :class="deal.stage === s.key ? 'text-primary-800' : 'text-neutral-400'"
+              x-text="s.ar"></span>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TABS ===== -->
+  <div class="adm-card">
+    <div class="adm-tabs px-4 pt-1 overflow-x-auto">
+      <button class="adm-tab whitespace-nowrap" :class="tab==='overview'&&'on'" @click="tab='overview'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+        نظرة عامة
+      </button>
+      <button class="adm-tab whitespace-nowrap" :class="tab==='commission'&&'on'" @click="tab='commission'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v1.5M8 9.5V11M6 7.5a2 2 0 114 0c0 1-4 1.5-4 3h4"/></svg>
+        العمولة والأقساط
+      </button>
+      <button class="adm-tab whitespace-nowrap" :class="tab==='documents'&&'on'" @click="tab='documents'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l4 4v8H4z"/><path d="M9 2v4h4"/><path d="M6 9h4M6 11.5h2.5"/></svg>
+        المستندات
+        <span class="cnt" x-text="documents.length"></span>
+      </button>
+      <button class="adm-tab whitespace-nowrap" :class="tab==='timeline'&&'on'" @click="tab='timeline'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v4l2.5 2.5"/><circle cx="8" cy="8" r="6"/></svg>
+        الخط الزمني
+        <span class="cnt" x-text="timeline.length"></span>
+      </button>
+      <button class="adm-tab whitespace-nowrap" :class="tab==='approval'&&'on'" @click="tab='approval'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8l4 4 6-7"/><circle cx="8" cy="8" r="6.5" stroke-dasharray="2 2"/></svg>
+        الموافقة
+        <span x-show="deal.approvalStatus==='pending'" class="cnt" style="background:#D4860A20;color:#B5730A;">معلّقة</span>
+      </button>
+    </div>
+
+    <!-- ========== TAB: نظرة عامة ========== -->
+    <div x-show="tab==='overview'" class="p-5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <!-- Info block -->
+        <div>
+          <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3">البيانات الأساسية</div>
+          <div class="space-y-0">
+            <div class="flex justify-between items-center py-2.5 border-b border-neutral-50">
+              <span class="text-sm text-neutral-500">العميل (المشتري)</span>
+              <span class="text-sm font-semibold text-primary-800" x-text="deal.buyerName || '—'"></span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-neutral-50">
+              <span class="text-sm text-neutral-500">البائع (جهة الاتصال)</span>
+              <span class="text-sm font-semibold text-primary-800" x-text="deal.sellerName || '—'"></span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-neutral-50">
+              <span class="text-sm text-neutral-500">العقار</span>
+              <span class="text-sm font-semibold text-primary-800" x-text="deal.propertyTitle || '—'"></span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-neutral-50">
+              <span class="text-sm text-neutral-500">وكيل البائع</span>
+              <span class="text-sm font-semibold text-primary-800" x-text="deal.sellerAgentName || '—'"></span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-neutral-50">
+              <span class="text-sm text-neutral-500">السعر المطلوب</span>
+              <span class="text-sm font-semibold font-latin text-primary-800" x-text="deal.askingPrice ? fmtMoney(Number(deal.askingPrice), deal.currency) : '—'"></span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-neutral-50">
+              <span class="text-sm text-neutral-500">سعر العرض</span>
+              <span class="text-sm font-semibold font-latin text-primary-800" x-text="deal.offerPrice ? fmtMoney(Number(deal.offerPrice), deal.currency) : '—'"></span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-neutral-50">
+              <span class="text-sm text-neutral-500">السعر النهائي</span>
+              <span class="text-sm font-black font-latin text-primary-800" x-text="deal.finalPrice ? fmtMoney(Number(deal.finalPrice), deal.currency) : '—'"></span>
+            </div>
+            <div class="flex justify-between items-center py-2.5 border-b border-neutral-50">
+              <span class="text-sm text-neutral-500">تاريخ الإغلاق المتوقع</span>
+              <span class="text-sm font-semibold font-latin text-primary-800" x-text="deal.expectedCloseDate ? fmtDate(deal.expectedCloseDate) : '—'"></span>
+            </div>
+            <div x-show="deal.notes" class="flex justify-between items-start py-2.5 gap-2">
+              <span class="text-sm text-neutral-500 shrink-0">ملاحظات</span>
+              <span class="text-sm text-neutral-600 text-end max-w-[60%]" x-text="deal.notes"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checklist block -->
+        <div>
+          <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+            <span>قائمة الإغلاق</span>
+            <span class="font-latin text-primary-800" x-text="checklistDone + '/' + deal.closeChecklist.length"></span>
+          </div>
+          <div class="adm-progress mb-3" :class="checklistPct < 40 ? 'danger' : (checklistPct < 80 ? 'warn' : '')">
+            <span :style="'width:' + checklistPct + '%'"></span>
+          </div>
+          <div class="space-y-2">
+            <template x-for="(item, idx) in deal.closeChecklist" :key="idx">
+              <div class="flex items-start gap-3 p-3 rounded-xl border transition"
+                :class="item.done ? 'border-success/30 bg-success/5' : 'border-neutral-100 hover:border-neutral-200'">
+                <button @click="toggleChecklist(idx)"
+                  class="w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 transition"
+                  :class="item.done ? 'bg-success border-success text-white' : 'border-neutral-300 hover:border-primary-500'">
+                  <svg x-show="item.done" width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6l3 3 5-5"/></svg>
+                </button>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-semibold" :class="item.done ? 'text-success line-through' : 'text-primary-800'" x-text="item.item"></div>
+                  <div x-show="item.doneAt" class="text-xs text-neutral-400 mt-0.5" x-text="item.doneAt ? 'أُنجز: ' + fmtDate(item.doneAt) : ''"></div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Close gate status -->
+          <div class="mt-4 rounded-xl p-3 text-sm"
+            :class="canClose ? 'bg-success/8 border border-success/25 text-success' : 'bg-neutral-50 border border-neutral-100 text-neutral-500'">
+            <div class="flex items-center gap-2 font-semibold">
+              <svg x-show="canClose" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l4 4 6-7"/></svg>
+              <svg x-show="!canClose" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3M8 10.5v.5"/></svg>
+              <span x-text="canClose ? 'جاهز للتقفيل' : closeBlockReason()"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== TAB: العمولة والأقساط ========== -->
+    <div x-show="tab==='commission'" class="p-5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Commission breakdown -->
+        <div>
+          <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3">تفصيل العمولة</div>
+          <div class="rounded-xl border border-neutral-100 overflow-hidden">
+            <div class="bg-primary-800 text-white p-4 flex items-center justify-between">
+              <span class="text-sm font-bold">إجمالي العمولة</span>
+              <span class="font-latin text-xl font-black" x-text="deal.commissionAmount ? fmtMoney(Number(deal.commissionAmount), deal.currency) : '—'"></span>
+            </div>
+            <div class="divide-y divide-neutral-50">
+              <div class="flex items-center justify-between px-4 py-3">
+                <div>
+                  <div class="text-sm font-semibold text-neutral-700">عمولة المكتب</div>
+                  <div class="text-xs text-neutral-400">حصة الشركة</div>
+                </div>
+                <div class="text-end">
+                  <div class="font-latin font-bold text-primary-800" x-text="deal.agencyCommission ? fmtMoney(Number(deal.agencyCommission), deal.currency) : '—'"></div>
+                  <div class="text-xs text-neutral-400" x-text="deal.commissionAmount ? Math.round(Number(deal.agencyCommission)/Number(deal.commissionAmount)*100)+'%' : ''"></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between px-4 py-3">
+                <div>
+                  <div class="text-sm font-semibold text-neutral-700">عمولة الوكيل</div>
+                  <div class="text-xs text-neutral-400">حصة الإيجنت</div>
+                </div>
+                <div class="text-end">
+                  <div class="font-latin font-bold text-primary-800" x-text="deal.agentCommission ? fmtMoney(Number(deal.agentCommission), deal.currency) : '—'"></div>
+                  <div class="text-xs text-neutral-400" x-text="deal.commissionAmount ? Math.round(Number(deal.agentCommission)/Number(deal.commissionAmount)*100)+'%' : ''"></div>
+                </div>
+              </div>
+              <div x-show="Number(deal.coBrokeCommission) > 0" class="flex items-center justify-between px-4 py-3">
+                <div>
+                  <div class="text-sm font-semibold text-neutral-700">عمولة الوسيط المشارك</div>
+                  <div class="text-xs text-neutral-400">Co-Broke</div>
+                </div>
+                <div class="text-end">
+                  <div class="font-latin font-bold text-primary-800" x-text="deal.coBrokeCommission ? fmtMoney(Number(deal.coBrokeCommission), deal.currency) : '—'"></div>
+                </div>
+              </div>
+            </div>
+            <div class="px-4 py-3 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between">
+              <span class="text-xs text-neutral-500">نسبة العمولة من السعر النهائي</span>
+              <span class="font-latin font-bold text-primary-800" x-text="deal.commissionRate + '%'"></span>
+            </div>
+          </div>
+
+          <!-- Shared agents -->
+          <div x-show="deal.sharedAgents && deal.sharedAgents.length" class="mt-4">
+            <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">الوكلاء المشتركون</div>
+            <div class="space-y-2">
+              <template x-for="(ag, idx) in deal.sharedAgents" :key="idx">
+                <div class="flex items-center gap-3 p-3 rounded-xl border border-neutral-100">
+                  <span class="adm-avatar w-9 h-9 bg-primary-100 text-primary-700 text-sm font-bold" x-text="agentInitials(ag.agentId)"></span>
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-semibold text-primary-800" x-text="agentName(ag.agentId)"></div>
+                    <div class="text-xs text-neutral-400">نسبة التقسيم</div>
+                  </div>
+                  <div class="text-end shrink-0">
+                    <div class="font-latin font-bold text-primary-700" x-text="ag.splitPct + '%'"></div>
+                    <div class="text-xs text-neutral-400" x-text="disbursementFor(ag.agentId)"></div>
+                  </div>
+                  <!-- Split bar -->
+                  <div class="w-16 h-2 bg-neutral-100 rounded-full overflow-hidden shrink-0">
+                    <div class="h-full bg-primary-700 rounded-full" :style="'width:' + ag.splitPct + '%'"></div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Recalculate button -->
+          <button @click="recalculateCommission()" class="adm-btn adm-btn-ghost adm-btn-sm mt-3">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8a6 6 0 0110.9-3.4"/><path d="M14 8a6 6 0 01-10.9 3.4"/><path d="M12 4.5V2h2.5"/><path d="M4 11.5V14H1.5"/></svg>
+            إعادة احتساب العمولة
+          </button>
+        </div>
+
+        <!-- Installments -->
+        <div>
+          <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3 flex items-center justify-between">
+            <span>جدول الأقساط</span>
+            <button @click="addInstModal.open=true" class="adm-btn adm-btn-primary adm-btn-sm">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>
+              إضافة قسط
+            </button>
+          </div>
+
+          <!-- Totals bar -->
+          <div class="rounded-xl border border-neutral-100 p-3 mb-3 flex items-center gap-3 flex-wrap">
+            <div class="flex-1 min-w-[100px]">
+              <div class="text-xs text-neutral-400 font-semibold">إجمالي الأقساط</div>
+              <div class="font-latin font-bold text-primary-800 text-sm" x-text="fmtMoney(installmentTotal, deal.currency)"></div>
+            </div>
+            <div class="flex-1 min-w-[100px]">
+              <div class="text-xs text-neutral-400 font-semibold">مدفوع</div>
+              <div class="font-latin font-bold text-success text-sm" x-text="fmtMoney(paidTotal, deal.currency)"></div>
+            </div>
+            <div class="flex-1 min-w-[100px]">
+              <div class="text-xs text-neutral-400 font-semibold">متبقٍّ</div>
+              <div class="font-latin font-bold text-warning text-sm" x-text="fmtMoney(installmentTotal - paidTotal, deal.currency)"></div>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="adm-table">
+              <thead>
+                <tr>
+                  <th>النوع</th>
+                  <th>تاريخ الاستحقاق</th>
+                  <th>المبلغ</th>
+                  <th>الحالة</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="inst in installments" :key="inst.id">
+                  <tr>
+                    <td>
+                      <span class="adm-badge" :class="instTypeCls(inst.type)" x-text="instTypeLabel(inst.type)"></span>
+                    </td>
+                    <td class="font-latin text-sm" x-text="fmtDate(inst.dueDate)"></td>
+                    <td class="font-latin font-bold text-primary-800" x-text="fmtMoney(Number(inst.amount), deal.currency)"></td>
+                    <td>
+                      <span class="adm-badge" :class="instStatusCls(inst.status)" x-text="instStatusLabel(inst.status)"></span>
+                    </td>
+                    <td>
+                      <!-- "تحديد كمدفوع" for pending + overdue; hidden for paid -->
+                      <button x-show="inst.status !== 'paid'"
+                        @click="markPaid(inst)"
+                        class="adm-btn adm-btn-ghost adm-btn-sm text-success border-success/30 hover:bg-success/8">
+                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l4 4 6-7"/></svg>
+                        مدفوع
+                      </button>
+                      <span x-show="inst.status === 'paid'" class="text-xs text-neutral-400" x-text="inst.paidAt ? fmtDate(inst.paidAt) : ''"></span>
+                    </td>
+                  </tr>
+                </template>
+                <tr x-show="!installments.length">
+                  <td colspan="5" class="adm-empty">لا أقساط مضافة بعد.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== TAB: المستندات ========== -->
+    <div x-show="tab==='documents'" class="p-5">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-sm font-bold text-primary-800">مستندات الصفقة</span>
+        <button @click="addDocModal.open=true" class="adm-btn adm-btn-primary adm-btn-sm">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>
+          رفع مستند
+        </button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <template x-for="doc in documents" :key="doc.id">
+          <div class="flex items-start gap-3 p-4 rounded-xl border border-neutral-100 hover:border-primary-200 hover:shadow-sm transition">
+            <div class="adm-kpi-ico w-10 h-10 shrink-0"
+              :class="docIconBg(doc.documentType)">
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h5l4 4v8H4z"/><path d="M9 2v4h4"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-sm text-primary-800 truncate" x-text="doc.name"></div>
+              <div class="text-xs text-neutral-400 mt-0.5 flex items-center gap-2">
+                <span class="adm-badge b-neutral text-[.68rem] py-0.5" x-text="docTypeLabel(doc.documentType)"></span>
+                <span x-show="doc.expiryDate" class="text-warning font-semibold" x-text="doc.expiryDate ? 'تنتهي: ' + fmtDate(doc.expiryDate) : ''"></span>
+              </div>
+            </div>
+            <a :href="doc.url || '#'" class="adm-icon-btn w-8 h-8 text-neutral-400 hover:text-primary-700" title="تنزيل">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3v8M5 8l3 3 3-3M2 14h12"/></svg>
+            </a>
+          </div>
+        </template>
+        <div x-show="!documents.length" class="col-span-2 adm-empty">لا مستندات مرفوعة بعد.</div>
+      </div>
+    </div>
+
+    <!-- ========== TAB: الخط الزمني ========== -->
+    <div x-show="tab==='timeline'" class="p-5">
+      <div class="text-sm font-bold text-primary-800 mb-4">أحداث الصفقة</div>
+      <div class="relative">
+        <div class="absolute top-0 bottom-0 start-6 w-px bg-neutral-100"></div>
+        <div class="space-y-4 ps-14">
+          <template x-for="ev in timeline" :key="ev.id">
+            <div class="relative">
+              <div class="absolute -start-8 top-3 w-8 h-8 rounded-full border-2 border-white flex items-center justify-center shadow-sm"
+                :class="eventBg(ev.type)">
+                <span x-html="eventIcon(ev.type)" class="text-white flex items-center justify-center w-full h-full"></span>
+              </div>
+              <div class="adm-card p-3.5 ms-1">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-bold text-primary-800" x-text="ev.title"></span>
+                    <span class="text-xs text-neutral-400" x-text="ev.userName"></span>
+                  </div>
+                  <span class="text-xs text-neutral-400 shrink-0" x-text="fmtDateTime(ev.at)"></span>
+                </div>
+                <p x-show="ev.description" class="text-sm text-neutral-600 mt-1.5 leading-relaxed" x-text="ev.description"></p>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div x-show="!timeline.length" class="adm-empty">لا أحداث مسجّلة بعد.</div>
+      </div>
+    </div>
+
+    <!-- ========== TAB: الموافقة ========== -->
+    <div x-show="tab==='approval'" class="p-5">
+      <div class="max-w-lg">
+        <!-- Status banner -->
+        <div class="rounded-xl p-4 mb-5 flex items-start gap-3"
+          :class="approvalBannerCls(deal.approvalStatus)">
+          <div class="mt-0.5">
+            <svg x-show="deal.approvalStatus==='approved'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <svg x-show="deal.approvalStatus==='pending'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+            <svg x-show="deal.approvalStatus==='rejected'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            <svg x-show="deal.approvalStatus==='not_required'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+          </div>
+          <div>
+            <div class="font-bold text-sm" x-text="approvalLabel(deal.approvalStatus)"></div>
+            <div class="text-sm mt-0.5 opacity-80">
+              <span x-show="deal.approvalStatus==='not_required'">الصفقة لا تتطلب موافقة مدير (السعر دون العتبة).</span>
+              <span x-show="deal.approvalStatus==='pending'">في انتظار موافقة مدير الفرع — لا يمكن تقفيل الصفقة حتى صدور القرار.</span>
+              <span x-show="deal.approvalStatus==='approved'">
+                وُفِّق على الصفقة
+                <span x-show="deal.approvedBy"> بواسطة <strong x-text="agentName(deal.approvedBy)"></strong></span>
+                <span x-show="deal.approvedAt"> بتاريخ <span class="font-latin" x-text="fmtDate(deal.approvedAt)"></span></span>.
+              </span>
+              <span x-show="deal.approvalStatus==='rejected'">
+                رُفضت الصفقة.
+                <span x-show="deal.rejectionReason" class="block mt-1">السبب: <em x-text="deal.rejectionReason"></em></span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Threshold info -->
+        <div class="rounded-xl border border-neutral-100 p-4 mb-5">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-bold text-primary-800">عتبة الموافقة للفرع</span>
+            <span class="font-latin font-black text-primary-800" x-text="fmtMoney(Number(deal.approvalThreshold), deal.currency)"></span>
+          </div>
+          <div class="adm-progress mt-2" :class="Number(deal.finalPrice) > Number(deal.approvalThreshold) ? 'danger' : ''">
+            <span :style="'width:' + Math.min(Number(deal.finalPrice)/Number(deal.approvalThreshold)*100, 100) + '%'"></span>
+          </div>
+          <div class="text-xs text-neutral-400 mt-1.5 flex justify-between">
+            <span>السعر النهائي: <span class="font-latin font-semibold" x-text="fmtMoney(Number(deal.finalPrice), deal.currency)"></span></span>
+            <span x-show="Number(deal.finalPrice) > Number(deal.approvalThreshold)" class="text-danger font-semibold">يتجاوز العتبة</span>
+            <span x-show="Number(deal.finalPrice) <= Number(deal.approvalThreshold)" class="text-success font-semibold">ضمن العتبة</span>
+          </div>
+        </div>
+
+        <!-- Manager actions (shown when pending) -->
+        <div x-show="deal.approvalStatus==='pending'">
+          <div class="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-3">إجراءات المدير</div>
+          <div class="flex gap-3">
+            <button @click="approveDeal()" class="adm-btn adm-btn-primary flex-1">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l4 4 6-7"/></svg>
+              اعتماد الصفقة
+            </button>
+            <button @click="rejectModal.open=true" class="adm-btn adm-btn-danger flex-1">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+              رفض الصفقة
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: تقفيل الصفقة ===== -->
+  <template x-if="closeModal.open">
+    <div class="adm-overlay" @click.self="closeModal.open=false">
+      <div class="adm-modal" style="max-width:480px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">تقفيل الصفقة</div>
+          <button @click="closeModal.open=false" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-4">
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> نتيجة الصفقة</label>
+            <div class="grid grid-cols-2 gap-3 mt-1">
+              <button @click="closeModal.outcome='closed_won'"
+                class="flex items-center gap-2 p-3 rounded-xl border-2 text-sm font-semibold transition"
+                :class="closeModal.outcome==='closed_won' ? 'border-success bg-success/8 text-success' : 'border-neutral-100 text-neutral-500 hover:border-neutral-200'">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l4 4 6-7"/></svg>
+                مكسوبة (Closed Won)
+              </button>
+              <button @click="closeModal.outcome='closed_lost'"
+                class="flex items-center gap-2 p-3 rounded-xl border-2 text-sm font-semibold transition"
+                :class="closeModal.outcome==='closed_lost' ? 'border-danger bg-danger/8 text-danger' : 'border-neutral-100 text-neutral-500 hover:border-neutral-200'">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                خاسرة (Closed Lost)
+              </button>
+            </div>
+          </div>
+          <div x-show="closeModal.outcome==='closed_won'">
+            <label class="ec-label"><span class="text-danger">*</span> سبب الفوز (winReason)</label>
+            <textarea x-model="closeModal.winReason" rows="3" class="ec-input" placeholder="مثال: العميل أعجبه الموقع وشروط الدفع وأُغلقت الصفقة فوراً."></textarea>
+          </div>
+          <div x-show="closeModal.outcome==='closed_lost'">
+            <label class="ec-label"><span class="text-danger">*</span> سبب الخسارة (lostReason)</label>
+            <textarea x-model="closeModal.lostReason" rows="3" class="ec-input" placeholder="مثال: العميل وجد عقاراً أرخص في حي آخر."></textarea>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="confirmClose()"
+            :disabled="!closeModal.outcome || (closeModal.outcome==='closed_won' && !closeModal.winReason) || (closeModal.outcome==='closed_lost' && !closeModal.lostReason)"
+            class="adm-btn adm-btn-gold">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l4 4 6-7"/></svg>
+            تأكيد الإغلاق
+          </button>
+          <button @click="closeModal.open=false" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== MODAL: رفض الصفقة (مدير) ===== -->
+  <template x-if="rejectModal.open">
+    <div class="adm-overlay" @click.self="rejectModal.open=false">
+      <div class="adm-modal" style="max-width:440px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-danger">رفض الصفقة</div>
+          <button @click="rejectModal.open=false" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body">
+          <label class="ec-label"><span class="text-danger">*</span> سبب الرفض</label>
+          <textarea x-model="rejectModal.reason" rows="4" class="ec-input" placeholder="وضّح سبب عدم الاعتماد…"></textarea>
+          <p class="text-xs text-neutral-400 mt-2">PUT /api/v1/deals/:id/reject — rejectionReason مطلوب (1–1000 حرف)</p>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="confirmReject()" :disabled="!rejectModal.reason.trim()" class="adm-btn adm-btn-danger-solid">رفض</button>
+          <button @click="rejectModal.open=false" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== MODAL: إضافة قسط ===== -->
+  <template x-if="addInstModal.open">
+    <div class="adm-overlay" @click.self="addInstModal.open=false">
+      <div class="adm-modal" style="max-width:440px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">إضافة قسط</div>
+          <button @click="addInstModal.open=false" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-4">
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> نوع القسط</label>
+            <select x-model="addInstModal.type" class="ec-input">
+              <option value="down_payment">دفعة أولى</option>
+              <option value="installment">قسط</option>
+              <option value="final">دفعة نهائية</option>
+            </select>
+          </div>
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> تاريخ الاستحقاق</label>
+            <input type="date" dir="ltr" x-model="addInstModal.dueDate" class="ec-input font-latin" />
+          </div>
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> المبلغ (<span class="font-latin" x-text="deal.currency"></span>)</label>
+            <input type="number" dir="ltr" x-model.number="addInstModal.amount" class="ec-input font-latin" placeholder="0.00" />
+          </div>
+          <div>
+            <label class="ec-label">ملاحظات</label>
+            <textarea x-model="addInstModal.notes" rows="2" class="ec-input" placeholder="اختياري…"></textarea>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="saveInstallment()" :disabled="!addInstModal.dueDate || !addInstModal.amount" class="adm-btn adm-btn-primary">إضافة</button>
+          <button @click="addInstModal.open=false" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== MODAL: رفع مستند ===== -->
+  <template x-if="addDocModal.open">
+    <div class="adm-overlay" @click.self="addDocModal.open=false">
+      <div class="adm-modal" style="max-width:460px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">رفع مستند</div>
+          <button @click="addDocModal.open=false" class="adm-icon-btn">✕</button>
+        </div>
+        <div class="adm-modal-body flex flex-col gap-4">
+          <div>
+            <label class="ec-label"><span class="text-danger">*</span> اسم المستند</label>
+            <input type="text" x-model="addDocModal.name" class="ec-input" placeholder="مثال: عقد البيع الموقّع" />
+          </div>
+          <div>
+            <label class="ec-label">تصنيف المستند</label>
+            <select x-model="addDocModal.documentType" class="ec-input">
+              <option value="contract">عقد</option>
+              <option value="title_deed">صك ملكية</option>
+              <option value="invoice">فاتورة</option>
+              <option value="noc">شهادة عدم ممانعة</option>
+              <option value="id">هوية</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+          <div>
+            <label class="ec-label">تاريخ انتهاء الصلاحية (اختياري)</label>
+            <input type="date" dir="ltr" x-model="addDocModal.expiryDate" class="ec-input font-latin" />
+          </div>
+          <div>
+            <label class="ec-label">رابط المستند أو uploadId</label>
+            <input type="url" dir="ltr" x-model="addDocModal.url" class="ec-input font-latin" placeholder="https://…" />
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="saveDocument()" :disabled="!addDocModal.name" class="adm-btn adm-btn-primary">رفع</button>
+          <button @click="addDocModal.open=false" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</div>
+
+<script>
+function dealDetail() {
+  const D = (days) => new Date(Date.now() + days * 864e5).toISOString();
+  const P = (days) => new Date(Date.now() - days * 864e5).toISOString();
+
+  return {
+    tab: 'overview',
+
+    // ── Stage pipeline (order matches deal_stage enum + DealStages) ──
+    stages: [
+      { key: 'initial_contact',  ar: 'تواصل أولي'   },
+      { key: 'property_viewing', ar: 'معاينة'        },
+      { key: 'negotiation',      ar: 'تفاوض'         },
+      { key: 'offer_made',       ar: 'عرض مُقدَّم'   },
+      { key: 'offer_accepted',   ar: 'عرض مقبول'     },
+      { key: 'documentation',    ar: 'توثيق'         },
+      { key: 'payment',          ar: 'دفع'           },
+      { key: 'handover',         ar: 'تسليم'         },
+      { key: 'completed',        ar: 'مكتمل'         },
+    ],
+
+    // ── Agents seed (tenant roster) ──
+    agentsMap: {
+      'u1': { name: 'سارة القحطاني',  initials: 'سق' },
+      'u2': { name: 'خالد العمري',    initials: 'خع' },
+      'u3': { name: 'نورة الدوسري',   initials: 'ند' },
+      'u4': { name: 'فهد الشمري',     initials: 'فش' },
+    },
+
+    // ── Deal (GET /api/v1/deals/:id) ──
+    // Seed: finalPrice (2,350,000 SAR) > approvalThreshold (2,000,000 SAR) → triggers approval
+    // commissionAmount = 2,350,000 × 2.5% = 58,750
+    // agencyCommission = 58,750 × 60% = 35,250 | agentCommission = 58,750 × 30% = 17,625 | coBroke = 58,750 × 10% = 5,875
+    // sharedAgents: u1=70%, u2=30% → disbursements: u1=12,337.50, u2=5,287.50 (sum=17,625 = agentCommission)
+    deal: {
+      id: 'd1',
+      dealNumber: 'DL-2026-0042',
+      leadId: 'l3',
+      propertyId: 'p1',
+      sellerAgentId: 'u1',
+      buyerContactId: 'c3',
+      sellerContactId: 'c5',
+      status: 'pending',
+      stage: 'documentation',
+      stageId: 'ds6',
+      askingPrice: '2450000',
+      offerPrice: '2380000',
+      finalPrice: '2350000',
+      currency: 'SAR',
+      commissionType: 'percentage',
+      commissionRate: '2.50',
+      commissionAmount: '58750.00',
+      agencyCommission: '35250.00',
+      agentCommission: '17625.00',
+      coBrokeCommission: '5875.00',
+      sharedAgents: [
+        { agentId: 'u1', splitPct: 70 },
+        { agentId: 'u2', splitPct: 30 },
+      ],
+      agentDisbursements: [
+        { agentId: 'u1', splitPct: 70, amount: '12337.50' },
+        { agentId: 'u2', splitPct: 30, amount: '5287.50'  },
+      ],
+      approvalStatus: 'pending',
+      approvalThreshold: '2000000',
+      approvedBy: null,
+      approvedAt: null,
+      rejectionReason: null,
+      closeChecklist: [
+        { item: 'توقيع عقد البيع من الطرفين',        done: true,  doneAt: P(5) },
+        { item: 'استلام الدفعة الأولى (25%)',          done: true,  doneAt: P(3) },
+        { item: 'التحقق من خلو العقار من الرهون',     done: true,  doneAt: P(4) },
+        { item: 'استيفاء وثائق نقل الملكية',          done: false, doneAt: null },
+        { item: 'موافقة الجهة التمويلية المصدّقة',    done: false, doneAt: null },
+      ],
+      lostReason: null,
+      winReason: null,
+      expectedCloseDate: D(18),
+      buyerName: 'تركي الحربي',
+      sellerName: 'شركة التميّز للتطوير',
+      propertyTitle: 'فيلا دوبلكس — حطين، الرياض',
+      sellerAgentName: 'سارة القحطاني',
+      notes: 'العميل طلب إضافة بند ضمان سنة في العقد. تم الاتفاق مبدئياً مع المالك.',
+    },
+
+    // ── Installments (GET /api/v1/deals/:id/installments) ──
+    installments: [
+      { id:'i1', dueDate: P(10),  amount:'587500',  type:'down_payment', status:'paid',    paidAt: P(9),  paidAmount:'587500',  notes:'دفعة أولى 25%' },
+      { id:'i2', dueDate: D(30),  amount:'705000',  type:'installment',  status:'pending', paidAt:null,   paidAmount:null,      notes:'الدفعة الثانية عند التوثيق' },
+      { id:'i3', dueDate: D(90),  amount:'705000',  type:'installment',  status:'pending', paidAt:null,   paidAmount:null,      notes:'الدفعة الثالثة خلال 3 أشهر' },
+      { id:'i4', dueDate: D(-5),  amount:'352500',  type:'installment',  status:'overdue', paidAt:null,   paidAmount:null,      notes:'دفعة عمولة المكتب — متأخرة' },
+      { id:'i5', dueDate: D(180), amount:'0',       type:'final',        status:'pending', paidAt:null,   paidAmount:null,      notes:'دفعة الإغلاق عند التسليم' },
+    ],
+
+    // ── Timeline (GET /api/v1/deals/:id/timeline) ──
+    timeline: [
+      { id:'t1', type:'stage_change', title:'تغيير المرحلة',   description:'انتقلت الصفقة من "تفاوض" إلى "توثيق".',                       at: P(5),  userName:'سارة القحطاني' },
+      { id:'t2', type:'document',     title:'مستند مرفوع',      description:'رُفع عقد البيع الموقّع من الطرفين.',                           at: P(5),  userName:'خالد العمري'   },
+      { id:'t3', type:'payment',      title:'دفعة مستلمة',      description:'استُلمت الدفعة الأولى (587,500 ر.س) عبر تحويل بنكي.',          at: P(3),  userName:'سارة القحطاني' },
+      { id:'t4', type:'approval',     title:'طلب موافقة',       description:'أُرسل طلب موافقة للمدير — الصفقة تتجاوز عتبة 2,000,000 ر.س.',  at: P(2),  userName:'النظام'         },
+      { id:'t5', type:'call',         title:'اتصال بالعميل',    description:'تذكير بمتطلبات نقل الملكية وموعد التوثيق.',                      at: P(1),  userName:'فهد الشمري'    },
+    ],
+
+    // ── Documents (GET /api/v1/deals/:id/documents) ──
+    documents: [
+      { id:'doc1', name:'عقد البيع الموقّع', documentType:'contract',   url:'#', expiryDate:null,  mimeType:'application/pdf' },
+      { id:'doc2', name:'صك ملكية العقار',   documentType:'title_deed', url:'#', expiryDate:null,  mimeType:'application/pdf' },
+      { id:'doc3', name:'هوية المشتري',       documentType:'id',         url:'#', expiryDate:D(365),mimeType:'image/jpeg'       },
+    ],
+
+    // ── Modal state ──
+    closeModal:   { open:false, outcome:'', winReason:'', lostReason:'' },
+    rejectModal:  { open:false, reason:'' },
+    addInstModal: { open:false, type:'installment', dueDate:'', amount:null, notes:'' },
+    addDocModal:  { open:false, name:'', documentType:'contract', expiryDate:'', url:'' },
+    editModal:    { open:false },
+
+    // ── Computed ──
+    get checklistDone() {
+      return this.deal.closeChecklist.filter(i => i.done).length;
+    },
+    get checklistPct() {
+      if(!this.deal.closeChecklist.length) return 0;
+      return Math.round(this.checklistDone / this.deal.closeChecklist.length * 100);
+    },
+    // Close gate: all checklist items done + approval is not blocking (not pending/rejected)
+    get canClose() {
+      const checklistOk = this.deal.closeChecklist.every(i => i.done);
+      const approvalOk  = this.deal.approvalStatus === 'not_required' || this.deal.approvalStatus === 'approved';
+      const notClosed   = !['closed_won','closed_lost'].includes(this.deal.status);
+      return checklistOk && approvalOk && notClosed;
+    },
+    get installmentTotal() {
+      return this.installments.reduce((sum, i) => sum + Number(i.amount), 0);
+    },
+    get paidTotal() {
+      return this.installments.filter(i => i.status === 'paid').reduce((sum, i) => sum + Number(i.amount), 0);
+    },
+
+    // ── Helpers ──
+    stageIndex(key) { return this.stages.findIndex(s => s.key === key); },
+    stageLabel(key) { return this.stages.find(s => s.key === key)?.ar ?? key; },
+    agentName(id)   { return this.agentsMap[id]?.name ?? '—'; },
+    agentInitials(id){ return this.agentsMap[id]?.initials ?? '؟'; },
+    disbursementFor(agentId) {
+      const d = this.deal.agentDisbursements?.find(x => x.agentId === agentId);
+      return d ? fmtMoney(Number(d.amount), this.deal.currency) : '';
+    },
+
+    statusCls(st) {
+      return { active:'b-info', pending:'b-warning', closed_won:'b-success', closed_lost:'b-danger', on_hold:'b-neutral' }[st] ?? 'b-neutral';
+    },
+    statusLabel(st) {
+      return { active:'نشطة', pending:'معلّقة', closed_won:'مكسوبة', closed_lost:'خاسرة', on_hold:'مؤجَّلة' }[st] ?? st;
+    },
+
+    approvalCls(ap) {
+      return { not_required:'b-neutral', pending:'b-warning', approved:'b-success', rejected:'b-danger' }[ap] ?? 'b-neutral';
+    },
+    approvalLabel(ap) {
+      return { not_required:'لا تتطلب موافقة', pending:'موافقة معلّقة', approved:'مُعتمدة', rejected:'مرفوضة' }[ap] ?? ap;
+    },
+    approvalBannerCls(ap) {
+      return { not_required:'bg-neutral-50 border border-neutral-100 text-neutral-600',
+               pending:'bg-warning/8 border border-warning/25 text-yellow-800',
+               approved:'bg-success/8 border border-success/25 text-green-800',
+               rejected:'bg-danger/8 border border-danger/25 text-red-800' }[ap] ?? '';
+    },
+
+    instTypeCls(t)  { return { down_payment:'b-accent', installment:'b-info', final:'b-neutral' }[t] ?? 'b-neutral'; },
+    instTypeLabel(t){ return { down_payment:'دفعة أولى', installment:'قسط', final:'نهائي' }[t] ?? t; },
+    instStatusCls(s){ return { pending:'b-warning', paid:'b-success', overdue:'b-danger' }[s] ?? 'b-neutral'; },
+    instStatusLabel(s){ return { pending:'معلّق', paid:'مدفوع', overdue:'متأخر' }[s] ?? s; },
+
+    docTypeLabel(t) {
+      return { contract:'عقد', title_deed:'صك ملكية', invoice:'فاتورة', noc:'عدم ممانعة', id:'هوية', other:'أخرى' }[t] ?? t;
+    },
+    docIconBg(t) {
+      return { contract:'bg-info/10 text-info', title_deed:'bg-accent-50 text-accent-700',
+               invoice:'bg-success/10 text-success', noc:'bg-warning/10 text-warning',
+               id:'bg-primary-50 text-primary-700' }[t] ?? 'bg-neutral-100 text-neutral-500';
+    },
+
+    eventBg(type) {
+      return { stage_change:'bg-primary-700', document:'bg-info', payment:'bg-success', approval:'bg-warning', call:'bg-accent-600', note:'bg-neutral-400' }[type] ?? 'bg-neutral-400';
+    },
+    eventIcon(type) {
+      const icons = {
+        stage_change: '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 8h9M8 5l3 3-3 3"/></svg>',
+        document:     '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 2h5l4 4v8H4z"/><path d="M9 2v4h4"/></svg>',
+        payment:      '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="1.5" y="4" width="13" height="9" rx="1.5"/><path d="M1.5 7.5h13"/></svg>',
+        approval:     '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8l4 4 6-7"/></svg>',
+        call:         '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2.5 3.5a1 1 0 011-1h2l1.5 3.5-1.5 1.5a10 10 0 004 4l1.5-1.5 3.5 1.5v2a1 1 0 01-1 1C5.5 14.5 1.5 10.5 1.5 4.5a1 1 0 011-1z"/></svg>',
+        note:         '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 2h5l4 4v8H4z"/><path d="M6 9h4M6 11.5h2.5"/></svg>',
+      };
+      return icons[type] ?? icons.note;
+    },
+
+    closeBlockReason() {
+      if(['closed_won','closed_lost'].includes(this.deal.status)) return 'الصفقة مُغلقة بالفعل';
+      if(!this.deal.closeChecklist.every(i => i.done)) return 'قائمة الإغلاق غير مكتملة';
+      if(this.deal.approvalStatus === 'pending') return 'في انتظار الموافقة';
+      if(this.deal.approvalStatus === 'rejected') return 'تم رفض الموافقة';
+      return '';
+    },
+    closeBlockBadge() {
+      if(!this.deal.closeChecklist.every(i => i.done)) return '(' + this.checklistDone + '/' + this.deal.closeChecklist.length + ')';
+      if(this.deal.approvalStatus === 'pending') return '(معلّقة)';
+      return '';
+    },
+
+    // ── Actions ──
+    toggleChecklist(idx) {
+      // PUT /api/v1/deals/:id — {closeChecklist: [...updated]}
+      const item = this.deal.closeChecklist[idx];
+      item.done = !item.done;
+      item.doneAt = item.done ? new Date().toISOString() : null;
+    },
+
+    openCloseModal() {
+      if(!this.canClose) return;
+      this.closeModal = { open:true, outcome:'closed_won', winReason:'', lostReason:'' };
+    },
+
+    // PUT /api/v1/deals/:id — {status, winReason?|lostReason?, stage:'completed'}
+    confirmClose() {
+      const c = this.closeModal;
+      if(!c.outcome) return;
+      if(c.outcome === 'closed_won' && !c.winReason) return;
+      if(c.outcome === 'closed_lost' && !c.lostReason) return;
+      this.deal.status = c.outcome;
+      if(c.outcome === 'closed_won') { this.deal.winReason  = c.winReason; this.deal.stage = 'completed'; }
+      if(c.outcome === 'closed_lost'){ this.deal.lostReason = c.lostReason; }
+      this.timeline.unshift({ id:'t'+Date.now(), type:'stage_change', title:'إغلاق الصفقة',
+        description: c.outcome === 'closed_won' ? 'مكسوبة — ' + c.winReason : 'خاسرة — ' + c.lostReason,
+        at: new Date().toISOString(), userName:'أنت' });
+      this.closeModal.open = false;
+    },
+
+    requestApproval() {
+      // In real app: PUT /api/v1/deals/:id — {approvalStatus:'pending'} or service-driven on price update
+      this.deal.approvalStatus = 'pending';
+      this.timeline.unshift({ id:'t'+Date.now(), type:'approval', title:'طلب موافقة',
+        description:'أُرسل طلب موافقة للمدير.', at: new Date().toISOString(), userName:'أنت' });
+      this.tab = 'approval';
+    },
+
+    // PUT /api/v1/deals/:id/approve (no body — manager only)
+    approveDeal() {
+      this.deal.approvalStatus = 'approved';
+      this.deal.approvedBy = 'u4';
+      this.deal.approvedAt = new Date().toISOString();
+      this.timeline.unshift({ id:'t'+Date.now(), type:'approval', title:'اعتماد الصفقة',
+        description:'اعتمد المدير الصفقة — يمكن الآن تقفيلها.', at: new Date().toISOString(), userName:'فهد الشمري' });
+    },
+
+    // PUT /api/v1/deals/:id/reject — {rejectionReason}
+    confirmReject() {
+      if(!this.rejectModal.reason.trim()) return;
+      this.deal.approvalStatus  = 'rejected';
+      this.deal.rejectionReason = this.rejectModal.reason;
+      this.timeline.unshift({ id:'t'+Date.now(), type:'approval', title:'رفض الصفقة',
+        description:'سبب الرفض: ' + this.rejectModal.reason, at: new Date().toISOString(), userName:'فهد الشمري' });
+      this.rejectModal.open = false;
+    },
+
+    // POST /api/v1/deals/:id/installments — {dueDate, amount, type, notes}
+    saveInstallment() {
+      if(!this.addInstModal.dueDate || !this.addInstModal.amount) return;
+      this.installments.push({
+        id: 'i'+Date.now(),
+        dueDate: new Date(this.addInstModal.dueDate).toISOString(),
+        amount: String(this.addInstModal.amount),
+        type: this.addInstModal.type,
+        status: 'pending',
+        paidAt: null,
+        paidAmount: null,
+        notes: this.addInstModal.notes,
+      });
+      this.addInstModal = { open:false, type:'installment', dueDate:'', amount:null, notes:'' };
+    },
+
+    // PUT /api/v1/deals/:id/installments/:instId — {status:'paid', paidAmount}
+    // Note: only pending|paid allowed; overdue→paid is valid (backend UpdateInstallmentSchema)
+    markPaid(inst) {
+      inst.status   = 'paid';
+      inst.paidAt   = new Date().toISOString();
+      inst.paidAmount = inst.amount;
+      this.timeline.unshift({ id:'t'+Date.now(), type:'payment', title:'دفعة مستلمة',
+        description:'قسط (' + this.instTypeLabel(inst.type) + ') ' + fmtMoney(Number(inst.amount), this.deal.currency),
+        at: new Date().toISOString(), userName:'أنت' });
+    },
+
+    // POST /api/v1/deals/:id/commission/recalculate
+    recalculateCommission() {
+      alert('سيتم إعادة احتساب العمولة — POST /api/v1/deals/' + this.deal.id + '/commission/recalculate');
+    },
+
+    // POST /api/v1/deals/:id/documents — AddDealDocumentSchema
+    saveDocument() {
+      if(!this.addDocModal.name) return;
+      this.documents.push({
+        id: 'doc'+Date.now(),
+        name: this.addDocModal.name,
+        documentType: this.addDocModal.documentType,
+        url: this.addDocModal.url || '#',
+        expiryDate: this.addDocModal.expiryDate || null,
+        mimeType: 'application/pdf',
+      });
+      this.addDocModal = { open:false, name:'', documentType:'contract', expiryDate:'', url:'' };
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'deals';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0,
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; },
+      fmClose(){ this.fmId=null; },
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
+  }
+</script>
+</body>
+</html>
