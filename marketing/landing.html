@@ -53,8 +53,7 @@
         <a href="./changelog.html" class="hover:text-accent-500 transition">ما الجديد</a>
       </div>
       <div class="flex items-center gap-3">
-        <a href="../2-auth/login.html" class="hidden sm:inline text-sm font-semibold transition" :class="scrolled ? 'text-primary-700' : 'text-white'">دخول</a>
-        <a href="../2-auth/register.html" class="px-4 py-2 rounded-lg text-sm font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 transition">ابدأ مجاناً</a>
+        <a href="register.html" class="px-4 py-2 rounded-lg text-sm font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 transition">ابدأ مجاناً</a>
         <button @click="menu=!menu" class="md:hidden p-2 rounded-lg" :class="scrolled ? 'text-primary-800' : 'text-white'">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
@@ -64,7 +63,7 @@
       <div class="px-5 py-4 flex flex-col gap-3 text-sm font-semibold text-neutral-700">
         <a href="#features" @click="menu=false">المميزات</a><a href="#video" @click="menu=false">الفيديو</a>
         <a href="#why" @click="menu=false">لماذا نحن</a><a href="#pricing" @click="menu=false">الأسعار</a>
-        <a href="./changelog.html" @click="menu=false">ما الجديد</a><a href="../2-auth/login.html" class="text-primary-700">تسجيل الدخول</a>
+        <a href="./changelog.html" @click="menu=false">ما الجديد</a>
       </div>
     </div>
   </nav>
@@ -84,7 +83,7 @@
           من أول <span class="text-white font-semibold">lead</span> حتى إغلاق الصفقة بعمولة — منصّة واحدة تدير دورة حياة العميل العقاري بالكامل، بعمولات آلية وهيكل هرمي للفروع والفرق.
         </p>
         <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-          <a href="../2-auth/register.html" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 hover:-translate-y-0.5 transition">
+          <a href="register.html" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 hover:-translate-y-0.5 transition">
             ابدأ تجربتك المجانية
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8H13M13 8L9 4M13 8L9 12"/></svg>
           </a>
@@ -327,7 +326,7 @@
           </div>
         </template>
       </div>
-      <div class="text-center mt-10"><a href="../2-auth/register.html" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 transition">ابدأ الآن مجاناً</a></div>
+      <div class="text-center mt-10"><a href="register.html" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 transition">ابدأ الآن مجاناً</a></div>
     </div>
   </section>
 
@@ -460,7 +459,7 @@
             <ul class="flex flex-col gap-2.5 text-sm text-neutral-700 mb-6">
               <template x-for="f in p.features" :key="f"><li class="flex items-start gap-2"><span class="w-4 h-4 mt-0.5 rounded-full shrink-0 flex items-center justify-center" :class="p.popular?'bg-accent-500 text-primary-900':'bg-accent-100 text-accent-700'"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.2L4 7.5L8 3"/></svg></span><span x-text="f"></span></li></template>
             </ul>
-            <a :href="p.id==='enterprise' ? 'mailto:sales@est8core.com' : '../2-auth/register.html?plan='+p.id" class="block text-center px-5 py-2.5 rounded-lg text-sm font-semibold transition" :class="p.popular ? 'bg-accent-500 text-primary-900 hover:bg-accent-400' : 'border border-primary-800 text-primary-800 hover:bg-primary-50'" x-text="p.cta"></a>
+            <a :href="p.id==='enterprise' ? 'mailto:sales@est8core.com' : 'register.html?plan='+p.id" class="block text-center px-5 py-2.5 rounded-lg text-sm font-semibold transition" :class="p.popular ? 'bg-accent-500 text-primary-900 hover:bg-accent-400' : 'border border-primary-800 text-primary-800 hover:bg-primary-50'" x-text="p.cta"></a>
           </div>
         </template>
       </div>
@@ -492,7 +491,7 @@
       <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">توقّف عن خسارة الصفقات.<br>ابدأ اليوم.</h2>
       <p class="text-white/60 mb-7 text-lg max-w-xl mx-auto">جرّب Est8Core مجاناً ١٤ يوماً. لو لم يعجبك، ألغِ بنقرة — بلا أسئلة، وبلا التزام.</p>
       <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
-        <a href="../2-auth/register.html" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 hover:-translate-y-0.5 transition">أنشئ حسابك الآن</a>
+        <a href="register.html" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 hover:-translate-y-0.5 transition">أنشئ حسابك الآن</a>
         <a href="mailto:sales@est8core.com" class="inline-flex items-center gap-2 px-7 py-4 rounded-xl text-base font-semibold text-white border border-white/20 hover:bg-white/5 transition">احجز عرضاً توضيحياً</a>
       </div>
       <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/50">

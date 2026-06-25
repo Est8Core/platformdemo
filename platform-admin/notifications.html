@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Est8Core — لوحة المنصة · ملفي الشخصي</title>
+  <title>Est8Core — لوحة المنصة · التنبيهات التشغيلية</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -173,6 +173,18 @@
     .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
     .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
     .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+
+    /* ===== Floating row-action menu (position:fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; }
+    .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
   </style>
 </head>
 
@@ -291,177 +303,89 @@
 
     <main class="adm-content">
 
-<!-- S-066 · ملفي الشخصي (مشرف المنصة) · GET /api/v1/admin/auth/me · POST /admin/2fa/{setup,enable,disable,backup-codes/regenerate} -->
-<div x-data="profile()">
+<!-- S-067 · التنبيهات التشغيلية (مشتقّة) · GET /admin/billing/invoices/pending · /admin/platform/queues · /admin/tenants?status=trial|suspended -->
+<div x-data="opsAlerts()">
 
-  <div class="adm-breadcrumb">
-    <a href="dashboard.html">لوحة التحكم</a><span>/</span><span class="text-neutral-600">ملفي الشخصي</span>
-  </div>
   <div class="adm-page-head">
     <div>
-      <h1 class="adm-page-title">ملفي الشخصي</h1>
-      <p class="adm-page-sub">بيانات حسابك في المنصة وإدارة أمانك الشخصي</p>
+      <h1 class="adm-page-title">التنبيهات التشغيلية</h1>
+      <p class="adm-page-sub">إشارات لحظية مشتقّة من حالة المنصة — تحتاج انتباه أو إجراء</p>
     </div>
+    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="refresh()" :disabled="loading">
+      <svg :class="loading && 'animate-spin'" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 8a6 6 0 10-1.8 4.2M14 8V4M14 8h-3"/></svg>
+      تحديث
+    </button>
   </div>
 
-  <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
-
-    <!-- ===== Identity card ===== -->
-    <div class="adm-card xl:col-span-1 h-fit">
-      <div class="p-6 flex flex-col items-center text-center border-b border-neutral-100">
-        <span class="w-20 h-20 rounded-2xl bg-primary-800 text-accent-400 text-2xl font-bold flex items-center justify-center mb-3" x-text="initials"></span>
-        <div class="text-lg font-bold text-primary-800" x-text="me.name"></div>
-        <div class="text-sm text-neutral-500 font-latin mt-0.5" dir="ltr" x-text="me.email"></div>
-        <div class="flex items-center gap-2 mt-3">
-          <span class="adm-role" x-text="roleLabel"></span>
-          <span class="adm-badge" :class="me.isActive?'b-success':'b-neutral'" x-text="me.isActive?'نشط':'معطّل'"></span>
-        </div>
-      </div>
-      <div class="p-5">
-        <dl class="adm-info" style="grid-template-columns:1fr;">
-          <div><dt>آخر تسجيل دخول</dt><dd x-text="fmtDateTime(me.lastLoginAt)"></dd></div>
-          <div><dt>تاريخ إنشاء الحساب</dt><dd x-text="fmtDate(me.createdAt)"></dd></div>
-        </dl>
-        <div class="mt-4 rounded-lg bg-neutral-50 border border-neutral-100 p-3 text-xs text-neutral-500 flex items-start gap-2">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v.3M8 7v4" stroke-linecap="round"/></svg>
-          الاسم والدور يُداران بواسطة مدير عام للمنصة — لا يمكن تعديلهما ذاتياً.
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== Right column ===== -->
-    <div class="xl:col-span-2 flex flex-col gap-5">
-
-      <!-- 2FA -->
-      <div class="adm-card">
-        <div class="adm-card-head">
-          <div class="adm-card-title">المصادقة الثنائية</div>
-          <span class="adm-badge" :class="me.twoFactorEnabled?'b-success':'b-warning'" x-text="me.twoFactorEnabled?'مُفعّلة':'غير مُفعّلة'"></span>
-        </div>
-        <div class="p-5 flex flex-col gap-4">
-          <div class="flex items-start gap-3">
-            <span class="w-10 h-10 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center shrink-0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span>
-            <p class="text-sm text-neutral-600 leading-relaxed">تحمي حسابك بطبقة ثانية عبر تطبيق مصادقة (TOTP). مطلوبة لكل مشرفي المنصة عند تفعيل الإلزام.</p>
-          </div>
-          <div class="flex flex-wrap gap-2.5">
-            <button x-show="!me.twoFactorEnabled" @click="modal='setup'; code=''" class="adm-btn adm-btn-primary adm-btn-sm">تفعيل المصادقة الثنائية</button>
-            <button x-show="me.twoFactorEnabled" @click="modal='regen'; code=''" class="adm-btn adm-btn-ghost adm-btn-sm">إعادة توليد رموز الاحتياط</button>
-            <button x-show="me.twoFactorEnabled" @click="modal='disable'; code=''" class="adm-btn adm-btn-danger adm-btn-sm">تعطيل</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- IP allowlist -->
-      <div class="adm-card">
-        <div class="adm-card-head">
-          <div class="adm-card-title">عناوين IP المسموح بها</div>
-          <span class="text-xs text-neutral-400">تُدار بواسطة مدير عام للمنصة</span>
-        </div>
-        <div class="p-5">
-          <template x-if="me.ipAllowlist.length">
-            <div class="flex flex-col gap-2">
-              <template x-for="ip in me.ipAllowlist" :key="ip">
-                <div class="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50 px-3.5 py-2.5">
-                  <span class="font-latin text-sm text-neutral-700" dir="ltr" x-text="ip"></span>
-                  <span class="adm-badge b-success">مسموح</span>
-                </div>
-              </template>
-            </div>
-          </template>
-          <template x-if="!me.ipAllowlist.length">
-            <div class="adm-empty">لا توجد قيود على عناوين IP — الدخول مسموح من أي عنوان.</div>
-          </template>
-        </div>
-      </div>
-
-      <!-- Session -->
-      <div class="adm-card">
-        <div class="adm-card-head"><div class="adm-card-title">الجلسة الحالية</div></div>
-        <div class="p-5 flex items-center justify-between flex-wrap gap-3">
-          <div class="text-sm text-neutral-600">سجّلت الدخول <span class="font-semibold text-neutral-800" x-text="timeAgo(me.lastLoginAt)"></span> من <span class="font-latin" dir="ltr" x-text="me.ipAllowlist[0]||'—'"></span></div>
-          <a href="login.html" class="adm-btn adm-btn-danger adm-btn-sm">تسجيل الخروج</a>
-        </div>
-      </div>
-
-    </div>
+  <!-- Honest note: no dedicated notifications backend -->
+  <div class="rounded-xl bg-info/8 border border-info/20 p-3.5 mb-5 flex items-start gap-2.5 text-sm text-info">
+    <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v.3M8 7v4" stroke-linecap="round"/></svg>
+    <span>هذه التنبيهات مُشتقّة من حالة المنصة لحظياً (فواتير معلّقة · صحة الطوابير · التجارب · الإيقافات). لا يوجد نظام إشعارات مستقل في الـ backend بعد — لذلك لا توجد حالة "مقروء/غير مقروء".</span>
   </div>
 
-  <!-- ===== 2FA Setup modal ===== -->
-  <template x-if="modal==='setup'">
-    <div class="adm-overlay" @click.self="close()">
-      <div class="adm-modal" style="max-width:440px">
-        <div class="adm-modal-head"><div class="font-bold text-primary-800">تفعيل المصادقة الثنائية</div><button @click="close()" class="adm-icon-btn">✕</button></div>
-        <div class="adm-modal-body flex flex-col gap-4 text-center">
-          <p class="text-sm text-neutral-600">امسح الرمز بتطبيق المصادقة (Google Authenticator / Authy)، ثم أدخل الرمز المكوّن من 6 أرقام.</p>
-          <div class="mx-auto w-40 h-40 rounded-xl border-2 border-neutral-200 bg-neutral-50 grid place-items-center text-neutral-300">
-            <svg width="80" height="80" viewBox="0 0 80 80" fill="currentColor"><rect x="8" y="8" width="22" height="22"/><rect x="50" y="8" width="22" height="22"/><rect x="8" y="50" width="22" height="22"/><rect x="38" y="38" width="10" height="10"/><rect x="56" y="50" width="16" height="16"/></svg>
+  <!-- Filter pills -->
+  <div class="flex flex-wrap items-center gap-2 mb-5">
+    <template x-for="c in cats" :key="c.key">
+      <button class="adm-pill" :class="cat===c.key && 'on'" @click="cat=c.key">
+        <span x-text="c.label"></span>
+        <span class="ms-1 opacity-70" x-text="'('+count(c.key)+')'"></span>
+      </button>
+    </template>
+  </div>
+
+  <!-- Alerts list -->
+  <div class="flex flex-col gap-3">
+    <template x-for="a in filtered" :key="a.id">
+      <div class="adm-card p-4 flex items-start gap-3.5">
+        <span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :class="toneBg(a.tone)" x-html="a.icon"></span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-sm font-bold text-primary-800" x-text="a.title"></span>
+            <span class="adm-badge" :class="toneBadge(a.tone)" x-text="a.sev"></span>
           </div>
-          <div class="text-xs text-neutral-500">أو أدخل المفتاح يدوياً: <span class="font-latin font-semibold text-neutral-700" x-text="secret"></span></div>
-          <input type="text" inputmode="numeric" maxlength="6" dir="ltr" x-model="code" placeholder="000000" class="ec-input text-center font-latin text-lg tracking-[0.4em]" />
+          <p class="text-sm text-neutral-500 mt-1" x-text="a.desc"></p>
+          <div class="text-xs text-neutral-400 mt-1.5" x-text="timeAgo(a.at)"></div>
         </div>
-        <div class="adm-modal-foot">
-          <button @click="enable()" :disabled="code.length<6" class="adm-btn adm-btn-primary">تأكيد وتفعيل</button>
-          <button @click="close()" class="adm-btn adm-btn-ghost">إلغاء</button>
-        </div>
+        <a :href="a.href" class="adm-btn adm-btn-ghost adm-btn-sm shrink-0" x-text="a.action"></a>
       </div>
-    </div>
-  </template>
-
-  <!-- ===== Backup codes modal ===== -->
-  <template x-if="modal==='backup'">
-    <div class="adm-overlay" @click.self="close()">
-      <div class="adm-modal" style="max-width:440px">
-        <div class="adm-modal-head"><div class="font-bold text-primary-800">رموز الاحتياط</div><button @click="close()" class="adm-icon-btn">✕</button></div>
-        <div class="adm-modal-body flex flex-col gap-3">
-          <div class="rounded-lg bg-warning/10 border border-warning/30 p-3 text-xs text-warning flex items-start gap-2"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="shrink-0 mt-0.5"><path d="M8 1.5l6.5 11.5H1.5z"/><path d="M8 6v3M8 11v.3" stroke-linecap="round"/></svg> احفظ هذه الرموز في مكان آمن — كل رمز يُستخدم مرة واحدة، ولن تظهر مجدداً.</div>
-          <div class="grid grid-cols-2 gap-2">
-            <template x-for="c in backupCodes" :key="c">
-              <div class="font-latin text-center text-sm font-semibold text-neutral-700 bg-neutral-50 border border-neutral-100 rounded-lg py-2" x-text="c"></div>
-            </template>
-          </div>
-        </div>
-        <div class="adm-modal-foot"><button @click="close()" class="adm-btn adm-btn-primary">حفظت الرموز</button></div>
+    </template>
+    <template x-if="!filtered.length">
+      <div class="adm-card adm-empty">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" class="mx-auto mb-3 text-success"><path d="M5 13l4 4 10-10"/></svg>
+        لا توجد تنبيهات في هذه الفئة — كل شيء على ما يُرام.
       </div>
-    </div>
-  </template>
-
-  <!-- ===== Disable / Regen modal ===== -->
-  <template x-if="modal==='disable' || modal==='regen'">
-    <div class="adm-overlay" @click.self="close()">
-      <div class="adm-modal" style="max-width:420px">
-        <div class="adm-modal-head"><div class="font-bold text-primary-800" x-text="modal==='disable'?'تعطيل المصادقة الثنائية':'إعادة توليد رموز الاحتياط'"></div><button @click="close()" class="adm-icon-btn">✕</button></div>
-        <div class="adm-modal-body flex flex-col gap-3">
-          <p class="text-sm text-neutral-600" x-text="modal==='disable'?'أدخل رمز المصادقة الحالي لتأكيد التعطيل. سيقل أمان حسابك.':'أدخل رمز المصادقة الحالي لإصدار رموز احتياط جديدة (تُلغى القديمة).'"></p>
-          <input type="text" inputmode="numeric" maxlength="6" dir="ltr" x-model="code" placeholder="000000" class="ec-input text-center font-latin text-lg tracking-[0.4em]" />
-        </div>
-        <div class="adm-modal-foot">
-          <button @click="confirm2fa()" :disabled="code.length<6" class="adm-btn" :class="modal==='disable'?'adm-btn-danger-solid':'adm-btn-primary'" x-text="modal==='disable'?'تعطيل':'توليد'"></button>
-          <button @click="close()" class="adm-btn adm-btn-ghost">إلغاء</button>
-        </div>
-      </div>
-    </div>
-  </template>
-
+    </template>
+  </div>
 </div>
 
 <script>
-function profile(){
+function opsAlerts(){
+  const I = {
+    invoice:'<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v12l-2-1-2 1-2-1-2 1z"/><path d="M6 6h4M6 9h4"/></svg>',
+    queue:'<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l6 3.5v6L8 14.5 2 11V5z"/><path d="M8 5v3.5M8 11v.3" stroke-linecap="round"/></svg>',
+    trial:'<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
+    tenant:'<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14V5l4-2 4 2v9M11 7l3 1.5V14M2 14h12"/></svg>',
+  };
   return {
-    me:{
-      name:'صبري داوود', email:'sabry@est8core.com', role:'super_admin',
-      isActive:true, twoFactorEnabled:true,
-      lastLoginAt:new Date(Date.now()-2*3600e3).toISOString(),
-      createdAt:'2026-01-12T09:00:00Z',
-      ipAllowlist:['203.0.113.42','198.51.100.7'],
-    },
-    modal:null, code:'', secret:'JBSW Y3DP EHPK 3PXP',
-    backupCodes:['A1B2-C3D4','E5F6-G7H8','J9K0-L1M2','N3P4-Q5R6','S7T8-U9V0','W1X2-Y3Z4'],
-    roleMap:{ super_admin:'مدير عام للمنصة', admin:'مشرف', support:'دعم فني', billing:'فوترة', viewer:'مشاهد' },
-    get roleLabel(){ return this.roleMap[this.me.role]||this.me.role; },
-    get initials(){ const p=this.me.name.split(' '); return (p[0]?.[0]||'')+(p[1]?.[0]||''); },
-    enable(){ if(this.code.length<6)return; this.me.twoFactorEnabled=true; this.modal='backup'; this.code=''; },     // POST /admin/2fa/enable → backupCodes
-    confirm2fa(){ if(this.code.length<6)return; if(this.modal==='disable'){ this.me.twoFactorEnabled=false; this.close(); } else { this.modal='backup'; this.code=''; } }, // disable | regenerate
-    close(){ this.modal=null; this.code=''; },
+    loading:false, cat:'all',
+    cats:[
+      {key:'all',label:'الكل'},{key:'invoices',label:'فواتير'},{key:'queues',label:'طوابير'},
+      {key:'trials',label:'تجارب'},{key:'tenants',label:'منشآت'},
+    ],
+    alerts:[
+      {id:1, cat:'invoices', tone:'warning', sev:'يحتاج إجراء', icon:I.invoice, title:'٣ فواتير بانتظار التحقق اليدوي', desc:'منشآت رفعت إثبات دفع يدوي ينتظر اعتمادك أو رفضك.', action:'مراجعة الفواتير', href:'invoices.html', at:new Date(Date.now()-40*60e3).toISOString()},
+      {id:2, cat:'invoices', tone:'danger', sev:'متأخّر', icon:I.invoice, title:'فاتورة مخصّصة تجاوزت تاريخ الاستحقاق', desc:'النخبة للتسويق — مستحقّة منذ ٤ أيام ولم تُدفع.', action:'فتح الفاتورة', href:'invoices.html', at:new Date(Date.now()-4*864e5).toISOString()},
+      {id:3, cat:'queues', tone:'danger', sev:'فشل', icon:I.queue, title:'وظيفتان فشلتا في طابور البريد', desc:'فشل إرسال رسائل تحقّق — راجع صحة الطوابير وأعد المحاولة.', action:'عرض الطوابير', href:'dashboard.html', at:new Date(Date.now()-90*60e3).toISOString()},
+      {id:4, cat:'trials', tone:'info', sev:'قريباً', icon:I.trial, title:'٥ تجارب تنتهي خلال ٣ أيام', desc:'منشآت في الفترة التجريبية قد تتحوّل أو تتوقف قريباً.', action:'عرض المنشآت', href:'tenants.html', at:new Date(Date.now()-3*3600e3).toISOString()},
+      {id:5, cat:'trials', tone:'warning', sev:'انتهت اليوم', icon:I.trial, title:'انتهت تجربة "مفاتيح الخليج"', desc:'تحوّلت الحالة إلى "انتهت التجربة" — بانتظار اختيار باقة.', action:'تفاصيل المنشأة', href:'tenant-detail.html', at:new Date(Date.now()-7*3600e3).toISOString()},
+      {id:6, cat:'tenants', tone:'danger', sev:'موقوفة', icon:I.tenant, title:'منشأة موقوفة: عقارات المستقبل', desc:'أُوقفت تلقائياً لعدم سداد الاشتراك لأكثر من ٣٠ يوماً.', action:'تفاصيل المنشأة', href:'tenant-detail.html', at:new Date(Date.now()-1*864e5).toISOString()},
+      {id:7, cat:'tenants', tone:'warning', sev:'تجاوز الحد', icon:I.tenant, title:'منشأة تجاوزت حد المستخدمين في باقتها', desc:'دار العقارية — ٣٤ مستخدماً مقابل حد ٣٠ في باقة Professional.', action:'تفاصيل المنشأة', href:'tenant-detail.html', at:new Date(Date.now()-2*864e5).toISOString()},
+    ],
+    get filtered(){ return this.cat==='all' ? this.alerts : this.alerts.filter(a=>a.cat===this.cat); },
+    count(k){ return k==='all' ? this.alerts.length : this.alerts.filter(a=>a.cat===k).length; },
+    toneBg(t){ return {danger:'bg-danger/10 text-danger', warning:'bg-warning/10 text-warning', info:'bg-info/10 text-info'}[t]||'bg-neutral-100 text-neutral-500'; },
+    toneBadge(t){ return {danger:'b-danger', warning:'b-warning', info:'b-info'}[t]||'b-neutral'; },
+    refresh(){ this.loading=true; setTimeout(()=>this.loading=false, 600); },
   };
 }
 </script>
@@ -494,7 +418,7 @@ function profile(){
     };
   }
   // ===== Deterministic active-nav (set per build) =====
-  window.NAV_ACTIVE = 'profile';
+  window.NAV_ACTIVE = 'notifications';
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.adm-nav-item').forEach(a => {
       if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
@@ -538,6 +462,25 @@ function profile(){
       return '<div class="jv-row">'+kh+prim(v)+'</div>';
     };
     return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+  // ===== Reusable floating row-action menu mixin (spread into a component: {...floatMenu(), ...}) =====
+  // Renders the menu as position:fixed anchored to the trigger button → escapes any overflow:auto/hidden
+  // table or card clipping. Usage: trigger @click="fmOpen(id,$event)" · menu class="adm-rowmenu" :style="fmStyle" x-show="fmId===id" @click.outside="fmClose()" @scroll.window="fmClose()".
+  function floatMenu(){
+    return {
+      fmId: null, fmTop: 0, fmRight: 0,
+      fmOpen(id, e){
+        if (this.fmId === id) { this.fmId = null; return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.fmTop = Math.round(r.bottom + 4);
+        this.fmRight = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.fmId = id;
+      },
+      fmClose(){ this.fmId = null; },
+      // method (NOT a getter): object spread {...floatMenu()} would invoke a getter once and
+      // freeze its value → menu stuck at 0,0. A method re-evaluates on every render.
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
   }
 </script>
 </body>

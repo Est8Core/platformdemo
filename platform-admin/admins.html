@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Est8Core — لوحة المنصة · التنبيهات التشغيلية</title>
+  <title>Est8Core — لوحة المنصة · فريق المنصة</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -173,6 +173,18 @@
     .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
     .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
     .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+
+    /* ===== Floating row-action menu (position:fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; }
+    .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
   </style>
 </head>
 
@@ -291,89 +303,215 @@
 
     <main class="adm-content">
 
-<!-- S-067 · التنبيهات التشغيلية (مشتقّة) · GET /admin/billing/invoices/pending · /admin/platform/queues · /admin/tenants?status=trial|suspended -->
-<div x-data="opsAlerts()">
+<!-- S-068 · فريق المنصة (إدارة المشرفين) · GET/POST /api/v1/admin/admins · PUT /admin/admins/:id · POST .../activate|deactivate · DELETE .../:id -->
+<div x-data="adminTeam()">
 
   <div class="adm-page-head">
     <div>
-      <h1 class="adm-page-title">التنبيهات التشغيلية</h1>
-      <p class="adm-page-sub">إشارات لحظية مشتقّة من حالة المنصة — تحتاج انتباه أو إجراء</p>
+      <h1 class="adm-page-title">فريق المنصة</h1>
+      <p class="adm-page-sub">مشرفو المنصة الذين يديرون النظام ويساعدون العملاء — حسب الدور والصلاحية</p>
     </div>
-    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="refresh()" :disabled="loading">
-      <svg :class="loading && 'animate-spin'" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 8a6 6 0 10-1.8 4.2M14 8V4M14 8h-3"/></svg>
-      تحديث
+    <button class="adm-btn adm-btn-primary" @click="openAdd()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3v10M3 8h10"/></svg>
+      إضافة موظف
     </button>
   </div>
 
-  <!-- Honest note: no dedicated notifications backend -->
-  <div class="rounded-xl bg-info/8 border border-info/20 p-3.5 mb-5 flex items-start gap-2.5 text-sm text-info">
-    <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v.3M8 7v4" stroke-linecap="round"/></svg>
-    <span>هذه التنبيهات مُشتقّة من حالة المنصة لحظياً (فواتير معلّقة · صحة الطوابير · التجارب · الإيقافات). لا يوجد نظام إشعارات مستقل في الـ backend بعد — لذلك لا توجد حالة "مقروء/غير مقروء".</span>
+  <!-- KPI mini -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-5">
+    <div class="adm-kpi"><div class="adm-kpi-label">إجمالي الفريق</div><div class="adm-kpi-val" x-text="fmtNum(list.length)"></div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">نشطون</div><div class="adm-kpi-val text-success" x-text="fmtNum(list.filter(a=>a.isActive).length)"></div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">موظفو دعم</div><div class="adm-kpi-val" x-text="fmtNum(list.filter(a=>a.role==='support').length)"></div></div>
+    <div class="adm-kpi"><div class="adm-kpi-label">فعّلوا المصادقة الثنائية</div><div class="adm-kpi-val" x-text="fmtNum(list.filter(a=>a.twoFactorEnabled).length)+' / '+list.length"></div></div>
   </div>
 
-  <!-- Filter pills -->
-  <div class="flex flex-wrap items-center gap-2 mb-5">
-    <template x-for="c in cats" :key="c.key">
-      <button class="adm-pill" :class="cat===c.key && 'on'" @click="cat=c.key">
-        <span x-text="c.label"></span>
-        <span class="ms-1 opacity-70" x-text="'('+count(c.key)+')'"></span>
-      </button>
-    </template>
-  </div>
-
-  <!-- Alerts list -->
-  <div class="flex flex-col gap-3">
-    <template x-for="a in filtered" :key="a.id">
-      <div class="adm-card p-4 flex items-start gap-3.5">
-        <span class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" :class="toneBg(a.tone)" x-html="a.icon"></span>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-sm font-bold text-primary-800" x-text="a.title"></span>
-            <span class="adm-badge" :class="toneBadge(a.tone)" x-text="a.sev"></span>
-          </div>
-          <p class="text-sm text-neutral-500 mt-1" x-text="a.desc"></p>
-          <div class="text-xs text-neutral-400 mt-1.5" x-text="timeAgo(a.at)"></div>
+  <!-- Roles legend -->
+  <div class="adm-card mb-5">
+    <div class="adm-card-head"><div class="adm-card-title">الأدوار والصلاحيات</div></div>
+    <div class="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+      <template x-for="r in roleDefs" :key="r.key">
+        <div class="rounded-lg border border-neutral-100 bg-neutral-50 p-3">
+          <span class="adm-role" :class="r.cls" x-text="r.label"></span>
+          <p class="text-xs text-neutral-500 mt-2 leading-relaxed" x-text="r.desc"></p>
         </div>
-        <a :href="a.href" class="adm-btn adm-btn-ghost adm-btn-sm shrink-0" x-text="a.action"></a>
+      </template>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="adm-card mb-4">
+    <div class="p-4 flex flex-wrap items-center gap-3">
+      <div class="relative flex-1 min-w-[200px]">
+        <input type="search" x-model="q" placeholder="بحث بالاسم أو البريد…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
       </div>
-    </template>
+      <div class="flex flex-wrap gap-2">
+        <button class="adm-pill" :class="roleFilter==='all' && 'on'" @click="roleFilter='all'">كل الأدوار</button>
+        <template x-for="r in roleDefs" :key="r.key">
+          <button class="adm-pill" :class="roleFilter===r.key && 'on'" @click="roleFilter=r.key" x-text="r.label"></button>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="adm-card">
+    <div class="overflow-x-auto">
+      <table class="adm-table">
+        <thead><tr><th>الموظف</th><th>الدور</th><th>المصادقة الثنائية</th><th>آخر دخول</th><th>الحالة</th><th></th></tr></thead>
+        <tbody>
+          <template x-for="a in filtered" :key="a.id">
+            <tr>
+              <td>
+                <div class="flex items-center gap-2.5">
+                  <span class="w-9 h-9 rounded-lg bg-primary-50 text-primary-800 text-xs font-bold flex items-center justify-center" x-text="initials(a.name)"></span>
+                  <div>
+                    <div class="font-semibold text-primary-800 flex items-center gap-1.5">
+                      <span x-text="a.name"></span>
+                      <span x-show="a.id===meId" class="text-[.62rem] bg-accent-100 text-accent-700 px-1.5 py-px rounded font-bold">أنت</span>
+                    </div>
+                    <div class="text-[.72rem] text-neutral-400 font-latin" dir="ltr" x-text="a.email"></div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="adm-role" :class="roleCls(a.role)" x-text="roleLabel(a.role)"></span></td>
+              <td>
+                <span class="adm-badge" :class="a.twoFactorEnabled?'b-success':'b-neutral'" x-text="a.twoFactorEnabled?'مُفعّلة':'غير مُفعّلة'"></span>
+              </td>
+              <td class="text-neutral-500 text-xs" x-text="a.lastLoginAt ? timeAgo(a.lastLoginAt) : 'لم يدخل بعد'"></td>
+              <td><span class="adm-badge" :class="a.isActive?'b-success':'b-danger'" x-text="a.isActive?'نشط':'معطّل'"></span></td>
+              <td>
+                <div class="flex justify-start" @click.outside="fmClose()">
+                  <button class="adm-icon-btn w-8 h-8" @click="fmOpen(a.id, $event)">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
+                  </button>
+                  <div x-show="fmId===a.id" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">
+                    <button @click="openEdit(a); fmClose()"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg> تعديل</button>
+                    <button x-show="a.isActive" :disabled="a.id===meId" @click="ask('deactivate',a); fmClose()" class="mi-warn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 8h5"/></svg> تعطيل</button>
+                    <button x-show="!a.isActive" @click="doActivate(a); fmClose()" class="mi-ok"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.5 8.5l3 3 6-7"/></svg> تفعيل</button>
+                    <div class="mi-sep"></div>
+                    <button :disabled="a.id===meId" @click="ask('delete',a); fmClose()" class="mi-danger"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg> حذف</button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
     <template x-if="!filtered.length">
-      <div class="adm-card adm-empty">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" class="mx-auto mb-3 text-success"><path d="M5 13l4 4 10-10"/></svg>
-        لا توجد تنبيهات في هذه الفئة — كل شيء على ما يُرام.
-      </div>
+      <div class="adm-empty">لا يوجد موظفون مطابقون.</div>
     </template>
   </div>
+
+  <!-- ===== Add / Edit modal ===== -->
+  <template x-if="form">
+    <div class="adm-overlay" @click.self="form=null">
+      <div class="adm-modal" style="max-width:480px">
+        <div class="adm-modal-head"><div class="font-bold text-primary-800" x-text="form.id?'تعديل موظف':'إضافة موظف جديد'"></div><button @click="form=null" class="adm-icon-btn">✕</button></div>
+        <div class="adm-modal-body flex flex-col gap-4">
+          <div>
+            <label class="ec-label">الاسم الكامل</label>
+            <input type="text" x-model="form.name" class="ec-input" placeholder="مثال: منى الشريف" />
+          </div>
+          <div>
+            <label class="ec-label">البريد الإلكتروني</label>
+            <input type="email" dir="ltr" x-model="form.email" :disabled="form.id" class="ec-input disabled:bg-neutral-50 disabled:text-neutral-400" placeholder="name@est8core.com" />
+            <p x-show="form.id" class="text-[.7rem] text-neutral-400 mt-1">لا يمكن تغيير البريد بعد الإنشاء.</p>
+          </div>
+          <div x-show="!form.id">
+            <label class="ec-label">كلمة المرور المبدئية</label>
+            <input type="text" dir="ltr" x-model="form.password" class="ec-input font-latin" placeholder="8 أحرف على الأقل" />
+          </div>
+          <div>
+            <label class="ec-label">الدور</label>
+            <select x-model="form.role" class="ec-input">
+              <template x-for="r in roleDefs" :key="r.key"><option :value="r.key" x-text="r.label + ' — ' + r.desc"></option></template>
+            </select>
+          </div>
+          <div x-show="form.id" class="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50 p-3">
+            <span class="text-sm font-medium text-neutral-700">الحساب نشط</span>
+            <div class="adm-switch" :class="form.isActive && 'on'" @click="form.id===meId || (form.isActive=!form.isActive)"></div>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="submit()" :disabled="!formValid" class="adm-btn adm-btn-primary" x-text="form.id?'حفظ':'إضافة'"></button>
+          <button @click="form=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== Confirm modal ===== -->
+  <template x-if="confirm">
+    <div class="adm-overlay" @click.self="confirm=null">
+      <div class="adm-modal" style="max-width:420px">
+        <div class="adm-modal-head"><div class="font-bold text-primary-800" x-text="confirm.type==='delete'?'حذف الموظف':'تعطيل الموظف'"></div><button @click="confirm=null" class="adm-icon-btn">✕</button></div>
+        <div class="adm-modal-body">
+          <p class="text-sm text-neutral-600">
+            <span x-show="confirm.type==='delete'">سيُحذف <span class="font-bold" x-text="confirm.a.name"></span> نهائياً ويفقد كل وصول للمنصة. لا يمكن التراجع.</span>
+            <span x-show="confirm.type==='deactivate'">سيُعطَّل وصول <span class="font-bold" x-text="confirm.a.name"></span> فوراً حتى إعادة تفعيله.</span>
+          </p>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="doConfirm()" class="adm-btn" :class="confirm.type==='delete'?'adm-btn-danger-solid':'adm-btn-primary'" x-text="confirm.type==='delete'?'حذف نهائي':'تعطيل'"></button>
+          <button @click="confirm=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
 </div>
 
 <script>
-function opsAlerts(){
-  const I = {
-    invoice:'<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v12l-2-1-2 1-2-1-2 1z"/><path d="M6 6h4M6 9h4"/></svg>',
-    queue:'<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l6 3.5v6L8 14.5 2 11V5z"/><path d="M8 5v3.5M8 11v.3" stroke-linecap="round"/></svg>',
-    trial:'<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
-    tenant:'<svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 14V5l4-2 4 2v9M11 7l3 1.5V14M2 14h12"/></svg>',
-  };
+function adminTeam(){
   return {
-    loading:false, cat:'all',
-    cats:[
-      {key:'all',label:'الكل'},{key:'invoices',label:'فواتير'},{key:'queues',label:'طوابير'},
-      {key:'trials',label:'تجارب'},{key:'tenants',label:'منشآت'},
+    ...floatMenu(),
+    meId:'adm-001',
+    q:'', roleFilter:'all', form:null, confirm:null,
+    roleDefs:[
+      { key:'super_admin', label:'مدير عام',  cls:'', desc:'صلاحية كاملة على المنصة وإدارة الفريق' },
+      { key:'admin',       label:'مشرف',      cls:'', desc:'إدارة المنشآت والإعدادات والفوترة' },
+      { key:'support',     label:'دعم فني',   cls:'', desc:'مساعدة العملاء وعرض المنشآت' },
+      { key:'billing',     label:'فوترة',     cls:'', desc:'الاشتراكات والفواتير والمستردات' },
+      { key:'viewer',      label:'مشاهد',     cls:'', desc:'قراءة فقط بلا أي تعديل' },
     ],
-    alerts:[
-      {id:1, cat:'invoices', tone:'warning', sev:'يحتاج إجراء', icon:I.invoice, title:'٣ فواتير بانتظار التحقق اليدوي', desc:'منشآت رفعت إثبات دفع يدوي ينتظر اعتمادك أو رفضك.', action:'مراجعة الفواتير', href:'invoices.html', at:new Date(Date.now()-40*60e3).toISOString()},
-      {id:2, cat:'invoices', tone:'danger', sev:'متأخّر', icon:I.invoice, title:'فاتورة مخصّصة تجاوزت تاريخ الاستحقاق', desc:'النخبة للتسويق — مستحقّة منذ ٤ أيام ولم تُدفع.', action:'فتح الفاتورة', href:'invoices.html', at:new Date(Date.now()-4*864e5).toISOString()},
-      {id:3, cat:'queues', tone:'danger', sev:'فشل', icon:I.queue, title:'وظيفتان فشلتا في طابور البريد', desc:'فشل إرسال رسائل تحقّق — راجع صحة الطوابير وأعد المحاولة.', action:'عرض الطوابير', href:'dashboard.html', at:new Date(Date.now()-90*60e3).toISOString()},
-      {id:4, cat:'trials', tone:'info', sev:'قريباً', icon:I.trial, title:'٥ تجارب تنتهي خلال ٣ أيام', desc:'منشآت في الفترة التجريبية قد تتحوّل أو تتوقف قريباً.', action:'عرض المنشآت', href:'tenants.html', at:new Date(Date.now()-3*3600e3).toISOString()},
-      {id:5, cat:'trials', tone:'warning', sev:'انتهت اليوم', icon:I.trial, title:'انتهت تجربة "مفاتيح الخليج"', desc:'تحوّلت الحالة إلى "انتهت التجربة" — بانتظار اختيار باقة.', action:'تفاصيل المنشأة', href:'tenant-detail.html', at:new Date(Date.now()-7*3600e3).toISOString()},
-      {id:6, cat:'tenants', tone:'danger', sev:'موقوفة', icon:I.tenant, title:'منشأة موقوفة: عقارات المستقبل', desc:'أُوقفت تلقائياً لعدم سداد الاشتراك لأكثر من ٣٠ يوماً.', action:'تفاصيل المنشأة', href:'tenant-detail.html', at:new Date(Date.now()-1*864e5).toISOString()},
-      {id:7, cat:'tenants', tone:'warning', sev:'تجاوز الحد', icon:I.tenant, title:'منشأة تجاوزت حد المستخدمين في باقتها', desc:'دار العقارية — ٣٤ مستخدماً مقابل حد ٣٠ في باقة Professional.', action:'تفاصيل المنشأة', href:'tenant-detail.html', at:new Date(Date.now()-2*864e5).toISOString()},
+    // GET /api/v1/admin/admins
+    list:[
+      { id:'adm-001', name:'صبري داوود', email:'sabry@est8core.com', role:'super_admin', isActive:true,  twoFactorEnabled:true,  lastLoginAt:new Date(Date.now()-2*3600e3).toISOString() },
+      { id:'adm-002', name:'منى الشريف', email:'mona@est8core.com',  role:'admin',       isActive:true,  twoFactorEnabled:true,  lastLoginAt:new Date(Date.now()-26*3600e3).toISOString() },
+      { id:'adm-003', name:'كريم فؤاد',  email:'karim@est8core.com', role:'support',     isActive:true,  twoFactorEnabled:false, lastLoginAt:new Date(Date.now()-50*60e3).toISOString() },
+      { id:'adm-004', name:'هبة سمير',   email:'heba@est8core.com',  role:'support',     isActive:true,  twoFactorEnabled:true,  lastLoginAt:new Date(Date.now()-5*3600e3).toISOString() },
+      { id:'adm-005', name:'طارق العلي', email:'tarek@est8core.com', role:'billing',     isActive:true,  twoFactorEnabled:true,  lastLoginAt:new Date(Date.now()-3*864e5).toISOString() },
+      { id:'adm-006', name:'ليلى حسن',   email:'laila@est8core.com', role:'viewer',      isActive:false, twoFactorEnabled:false, lastLoginAt:null },
     ],
-    get filtered(){ return this.cat==='all' ? this.alerts : this.alerts.filter(a=>a.cat===this.cat); },
-    count(k){ return k==='all' ? this.alerts.length : this.alerts.filter(a=>a.cat===k).length; },
-    toneBg(t){ return {danger:'bg-danger/10 text-danger', warning:'bg-warning/10 text-warning', info:'bg-info/10 text-info'}[t]||'bg-neutral-100 text-neutral-500'; },
-    toneBadge(t){ return {danger:'b-danger', warning:'b-warning', info:'b-info'}[t]||'b-neutral'; },
-    refresh(){ this.loading=true; setTimeout(()=>this.loading=false, 600); },
+    roleMap:{ super_admin:'مدير عام', admin:'مشرف', support:'دعم فني', billing:'فوترة', viewer:'مشاهد' },
+    roleClsMap:{ super_admin:'', admin:'', support:'', billing:'', viewer:'' },
+    roleLabel(r){ return this.roleMap[r]||r; },
+    roleCls(){ return ''; },
+    initials(n){ const p=(n||'').split(' '); return (p[0]?.[0]||'')+(p[1]?.[0]||''); },
+    get filtered(){
+      const q=this.q.trim().toLowerCase();
+      return this.list.filter(a =>
+        (this.roleFilter==='all' || a.role===this.roleFilter) &&
+        (!q || a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q))
+      );
+    },
+    get formValid(){ if(!this.form) return false; const f=this.form; const okPass = f.id || (f.password||'').length>=8; return (f.name||'').trim() && /.+@.+\..+/.test(f.email||'') && f.role && okPass; },
+    openAdd(){ this.form={ id:null, name:'', email:'', password:'', role:'support', isActive:true }; },
+    openEdit(a){ this.form={ ...a }; },
+    submit(){ if(!this.formValid) return;
+      if(this.form.id){ const i=this.list.findIndex(x=>x.id===this.form.id); if(i>-1) this.list[i]={ ...this.list[i], name:this.form.name, role:this.form.role, isActive:this.form.isActive }; }
+      else { this.list.unshift({ id:'adm-'+Date.now(), name:this.form.name, email:this.form.email, role:this.form.role, isActive:true, twoFactorEnabled:false, lastLoginAt:null }); }
+      this.form=null;
+    },
+    ask(type,a){ this.confirm={ type, a }; },
+    doConfirm(){ const {type,a}=this.confirm;
+      if(type==='delete'){ this.list=this.list.filter(x=>x.id!==a.id); }
+      else if(type==='deactivate'){ const i=this.list.findIndex(x=>x.id===a.id); if(i>-1) this.list[i].isActive=false; }
+      this.confirm=null;
+    },
+    doActivate(a){ const i=this.list.findIndex(x=>x.id===a.id); if(i>-1) this.list[i].isActive=true; },
   };
 }
 </script>
@@ -406,7 +544,7 @@ function opsAlerts(){
     };
   }
   // ===== Deterministic active-nav (set per build) =====
-  window.NAV_ACTIVE = 'notifications';
+  window.NAV_ACTIVE = 'admins';
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.adm-nav-item').forEach(a => {
       if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
@@ -450,6 +588,25 @@ function opsAlerts(){
       return '<div class="jv-row">'+kh+prim(v)+'</div>';
     };
     return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+  // ===== Reusable floating row-action menu mixin (spread into a component: {...floatMenu(), ...}) =====
+  // Renders the menu as position:fixed anchored to the trigger button → escapes any overflow:auto/hidden
+  // table or card clipping. Usage: trigger @click="fmOpen(id,$event)" · menu class="adm-rowmenu" :style="fmStyle" x-show="fmId===id" @click.outside="fmClose()" @scroll.window="fmClose()".
+  function floatMenu(){
+    return {
+      fmId: null, fmTop: 0, fmRight: 0,
+      fmOpen(id, e){
+        if (this.fmId === id) { this.fmId = null; return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.fmTop = Math.round(r.bottom + 4);
+        this.fmRight = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.fmId = id;
+      },
+      fmClose(){ this.fmId = null; },
+      // method (NOT a getter): object spread {...floatMenu()} would invoke a getter once and
+      // freeze its value → menu stuck at 0,0. A method re-evaluates on every render.
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
   }
 </script>
 </body>

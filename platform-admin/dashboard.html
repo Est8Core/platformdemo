@@ -173,6 +173,18 @@
     .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
     .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
     .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+
+    /* ===== Floating row-action menu (position:fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; }
+    .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
   </style>
 </head>
 
@@ -524,6 +536,25 @@ function dashboard(){
       return '<div class="jv-row">'+kh+prim(v)+'</div>';
     };
     return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+  // ===== Reusable floating row-action menu mixin (spread into a component: {...floatMenu(), ...}) =====
+  // Renders the menu as position:fixed anchored to the trigger button → escapes any overflow:auto/hidden
+  // table or card clipping. Usage: trigger @click="fmOpen(id,$event)" · menu class="adm-rowmenu" :style="fmStyle" x-show="fmId===id" @click.outside="fmClose()" @scroll.window="fmClose()".
+  function floatMenu(){
+    return {
+      fmId: null, fmTop: 0, fmRight: 0,
+      fmOpen(id, e){
+        if (this.fmId === id) { this.fmId = null; return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.fmTop = Math.round(r.bottom + 4);
+        this.fmRight = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.fmId = id;
+      },
+      fmClose(){ this.fmId = null; },
+      // method (NOT a getter): object spread {...floatMenu()} would invoke a getter once and
+      // freeze its value → menu stuck at 0,0. A method re-evaluates on every render.
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
   }
 </script>
 </body>

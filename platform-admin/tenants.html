@@ -173,6 +173,18 @@
     .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
     .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
     .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+
+    /* ===== Floating row-action menu (position:fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; }
+    .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
   </style>
 </head>
 
@@ -445,48 +457,36 @@
               <td class="text-neutral-500 text-xs whitespace-nowrap" x-text="timeAgo(row.createdAt)"></td>
               <!-- إجراءات -->
               <td class="text-center" @click.stop>
-                <div class="relative inline-block" x-data="{open:false}" @click.outside="open=false">
-                  <button @click="open=!open"
+                <div class="inline-block" @click.outside="fmClose()">
+                  <button @click="fmOpen(row.slug, $event)"
                     class="adm-btn adm-btn-ghost adm-btn-sm gap-1" aria-label="إجراءات">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="3.5" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="8" cy="12.5" r="1"/></svg>
                   </button>
-                  <div x-show="open" x-transition
-                    class="absolute mt-1.5 w-54 bg-white rounded-xl border border-neutral-100 shadow-xl py-1.5 z-20"
-                    style="inset-inline-end:0">
-                    <!-- عرض التفاصيل -->
-                    <button @click="open=false; goDetail(row)"
-                      class="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5V8l2 1.5"/></svg>
+                  <div x-show="fmId===row.slug" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">
+                    <button @click="fmClose(); goDetail(row)">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5V8l2 1.5"/></svg>
                       عرض التفاصيل
                     </button>
-                    <!-- تسجيل دخول كمالك -->
-                    <button @click="open=false; openImpersonate(row)"
-                      class="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="5.5" r="2.5"/><path d="M2 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M13 1l2 2-2 2M15 3H11"/></svg>
+                    <button @click="fmClose(); openImpersonate(row)">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="5.5" r="2.5"/><path d="M2 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/><path d="M13 1l2 2-2 2M15 3H11"/></svg>
                       تسجيل دخول كمالك
                     </button>
-                    <div class="h-px bg-neutral-100 my-1"></div>
-                    <!-- إيقاف (نشطة / تجربة / انتهت / بانتظار الدفع) -->
+                    <div class="mi-sep"></div>
                     <template x-if="row.status==='active'||row.status==='trial'||row.status==='trial_expired'||row.status==='pending_payment'">
-                      <button @click="open=false; openSuspend(row)"
-                        class="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-warning hover:bg-warning/5">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M6 5.5v5M10 5.5v5"/></svg>
+                      <button @click="fmClose(); openSuspend(row)" class="mi-warn">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M6 5.5v5M10 5.5v5"/></svg>
                         إيقاف المنشأة
                       </button>
                     </template>
-                    <!-- إعادة تفعيل (موقوفة فقط) -->
                     <template x-if="row.status==='suspended'">
-                      <button @click="open=false; activateRow(row)"
-                        class="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-success hover:bg-success/5">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M6 8l2 2 4-4"/></svg>
+                      <button @click="fmClose(); activateRow(row)" class="mi-ok">
+                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M6 8l2 2 4-4"/></svg>
                         إعادة تفعيل
                       </button>
                     </template>
-                    <div class="h-px bg-neutral-100 my-1"></div>
-                    <!-- حذف -->
-                    <button @click="open=false; openDelete(row)"
-                      class="flex items-center gap-2.5 w-full px-4 py-2 text-sm text-danger hover:bg-danger/5">
-                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M5 4.5V3h6v1.5M6.5 7v4.5M9.5 7v4.5"/><rect x="4" y="4.5" width="8" height="9" rx="1.5"/></svg>
+                    <div class="mi-sep"></div>
+                    <button @click="fmClose(); openDelete(row)" class="mi-danger">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M5 4.5V3h6v1.5M6.5 7v4.5M9.5 7v4.5"/><rect x="4" y="4.5" width="8" height="9" rx="1.5"/></svg>
                       حذف المنشأة
                     </button>
                   </div>
@@ -664,6 +664,7 @@ function tenants(){
   const N=Date.now();
   const d=(h)=>new Date(N-h*3600e3).toISOString();
   return {
+    ...floatMenu(),
     // ── الحالة ──
     search:'',
     statusFilter:'all',
@@ -889,6 +890,25 @@ function tenants(){
       return '<div class="jv-row">'+kh+prim(v)+'</div>';
     };
     return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+  // ===== Reusable floating row-action menu mixin (spread into a component: {...floatMenu(), ...}) =====
+  // Renders the menu as position:fixed anchored to the trigger button → escapes any overflow:auto/hidden
+  // table or card clipping. Usage: trigger @click="fmOpen(id,$event)" · menu class="adm-rowmenu" :style="fmStyle" x-show="fmId===id" @click.outside="fmClose()" @scroll.window="fmClose()".
+  function floatMenu(){
+    return {
+      fmId: null, fmTop: 0, fmRight: 0,
+      fmOpen(id, e){
+        if (this.fmId === id) { this.fmId = null; return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.fmTop = Math.round(r.bottom + 4);
+        this.fmRight = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.fmId = id;
+      },
+      fmClose(){ this.fmId = null; },
+      // method (NOT a getter): object spread {...floatMenu()} would invoke a getter once and
+      // freeze its value → menu stuck at 0,0. A method re-evaluates on every render.
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
   }
 </script>
 </body>

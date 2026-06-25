@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Est8Core — لوحة المنصة · فريق المنصة</title>
+  <title>Est8Core — لوحة المنصة · ملفي الشخصي</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -173,6 +173,18 @@
     .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
     .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
     .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+
+    /* ===== Floating row-action menu (position:fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; }
+    .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
   </style>
 </head>
 
@@ -291,159 +303,152 @@
 
     <main class="adm-content">
 
-<!-- S-068 · فريق المنصة (إدارة المشرفين) · GET/POST /api/v1/admin/admins · PUT /admin/admins/:id · POST .../activate|deactivate · DELETE .../:id -->
-<div x-data="adminTeam()">
+<!-- S-066 · ملفي الشخصي (مشرف المنصة) · GET /api/v1/admin/auth/me · POST /admin/2fa/{setup,enable,disable,backup-codes/regenerate} -->
+<div x-data="profile()">
 
+  <div class="adm-breadcrumb">
+    <a href="dashboard.html">لوحة التحكم</a><span>/</span><span class="text-neutral-600">ملفي الشخصي</span>
+  </div>
   <div class="adm-page-head">
     <div>
-      <h1 class="adm-page-title">فريق المنصة</h1>
-      <p class="adm-page-sub">مشرفو المنصة الذين يديرون النظام ويساعدون العملاء — حسب الدور والصلاحية</p>
+      <h1 class="adm-page-title">ملفي الشخصي</h1>
+      <p class="adm-page-sub">بيانات حسابك في المنصة وإدارة أمانك الشخصي</p>
     </div>
-    <button class="adm-btn adm-btn-primary" @click="openAdd()">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3v10M3 8h10"/></svg>
-      إضافة موظف
-    </button>
   </div>
 
-  <!-- KPI mini -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-5">
-    <div class="adm-kpi"><div class="adm-kpi-label">إجمالي الفريق</div><div class="adm-kpi-val" x-text="fmtNum(list.length)"></div></div>
-    <div class="adm-kpi"><div class="adm-kpi-label">نشطون</div><div class="adm-kpi-val text-success" x-text="fmtNum(list.filter(a=>a.isActive).length)"></div></div>
-    <div class="adm-kpi"><div class="adm-kpi-label">موظفو دعم</div><div class="adm-kpi-val" x-text="fmtNum(list.filter(a=>a.role==='support').length)"></div></div>
-    <div class="adm-kpi"><div class="adm-kpi-label">فعّلوا المصادقة الثنائية</div><div class="adm-kpi-val" x-text="fmtNum(list.filter(a=>a.twoFactorEnabled).length)+' / '+list.length"></div></div>
-  </div>
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
-  <!-- Roles legend -->
-  <div class="adm-card mb-5">
-    <div class="adm-card-head"><div class="adm-card-title">الأدوار والصلاحيات</div></div>
-    <div class="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
-      <template x-for="r in roleDefs" :key="r.key">
-        <div class="rounded-lg border border-neutral-100 bg-neutral-50 p-3">
-          <span class="adm-role" :class="r.cls" x-text="r.label"></span>
-          <p class="text-xs text-neutral-500 mt-2 leading-relaxed" x-text="r.desc"></p>
+    <!-- ===== Identity card ===== -->
+    <div class="adm-card xl:col-span-1 h-fit">
+      <div class="p-6 flex flex-col items-center text-center border-b border-neutral-100">
+        <span class="w-20 h-20 rounded-2xl bg-primary-800 text-accent-400 text-2xl font-bold flex items-center justify-center mb-3" x-text="initials"></span>
+        <div class="text-lg font-bold text-primary-800" x-text="me.name"></div>
+        <div class="text-sm text-neutral-500 font-latin mt-0.5" dir="ltr" x-text="me.email"></div>
+        <div class="flex items-center gap-2 mt-3">
+          <span class="adm-role" x-text="roleLabel"></span>
+          <span class="adm-badge" :class="me.isActive?'b-success':'b-neutral'" x-text="me.isActive?'نشط':'معطّل'"></span>
         </div>
-      </template>
-    </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="adm-card mb-4">
-    <div class="p-4 flex flex-wrap items-center gap-3">
-      <div class="relative flex-1 min-w-[200px]">
-        <input type="search" x-model="q" placeholder="بحث بالاسم أو البريد…" class="ec-input ps-9" />
-        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <button class="adm-pill" :class="roleFilter==='all' && 'on'" @click="roleFilter='all'">كل الأدوار</button>
-        <template x-for="r in roleDefs" :key="r.key">
-          <button class="adm-pill" :class="roleFilter===r.key && 'on'" @click="roleFilter=r.key" x-text="r.label"></button>
-        </template>
+      <div class="p-5">
+        <dl class="adm-info" style="grid-template-columns:1fr;">
+          <div><dt>آخر تسجيل دخول</dt><dd x-text="fmtDateTime(me.lastLoginAt)"></dd></div>
+          <div><dt>تاريخ إنشاء الحساب</dt><dd x-text="fmtDate(me.createdAt)"></dd></div>
+        </dl>
+        <div class="mt-4 rounded-lg bg-neutral-50 border border-neutral-100 p-3 text-xs text-neutral-500 flex items-start gap-2">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v.3M8 7v4" stroke-linecap="round"/></svg>
+          الاسم والدور يُداران بواسطة مدير عام للمنصة — لا يمكن تعديلهما ذاتياً.
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Table -->
-  <div class="adm-card">
-    <div class="overflow-x-auto">
-      <table class="adm-table">
-        <thead><tr><th>الموظف</th><th>الدور</th><th>المصادقة الثنائية</th><th>آخر دخول</th><th>الحالة</th><th></th></tr></thead>
-        <tbody>
-          <template x-for="a in filtered" :key="a.id">
-            <tr>
-              <td>
-                <div class="flex items-center gap-2.5">
-                  <span class="w-9 h-9 rounded-lg bg-primary-50 text-primary-800 text-xs font-bold flex items-center justify-center" x-text="initials(a.name)"></span>
-                  <div>
-                    <div class="font-semibold text-primary-800 flex items-center gap-1.5">
-                      <span x-text="a.name"></span>
-                      <span x-show="a.id===meId" class="text-[.62rem] bg-accent-100 text-accent-700 px-1.5 py-px rounded font-bold">أنت</span>
-                    </div>
-                    <div class="text-[.72rem] text-neutral-400 font-latin" dir="ltr" x-text="a.email"></div>
-                  </div>
+    <!-- ===== Right column ===== -->
+    <div class="xl:col-span-2 flex flex-col gap-5">
+
+      <!-- 2FA -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">المصادقة الثنائية</div>
+          <span class="adm-badge" :class="me.twoFactorEnabled?'b-success':'b-warning'" x-text="me.twoFactorEnabled?'مُفعّلة':'غير مُفعّلة'"></span>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <div class="flex items-start gap-3">
+            <span class="w-10 h-10 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center shrink-0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span>
+            <p class="text-sm text-neutral-600 leading-relaxed">تحمي حسابك بطبقة ثانية عبر تطبيق مصادقة (TOTP). مطلوبة لكل مشرفي المنصة عند تفعيل الإلزام.</p>
+          </div>
+          <div class="flex flex-wrap gap-2.5">
+            <button x-show="!me.twoFactorEnabled" @click="modal='setup'; code=''" class="adm-btn adm-btn-primary adm-btn-sm">تفعيل المصادقة الثنائية</button>
+            <button x-show="me.twoFactorEnabled" @click="modal='regen'; code=''" class="adm-btn adm-btn-ghost adm-btn-sm">إعادة توليد رموز الاحتياط</button>
+            <button x-show="me.twoFactorEnabled" @click="modal='disable'; code=''" class="adm-btn adm-btn-danger adm-btn-sm">تعطيل</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- IP allowlist -->
+      <div class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">عناوين IP المسموح بها</div>
+          <span class="text-xs text-neutral-400">تُدار بواسطة مدير عام للمنصة</span>
+        </div>
+        <div class="p-5">
+          <template x-if="me.ipAllowlist.length">
+            <div class="flex flex-col gap-2">
+              <template x-for="ip in me.ipAllowlist" :key="ip">
+                <div class="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50 px-3.5 py-2.5">
+                  <span class="font-latin text-sm text-neutral-700" dir="ltr" x-text="ip"></span>
+                  <span class="adm-badge b-success">مسموح</span>
                 </div>
-              </td>
-              <td><span class="adm-role" :class="roleCls(a.role)" x-text="roleLabel(a.role)"></span></td>
-              <td>
-                <span class="adm-badge" :class="a.twoFactorEnabled?'b-success':'b-neutral'" x-text="a.twoFactorEnabled?'مُفعّلة':'غير مُفعّلة'"></span>
-              </td>
-              <td class="text-neutral-500 text-xs" x-text="a.lastLoginAt ? timeAgo(a.lastLoginAt) : 'لم يدخل بعد'"></td>
-              <td><span class="adm-badge" :class="a.isActive?'b-success':'b-danger'" x-text="a.isActive?'نشط':'معطّل'"></span></td>
-              <td>
-                <div class="relative flex justify-start" @click.outside="menuId=null">
-                  <button class="adm-icon-btn w-8 h-8" @click="menuId = menuId===a.id ? null : a.id">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
-                  </button>
-                  <div x-show="menuId===a.id" x-transition class="absolute top-9 inset-inline-end-0 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-30" style="inset-inline-end:0;">
-                    <button @click="openEdit(a); menuId=null" class="w-full text-start flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg> تعديل</button>
-                    <button x-show="a.isActive" :disabled="a.id===meId" @click="ask('deactivate',a); menuId=null" class="w-full text-start flex items-center gap-2.5 px-4 py-2 text-sm text-warning hover:bg-warning/5 disabled:opacity-40 disabled:cursor-not-allowed"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 8h5"/></svg> تعطيل</button>
-                    <button x-show="!a.isActive" @click="doActivate(a); menuId=null" class="w-full text-start flex items-center gap-2.5 px-4 py-2 text-sm text-success hover:bg-success/5"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3.5 8.5l3 3 6-7"/></svg> تفعيل</button>
-                    <div class="h-px bg-neutral-100 my-1"></div>
-                    <button :disabled="a.id===meId" @click="ask('delete',a); menuId=null" class="w-full text-start flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5 disabled:opacity-40 disabled:cursor-not-allowed"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg> حذف</button>
-                  </div>
-                </div>
-              </td>
-            </tr>
+              </template>
+            </div>
           </template>
-        </tbody>
-      </table>
+          <template x-if="!me.ipAllowlist.length">
+            <div class="adm-empty">لا توجد قيود على عناوين IP — الدخول مسموح من أي عنوان.</div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Session -->
+      <div class="adm-card">
+        <div class="adm-card-head"><div class="adm-card-title">الجلسة الحالية</div></div>
+        <div class="p-5 flex items-center justify-between flex-wrap gap-3">
+          <div class="text-sm text-neutral-600">سجّلت الدخول <span class="font-semibold text-neutral-800" x-text="timeAgo(me.lastLoginAt)"></span> من <span class="font-latin" dir="ltr" x-text="me.ipAllowlist[0]||'—'"></span></div>
+          <a href="login.html" class="adm-btn adm-btn-danger adm-btn-sm">تسجيل الخروج</a>
+        </div>
+      </div>
+
     </div>
-    <template x-if="!filtered.length">
-      <div class="adm-empty">لا يوجد موظفون مطابقون.</div>
-    </template>
   </div>
 
-  <!-- ===== Add / Edit modal ===== -->
-  <template x-if="form">
-    <div class="adm-overlay" @click.self="form=null">
-      <div class="adm-modal" style="max-width:480px">
-        <div class="adm-modal-head"><div class="font-bold text-primary-800" x-text="form.id?'تعديل موظف':'إضافة موظف جديد'"></div><button @click="form=null" class="adm-icon-btn">✕</button></div>
-        <div class="adm-modal-body flex flex-col gap-4">
-          <div>
-            <label class="ec-label">الاسم الكامل</label>
-            <input type="text" x-model="form.name" class="ec-input" placeholder="مثال: منى الشريف" />
+  <!-- ===== 2FA Setup modal ===== -->
+  <template x-if="modal==='setup'">
+    <div class="adm-overlay" @click.self="close()">
+      <div class="adm-modal" style="max-width:440px">
+        <div class="adm-modal-head"><div class="font-bold text-primary-800">تفعيل المصادقة الثنائية</div><button @click="close()" class="adm-icon-btn">✕</button></div>
+        <div class="adm-modal-body flex flex-col gap-4 text-center">
+          <p class="text-sm text-neutral-600">امسح الرمز بتطبيق المصادقة (Google Authenticator / Authy)، ثم أدخل الرمز المكوّن من 6 أرقام.</p>
+          <div class="mx-auto w-40 h-40 rounded-xl border-2 border-neutral-200 bg-neutral-50 grid place-items-center text-neutral-300">
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="currentColor"><rect x="8" y="8" width="22" height="22"/><rect x="50" y="8" width="22" height="22"/><rect x="8" y="50" width="22" height="22"/><rect x="38" y="38" width="10" height="10"/><rect x="56" y="50" width="16" height="16"/></svg>
           </div>
-          <div>
-            <label class="ec-label">البريد الإلكتروني</label>
-            <input type="email" dir="ltr" x-model="form.email" :disabled="form.id" class="ec-input disabled:bg-neutral-50 disabled:text-neutral-400" placeholder="name@est8core.com" />
-            <p x-show="form.id" class="text-[.7rem] text-neutral-400 mt-1">لا يمكن تغيير البريد بعد الإنشاء.</p>
-          </div>
-          <div x-show="!form.id">
-            <label class="ec-label">كلمة المرور المبدئية</label>
-            <input type="text" dir="ltr" x-model="form.password" class="ec-input font-latin" placeholder="8 أحرف على الأقل" />
-          </div>
-          <div>
-            <label class="ec-label">الدور</label>
-            <select x-model="form.role" class="ec-input">
-              <template x-for="r in roleDefs" :key="r.key"><option :value="r.key" x-text="r.label + ' — ' + r.desc"></option></template>
-            </select>
-          </div>
-          <div x-show="form.id" class="flex items-center justify-between rounded-lg border border-neutral-100 bg-neutral-50 p-3">
-            <span class="text-sm font-medium text-neutral-700">الحساب نشط</span>
-            <div class="adm-switch" :class="form.isActive && 'on'" @click="form.id===meId || (form.isActive=!form.isActive)"></div>
-          </div>
+          <div class="text-xs text-neutral-500">أو أدخل المفتاح يدوياً: <span class="font-latin font-semibold text-neutral-700" x-text="secret"></span></div>
+          <input type="text" inputmode="numeric" maxlength="6" dir="ltr" x-model="code" placeholder="000000" class="ec-input text-center font-latin text-lg tracking-[0.4em]" />
         </div>
         <div class="adm-modal-foot">
-          <button @click="submit()" :disabled="!formValid" class="adm-btn adm-btn-primary" x-text="form.id?'حفظ':'إضافة'"></button>
-          <button @click="form=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+          <button @click="enable()" :disabled="code.length<6" class="adm-btn adm-btn-primary">تأكيد وتفعيل</button>
+          <button @click="close()" class="adm-btn adm-btn-ghost">إلغاء</button>
         </div>
       </div>
     </div>
   </template>
 
-  <!-- ===== Confirm modal ===== -->
-  <template x-if="confirm">
-    <div class="adm-overlay" @click.self="confirm=null">
+  <!-- ===== Backup codes modal ===== -->
+  <template x-if="modal==='backup'">
+    <div class="adm-overlay" @click.self="close()">
+      <div class="adm-modal" style="max-width:440px">
+        <div class="adm-modal-head"><div class="font-bold text-primary-800">رموز الاحتياط</div><button @click="close()" class="adm-icon-btn">✕</button></div>
+        <div class="adm-modal-body flex flex-col gap-3">
+          <div class="rounded-lg bg-warning/10 border border-warning/30 p-3 text-xs text-warning flex items-start gap-2"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="shrink-0 mt-0.5"><path d="M8 1.5l6.5 11.5H1.5z"/><path d="M8 6v3M8 11v.3" stroke-linecap="round"/></svg> احفظ هذه الرموز في مكان آمن — كل رمز يُستخدم مرة واحدة، ولن تظهر مجدداً.</div>
+          <div class="grid grid-cols-2 gap-2">
+            <template x-for="c in backupCodes" :key="c">
+              <div class="font-latin text-center text-sm font-semibold text-neutral-700 bg-neutral-50 border border-neutral-100 rounded-lg py-2" x-text="c"></div>
+            </template>
+          </div>
+        </div>
+        <div class="adm-modal-foot"><button @click="close()" class="adm-btn adm-btn-primary">حفظت الرموز</button></div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ===== Disable / Regen modal ===== -->
+  <template x-if="modal==='disable' || modal==='regen'">
+    <div class="adm-overlay" @click.self="close()">
       <div class="adm-modal" style="max-width:420px">
-        <div class="adm-modal-head"><div class="font-bold text-primary-800" x-text="confirm.type==='delete'?'حذف الموظف':'تعطيل الموظف'"></div><button @click="confirm=null" class="adm-icon-btn">✕</button></div>
-        <div class="adm-modal-body">
-          <p class="text-sm text-neutral-600">
-            <span x-show="confirm.type==='delete'">سيُحذف <span class="font-bold" x-text="confirm.a.name"></span> نهائياً ويفقد كل وصول للمنصة. لا يمكن التراجع.</span>
-            <span x-show="confirm.type==='deactivate'">سيُعطَّل وصول <span class="font-bold" x-text="confirm.a.name"></span> فوراً حتى إعادة تفعيله.</span>
-          </p>
+        <div class="adm-modal-head"><div class="font-bold text-primary-800" x-text="modal==='disable'?'تعطيل المصادقة الثنائية':'إعادة توليد رموز الاحتياط'"></div><button @click="close()" class="adm-icon-btn">✕</button></div>
+        <div class="adm-modal-body flex flex-col gap-3">
+          <p class="text-sm text-neutral-600" x-text="modal==='disable'?'أدخل رمز المصادقة الحالي لتأكيد التعطيل. سيقل أمان حسابك.':'أدخل رمز المصادقة الحالي لإصدار رموز احتياط جديدة (تُلغى القديمة).'"></p>
+          <input type="text" inputmode="numeric" maxlength="6" dir="ltr" x-model="code" placeholder="000000" class="ec-input text-center font-latin text-lg tracking-[0.4em]" />
         </div>
         <div class="adm-modal-foot">
-          <button @click="doConfirm()" class="adm-btn" :class="confirm.type==='delete'?'adm-btn-danger-solid':'adm-btn-primary'" x-text="confirm.type==='delete'?'حذف نهائي':'تعطيل'"></button>
-          <button @click="confirm=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+          <button @click="confirm2fa()" :disabled="code.length<6" class="adm-btn" :class="modal==='disable'?'adm-btn-danger-solid':'adm-btn-primary'" x-text="modal==='disable'?'تعطيل':'توليد'"></button>
+          <button @click="close()" class="adm-btn adm-btn-ghost">إلغاء</button>
         </div>
       </div>
     </div>
@@ -452,53 +457,23 @@
 </div>
 
 <script>
-function adminTeam(){
+function profile(){
   return {
-    meId:'adm-001',
-    q:'', roleFilter:'all', menuId:null, form:null, confirm:null,
-    roleDefs:[
-      { key:'super_admin', label:'مدير عام',  cls:'', desc:'صلاحية كاملة على المنصة وإدارة الفريق' },
-      { key:'admin',       label:'مشرف',      cls:'', desc:'إدارة المنشآت والإعدادات والفوترة' },
-      { key:'support',     label:'دعم فني',   cls:'', desc:'مساعدة العملاء وعرض المنشآت' },
-      { key:'billing',     label:'فوترة',     cls:'', desc:'الاشتراكات والفواتير والمستردات' },
-      { key:'viewer',      label:'مشاهد',     cls:'', desc:'قراءة فقط بلا أي تعديل' },
-    ],
-    // GET /api/v1/admin/admins
-    list:[
-      { id:'adm-001', name:'صبري داوود', email:'sabry@est8core.com', role:'super_admin', isActive:true,  twoFactorEnabled:true,  lastLoginAt:new Date(Date.now()-2*3600e3).toISOString() },
-      { id:'adm-002', name:'منى الشريف', email:'mona@est8core.com',  role:'admin',       isActive:true,  twoFactorEnabled:true,  lastLoginAt:new Date(Date.now()-26*3600e3).toISOString() },
-      { id:'adm-003', name:'كريم فؤاد',  email:'karim@est8core.com', role:'support',     isActive:true,  twoFactorEnabled:false, lastLoginAt:new Date(Date.now()-50*60e3).toISOString() },
-      { id:'adm-004', name:'هبة سمير',   email:'heba@est8core.com',  role:'support',     isActive:true,  twoFactorEnabled:true,  lastLoginAt:new Date(Date.now()-5*3600e3).toISOString() },
-      { id:'adm-005', name:'طارق العلي', email:'tarek@est8core.com', role:'billing',     isActive:true,  twoFactorEnabled:true,  lastLoginAt:new Date(Date.now()-3*864e5).toISOString() },
-      { id:'adm-006', name:'ليلى حسن',   email:'laila@est8core.com', role:'viewer',      isActive:false, twoFactorEnabled:false, lastLoginAt:null },
-    ],
-    roleMap:{ super_admin:'مدير عام', admin:'مشرف', support:'دعم فني', billing:'فوترة', viewer:'مشاهد' },
-    roleClsMap:{ super_admin:'', admin:'', support:'', billing:'', viewer:'' },
-    roleLabel(r){ return this.roleMap[r]||r; },
-    roleCls(){ return ''; },
-    initials(n){ const p=(n||'').split(' '); return (p[0]?.[0]||'')+(p[1]?.[0]||''); },
-    get filtered(){
-      const q=this.q.trim().toLowerCase();
-      return this.list.filter(a =>
-        (this.roleFilter==='all' || a.role===this.roleFilter) &&
-        (!q || a.name.toLowerCase().includes(q) || a.email.toLowerCase().includes(q))
-      );
+    me:{
+      name:'صبري داوود', email:'sabry@est8core.com', role:'super_admin',
+      isActive:true, twoFactorEnabled:true,
+      lastLoginAt:new Date(Date.now()-2*3600e3).toISOString(),
+      createdAt:'2026-01-12T09:00:00Z',
+      ipAllowlist:['203.0.113.42','198.51.100.7'],
     },
-    get formValid(){ if(!this.form) return false; const f=this.form; const okPass = f.id || (f.password||'').length>=8; return (f.name||'').trim() && /.+@.+\..+/.test(f.email||'') && f.role && okPass; },
-    openAdd(){ this.form={ id:null, name:'', email:'', password:'', role:'support', isActive:true }; },
-    openEdit(a){ this.form={ ...a }; },
-    submit(){ if(!this.formValid) return;
-      if(this.form.id){ const i=this.list.findIndex(x=>x.id===this.form.id); if(i>-1) this.list[i]={ ...this.list[i], name:this.form.name, role:this.form.role, isActive:this.form.isActive }; }
-      else { this.list.unshift({ id:'adm-'+Date.now(), name:this.form.name, email:this.form.email, role:this.form.role, isActive:true, twoFactorEnabled:false, lastLoginAt:null }); }
-      this.form=null;
-    },
-    ask(type,a){ this.confirm={ type, a }; },
-    doConfirm(){ const {type,a}=this.confirm;
-      if(type==='delete'){ this.list=this.list.filter(x=>x.id!==a.id); }
-      else if(type==='deactivate'){ const i=this.list.findIndex(x=>x.id===a.id); if(i>-1) this.list[i].isActive=false; }
-      this.confirm=null;
-    },
-    doActivate(a){ const i=this.list.findIndex(x=>x.id===a.id); if(i>-1) this.list[i].isActive=true; },
+    modal:null, code:'', secret:'JBSW Y3DP EHPK 3PXP',
+    backupCodes:['A1B2-C3D4','E5F6-G7H8','J9K0-L1M2','N3P4-Q5R6','S7T8-U9V0','W1X2-Y3Z4'],
+    roleMap:{ super_admin:'مدير عام للمنصة', admin:'مشرف', support:'دعم فني', billing:'فوترة', viewer:'مشاهد' },
+    get roleLabel(){ return this.roleMap[this.me.role]||this.me.role; },
+    get initials(){ const p=this.me.name.split(' '); return (p[0]?.[0]||'')+(p[1]?.[0]||''); },
+    enable(){ if(this.code.length<6)return; this.me.twoFactorEnabled=true; this.modal='backup'; this.code=''; },     // POST /admin/2fa/enable → backupCodes
+    confirm2fa(){ if(this.code.length<6)return; if(this.modal==='disable'){ this.me.twoFactorEnabled=false; this.close(); } else { this.modal='backup'; this.code=''; } }, // disable | regenerate
+    close(){ this.modal=null; this.code=''; },
   };
 }
 </script>
@@ -531,7 +506,7 @@ function adminTeam(){
     };
   }
   // ===== Deterministic active-nav (set per build) =====
-  window.NAV_ACTIVE = 'admins';
+  window.NAV_ACTIVE = 'profile';
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.adm-nav-item').forEach(a => {
       if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
@@ -575,6 +550,25 @@ function adminTeam(){
       return '<div class="jv-row">'+kh+prim(v)+'</div>';
     };
     return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+  // ===== Reusable floating row-action menu mixin (spread into a component: {...floatMenu(), ...}) =====
+  // Renders the menu as position:fixed anchored to the trigger button → escapes any overflow:auto/hidden
+  // table or card clipping. Usage: trigger @click="fmOpen(id,$event)" · menu class="adm-rowmenu" :style="fmStyle" x-show="fmId===id" @click.outside="fmClose()" @scroll.window="fmClose()".
+  function floatMenu(){
+    return {
+      fmId: null, fmTop: 0, fmRight: 0,
+      fmOpen(id, e){
+        if (this.fmId === id) { this.fmId = null; return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.fmTop = Math.round(r.bottom + 4);
+        this.fmRight = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.fmId = id;
+      },
+      fmClose(){ this.fmId = null; },
+      // method (NOT a getter): object spread {...floatMenu()} would invoke a getter once and
+      // freeze its value → menu stuck at 0,0. A method re-evaluates on every render.
+      fmStyle(){ return `top:${this.fmTop}px; right:${this.fmRight}px;`; },
+    };
   }
 </script>
 </body>
