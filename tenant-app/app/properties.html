@@ -528,7 +528,7 @@
           <div class="border-t border-neutral-50 px-3 py-2 flex items-center justify-between">
             <span class="text-[.7rem] text-neutral-400" x-text="agentName(p.listingAgentId)"></span>
             <div @click.outside="fmClose()">
-              <button class="adm-icon-btn w-8 h-8" @click="fmOpen(p.id,$event)">
+              <button class="adm-icon-btn w-8 h-8" @click.stop="fmOpen(p.id,$event)">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
               </button>
               <div x-show="fmId===p.id" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">
@@ -626,7 +626,7 @@
                 <td class="font-latin text-xs text-neutral-400" x-text="p.referenceNumber"></td>
                 <td>
                   <div class="flex justify-start" @click.outside="fmClose()">
-                    <button class="adm-icon-btn w-8 h-8" @click="fmOpen(p.id,$event)">
+                    <button class="adm-icon-btn w-8 h-8" @click.stop="fmOpen(p.id,$event)">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
                     </button>
                     <div x-show="fmId===p.id" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">

@@ -509,7 +509,7 @@
               <!-- إجراءات -->
               <td class="text-center" @click.stop>
                 <div class="inline-block" @click.outside="fmClose()">
-                  <button @click="fmOpen(row.slug, $event)"
+                  <button @click.stop="fmOpen(row.slug, $event)"
                     class="adm-btn adm-btn-ghost adm-btn-sm gap-1" aria-label="إجراءات">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="3.5" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="8" cy="12.5" r="1"/></svg>
                   </button>

@@ -433,7 +433,7 @@
               <td><span class="adm-badge" :class="a.isActive?'b-success':'b-danger'" x-text="a.isActive?'نشط':'معطّل'"></span></td>
               <td>
                 <div class="flex justify-start" @click.outside="fmClose()">
-                  <button class="adm-icon-btn w-8 h-8" @click="fmOpen(a.id, $event)">
+                  <button class="adm-icon-btn w-8 h-8" @click.stop="fmOpen(a.id, $event)">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="3" r="1.4"/><circle cx="8" cy="8" r="1.4"/><circle cx="8" cy="13" r="1.4"/></svg>
                   </button>
                   <div x-show="fmId===a.id" x-transition class="adm-rowmenu" :style="fmStyle()" @scroll.window="fmClose()">
