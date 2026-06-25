@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — بوابة المنصة · تسجيل الدخول</title>
+  <!-- S-058 · Super Admin Login · POST /api/v1/admin/auth/login (RL 5/15m) → {accessToken,refreshToken,admin} | {twoFactorRequired,mfaToken} | {twoFactorEnrollmentRequired,accessToken} · POST /api/v1/admin/auth/verify-2fa -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    .ec-input { width:100%; padding:.625rem .875rem; border:1.5px solid #DDE1EA; border-radius:.5rem; font-size:.875rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .auth-bg { background:linear-gradient(150deg,#060F1E 0%,#0B1F3A 55%,#102A4C 100%); }
+    .auth-bg::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 70% 50% at 50% 0%, rgba(200,162,75,.10) 0%, transparent 60%); pointer-events:none; }
+    .otp-box { width:46px; height:54px; text-align:center; font-size:1.4rem; font-weight:700; font-family:'Inter',sans-serif; border:1.5px solid #DDE1EA; border-radius:.6rem; outline:none; transition:.15s; color:#0B1F3A; }
+    .otp-box:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.1); }
+    .grid-deco { background-image:linear-gradient(rgba(200,162,75,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(200,162,75,.05) 1px,transparent 1px); background-size:42px 42px; }
+  </style>
+</head>
+
+<body class="auth-bg relative min-h-screen flex items-center justify-center p-4" x-data="adminLogin()" x-cloak>
+  <div class="absolute inset-0 grid-deco pointer-events-none"></div>
+
+  <div class="relative z-10 w-full max-w-md bg-surface-card rounded-3xl shadow-xl2 ring-1 ring-accent-500/15 p-8 md:p-10 flex flex-col gap-6">
+
+    <!-- Brand -->
+    <div class="flex flex-col items-center gap-3 pb-4 border-b border-neutral-100">
+      <img src="../_shared/logo-gold.png" alt="Est8Core" class="rounded-lg object-contain" style="width:3.25rem;height:3.25rem;" />
+      <div class="text-center">
+        <div class="font-latin text-lg font-bold text-primary-800">Est8<span class="text-accent-600">Core</span></div>
+        <div class="inline-flex items-center gap-1.5 mt-1.5 text-[.7rem] font-bold text-accent-700 bg-accent-50 px-2.5 py-0.5 rounded-full">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1l5 2.5v4C13 11 11 14 8 15c-3-1-5-4-5-7.5v-4z"/></svg>
+          بوابة المنصة — مشرفو المنصة
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Step: credentials ===== -->
+    <template x-if="step==='login'">
+      <div class="flex flex-col gap-6">
+        <div class="text-center">
+          <h1 class="font-display text-2xl font-bold text-primary-800">تسجيل دخول المنصة</h1>
+          <p class="text-sm text-neutral-500 mt-1">وصول مخصّص لفريق إدارة المنصة فقط</p>
+        </div>
+
+        <template x-if="locked">
+          <div class="rounded-lg bg-danger/10 border border-danger/30 p-4 flex items-start gap-3 text-danger text-sm">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3M8 10v.5" stroke-linecap="round"/></svg>
+            <div><div class="font-bold">محظور مؤقتاً</div>تجاوزت 5 محاولات خلال 15 دقيقة. حاول بعد: <span class="font-latin font-bold" x-text="mmss"></span></div>
+          </div>
+        </template>
+
+        <template x-if="error && !locked">
+          <div class="rounded-lg bg-danger/8 border border-danger/25 p-3 text-danger text-sm flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5M8 10.5v.3" stroke-linecap="round"/></svg>
+            <span x-text="error"></span>
+          </div>
+        </template>
+
+        <form @submit.prevent="submit()" class="flex flex-col gap-5" x-show="!locked">
+          <div>
+            <label class="block text-sm font-semibold text-neutral-700 mb-1.5"><span class="text-danger">*</span> البريد الإلكتروني</label>
+            <div class="relative">
+              <input type="email" dir="ltr" autocomplete="email" value="admin@est8core.com"  x-model="email" placeholder="admin@est8core.com" class="ec-input ps-3 pe-10" />
+              <span class="absolute top-1/2 start-3 -translate-y-1/2 text-neutral-400 pointer-events-none"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="2"/><path d="M1 5.5L8 9.5L15 5.5"/></svg></span>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-neutral-700 mb-1.5"><span class="text-danger">*</span> كلمة المرور</label>
+            <div class="relative">
+              <input :type="showPass?'text':'password'" dir="ltr" x-model="pass" placeholder="••••••••" class="ec-input ps-10 pe-3" />
+              <button type="button" @click="showPass=!showPass" class="absolute top-1/2 start-3 -translate-y-1/2 text-neutral-400 hover:text-primary-700 transition">
+                <svg x-show="!showPass" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
+                <svg x-show="showPass" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><path d="M2 2l12 12" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" :disabled="!valid || loading" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold bg-primary-800 text-white shadow-card hover:bg-primary-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
+            <svg x-show="loading" class="animate-spin" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2a6 6 0 106 6" stroke-linecap="round"/></svg>
+            <span x-text="loading?'جارٍ التحقق…':'دخول آمن'"></span>
+            <svg x-show="!loading" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8H3M3 8L7 4M3 8L7 12"/></svg>
+          </button>
+        </form>
+
+        <div class="flex items-center justify-center gap-2 text-xs text-neutral-400">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg>
+          محميّ بـ JWT + Argon2id + 2FA إجباري · كل دخول مُسجَّل في التدقيق
+        </div>
+      </div>
+    </template>
+
+    <!-- ===== Step: 2FA verification ===== -->
+    <template x-if="step==='twofa'">
+      <div class="flex flex-col gap-6">
+        <div class="text-center">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center mb-1"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></div>
+          <h1 class="font-display text-2xl font-bold text-primary-800">التحقق بخطوتين</h1>
+          <p class="text-sm text-neutral-500 mt-1" x-show="!backup">أدخل الرمز من تطبيق المصادقة</p>
+          <p class="text-sm text-neutral-500 mt-1" x-show="backup">أدخل أحد رموز الاحتياط (8 أحرف)</p>
+        </div>
+
+        <template x-if="error">
+          <div class="rounded-lg bg-danger/8 border border-danger/25 p-3 text-danger text-sm text-center" x-text="error"></div>
+        </template>
+
+        <div x-show="!backup" class="flex justify-center gap-2" dir="ltr">
+          <template x-for="i in 6" :key="i">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-box" :data-i="i-1"
+                   @input="onOtp($event,i-1)" @keydown.backspace="onBack($event,i-1)" @paste="onPaste($event)" />
+          </template>
+        </div>
+        <div x-show="backup">
+          <input type="text" dir="ltr" x-model="backupCode" maxlength="8" placeholder="XXXX-XXXX" class="ec-input text-center font-latin tracking-widest uppercase" />
+        </div>
+
+        <button @click="verify()" :disabled="loading || (!backup && otp.join('').length<6) || (backup && backupCode.length<8)" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold bg-primary-800 text-white hover:bg-primary-700 transition disabled:opacity-40 disabled:cursor-not-allowed">
+          <svg x-show="loading" class="animate-spin" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2a6 6 0 106 6" stroke-linecap="round"/></svg>
+          تأكيد ودخول
+        </button>
+
+        <div class="flex items-center justify-between text-sm">
+          <button @click="backup=!backup; error=''" class="font-semibold text-primary-700 hover:text-accent-600" x-text="backup?'استخدام رمز التطبيق':'استخدام رمز احتياطي'"></button>
+          <button @click="step='login'; reset()" class="text-neutral-500 hover:text-primary-700">رجوع</button>
+        </div>
+      </div>
+    </template>
+
+    <!-- ===== Step: 2FA enrollment required ===== -->
+    <template x-if="step==='enroll'">
+      <div class="flex flex-col gap-5 text-center">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-warning/10 text-warning flex items-center justify-center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M12 8v4M12 15v.5" stroke-linecap="round"/></svg></div>
+        <h1 class="font-display text-2xl font-bold text-primary-800">تفعيل المصادقة الثنائية مطلوب</h1>
+        <p class="text-sm text-neutral-500">حسابك يتطلّب تفعيل 2FA قبل الوصول. سننقلك لإعداد تطبيق المصادقة (TOTP) وإنشاء رموز الاحتياط.</p>
+        <div class="rounded-lg bg-neutral-50 border border-neutral-100 p-4 text-start text-xs text-neutral-600 flex flex-col gap-2">
+          <span class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-primary-800 text-white text-[.6rem] font-bold flex items-center justify-center">1</span> توليد مفتاح سري ورمز QR للمسح</span>
+          <span class="flex items-center gap-2"><span class="w-5 h-5 rounded-full bg-primary-800 text-white text-[.6rem] font-bold flex items-center justify-center">2</span> تأكيد الرمز واستلام رموز الاحتياط</span>
+        </div>
+        <button @click="step='login'; reset()" class="w-full px-6 py-3 rounded-lg text-sm font-semibold bg-accent-500 text-primary-900 hover:bg-accent-400 transition">بدء الإعداد</button>
+      </div>
+    </template>
+
+  </div>
+
+  <p class="absolute bottom-4 inset-x-0 text-center text-xs text-white/40 z-10">بوابة مستقلة لمشرفي المنصة — منفصلة تماماً عن دخول الشركات</p>
+
+<script>
+function adminLogin(){
+  return {
+    step:'login', email:'', pass:'', showPass:false, loading:false, error:'',
+    locked:false, lockLeft:0, mmss:'15:00',
+    otp:['','','','','',''], backup:false, backupCode:'', mfaToken:'',
+    get valid(){ return /.+@.+\..+/.test(this.email) && this.pass.length>=8; },
+    // POST /api/v1/admin/auth/login
+    submit(){
+      if(!this.valid) return; this.error=''; this.loading=true;
+      setTimeout(()=>{
+        this.loading=false;
+        // demo branch: simulate the 3 documented responses
+        if(this.pass==='lockme'){ this.lock(); return; }
+        if(this.email.startsWith('new')){ this.step='enroll'; return; }       // twoFactorEnrollmentRequired
+        if(this.pass==='wrong'){ this.error='بيانات الدخول غير صحيحة'; return; }
+        this.mfaToken='demo-mfa-token'; this.step='twofa';                    // twoFactorRequired
+      }, 800);
+    },
+    onOtp(e,i){ const v=e.target.value.replace(/\D/g,'').slice(0,1); this.otp[i]=v; e.target.value=v; if(v&&i<5){ const n=e.target.parentElement.querySelector(`[data-i="${i+1}"]`); n&&n.focus(); } if(this.otp.join('').length===6) this.verify(); },
+    onBack(e,i){ if(!this.otp[i]&&i>0){ const p=e.target.parentElement.querySelector(`[data-i="${i-1}"]`); p&&p.focus(); } },
+    onPaste(e){ e.preventDefault(); const d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6).split(''); d.forEach((c,i)=>{ this.otp[i]=c; const b=e.target.parentElement.querySelector(`[data-i="${i}"]`); if(b)b.value=c; }); if(d.length===6) this.verify(); },
+    // POST /api/v1/admin/auth/verify-2fa
+    verify(){
+      this.error=''; this.loading=true;
+      setTimeout(()=>{ this.loading=false;
+        const code = this.backup ? this.backupCode : this.otp.join('');
+        if((this.backup && code.length<8) || (!this.backup && code.length<6)) return;
+        if(code==='000000'){ this.error='رمز غير صحيح · المحاولات المتبقية: 4'; return; }
+        window.location.href='dashboard.html';
+      }, 800);
+    },
+    reset(){ this.otp=['','','','','','']; this.backup=false; this.backupCode=''; this.error=''; },
+    lock(){ this.locked=true; this.lockLeft=900; const t=setInterval(()=>{ this.lockLeft--; const m=String(Math.floor(this.lockLeft/60)).padStart(2,'0'), s=String(this.lockLeft%60).padStart(2,'0'); this.mmss=`${m}:${s}`; if(this.lockLeft<=0){ clearInterval(t); this.locked=false; } },1000); },
+  };
+}
+</script>
+</body>
+</html>

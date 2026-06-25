@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — نظام إدارة العملاء #1 لقطاع الوساطة العقارية</title>
+  <meta name="description" content="منصّة CRM متكاملة لشركات الوساطة والبروكر الفردي — من أول lead إلى إغلاق الصفقة بعمولة. عربية بالكامل، عمولات آلية، وهيكل هرمي للفروع والفرق." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','"Playfair Display"','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', md2:'0 4px 16px rgba(11,31,58,0.10)', lg2:'0 8px 32px rgba(11,31,58,0.13)', xl2:'0 16px 48px rgba(11,31,58,0.18)', gold:'0 4px 20px rgba(200,162,75,0.25)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif; }
+    .font-display { font-family: 'Amiri', 'Playfair Display', Georgia, serif; }
+    .font-latin { font-family: 'Inter', system-ui, sans-serif; }
+    [x-cloak] { display: none !important; }
+    .hero-bg { background: linear-gradient(160deg,#060F1E 0%,#0B1F3A 50%,#102A4C 100%); position:relative; overflow:hidden; }
+    .hero-bg::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse 55% 45% at 80% 8%, rgba(200,162,75,0.12) 0%, transparent 60%), radial-gradient(ellipse 50% 50% at 10% 90%, rgba(36,88,165,0.18) 0%, transparent 55%); pointer-events:none; }
+    .hero-bg::after { content:''; position:absolute; inset:0; background-image: linear-gradient(rgba(200,162,75,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(200,162,75,0.03) 1px,transparent 1px); background-size:56px 56px; pointer-events:none; }
+  </style>
+</head>
+
+<body class="bg-surface-bg text-neutral-800" x-data="landing()" x-cloak>
+
+  <!-- ════════ NAV ════════ -->
+  <nav class="fixed top-0 inset-x-0 z-50 transition-all duration-300" :class="scrolled ? 'bg-white/95 backdrop-blur shadow-card py-3' : 'py-5'">
+    <div class="max-w-6xl mx-auto px-5 flex items-center justify-between">
+      <a href="#hero" class="flex items-center gap-2.5">
+        <img src="../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+        <span class="font-latin text-lg font-bold transition" :class="scrolled ? 'text-primary-800' : 'text-white'">Est8<span class="text-accent-500">Core</span></span>
+      </a>
+      <div class="hidden md:flex items-center gap-7 text-sm font-semibold transition" :class="scrolled ? 'text-neutral-600' : 'text-white/80'">
+        <a href="#features" class="hover:text-accent-500 transition">المميزات</a>
+        <a href="#video" class="hover:text-accent-500 transition">الفيديو</a>
+        <a href="#why" class="hover:text-accent-500 transition">لماذا نحن</a>
+        <a href="#pricing" class="hover:text-accent-500 transition">الأسعار</a>
+        <a href="./changelog.html" class="hover:text-accent-500 transition">ما الجديد</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="../2-auth/login.html" class="hidden sm:inline text-sm font-semibold transition" :class="scrolled ? 'text-primary-700' : 'text-white'">دخول</a>
+        <a href="../2-auth/register.html" class="px-4 py-2 rounded-lg text-sm font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 transition">ابدأ مجاناً</a>
+        <button @click="menu=!menu" class="md:hidden p-2 rounded-lg" :class="scrolled ? 'text-primary-800' : 'text-white'">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+    <div x-show="menu" x-collapse class="md:hidden bg-white border-t border-neutral-100 mt-3">
+      <div class="px-5 py-4 flex flex-col gap-3 text-sm font-semibold text-neutral-700">
+        <a href="#features" @click="menu=false">المميزات</a><a href="#video" @click="menu=false">الفيديو</a>
+        <a href="#why" @click="menu=false">لماذا نحن</a><a href="#pricing" @click="menu=false">الأسعار</a>
+        <a href="./changelog.html" @click="menu=false">ما الجديد</a><a href="../2-auth/login.html" class="text-primary-700">تسجيل الدخول</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ════════ HERO ════════ -->
+  <header id="hero" class="hero-bg pt-28 pb-20 md:pt-36 md:pb-28">
+    <div class="relative z-10 max-w-6xl mx-auto px-5 grid lg:grid-cols-2 gap-12 items-center">
+      <div class="text-center lg:text-right flex flex-col items-center lg:items-start gap-6">
+        <span class="inline-flex items-center gap-2 bg-accent-500/12 border border-accent-500/30 rounded-full px-4 py-1.5 text-xs font-semibold text-accent-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-500" style="box-shadow:0 0 8px #C8A24B"></span>
+          نظام CRM عربي #1 لقطاع الوساطة العقارية
+        </span>
+        <h1 class="font-display text-4xl md:text-5xl lg:text-[3.4rem] font-bold text-white leading-[1.18]">
+          أغلِق صفقات أكثر،<br><span class="text-accent-400">وطارد عملاء أقل.</span>
+        </h1>
+        <p class="text-lg text-white/65 max-w-xl leading-relaxed">
+          من أول <span class="text-white font-semibold">lead</span> حتى إغلاق الصفقة بعمولة — منصّة واحدة تدير دورة حياة العميل العقاري بالكامل، بعمولات آلية وهيكل هرمي للفروع والفرق.
+        </p>
+        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+          <a href="../2-auth/register.html" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 hover:-translate-y-0.5 transition">
+            ابدأ تجربتك المجانية
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8H13M13 8L9 4M13 8L9 12"/></svg>
+          </a>
+          <a href="#video" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl text-base font-semibold text-white border border-white/20 hover:bg-white/5 transition">
+            <span class="w-8 h-8 rounded-full bg-accent-500 text-primary-900 flex items-center justify-center"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M3 2l7 4-7 4z"/></svg></span>
+            شاهد الفيديو
+          </a>
+        </div>
+        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-sm text-white/55">
+          <span class="inline-flex items-center gap-1.5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg> بلا بطاقة ائتمانية</span>
+          <span class="inline-flex items-center gap-1.5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg> ١٤ يوماً مجاناً</span>
+          <span class="inline-flex items-center gap-1.5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg> إعداد في ٥ دقائق</span>
+        </div>
+      </div>
+
+      <!-- product mockup -->
+      <div class="relative">
+        <div class="absolute -inset-4 bg-accent-500/10 blur-3xl rounded-full"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl2 ring-1 ring-white/10 overflow-hidden">
+          <div class="flex items-center gap-1.5 px-4 py-2.5 bg-neutral-100 border-b border-neutral-200">
+            <span class="w-2.5 h-2.5 rounded-full bg-danger/60"></span><span class="w-2.5 h-2.5 rounded-full bg-warning/60"></span><span class="w-2.5 h-2.5 rounded-full bg-success/60"></span>
+            <span class="mr-3 text-[0.65rem] font-latin text-neutral-400 bg-white rounded px-2 py-0.5 border border-neutral-200" dir="ltr">app.est8core.com</span>
+          </div>
+          <div class="flex" style="height:300px;">
+            <div class="w-14 bg-primary-800 flex flex-col items-center py-3 gap-3 shrink-0">
+              <div class="w-7 h-7 rounded-lg bg-accent-500/90"></div>
+              <div class="w-7 h-7 rounded-lg bg-white/10"></div><div class="w-7 h-7 rounded-lg bg-white/10"></div><div class="w-7 h-7 rounded-lg bg-white/10"></div>
+            </div>
+            <div class="flex-1 p-4 bg-surface-bg overflow-hidden">
+              <div class="grid grid-cols-3 gap-2.5 mb-3">
+                <div class="bg-white rounded-lg p-2.5 border border-neutral-100 shadow-card"><div class="text-[0.6rem] text-neutral-400">عملاء نشطون</div><div class="font-display text-lg font-bold text-primary-800">٢٤٧</div></div>
+                <div class="bg-white rounded-lg p-2.5 border border-neutral-100 shadow-card"><div class="text-[0.6rem] text-neutral-400">صفقات مكتملة</div><div class="font-display text-lg font-bold text-success">٣٨</div></div>
+                <div class="bg-primary-800 rounded-lg p-2.5"><div class="text-[0.6rem] text-white/50">العمولات</div><div class="font-display text-lg font-bold text-accent-400">٤٨٥ك</div></div>
+              </div>
+              <div class="bg-white rounded-lg p-3 border border-neutral-100 shadow-card mb-2.5">
+                <div class="flex items-end gap-1.5 h-16">
+                  <div class="flex-1 bg-primary-200 rounded-t" style="height:40%"></div><div class="flex-1 bg-primary-300 rounded-t" style="height:60%"></div><div class="flex-1 bg-primary-400 rounded-t" style="height:50%"></div><div class="flex-1 bg-accent-400 rounded-t" style="height:85%"></div><div class="flex-1 bg-primary-500 rounded-t" style="height:70%"></div><div class="flex-1 bg-accent-500 rounded-t" style="height:95%"></div>
+                </div>
+              </div>
+              <div class="bg-white rounded-lg p-2.5 border border-neutral-100 shadow-card flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-primary-700 text-white text-[0.6rem] flex items-center justify-center font-bold">أم</div>
+                <div class="flex-1"><div class="text-xs font-semibold text-primary-800">أحمد منصور</div><div class="text-[0.6rem] text-neutral-400">شقة الزمالك · ٢٫٨م</div></div>
+                <span class="text-[0.55rem] font-bold bg-accent-100 text-accent-700 px-2 py-0.5 rounded-full">عرض مقدَّم</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="absolute -bottom-4 right-6 bg-white rounded-xl shadow-lg2 border border-neutral-100 px-4 py-2.5 flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-full bg-success/12 text-success flex items-center justify-center"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg></span>
+          <div><div class="text-xs font-bold text-primary-800">صفقة مُغلَقة!</div><div class="text-[0.6rem] text-neutral-400">عمولة ٤٨٥٠٠ ج.م</div></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════ STATS BAR ════════ -->
+  <section class="bg-white border-b border-neutral-100 py-10">
+    <div class="max-w-5xl mx-auto px-5">
+      <p class="text-center text-sm text-neutral-400 mb-6">منصّة بُنيت خصّيصاً لإدارة الوساطة العقارية — بكل تفاصيلها</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div><div class="font-display text-3xl md:text-4xl font-bold text-primary-800"><span x-data x-intersect.once="animateCount($el,1200,'+')">+0</span></div><div class="text-sm text-neutral-500 mt-1">صفقة قابلة للإدارة</div></div>
+        <div><div class="font-display text-3xl md:text-4xl font-bold text-primary-800"><span x-data x-intersect.once="animateCount($el,8000,'+')">+0</span></div><div class="text-sm text-neutral-500 mt-1">عميل في مكان واحد</div></div>
+        <div><div class="font-display text-3xl md:text-4xl font-bold text-accent-600"><span x-data x-intersect.once="animateCount($el,0)">0</span></div><div class="text-sm text-neutral-500 mt-1">صفقة ضائعة</div></div>
+        <div><div class="font-display text-3xl md:text-4xl font-bold text-primary-800">٩٩٫٩٪</div><div class="text-sm text-neutral-500 mt-1">جاهزية الخدمة</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ VIDEO (inline, autoplays on scroll-into-view) ════════ -->
+  <section id="video" class="py-20 md:py-28">
+    <div class="max-w-4xl mx-auto px-5 text-center">
+      <span class="text-xs font-bold tracking-wider uppercase text-accent-600">في دقيقة واحدة</span>
+      <h2 class="font-display text-3xl md:text-4xl font-bold text-primary-800 mt-2 mb-3">شاهد Est8Core يعمل</h2>
+      <p class="text-neutral-500 max-w-xl mx-auto mb-10">جولة سريعة من أول التقاط lead حتى إغلاق الصفقة وحساب العمولة.</p>
+
+      <div x-data="{ loaded:false }" x-intersect.once="loaded=true"
+           class="relative rounded-2xl overflow-hidden shadow-xl2 ring-1 ring-primary-900/10 bg-primary-900 aspect-video">
+        <!-- placeholder until in view -->
+        <div x-show="!loaded" class="absolute inset-0 hero-bg flex flex-col items-center justify-center gap-3">
+          <span class="w-14 h-14 rounded-full bg-accent-500 text-primary-900 flex items-center justify-center"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4l13 8-13 8z"/></svg></span>
+          <span class="text-white/60 text-sm">جارٍ تحميل الفيديو…</span>
+        </div>
+        <!-- the launch video auto-starts on load (muted, with its own sound toggle) -->
+        <iframe x-show="loaded"
+                :src="loaded ? '../Animated%20feature%20launch%20video/Est8Core%20Launch%20Video.html' : ''"
+                class="w-full h-full border-0" allow="autoplay; fullscreen" title="Est8Core — فيديو الإطلاق" loading="lazy"></iframe>
+      </div>
+      <p class="text-xs text-neutral-400 mt-4">يبدأ تلقائياً عند الوصول إليه — اضغط زر الصوت داخل الفيديو للاستماع 🔊</p>
+    </div>
+  </section>
+
+  <!-- ════════ PROBLEM → SOLUTION (concrete scenarios) ════════ -->
+  <section class="py-16 md:py-24 bg-white border-y border-neutral-100">
+    <div class="max-w-5xl mx-auto px-5">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="text-xs font-bold tracking-wider uppercase text-danger">كل صفقة ضائعة = عمولة خرجت من جيبك</span>
+        <h2 class="font-display text-3xl md:text-4xl font-bold text-primary-800 mt-2">مواقف تحدث لك كل يوم — وكيف نوقفها</h2>
+      </div>
+      <div class="flex flex-col gap-4">
+        <template x-for="(s,i) in scenarios" :key="i">
+          <div class="grid md:grid-cols-[1fr,auto,1fr] gap-3 md:gap-4 items-stretch">
+            <!-- pain -->
+            <div class="rounded-xl border border-danger/20 bg-danger/[0.04] p-5 flex items-start gap-3">
+              <span class="shrink-0 w-9 h-9 rounded-full bg-danger/12 text-danger flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5"/></svg></span>
+              <div><div class="text-[0.6rem] font-bold uppercase text-danger/70 mb-1">بدون نظام</div><p class="text-sm text-neutral-700 leading-relaxed" x-text="s.pain"></p></div>
+            </div>
+            <!-- arrow -->
+            <div class="flex md:flex-col items-center justify-center text-accent-500">
+              <svg class="rotate-180 md:-rotate-90" width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8H13M13 8L9 4M13 8L9 12"/></svg>
+            </div>
+            <!-- solution -->
+            <div class="rounded-xl border-2 border-accent-300 bg-gradient-to-br from-accent-50 to-white p-5 flex items-start gap-3">
+              <span class="shrink-0 w-9 h-9 rounded-full bg-success/12 text-success flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg></span>
+              <div><div class="text-[0.6rem] font-bold uppercase text-accent-700 mb-1">مع Est8Core</div><p class="text-sm text-primary-800 font-medium leading-relaxed" x-text="s.fix"></p></div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ FEATURES (zigzag) ════════ -->
+  <section id="features" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-5">
+      <div class="text-center max-w-2xl mx-auto mb-16">
+        <span class="text-xs font-bold tracking-wider uppercase text-accent-600">المنظومة الكاملة</span>
+        <h2 class="font-display text-3xl md:text-4xl font-bold text-primary-800 mt-2">كل ما تحتاجه وساطتك — في نظام واحد</h2>
+        <p class="text-neutral-500 mt-3">ليس مجرد دفتر عملاء. منظومة تشغّل وساطتك من الالتقاط حتى التحصيل.</p>
+      </div>
+
+      <!-- row 1: leads -->
+      <div class="grid md:grid-cols-2 gap-10 items-center mb-20">
+        <div>
+          <span class="inline-block text-xs font-bold uppercase tracking-wide text-accent-600 bg-accent-100 px-3 py-1 rounded-full mb-4">العملاء (Leads)</span>
+          <h3 class="font-display text-2xl md:text-3xl font-bold text-primary-800 mb-3">لا يضيع منك عميل بعد اليوم</h3>
+          <p class="text-neutral-500 leading-relaxed mb-5">التقط كل عميل من أي مصدر، ووزّعه تلقائياً على الوكيل المناسب، وتابعه حتى الإغلاق بتذكيرات لا تفوّت فرصة.</p>
+          <ul class="flex flex-col gap-2.5 text-sm text-neutral-700">
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> توزيع آلي عادل على الوكلاء (round-robin)</li>
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> تقييم العملاء تلقائياً + متابعات مجدولة</li>
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> كشف العملاء المكرّرين ودمجهم</li>
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> عرض جدول أو لوحة Kanban</li>
+          </ul>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg2 border border-neutral-100 p-4">
+          <div class="grid grid-cols-3 gap-2.5">
+            <template x-for="col in [{t:'جديد',c:'bg-info',n:'٨'},{t:'تواصل',c:'bg-accent-500',n:'٥'},{t:'عرض',c:'bg-success',n:'٣'}]" :key="col.t">
+              <div class="bg-surface-bg rounded-lg p-2">
+                <div class="flex items-center justify-between mb-2"><span class="text-[0.65rem] font-bold text-neutral-600" x-text="col.t"></span><span class="text-[0.55rem] text-white px-1.5 rounded-full" :class="col.c" x-text="col.n"></span></div>
+                <div class="flex flex-col gap-1.5">
+                  <div class="bg-white rounded p-1.5 border border-neutral-100"><div class="h-1.5 w-3/4 bg-neutral-200 rounded mb-1"></div><div class="h-1 w-1/2 bg-neutral-100 rounded"></div></div>
+                  <div class="bg-white rounded p-1.5 border border-neutral-100"><div class="h-1.5 w-2/3 bg-neutral-200 rounded mb-1"></div><div class="h-1 w-1/2 bg-neutral-100 rounded"></div></div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+
+      <!-- row 2: deals/commission (reversed) -->
+      <div class="grid md:grid-cols-2 gap-10 items-center mb-20">
+        <div class="md:order-2">
+          <span class="inline-block text-xs font-bold uppercase tracking-wide text-accent-600 bg-accent-100 px-3 py-1 rounded-full mb-4">الصفقات والعمولات</span>
+          <h3 class="font-display text-2xl md:text-3xl font-bold text-primary-800 mb-3">عمولات تُحسب نفسها بنفسها</h3>
+          <p class="text-neutral-500 leading-relaxed mb-5">تابع الصفقة عبر مراحلها، واحسب العمولة وقسّمها بين الفريق آلياً، مع أقساط وموافقات وإغلاق منظّم — بلا أخطاء يدوية.</p>
+          <ul class="flex flex-col gap-2.5 text-sm text-neutral-700">
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> تقسيم العمولة بين الوكيل والمكتب والإحالة</li>
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> جدولة الأقساط وتذكيرات التحصيل</li>
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> موافقات المدير قبل الإغلاق</li>
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> إغلاق آلي يحدّث العقار والعميل</li>
+          </ul>
+        </div>
+        <div class="md:order-1 bg-white rounded-2xl shadow-lg2 border border-neutral-100 p-5">
+          <div class="flex items-center justify-between mb-4"><span class="text-xs font-bold text-neutral-500">صفقة #٢٠٤</span><span class="text-[0.6rem] font-bold bg-success/12 text-success px-2 py-0.5 rounded-full">قيد الإغلاق</span></div>
+          <div class="font-display text-2xl font-bold text-primary-800 mb-1">٢٫٨ مليون ج.م</div>
+          <div class="text-xs text-neutral-400 mb-4">عمولة ٢٫٥٪ = <span class="text-accent-700 font-bold">٧٠٬٠٠٠ ج.م</span></div>
+          <div class="text-[0.65rem] text-neutral-500 mb-1.5">توزيع العمولة</div>
+          <div class="flex h-3 rounded-full overflow-hidden mb-4">
+            <div class="bg-accent-500" style="width:60%"></div><div class="bg-primary-700" style="width:30%"></div><div class="bg-primary-400" style="width:10%"></div>
+          </div>
+          <div class="flex justify-between text-[0.6rem] text-neutral-500"><span>الوكيل ٦٠٪</span><span>المكتب ٣٠٪</span><span>إحالة ١٠٪</span></div>
+        </div>
+      </div>
+
+      <!-- row 3: hierarchy -->
+      <div class="grid md:grid-cols-2 gap-10 items-center mb-4">
+        <div>
+          <span class="inline-block text-xs font-bold uppercase tracking-wide text-accent-600 bg-accent-100 px-3 py-1 rounded-full mb-4">الفروع والفرق</span>
+          <h3 class="font-display text-2xl md:text-3xl font-bold text-primary-800 mb-3">تحكّم كامل في كل مستوى</h3>
+          <p class="text-neutral-500 leading-relaxed mb-5">فروع وفِرق وأدوار — كل شخص يرى ما يخصّه فقط، والمالك يرى كل شيء في لوحات أداء لحظية بالأهداف والمؤشرات.</p>
+          <ul class="flex flex-col gap-2.5 text-sm text-neutral-700">
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> نطاقات رؤية حسب الدور</li>
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> أهداف ومستهدفات لكل فرع وفريق</li>
+            <li class="flex gap-2"><span class="text-accent-600">✓</span> لوحات وتقارير لحظية</li>
+          </ul>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg2 border border-neutral-100 p-5">
+          <div class="flex flex-col gap-2.5">
+            <div class="flex items-center gap-3 bg-primary-800 rounded-lg p-2.5"><div class="w-8 h-8 rounded-full bg-accent-500 text-primary-900 text-[0.6rem] font-bold flex items-center justify-center">م</div><div class="flex-1"><div class="text-xs font-semibold text-white">المالك</div><div class="text-[0.55rem] text-white/50">رؤية كاملة · كل الفروع</div></div></div>
+            <div class="flex items-center gap-3 bg-surface-bg rounded-lg p-2.5 mr-4"><div class="w-7 h-7 rounded-full bg-info text-white text-[0.55rem] font-bold flex items-center justify-center">ف١</div><div class="flex-1"><div class="text-xs font-semibold text-primary-800">فرع القاهرة</div><div class="text-[0.55rem] text-neutral-400">١٢ وكيلاً · ٤٨ صفقة</div></div><span class="text-[0.55rem] font-bold text-success">٨٢٪</span></div>
+            <div class="flex items-center gap-3 bg-surface-bg rounded-lg p-2.5 mr-8"><div class="w-7 h-7 rounded-full bg-accent-600 text-white text-[0.55rem] font-bold flex items-center justify-center">ف٢</div><div class="flex-1"><div class="text-xs font-semibold text-primary-800">فرع الجيزة</div><div class="text-[0.55rem] text-neutral-400">٨ وكلاء · ٣١ صفقة</div></div><span class="text-[0.55rem] font-bold text-warning">٦٤٪</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- "everything else" grid -->
+      <div class="mt-16">
+        <h3 class="text-center font-display text-2xl font-bold text-primary-800 mb-2">وأكثر بكثير</h3>
+        <p class="text-center text-sm text-neutral-500 mb-10">منظومة متكاملة تغطّي كل ركن في وساطتك</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <template x-for="m in modules" :key="m.t">
+            <div class="bg-white rounded-xl border border-neutral-100 p-5 shadow-card hover:shadow-md2 hover:-translate-y-0.5 transition flex flex-col gap-2">
+              <div class="w-10 h-10 rounded-lg bg-primary-50 text-primary-700 flex items-center justify-center" x-html="m.icon"></div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-primary-800 text-sm" x-text="m.t"></h4>
+                <span x-show="m.soon" class="text-[0.55rem] font-bold uppercase bg-accent-100 text-accent-700 px-1.5 py-0.5 rounded-full">قريباً</span>
+              </div>
+              <p class="text-xs text-neutral-500 leading-relaxed" x-text="m.d"></p>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ HOW IT WORKS (richer) ════════ -->
+  <section class="py-16 md:py-24 hero-bg">
+    <div class="relative z-10 max-w-5xl mx-auto px-5">
+      <div class="text-center mb-12"><span class="text-xs font-bold tracking-wider uppercase text-accent-400">أبسط مما تتخيّل</span><h2 class="font-display text-3xl md:text-4xl font-bold text-white mt-2">من التسجيل إلى أول صفقة — اليوم</h2></div>
+      <div class="grid md:grid-cols-3 gap-5">
+        <template x-for="(s,i) in steps" :key="s.title">
+          <div class="relative bg-white/5 border border-white/10 rounded-2xl p-6 text-center backdrop-blur-sm">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-accent-500 text-primary-900 flex items-center justify-center mb-4 shadow-gold" x-html="s.icon"></div>
+            <div class="font-latin text-xs font-bold text-accent-400 mb-1" x-text="'الخطوة ' + (i+1)"></div>
+            <h3 class="font-display text-xl font-bold text-white mb-2" x-text="s.title"></h3>
+            <p class="text-sm text-white/55 leading-relaxed mb-4" x-text="s.desc"></p>
+            <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-300 bg-accent-500/10 border border-accent-500/20 rounded-full px-3 py-1">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg>
+              <span x-text="s.outcome"></span>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="text-center mt-10"><a href="../2-auth/register.html" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 transition">ابدأ الآن مجاناً</a></div>
+    </div>
+  </section>
+
+  <!-- ════════ PERSONAS (richer) ════════ -->
+  <section class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-5">
+      <div class="text-center max-w-2xl mx-auto mb-14"><span class="text-xs font-bold tracking-wider uppercase text-accent-600">مصمَّم لكل دور</span><h2 class="font-display text-3xl md:text-4xl font-bold text-primary-800 mt-2">واجهة تناسب كل عضو في فريقك</h2><p class="text-neutral-500 mt-3">لكل دور أدواته ورؤيته — لا فوضى، ولا صلاحيات مفتوحة على الكل.</p></div>
+      <div class="grid sm:grid-cols-2 gap-5">
+        <template x-for="p in personas" :key="p.role">
+          <div class="bg-white rounded-2xl border border-neutral-100 p-6 shadow-card hover:shadow-md2 transition border-r-[3px]" :class="p.accent">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white" :class="p.bg" x-text="p.initials"></div>
+              <div><h3 class="font-display text-lg font-bold text-primary-800" x-text="p.role"></h3><div class="text-xs text-accent-600 font-semibold" x-text="p.tag"></div></div>
+            </div>
+            <p class="text-sm text-neutral-500 leading-relaxed mb-4" x-text="p.vignette"></p>
+            <ul class="flex flex-col gap-2 text-sm text-neutral-700">
+              <template x-for="b in p.bullets" :key="b">
+                <li class="flex items-start gap-2"><span class="shrink-0 w-4 h-4 mt-0.5 rounded-full bg-accent-100 text-accent-700 flex items-center justify-center"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.2L4 7.5L8 3"/></svg></span><span x-text="b"></span></li>
+              </template>
+            </ul>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ WHY US (sharp differentiators) ════════ -->
+  <section id="why" class="py-20 md:py-28 bg-white border-y border-neutral-100">
+    <div class="max-w-6xl mx-auto px-5">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="text-xs font-bold tracking-wider uppercase text-accent-600">لماذا Est8Core</span>
+        <h2 class="font-display text-3xl md:text-4xl font-bold text-primary-800 mt-2">ليس CRM عاماً تحاول تطويعه</h2>
+        <p class="text-neutral-500 mt-3">الأدوات العامة بُنيت لأي شركة. Est8Core بُني لشركتك أنت — وساطة عقارية عربية.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5 mb-12">
+        <template x-for="d in diffs" :key="d.t">
+          <div class="rounded-2xl border border-neutral-200 p-6 hover:border-accent-300 hover:shadow-md2 transition">
+            <div class="w-12 h-12 rounded-xl bg-accent-100 text-accent-700 flex items-center justify-center mb-4" x-html="d.icon"></div>
+            <h3 class="font-display text-lg font-bold text-primary-800 mb-2" x-text="d.t"></h3>
+            <p class="text-sm text-neutral-600 leading-relaxed mb-3" x-text="d.d"></p>
+            <div class="text-xs text-neutral-400 border-t border-neutral-100 pt-3 flex items-start gap-1.5">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#C0392B" stroke-width="2" stroke-linecap="round" class="shrink-0 mt-0.5"><path d="M5 5l6 6M11 5l-6 6"/></svg>
+              <span x-text="d.vs"></span>
+            </div>
+          </div>
+        </template>
+      </div>
+      <!-- sharp comparison strip -->
+      <div class="rounded-2xl bg-primary-800 p-6 md:p-8 text-center">
+        <h3 class="font-display text-xl md:text-2xl font-bold text-white mb-6">ما تفعله Est8Core ولا تفعله الأدوات العامة</h3>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-right">
+          <template x-for="c in cantDo" :key="c">
+            <div class="flex items-start gap-2.5 bg-white/5 rounded-xl p-3.5"><span class="shrink-0 w-6 h-6 rounded-full bg-accent-500 text-primary-900 flex items-center justify-center"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg></span><span class="text-sm text-white/85 leading-snug" x-text="c"></span></div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ ROADMAP (coming soon) ════════ -->
+  <section id="roadmap" class="py-20 md:py-28 hero-bg">
+    <div class="relative z-10 max-w-6xl mx-auto px-5">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="inline-flex items-center gap-2 bg-accent-500/12 border border-accent-500/30 rounded-full px-4 py-1.5 text-xs font-semibold text-accent-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-500" style="box-shadow:0 0 8px #C8A24B"></span> نبتكر باستمرار
+        </span>
+        <h2 class="font-display text-3xl md:text-4xl font-bold text-white mt-4">قادم قريباً إلى Est8Core</h2>
+        <p class="text-white/60 mt-3">لا نتوقّف عن التطوير — هذه لمحة عمّا نبنيه الآن ليصلك في التحديثات القادمة. منصّة تكبر وتتفوّق معك.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <template x-for="r in roadmap" :key="r.t">
+          <div class="relative bg-white/[0.05] border border-white/10 rounded-2xl p-5 backdrop-blur-sm hover:border-accent-500/40 hover:bg-white/[0.08] hover:-translate-y-0.5 transition">
+            <span class="absolute top-4 left-4 text-[0.55rem] font-bold uppercase tracking-wide bg-accent-500 text-primary-900 px-2 py-0.5 rounded-full">قريباً</span>
+            <div class="w-12 h-12 rounded-xl bg-accent-500/15 text-accent-400 flex items-center justify-center mb-4" x-html="r.icon"></div>
+            <h3 class="font-bold text-white mb-1.5 text-[0.95rem]" x-text="r.t"></h3>
+            <p class="text-xs text-white/55 leading-relaxed" x-text="r.d"></p>
+          </div>
+        </template>
+      </div>
+      <div class="text-center mt-10"><a href="./changelog.html" class="inline-flex items-center gap-2 text-accent-400 hover:text-accent-300 text-sm font-semibold transition">شاهد سجل تطوّرنا الكامل <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8H13M13 8L9 4M13 8L9 12"/></svg></a></div>
+    </div>
+  </section>
+
+  <!-- ════════ RESULTS ════════ -->
+  <section class="py-16">
+    <div class="max-w-5xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div><div class="font-display text-3xl md:text-4xl font-bold text-accent-600"><span x-data x-intersect.once="animateCount($el,200,'+','٪')">+0٪</span></div><div class="text-sm text-neutral-500 mt-1">كفاءة المتابعة</div></div>
+      <div><div class="font-display text-3xl md:text-4xl font-bold text-accent-600"><span x-data x-intersect.once="animateCount($el,40,'','٪')">0٪</span></div><div class="text-sm text-neutral-500 mt-1">أسرع في الإغلاق</div></div>
+      <div><div class="font-display text-3xl md:text-4xl font-bold text-accent-600">٥ د</div><div class="text-sm text-neutral-500 mt-1">للإعداد الكامل</div></div>
+      <div><div class="font-display text-3xl md:text-4xl font-bold text-accent-600">٢٤/٧</div><div class="text-sm text-neutral-500 mt-1">متاح دائماً</div></div>
+    </div>
+  </section>
+
+  <!-- ════════ TESTIMONIALS ════════ -->
+  <section class="py-20 md:py-24 bg-white border-y border-neutral-100">
+    <div class="max-w-6xl mx-auto px-5">
+      <div class="text-center max-w-2xl mx-auto mb-14"><span class="text-xs font-bold tracking-wider uppercase text-accent-600">آراء من الميدان</span><h2 class="font-display text-3xl md:text-4xl font-bold text-primary-800 mt-2">يثقون في Est8Core لإدارة أعمالهم</h2></div>
+      <div class="grid md:grid-cols-3 gap-5">
+        <template x-for="t in testimonials" :key="t.name">
+          <div class="bg-surface-bg rounded-2xl border border-neutral-100 p-6 flex flex-col gap-4">
+            <div class="flex gap-0.5 text-accent-500"><template x-for="i in 5" :key="i"><svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1l2 4.5 4.9.4-3.7 3.2 1.1 4.8L8 11.4 3.7 13.9l1.1-4.8L1.1 5.9l4.9-.4z"/></svg></template></div>
+            <p class="text-sm text-neutral-700 leading-relaxed flex-1" x-text="t.quote"></p>
+            <div class="flex items-center gap-3 pt-2 border-t border-neutral-200">
+              <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-xs" :class="t.bg" x-text="t.initials"></div>
+              <div><div class="text-sm font-bold text-primary-800" x-text="t.name"></div><div class="text-xs text-neutral-400" x-text="t.role"></div></div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ PRICING ════════ -->
+  <section id="pricing" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-5">
+      <div class="text-center max-w-2xl mx-auto mb-8"><span class="text-xs font-bold tracking-wider uppercase text-accent-600">خطط وأسعار</span><h2 class="font-display text-3xl md:text-4xl font-bold text-primary-800 mt-2">خطط تناسب نموّك</h2><p class="text-neutral-500 mt-3">ابدأ مجاناً ١٤ يوماً — بلا بطاقة. ترقية أو تخفيض في أي وقت.</p></div>
+      <div class="flex justify-center mb-10">
+        <div class="inline-flex items-center bg-neutral-100 border-[1.5px] border-neutral-200 rounded-full p-1">
+          <button @click="billing='monthly'" class="px-5 py-2 rounded-full text-sm font-semibold transition" :class="billing==='monthly' ? 'bg-primary-800 text-white shadow-card' : 'text-neutral-500'">شهري</button>
+          <button @click="billing='yearly'" class="px-5 py-2 rounded-full text-sm font-semibold transition flex items-center gap-2" :class="billing==='yearly' ? 'bg-primary-800 text-white shadow-card' : 'text-neutral-500'">سنوي <span class="text-[0.6rem] font-bold bg-accent-500 text-primary-900 px-2 py-0.5 rounded-full">وفّر 20%</span></button>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-5 max-w-4xl mx-auto items-start">
+        <template x-for="p in plans" :key="p.id">
+          <div class="relative rounded-2xl border-2 p-6 transition bg-white" :class="p.popular ? 'border-accent-500 shadow-gold md:-translate-y-3' : 'border-neutral-200 shadow-card'">
+            <span x-show="p.popular" class="absolute -top-3 right-6 bg-accent-500 text-primary-900 text-[0.65rem] font-bold px-3 py-0.5 rounded-full shadow-gold">الأكثر شعبية</span>
+            <div class="text-[0.65rem] font-bold tracking-wider uppercase text-accent-600 mb-1" x-text="p.tier"></div>
+            <div class="font-display text-2xl font-bold text-primary-800 mb-3" x-text="p.name"></div>
+            <div class="flex items-baseline gap-1 mb-5"><span class="font-display text-4xl font-bold" :class="p.popular ? 'text-accent-700':'text-primary-800'" x-text="priceOf(p)"></span><span class="text-sm text-neutral-400" x-show="p.id!=='enterprise'" x-text="billing==='yearly'?'ج.م/سنوياً':'ج.م/شهرياً'"></span></div>
+            <ul class="flex flex-col gap-2.5 text-sm text-neutral-700 mb-6">
+              <template x-for="f in p.features" :key="f"><li class="flex items-start gap-2"><span class="w-4 h-4 mt-0.5 rounded-full shrink-0 flex items-center justify-center" :class="p.popular?'bg-accent-500 text-primary-900':'bg-accent-100 text-accent-700'"><svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.2L4 7.5L8 3"/></svg></span><span x-text="f"></span></li></template>
+            </ul>
+            <a :href="p.id==='enterprise' ? 'mailto:sales@est8core.com' : '../2-auth/register.html?plan='+p.id" class="block text-center px-5 py-2.5 rounded-lg text-sm font-semibold transition" :class="p.popular ? 'bg-accent-500 text-primary-900 hover:bg-accent-400' : 'border border-primary-800 text-primary-800 hover:bg-primary-50'" x-text="p.cta"></a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ FAQ ════════ -->
+  <section id="faq" class="py-20 bg-white border-t border-neutral-100">
+    <div class="max-w-3xl mx-auto px-5">
+      <div class="text-center mb-10"><h2 class="font-display text-3xl font-bold text-primary-800">أسئلة شائعة</h2></div>
+      <div class="flex flex-col gap-3">
+        <template x-for="(q,i) in faqs" :key="i">
+          <div class="rounded-xl border border-neutral-200 overflow-hidden">
+            <button @click="faq = (faq===i ? null : i)" class="w-full flex items-center justify-between gap-4 px-5 py-4 text-right hover:bg-neutral-50 transition">
+              <span class="font-semibold text-primary-800 text-sm" x-text="q.q"></span>
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" class="shrink-0 text-accent-600 transition-transform" :class="faq===i ? 'rotate-180':''" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </button>
+            <div x-show="faq===i" x-collapse><p class="px-5 pb-4 text-sm text-neutral-500 leading-relaxed" x-text="q.a"></p></div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ FINAL CTA + FOOTER ════════ -->
+  <footer class="hero-bg pt-20 pb-10">
+    <div class="relative z-10 max-w-3xl mx-auto px-5 text-center mb-14">
+      <span class="inline-flex items-center gap-2 bg-accent-500/12 border border-accent-500/30 rounded-full px-4 py-1.5 text-xs font-semibold text-accent-400 mb-5">جاهزة، بلا مخاطرة</span>
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">توقّف عن خسارة الصفقات.<br>ابدأ اليوم.</h2>
+      <p class="text-white/60 mb-7 text-lg max-w-xl mx-auto">جرّب Est8Core مجاناً ١٤ يوماً. لو لم يعجبك، ألغِ بنقرة — بلا أسئلة، وبلا التزام.</p>
+      <div class="flex flex-wrap items-center justify-center gap-4 mb-6">
+        <a href="../2-auth/register.html" class="inline-flex items-center gap-2 px-8 py-4 rounded-xl text-base font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 hover:-translate-y-0.5 transition">أنشئ حسابك الآن</a>
+        <a href="mailto:sales@est8core.com" class="inline-flex items-center gap-2 px-7 py-4 rounded-xl text-base font-semibold text-white border border-white/20 hover:bg-white/5 transition">احجز عرضاً توضيحياً</a>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-white/50">
+        <span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg> بلا بطاقة</span>
+        <span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg> إعداد ٥ دقائق</span>
+        <span class="inline-flex items-center gap-1.5"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg> إلغاء بأي وقت</span>
+      </div>
+    </div>
+    <div class="relative z-10 max-w-6xl mx-auto px-5 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2.5"><img src="../_shared/logo-gold.png" alt="Est8Core" class="w-8 h-8 object-contain" /><span class="font-latin font-bold text-white">Est8<span class="text-accent-500">Core</span></span></div>
+      <div class="text-sm text-white/40">© 2026 Est8Core — من أول lead لإغلاق الصفقة</div>
+      <div class="flex gap-5 text-sm text-white/60"><a href="./changelog.html" class="hover:text-accent-400">ما الجديد</a><a href="#" class="hover:text-accent-400">الخصوصية</a><a href="#" class="hover:text-accent-400">الدعم</a></div>
+    </div>
+  </footer>
+
+  <script>
+    function animateCount(el, target, prefix='', suffix='', dur=1500) {
+      const start = performance.now();
+      const fmt = (n) => prefix + Math.floor(n).toLocaleString('ar-EG') + suffix;
+      function tick(now) { const p = Math.min((now - start) / dur, 1); const e = 1 - Math.pow(1 - p, 3); el.textContent = fmt(e * target); if (p < 1) requestAnimationFrame(tick); else el.textContent = fmt(target); }
+      requestAnimationFrame(tick);
+    }
+    const I = {
+      home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+      cal:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+      chart:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/></svg>',
+      target:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>',
+      io:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>',
+      bell:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>',
+      users:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg>',
+      chat:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>',
+      shield:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 2.5V11c0 4.5-3 7.6-7 8.6C8 18.6 5 15.5 5 11V5.5z"/><path d="M9 12l2 2 4-4"/></svg>',
+      bolt:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>',
+      globe:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg>',
+      coins:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>',
+      reg:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>',
+      auto:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-2.6-6.4"/><path d="M21 3v5h-5"/></svg>',
+      team:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>',
+      copilot:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 4.6L18.5 8l-4.7 1.4L12 14l-1.8-4.6L5.5 8l4.7-1.4z"/><path d="M19 14v4M17 16h4M5 17v3M3.5 18.5h3"/></svg>',
+      robot:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="13.5" r="1"/><circle cx="15" cy="13.5" r="1"/><path d="M2 13h2M20 13h2M9 17h6"/></svg>',
+      plug:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007 0l2.5-2.5a5 5 0 00-7-7L11 4.5"/><path d="M14 11a5 5 0 00-7 0L4.5 13.5a5 5 0 007 7L13 19.5"/></svg>',
+      api:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 6 2 12 8 18"/><polyline points="16 6 22 12 16 18"/><line x1="13" y1="4" x2="11" y2="20"/></svg>',
+      sign:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17c2 0 2-2 4-2s2 2 4 2 2-2 4-2"/><path d="M16 3.5a2.1 2.1 0 013 3L9 16.5 5 17l.5-4z"/></svg>',
+      portal:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 14h6"/></svg>',
+      phone:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>',
+    };
+
+    function landing() {
+      return {
+        scrolled:false, menu:false, billing:'yearly', faq:0,
+        init() { this.scrolled = window.scrollY > 20; window.addEventListener('scroll', () => { this.scrolled = window.scrollY > 20; }); },
+
+        scenarios: [
+          { pain:'عميل راسلك على واتساب الساعة ١١ مساءً — وبحلول الصباح نسيته تماماً.', fix:'يُسجَّل العميل فوراً ويُذكّرك بالمتابعة في وقتها — لا أحد يسقط من الشبكة.' },
+          { pain:'وكيلك أغلق صفقة، لكن حساب العمولة كان خاطئاً — وخسرت أنت الفرق.', fix:'العمولة تُحسب وتُقسَّم تلقائياً بين الوكيل والمكتب — صحيحة في كل مرة.' },
+          { pain:'lead مستعجل ذهب لوكيل مشغول، تأخّر الرد، فاشترى العميل من غيرك.', fix:'التوزيع الآلي يسلّمه فوراً للوكيل المناسب والمتاح — رد أسرع، صفقة محفوظة.' },
+          { pain:'سألك المالك: كيف أداء الفروع هذا الشهر؟ ولا أحد يملك رقماً دقيقاً.', fix:'لوحة لحظية تعرض كل فرع ووكيل بأرقامه وأهدافه — جواب فوري بالأرقام.' },
+        ],
+
+        modules: [
+          { t:'إدارة العقارات', d:'مخزون كامل، نشر، صفحات عامة، ومطابقة العقار بالعميل.', icon:I.home },
+          { t:'الأنشطة والتقويم', d:'مواعيد المعاينات والمكالمات والمهام في تقويم واحد.', icon:I.cal },
+          { t:'التقارير والتحليلات', d:'قمع التحويل، الأداء، والعمولات — قرارات بالأرقام.', icon:I.chart },
+          { t:'الأهداف والمستهدفات', d:'أهداف هرمية لكل فرع ووكيل مع متابعة التحقيق.', icon:I.target },
+          { t:'الاستيراد والتصدير', d:'استورد عملاءك القدامى وصدّر بياناتك بضغطة.', icon:I.io },
+          { t:'الإشعارات اللحظية', d:'تنبيهات فورية للمتابعات والصفقات والمهام.', icon:I.bell },
+          { t:'جهات الاتصال الموحّدة', d:'ملف واحد لكل عميل يجمع تواصله وصفقاته وعقاراته.', icon:I.users },
+        ],
+        roadmap: [
+          { t:'مساعد ذكاء اصطناعي', d:'اسأل نظامك بالعربية عن عملائك وصفقاتك، واحصل على ملخّص واقتراح للإجراء التالي.', icon:I.copilot },
+          { t:'ردود آلية بالذكاء الاصطناعي', d:'يردّ على عملائك ويؤهّلهم تلقائياً على مدار الساعة — حتى وأنت نائم.', icon:I.robot },
+          { t:'تكامل المنصات العقارية', d:'اربط Master V وغيرها لتتدفّق العقارات والبيانات مباشرة إلى داشبوردك.', icon:I.plug },
+          { t:'API عام + Webhooks', d:'اربط Est8Core بأي موقع أو أداة خارجية بسهولة وأمان.', icon:I.api },
+          { t:'توقيع إلكتروني للعقود', d:'وقّع العقود وأكمل الصفقة من داخل النظام — بلا ورق ولا تأخير.', icon:I.sign },
+          { t:'بوابة العميل', d:'رابط خاص يتابع فيه عميلك صفقته وعقاراته المقترحة لحظياً.', icon:I.portal },
+          { t:'تطبيق جوال', d:'أدِر وساطتك من جيبك على iOS و Android في أي مكان.', icon:I.phone },
+          { t:'صندوق واتساب مدمج', d:'كل محادثاتك مع العملاء داخل النظام، مرتبطة تلقائياً بملفاتهم.', icon:I.chat },
+        ],
+
+        steps: [
+          { title:'سجّل شركتك', desc:'اختر نوع حسابك وأدخل بياناتك في معالج بسيط من خطوات.', outcome:'حسابك جاهز في دقائق', icon:I.reg },
+          { title:'إعداد تلقائي', desc:'نجهّز لك الأدوار والمراحل ومصادر العملاء وأنواع العقارات فوراً.', outcome:'بلا إعداد يدوي ولا استشاريين', icon:I.auto },
+          { title:'ادعُ فريقك وابدأ', desc:'أرسل الدعوات، وابدأ التقاط العملاء وتحريك صفقاتك نحو الإغلاق.', outcome:'أول صفقة قد تكون اليوم', icon:I.team },
+        ],
+
+        personas: [
+          { role:'المالك', tag:'الصورة الكاملة', initials:'مالك', bg:'bg-primary-700', accent:'border-primary-700', vignette:'لوحة واحدة تجمع أداء كل فرع ووكيل، الإيرادات والعمولات، وصحة خطّ المبيعات — قرارات مبنية على أرقام لحظية لا تخمين.', bullets:['مقارنة أداء الفروع جنباً إلى جنب','تقارير تنفيذية وهوامش العمولات','تنبيه فوري بالصفقات الكبيرة'] },
+          { role:'مدير الفرع', tag:'قائد بالأرقام', initials:'مدير', bg:'bg-accent-600', accent:'border-accent-500', vignette:'يدير فرعه وفِرقه: يوزّع العملاء، يضع أهداف الفرع ويتابع تحقيقها، ويعتمد الصفقات الكبيرة قبل إغلاقها.', bullets:['توزيع العملاء على الوكلاء','أهداف الفريق ومتابعتها','موافقات الصفقات والعمولات'] },
+          { role:'قائد الفريق', tag:'موازنة وإغلاق', initials:'قائد', bg:'bg-info', accent:'border-info', vignette:'يشرف على وكلائه عن قرب: يوازن الأحمال بينهم، يراجع متابعاتهم وصفقاتهم لحظياً، ويتدخّل قبل أن تبرد أي فرصة.', bullets:['متابعة أداء كل وكيل','توزيع الأحمال بعدالة','مراجعة المتابعات المتأخرة'] },
+          { role:'وكيل المبيعات', tag:'أداة بيع لا إدارة', initials:'وكيل', bg:'bg-success', accent:'border-success', vignette:'كل عملائه وصفقاته في شاشة واحدة بسيطة، مع تذكيرات بالمتابعات ومطابقة العقارات — يركّز على البيع لا على الأوراق.', bullets:['عملائي وصفقاتي في مكان واحد','تذكيرات لا تفوّت متابعة','مطابقة العقار المناسب للعميل'] },
+        ],
+
+        diffs: [
+          { t:'مبنيّ للعقارات من الصفر', d:'كل شاشة — من مطابقة العقار بالعميل حتى تقسيم العمولة — مصمّمة لدورة عمل الوساطة، لا قوالب عامة.', vs:'الأدوات العامة تحتاج شهوراً من التخصيص لتقترب.', icon:I.home },
+          { t:'عمولات وأقساط بالعقل الآلي', d:'احسب العمولة، قسّمها بين الوكيل والمكتب والإحالة، وجدول الأقساط — تلقائياً وبلا خطأ.', vs:'في الـ CRM العام: جداول Excel جانبية معرّضة للخطأ.', icon:I.coins },
+          { t:'عربيّ أصيل (RTL)', d:'بُني عربياً من أول بكسل — اتجاه وخطوط وتجربة كاملة، لا طبقة ترجمة فوق واجهة أجنبية.', vs:'المنافس الأجنبي = واجهة LTR مترجَمة ومكسورة.', icon:I.globe },
+          { t:'هرمية وساطة حقيقية', d:'فروع، فِرق، أدوار، نطاقات رؤية، وتوزيع leads آلي بحسب الفرع والتخصص.', vs:'صلاحيات الأدوات العامة مسطّحة — الكل يرى الكل.', icon:I.team },
+          { t:'جاهز في ٥ دقائق', d:'سجّل ويُجهَّز حسابك كاملاً فوراً — أدوار ومراحل ومصادر وأنواع عقارات.', vs:'مشاريع الـ CRM العامة = أسابيع إعداد واستشاريين.', icon:I.bolt },
+          { t:'دعم وأسعار محلية', d:'بوابات دفع محلية، عملة محلية، ودعم يفهم سوقك العقاري واحتياجك.', vs:'الأجنبي = رقم تذكرة في شركة عبر المحيط.', icon:I.shield },
+        ],
+        cantDo: ['حساب العمولات وتقسيمها بين الوكلاء آلياً','جدولة الأقساط وموافقات الإغلاق','توزيع العملاء آلياً حسب الفرع والتخصص','نشر العقارات وصفحات عامة قابلة للمشاركة'],
+
+        testimonials: [
+          { name:'محمد العتيبي', role:'مالك شركة وساطة', initials:'مع', bg:'bg-primary-700', quote:'"أول مرة أقدر أشوف كل فروعي وأداء كل وكيل في شاشة واحدة. توقفت الصفقات عن الضياع تماماً."' },
+          { name:'سارة الدوسري', role:'مديرة فرع', initials:'سد', bg:'bg-accent-600', quote:'"توزيع العملاء الآلي وفّر علينا ساعات كل يوم، والعمولات بقت تتحسب لوحدها بلا أي خطأ."' },
+          { name:'كريم عادل', role:'وكيل مبيعات', initials:'كع', bg:'bg-info', quote:'"الواجهة بسيطة وسريعة، وكل عميل قدّامي بكل تفاصيله. ركّزت في البيع بدل الأوراق."' },
+        ],
+        plans: [
+          { id:'starter', name:'Starter', tier:'للمبتدئين', monthly:299, yearly:2870, popular:false, cta:'ابدأ الآن', features:['حتى 5 مستخدمين','فرع واحد','حتى 200 عميل','تقارير أساسية'] },
+          { id:'professional', name:'Professional', tier:'الأفضل قيمة', monthly:799, yearly:7670, popular:true, cta:'ابدأ الآن', features:['حتى 25 مستخدماً','حتى 5 فروع','عملاء غير محدودين','واتساب مدمج (قريباً)','تقارير متقدمة'] },
+          { id:'enterprise', name:'Enterprise', tier:'للمؤسسات', monthly:0, yearly:0, popular:false, cta:'تواصل معنا', features:['مستخدمون وفروع غير محدودة','SLA + دعم مخصص','تكامل API + White-label','تدريب وإعداد'] },
+        ],
+        faqs: [
+          { q:'هل أحتاج بطاقة ائتمانية للتجربة؟', a:'لا — التجربة المجانية ١٤ يوماً لا تتطلب أي بيانات دفع. سجّل وابدأ فوراً.' },
+          { q:'كم يستغرق إعداد النظام؟', a:'دقائق فقط. بمجرد التسجيل نجهّز لك الأدوار والمراحل ومصادر العملاء وأنواع العقارات تلقائياً.' },
+          { q:'هل يناسب البروكر الفردي أم الشركات فقط؟', a:'الاثنان. تختار نوع حسابك عند التسجيل — شركة وساطة بهيكل هرمي كامل، أو بروكر فردي بإعداد مبسّط.' },
+          { q:'هل يدعم النظام التواصل عبر واتساب؟', a:'تكامل واتساب المدمج قادم قريباً ضمن تحديثاتنا القادمة — للتواصل مع عملائك وربط المحادثات بملفاتهم تلقائياً.' },
+          { q:'هل بياناتي آمنة؟', a:'نعم — عزل كامل لبيانات كل شركة، مصادقة ثنائية، ونسخ احتياطي منتظم. خصوصيتك أولوية.' },
+          { q:'هل يمكنني الترقية أو الإلغاء لاحقاً؟', a:'بالتأكيد — غيّر خطتك في أي وقت، وتُطبَّق التغييرات فوراً بلا أي التزام طويل.' },
+        ],
+        priceOf(p) { if(p.id==='enterprise') return 'تواصل'; var v = this.billing==='yearly'?p.yearly:p.monthly; return v.toLocaleString('ar-EG'); },
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — ما الجديد · سجل التحديثات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', md2:'0 4px 16px rgba(11,31,58,0.10)', gold:'0 4px 20px rgba(200,162,75,0.25)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif; }
+    .font-display { font-family: 'Amiri', Georgia, serif; }
+    .font-latin { font-family: 'Inter', system-ui, sans-serif; }
+    [x-cloak] { display: none !important; }
+    .hero-bg { background: linear-gradient(160deg,#060F1E 0%,#0B1F3A 55%,#102A4C 100%); position:relative; overflow:hidden; }
+    .hero-bg::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse 60% 50% at 75% 10%, rgba(200,162,75,0.10) 0%, transparent 60%); pointer-events:none; }
+  </style>
+</head>
+
+<body class="bg-surface-bg text-neutral-800" x-data="changelog()" x-cloak>
+
+  <!-- ══ Nav ══ -->
+  <nav class="bg-white/95 backdrop-blur border-b border-neutral-100 sticky top-0 z-40">
+    <div class="max-w-3xl mx-auto px-5 py-3 flex items-center justify-between">
+      <a href="landing.html" class="flex items-center gap-2.5">
+        <img src="../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+        <span class="font-latin text-lg font-bold text-primary-800">Est8<span class="text-accent-600">Core</span></span>
+      </a>
+      <div class="flex items-center gap-4">
+        <a href="landing.html" class="hidden sm:inline text-sm font-semibold text-neutral-500 hover:text-primary-700 transition">الرئيسية</a>
+        <a href="../2-auth/register.html" class="px-4 py-2 rounded-lg text-sm font-semibold bg-accent-500 text-primary-900 shadow-gold hover:bg-accent-400 transition">ابدأ مجاناً</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ Hero ══ -->
+  <header class="hero-bg py-16 md:py-20">
+    <div class="relative z-10 max-w-3xl mx-auto px-5 text-center flex flex-col items-center gap-5">
+      <span class="inline-flex items-center gap-2 bg-accent-500/12 border border-accent-500/30 rounded-full px-5 py-1.5 text-xs font-semibold text-accent-400 uppercase tracking-wider">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent-500" style="box-shadow:0 0 8px #C8A24B"></span>
+        نطوّر باستمرار
+      </span>
+      <h1 class="font-display text-3xl md:text-5xl font-bold text-white leading-tight">ما الجديد في <span class="text-accent-400">Est8Core</span></h1>
+      <p class="text-base md:text-lg text-white/65 max-w-xl leading-relaxed">نُضيف مميزات جديدة وتحسينات بشكل منتظم — لأن نجاح وساطتك يستحق منصّة تكبر وتتطوّر معك يوماً بعد يوم.</p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-6 pt-6 border-t border-white/10 w-full max-w-2xl">
+        <template x-for="s in stats" :key="s.label">
+          <div class="text-center"><div class="font-display text-2xl md:text-3xl font-bold text-accent-400" x-text="s.value"></div><div class="text-xs text-white/50 mt-1" x-text="s.label"></div></div>
+        </template>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ Subscribe bar ══ -->
+  <section class="max-w-3xl mx-auto px-5 -mt-7 relative z-20">
+    <div class="bg-white rounded-2xl shadow-md2 border border-neutral-100 p-5 flex flex-col sm:flex-row items-center gap-3">
+      <div class="flex items-center gap-3 flex-1">
+        <span class="w-10 h-10 rounded-xl bg-accent-100 text-accent-700 flex items-center justify-center shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 6l-10 7L2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+        </span>
+        <div><div class="font-semibold text-primary-800 text-sm">ابقَ على اطّلاع</div><div class="text-xs text-neutral-500">استلم كل تحديث جديد على بريدك.</div></div>
+      </div>
+      <template x-if="!subscribed">
+        <form @submit.prevent="subscribe()" class="flex gap-2 w-full sm:w-auto">
+          <input type="email" dir="ltr" x-model="email" placeholder="you@company.com" class="flex-1 sm:w-56 px-3 py-2.5 text-sm border-[1.5px] border-neutral-200 rounded-lg outline-none focus:border-primary-600 focus:ring-2 focus:ring-primary-800/10" />
+          <button type="submit" :disabled="!/.+@.+\..+/.test(email)" class="px-4 py-2.5 rounded-lg text-sm font-semibold bg-primary-800 text-white hover:bg-primary-700 transition disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap">اشترك</button>
+        </form>
+      </template>
+      <template x-if="subscribed">
+        <div class="flex items-center gap-2 text-sm font-semibold text-success"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5L6.5 12L13 4.5"/></svg> تم الاشتراك بنجاح!</div>
+      </template>
+    </div>
+  </section>
+
+  <!-- ══ Filter ══ -->
+  <section class="max-w-3xl mx-auto px-5 pt-12 pb-6">
+    <div class="flex flex-wrap items-center justify-center gap-2">
+      <button @click="filter='all'" class="px-4 py-1.5 rounded-full text-sm font-semibold border transition" :class="filter==='all' ? 'bg-primary-800 text-white border-primary-800' : 'bg-white text-neutral-600 border-neutral-200 hover:border-primary-300'">الكل</button>
+      <template x-for="key in Object.keys(typeMeta)" :key="key">
+        <button @click="filter=key" class="px-4 py-1.5 rounded-full text-sm font-semibold border transition flex items-center gap-1.5" :class="filter===key ? 'text-white border-transparent '+typeMeta[key].solid : 'bg-white text-neutral-600 border-neutral-200 hover:border-primary-300'">
+          <span class="w-3.5 h-3.5 inline-block" x-html="typeMeta[key].icon"></span><span x-text="typeMeta[key].label"></span>
+        </button>
+      </template>
+    </div>
+  </section>
+
+  <!-- ══ Timeline ══ -->
+  <section class="max-w-3xl mx-auto px-5 pb-20">
+    <div class="relative">
+      <div class="absolute top-2 bottom-2 right-[19px] md:right-[27px] w-0.5 bg-gradient-to-b from-accent-400 via-accent-200 to-transparent"></div>
+
+      <!-- Coming soon -->
+      <div x-show="filter==='all' || filter==='new'" class="relative pr-14 md:pr-20 pb-8">
+        <div class="absolute right-2 md:right-3 top-1 w-9 h-9 md:w-12 md:h-12 rounded-full bg-accent-50 border-2 border-dashed border-accent-400 flex items-center justify-center shadow-card z-10">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#B08B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        </div>
+        <div class="rounded-2xl border-2 border-dashed border-accent-300 bg-gradient-to-br from-accent-50 to-white p-5 md:p-6">
+          <div class="flex items-center gap-3 mb-1">
+            <span class="text-[0.65rem] font-bold uppercase tracking-wide bg-accent-500 text-primary-900 px-2.5 py-1 rounded-full">قيد التطوير</span>
+            <span class="text-xs text-neutral-400 mr-auto">على الطريق</span>
+          </div>
+          <h3 class="font-display text-xl md:text-2xl font-bold text-primary-800 mb-1">قادم قريباً</h3>
+          <p class="text-sm text-neutral-500 mb-4">مميزات نعمل عليها الآن لتصلك في التحديثات القادمة.</p>
+          <ul class="flex flex-col gap-3">
+            <template x-for="(u, ui) in upcoming" :key="ui">
+              <li class="flex items-start gap-3">
+                <span class="shrink-0 mt-0.5 inline-flex items-center gap-1.5 text-[0.7rem] font-bold px-2.5 py-1 rounded-full bg-accent-100 text-accent-800">
+                  <span class="w-3 h-3 inline-block"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>قريباً
+                </span>
+                <span class="text-sm md:text-[0.95rem] text-neutral-700 leading-relaxed pt-1" x-text="u"></span>
+              </li>
+            </template>
+          </ul>
+        </div>
+      </div>
+
+      <template x-for="(r, idx) in releases" :key="r.version">
+        <div x-show="visibleChanges(r).length > 0" class="relative pr-14 md:pr-20 pb-8">
+          <!-- node -->
+          <div class="absolute right-2 md:right-3 top-1 w-9 h-9 md:w-12 md:h-12 rounded-full bg-white border-2 flex items-center justify-center shadow-card z-10"
+               :class="idx===0 ? 'border-accent-500' : 'border-neutral-200'">
+            <span class="w-3 h-3 md:w-4 md:h-4 rounded-full" :class="idx===0 ? 'bg-accent-500' : 'bg-neutral-300'"></span>
+          </div>
+
+          <!-- card -->
+          <div class="bg-white rounded-2xl border border-neutral-100 shadow-card p-5 md:p-6">
+            <div class="flex flex-wrap items-center gap-3 mb-1">
+              <span x-show="idx===0" class="text-[0.65rem] font-bold uppercase tracking-wide bg-success/12 text-success px-2.5 py-1 rounded-full">الأحدث</span>
+              <span class="text-xs text-neutral-400 font-latin mr-auto" x-text="r.date"></span>
+            </div>
+            <h3 class="font-display text-xl md:text-2xl font-bold text-primary-800 mb-4" x-text="r.title"></h3>
+            <ul class="flex flex-col gap-3">
+              <template x-for="(c, ci) in visibleChanges(r)" :key="ci">
+                <li class="flex items-start gap-3">
+                  <span class="shrink-0 mt-0.5 inline-flex items-center gap-1.5 text-[0.7rem] font-bold px-2.5 py-1 rounded-full" :class="typeMeta[c.type].chip">
+                    <span class="w-3 h-3 inline-block" x-html="typeMeta[c.type].icon"></span><span x-text="typeMeta[c.type].label"></span>
+                  </span>
+                  <span class="text-sm md:text-[0.95rem] text-neutral-700 leading-relaxed pt-1" x-text="c.text"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <div class="text-center mt-8 pt-8 border-t border-neutral-100">
+      <p class="text-neutral-500 mb-4">وهذه البداية فقط — القادم أكبر وأفضل.</p>
+      <a href="../2-auth/register.html" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-primary-800 text-white hover:bg-primary-700 transition">
+        انضمّ وكُن جزءاً من رحلة التطوير
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8H13M13 8L9 4M13 8L9 12"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ══ Footer ══ -->
+  <footer class="hero-bg py-8">
+    <div class="relative z-10 max-w-3xl mx-auto px-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5"><img src="../_shared/logo-gold.png" alt="Est8Core" class="w-8 h-8 object-contain" /><span class="font-latin font-bold text-white">Est8<span class="text-accent-500">Core</span></span></div>
+      <div class="text-sm text-white/40">© 2026 Est8Core — نطوّر من أجلك</div>
+    </div>
+  </footer>
+
+  <script>
+    function changelog() {
+      const ICON = {
+        // clean inline SVGs (currentColor) — no emojis
+        new:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4z"/><path d="M19 13.5v3M17.5 15h3"/></svg>',
+        improved: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></svg>',
+        security: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M12 3l7 2.5V11c0 4.5-3 7.6-7 8.6C8 18.6 5 15.5 5 11V5.5z"/><path d="M9 12l2 2 4-4"/></svg>',
+      };
+      return {
+        filter: 'all',
+        email: '', subscribed: false,
+        stats: [
+          { value:'٧',     label:'إصدارات' },
+          { value:'+٤٠',   label:'ميزة جديدة' },
+          { value:'شهرياً', label:'وتيرة التحديث' },
+          { value:'٩٩٫٩٪', label:'جاهزية الخدمة' },
+        ],
+        // three client-friendly categories — clean icons, no jargon
+        typeMeta: {
+          new:      { label:'ميزة جديدة',  icon: ICON.new,      chip:'bg-success/12 text-success',      solid:'bg-success' },
+          improved: { label:'تحسين',       icon: ICON.improved, chip:'bg-info/12 text-info',            solid:'bg-info' },
+          security: { label:'أمان وحماية', icon: ICON.security, chip:'bg-primary-100 text-primary-700', solid:'bg-primary-800' },
+        },
+        // Plain-language, benefit-focused — written for non-technical readers.
+        releases: [
+          { version:'2.3', date:'يونيو ٢٠٢٦', title:'تجربة أسهل من أول لحظة', changes:[
+            { type:'new', text:'صفحة أسعار واضحة تعرض الباقات والمميزات قبل التسجيل — تعرف ما يناسبك فوراً.' },
+            { type:'new', text:'سجّل دخولك بنقرة واحدة عبر حساب Google أو Facebook أو LinkedIn.' },
+            { type:'improved', text:'صفحات أسرع في الفتح لتجربة أكثر سلاسة وراحة.' },
+            { type:'security', text:'حماية أقوى لحسابك عند استعادة كلمة المرور.' },
+          ]},
+          { version:'2.2', date:'يونيو ٢٠٢٦', title:'مدفوعات وفواتير أسهل', changes:[
+            { type:'new', text:'ادفع بالطريقة التي تناسبك — بطاقة، محفظة إلكترونية، أو تحويل بنكي.' },
+            { type:'new', text:'فواتير وإيصالات رسمية جاهزة للطباعة بالعربية بضغطة زر.' },
+            { type:'new', text:'باقات واشتراكات مرنة تكبر مع نموّ شركتك.' },
+            { type:'improved', text:'تجديد تلقائي للاشتراك — خدمتك مستمرة بلا انقطاع.' },
+          ]},
+          { version:'2.1', date:'مايو ٢٠٢٦', title:'تنبيهات لحظية وتجربة أسرع', changes:[
+            { type:'new', text:'تنبيهات فورية لحظة حدوث أي تحديث مهم — متابعة، صفقة، أو مهمة — دون الحاجة لتحديث الصفحة.' },
+            { type:'improved', text:'تحديث لحظي للوحات والأرقام أمامك مباشرة.' },
+            { type:'improved', text:'تجربة استخدام أسرع وأكثر سلاسة عبر كل النظام.' },
+          ]},
+          { version:'2.0', date:'أبريل ٢٠٢٦', title:'نظّم فريقك وصلاحياته', changes:[
+            { type:'new', text:'أنشئ فروعاً وفِرقاً، وحدّد ما يراه كل موظف — كل شخص يطّلع على ما يخصّه فقط.' },
+            { type:'new', text:'توزيع العملاء الجدد تلقائياً على الوكلاء بالتساوي والعدل.' },
+            { type:'security', text:'تحكّم كامل في صلاحيات الاطّلاع والتعديل لكل دور.' },
+          ]},
+          { version:'1.5', date:'مارس ٢٠٢٦', title:'الصفقات والعمولات', changes:[
+            { type:'new', text:'تابع صفقاتك من أول اهتمام حتى الإغلاق في لوحة واحدة منظّمة.' },
+            { type:'new', text:'حساب العمولات تلقائياً وتقسيمها بين أعضاء الفريق.' },
+            { type:'new', text:'جدولة الأقساط وتذكيرات الدفع — لا تنسَ تحصيلاً.' },
+          ]},
+          { version:'1.4', date:'فبراير ٢٠٢٦', title:'العقارات وملفات العملاء', changes:[
+            { type:'new', text:'مخزون عقارات كامل مع صفحات أنيقة قابلة للمشاركة مع عملائك.' },
+            { type:'new', text:'ملف موحّد لكل عميل يجمع تواصله وصفقاته وعقاراته في مكان واحد.' },
+            { type:'improved', text:'أداء أسرع وتجربة أكثر سلاسة في كل الشاشات.' },
+          ]},
+          { version:'1.0', date:'يناير ٢٠٢٦', title:'انطلاقة Est8Core', changes:[
+            { type:'new', text:'منصّة متكاملة لإدارة وساطتك العقارية مع إعداد فوري لحسابك.' },
+            { type:'new', text:'إدارة كاملة للعملاء المحتملين من أول تواصل حتى الإغلاق.' },
+            { type:'security', text:'حماية حسابك بخطوة تحقق إضافية لأمان أعلى.' },
+          ]},
+        ],
+        // Future features — clearly marked, not yet shipped.
+        upcoming: [
+          'مساعد ذكاء اصطناعي: اسأل نظامك بالعربية عن عملائك وصفقاتك، واحصل على اقتراح الإجراء التالي.',
+          'ردود آلية بالذكاء الاصطناعي تردّ على عملائك وتؤهّلهم على مدار الساعة — حتى وأنت نائم.',
+          'تكامل المنصات العقارية (مثل Master V) لتدفّق العقارات والبيانات مباشرة إلى داشبوردك.',
+          'API عام + Webhooks لربط Est8Core بأي موقع أو أداة خارجية بسهولة.',
+          'توقيع إلكتروني للعقود لإتمام الصفقة من داخل النظام — بلا ورق.',
+          'بوابة العميل: رابط خاص يتابع فيه عميلك صفقته وعقاراته المقترحة.',
+          'تطبيق جوال لنظامَي iOS و Android للعمل من أي مكان.',
+          'صندوق واتساب مدمج: كل محادثاتك مع العملاء داخل النظام ومرتبطة بملفاتهم.',
+        ],
+        visibleChanges(r) { return this.filter === 'all' ? r.changes : r.changes.filter((c) => c.type === this.filter); },
+        subscribe() { if (/.+@.+\..+/.test(this.email)) { this.subscribed = true; } },
+      };
+    }
+  </script>
+</body>
+</html>

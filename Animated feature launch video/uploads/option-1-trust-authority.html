@@ -1,0 +1,3662 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — Trust &amp; Authority Design System</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       DESIGN TOKENS — CSS VARIABLES
+    ═══════════════════════════════════════════════════════ */
+    :root {
+      /* — Primary: Deep Navy — */
+      --color-primary-50:  #EAF0F8;
+      --color-primary-100: #C5D5E9;
+      --color-primary-200: #9BB5D7;
+      --color-primary-300: #6E92C4;
+      --color-primary-400: #4A75B4;
+      --color-primary-500: #2458A5;
+      --color-primary-600: #1A4590;
+      --color-primary-700: #102A4C;
+      --color-primary-800: #0B1F3A;
+      --color-primary-900: #060F1E;
+
+      /* — Gold Accent — */
+      --color-accent-50:  #FDF8EE;
+      --color-accent-100: #F7EACC;
+      --color-accent-200: #EFD499;
+      --color-accent-300: #E3BA66;
+      --color-accent-400: #D4A23E;
+      --color-accent-500: #C8A24B;
+      --color-accent-600: #B08B35;
+      --color-accent-700: #8C6E27;
+      --color-accent-800: #6A521B;
+      --color-accent-900: #493810;
+
+      /* — Neutral Scale — */
+      --color-neutral-50:  #F8F9FB;
+      --color-neutral-100: #EEF0F5;
+      --color-neutral-200: #DDE1EA;
+      --color-neutral-300: #C4CBDA;
+      --color-neutral-400: #9BA6BB;
+      --color-neutral-500: #6E7F9C;
+      --color-neutral-600: #4D5F7A;
+      --color-neutral-700: #344260;
+      --color-neutral-800: #1E2A45;
+      --color-neutral-900: #0D1424;
+
+      /* — Semantic — */
+      --color-success-light: #E8F5EE;
+      --color-success:       #1A8C4E;
+      --color-success-dark:  #0F5C33;
+
+      --color-warning-light: #FEF7E6;
+      --color-warning:       #D4860A;
+      --color-warning-dark:  #8A5704;
+
+      --color-danger-light:  #FDECEA;
+      --color-danger:        #C0392B;
+      --color-danger-dark:   #7D2318;
+
+      --color-info-light:    #E6F2FD;
+      --color-info:          #1565C0;
+      --color-info-dark:     #0D3C72;
+
+      /* — Surface & Background — */
+      --surface-bg:          #F4F6FA;
+      --surface-card:        #FFFFFF;
+      --surface-sidebar:     #0B1F3A;
+      --surface-header:      #102A4C;
+      --surface-dark:        #060F1E;
+
+      /* — Typography — */
+      --font-display:  'Amiri', 'Playfair Display', Georgia, serif;
+      --font-heading:  'Amiri', 'Playfair Display', Georgia, serif;
+      --font-body:     'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
+      --font-latin:    'Playfair Display', Georgia, serif;
+      --font-latin-ui: 'Inter', system-ui, sans-serif;
+
+      /* — Type Scale — */
+      --text-display: clamp(2.4rem, 5vw, 4rem);
+      --text-h1:      clamp(2rem, 3.5vw, 2.75rem);
+      --text-h2:      clamp(1.5rem, 2.5vw, 2rem);
+      --text-h3:      clamp(1.2rem, 2vw, 1.5rem);
+      --text-h4:      1.125rem;
+      --text-body-lg: 1.0625rem;
+      --text-body:    0.9375rem;
+      --text-sm:      0.8125rem;
+      --text-xs:      0.6875rem;
+      --text-caption: 0.75rem;
+
+      /* — Spacing — */
+      --space-1:  0.25rem;
+      --space-2:  0.5rem;
+      --space-3:  0.75rem;
+      --space-4:  1rem;
+      --space-5:  1.25rem;
+      --space-6:  1.5rem;
+      --space-8:  2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --space-16: 4rem;
+      --space-20: 5rem;
+      --space-24: 6rem;
+
+      /* — Border Radius — */
+      --radius-xs:  2px;
+      --radius-sm:  4px;
+      --radius-md:  8px;
+      --radius-lg:  12px;
+      --radius-xl:  16px;
+      --radius-2xl: 24px;
+      --radius-full: 9999px;
+
+      /* — Border — */
+      --border-thin:   1px solid var(--color-neutral-200);
+      --border-medium: 1.5px solid var(--color-neutral-300);
+      --border-gold:   1px solid var(--color-accent-500);
+      --border-navy:   1px solid var(--color-primary-700);
+
+      /* — Shadows / Elevation — */
+      --shadow-xs:  0 1px 2px rgba(11,31,58,0.06);
+      --shadow-sm:  0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04);
+      --shadow-md:  0 4px 16px rgba(11,31,58,0.10), 0 2px 4px rgba(11,31,58,0.06);
+      --shadow-lg:  0 8px 32px rgba(11,31,58,0.13), 0 4px 8px rgba(11,31,58,0.08);
+      --shadow-xl:  0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10);
+      --shadow-gold: 0 4px 20px rgba(200,162,75,0.25);
+
+      /* — Transitions — */
+      --transition-fast:   120ms ease;
+      --transition-base:   200ms ease;
+      --transition-slow:   350ms ease;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: var(--text-body);
+      color: var(--color-neutral-800);
+      background: var(--surface-bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+    button { cursor: pointer; font-family: inherit; }
+
+    /* ═══════════════════════════════════════════════════════
+       LAYOUT UTILITIES
+    ═══════════════════════════════════════════════════════ */
+    .container {
+      max-width: 1280px;
+      margin-inline: auto;
+      padding-inline: var(--space-8);
+    }
+
+    .section {
+      padding-block: var(--space-20);
+    }
+
+    .section + .section {
+      border-top: var(--border-thin);
+    }
+
+    .section-label {
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-accent-600);
+      margin-bottom: var(--space-3);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--text-h2);
+      font-weight: 700;
+      color: var(--color-primary-800);
+      margin-bottom: var(--space-3);
+      line-height: 1.3;
+    }
+
+    .section-desc {
+      font-size: var(--text-body);
+      color: var(--color-neutral-500);
+      max-width: 600px;
+      margin-bottom: var(--space-10);
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-6); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-4); }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-4); }
+
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .gap-2 { gap: var(--space-2); }
+    .gap-3 { gap: var(--space-3); }
+    .gap-4 { gap: var(--space-4); }
+    .gap-6 { gap: var(--space-6); }
+
+    /* ═══════════════════════════════════════════════════════
+       1. HERO / COVER
+    ═══════════════════════════════════════════════════════ */
+    .hero {
+      background: linear-gradient(135deg, var(--color-primary-900) 0%, var(--color-primary-800) 45%, var(--color-primary-700) 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 30%, rgba(200,162,75,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 20% 80%, rgba(16,42,76,0.4) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Decorative grid lines */
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,162,75,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,162,75,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .hero-nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-6) var(--space-10);
+      border-bottom: 1px solid rgba(200,162,75,0.15);
+    }
+
+    .hero-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .hero-logo-mark {
+      width: 42px;
+      height: 42px;
+      background: linear-gradient(135deg, var(--color-accent-500), var(--color-accent-400));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-latin);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-primary-900);
+      letter-spacing: -0.02em;
+      box-shadow: 0 2px 12px rgba(200,162,75,0.4);
+    }
+
+    .hero-logo-text {
+      font-family: var(--font-latin);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-logo-text span {
+      color: var(--color-accent-400);
+    }
+
+    .hero-tag {
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .hero-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-16) var(--space-8);
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-direction-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: rgba(200,162,75,0.12);
+      border: 1px solid rgba(200,162,75,0.3);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-5);
+      font-family: var(--font-body);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-accent-400);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-8);
+    }
+
+    .hero-direction-pill::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent-500);
+      box-shadow: 0 0 8px var(--color-accent-500);
+    }
+
+    .hero-brand {
+      font-family: var(--font-display);
+      font-size: var(--text-display);
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--space-2);
+    }
+
+    .hero-brand span {
+      color: var(--color-accent-400);
+    }
+
+    .hero-subtitle-ar {
+      font-family: var(--font-body);
+      font-size: var(--text-h3);
+      font-weight: 400;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: var(--space-6);
+      letter-spacing: 0.01em;
+    }
+
+    .hero-divider {
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--color-accent-500), transparent);
+      margin: var(--space-6) auto;
+    }
+
+    .hero-philosophy {
+      font-family: var(--font-display);
+      font-size: var(--text-h4);
+      font-weight: 400;
+      font-style: italic;
+      color: rgba(255,255,255,0.7);
+      max-width: 680px;
+      line-height: 1.6;
+    }
+
+    .hero-philosophy cite {
+      display: block;
+      font-style: normal;
+      font-family: var(--font-latin);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-accent-400);
+      margin-top: var(--space-4);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-badges {
+      display: flex;
+      gap: var(--space-4);
+      margin-top: var(--space-12);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .hero-badge {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-5);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.55);
+      backdrop-filter: blur(4px);
+    }
+
+    .hero-badge svg {
+      color: var(--color-accent-400);
+      flex-shrink: 0;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: var(--space-8);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .hero-scroll span {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--color-accent-500), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.2); }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       2. COLOR PALETTE
+    ═══════════════════════════════════════════════════════ */
+    .palette-section {
+      background: var(--surface-card);
+    }
+
+    .swatch-row {
+      display: flex;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-4);
+    }
+
+    .swatch {
+      flex: 1;
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: var(--space-2);
+      position: relative;
+      transition: transform var(--transition-fast);
+    }
+
+    .swatch:hover { transform: scaleY(1.08); z-index: 2; }
+
+    .swatch-label {
+      font-family: var(--font-latin-ui);
+      font-size: 0.625rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+      text-align: center;
+    }
+
+    .swatch-label .step { display: block; opacity: 0.7; font-weight: 400; margin-top: 1px; }
+
+    .swatch.light  .swatch-label { color: rgba(11,31,58,0.7); }
+    .swatch.dark   .swatch-label { color: rgba(255,255,255,0.8); }
+
+    /* Primary swatches */
+    .sw-p50  { background: var(--color-primary-50);  }
+    .sw-p100 { background: var(--color-primary-100); }
+    .sw-p200 { background: var(--color-primary-200); }
+    .sw-p300 { background: var(--color-primary-300); }
+    .sw-p400 { background: var(--color-primary-400); }
+    .sw-p500 { background: var(--color-primary-500); }
+    .sw-p600 { background: var(--color-primary-600); }
+    .sw-p700 { background: var(--color-primary-700); }
+    .sw-p800 { background: var(--color-primary-800); }
+    .sw-p900 { background: var(--color-primary-900); }
+
+    /* Gold swatches */
+    .sw-a50  { background: var(--color-accent-50);  }
+    .sw-a100 { background: var(--color-accent-100); }
+    .sw-a200 { background: var(--color-accent-200); }
+    .sw-a300 { background: var(--color-accent-300); }
+    .sw-a400 { background: var(--color-accent-400); }
+    .sw-a500 { background: var(--color-accent-500); }
+    .sw-a600 { background: var(--color-accent-600); }
+    .sw-a700 { background: var(--color-accent-700); }
+    .sw-a800 { background: var(--color-accent-800); }
+    .sw-a900 { background: var(--color-accent-900); }
+
+    /* Neutral swatches */
+    .sw-n50  { background: var(--color-neutral-50);  }
+    .sw-n100 { background: var(--color-neutral-100); }
+    .sw-n200 { background: var(--color-neutral-200); }
+    .sw-n300 { background: var(--color-neutral-300); }
+    .sw-n400 { background: var(--color-neutral-400); }
+    .sw-n500 { background: var(--color-neutral-500); }
+    .sw-n600 { background: var(--color-neutral-600); }
+    .sw-n700 { background: var(--color-neutral-700); }
+    .sw-n800 { background: var(--color-neutral-800); }
+    .sw-n900 { background: var(--color-neutral-900); }
+
+    .palette-row-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-neutral-600);
+      margin-bottom: var(--space-2);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .palette-row-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-neutral-100);
+    }
+
+    .semantic-swatches {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-top: var(--space-8);
+    }
+
+    .semantic-card {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .semantic-top {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .semantic-bottom {
+      padding: var(--space-3) var(--space-4);
+      background: #fff;
+      border: var(--border-thin);
+      border-top: none;
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    }
+
+    .semantic-bottom .hex {
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+      font-weight: 500;
+    }
+
+    .semantic-bottom .name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-neutral-800);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       3. TYPOGRAPHY
+    ═══════════════════════════════════════════════════════ */
+    .type-section {
+      background: var(--color-neutral-50);
+    }
+
+    .type-scale-item {
+      padding: var(--space-5) 0;
+      border-bottom: var(--border-thin);
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-6);
+    }
+
+    .type-scale-item:last-child { border-bottom: none; }
+
+    .type-meta {
+      min-width: 160px;
+      flex-shrink: 0;
+    }
+
+    .type-meta-label {
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-accent-600);
+    }
+
+    .type-meta-detail {
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+      margin-top: var(--space-1);
+    }
+
+    .type-sample-ar {
+      flex: 1;
+      font-family: var(--font-body);
+      color: var(--color-primary-800);
+    }
+
+    .type-sample-ar.serif {
+      font-family: var(--font-display);
+    }
+
+    .type-sample-en {
+      font-family: var(--font-latin);
+      color: var(--color-neutral-500);
+      min-width: 220px;
+      font-size: 0.9em;
+    }
+
+    .type-sample-en.sans {
+      font-family: var(--font-latin-ui);
+    }
+
+    .font-showcase {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-8);
+      margin-bottom: var(--space-12);
+    }
+
+    .font-card {
+      background: var(--surface-card);
+      border: var(--border-thin);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .font-card-name {
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-accent-600);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-accent-200);
+    }
+
+    .font-card-big {
+      font-size: 3rem;
+      line-height: 1.2;
+      margin-bottom: var(--space-4);
+      color: var(--color-primary-800);
+    }
+
+    .font-card-alphabet {
+      font-size: var(--text-body-lg);
+      color: var(--color-neutral-500);
+      line-height: 1.9;
+      word-spacing: 0.1em;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       4. COMPONENTS LIBRARY
+    ═══════════════════════════════════════════════════════ */
+    .components-section {
+      background: var(--surface-card);
+    }
+
+    .comp-group {
+      margin-bottom: var(--space-12);
+    }
+
+    .comp-group-title {
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-neutral-400);
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-neutral-100);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .comp-group-title::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      background: var(--color-accent-500);
+      border-radius: var(--radius-xs);
+    }
+
+    .comp-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      align-items: center;
+    }
+
+    /* — BUTTONS — */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      border: 1.5px solid transparent;
+      transition: all var(--transition-base);
+      white-space: nowrap;
+      line-height: 1.4;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background var(--transition-fast);
+    }
+
+    .btn:hover::after { background: rgba(255,255,255,0.07); }
+    .btn:active { transform: translateY(1px); }
+    .btn:focus-visible { outline: 2px solid var(--color-accent-500); outline-offset: 2px; }
+
+    .btn-primary {
+      background: var(--color-primary-800);
+      color: #fff;
+      border-color: var(--color-primary-800);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-700);
+      border-color: var(--color-primary-700);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-gold {
+      background: var(--color-accent-500);
+      color: var(--color-primary-900);
+      border-color: var(--color-accent-500);
+      box-shadow: var(--shadow-gold);
+    }
+
+    .btn-gold:hover {
+      background: var(--color-accent-400);
+      border-color: var(--color-accent-400);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--color-primary-800);
+      border-color: var(--color-primary-800);
+    }
+
+    .btn-secondary:hover {
+      background: var(--color-primary-50);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--color-neutral-600);
+      border-color: transparent;
+    }
+
+    .btn-ghost:hover {
+      background: var(--color-neutral-100);
+      color: var(--color-primary-800);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--color-danger);
+      border-color: var(--color-danger);
+    }
+
+    .btn-danger:hover {
+      background: var(--color-danger-light);
+    }
+
+    .btn-icon {
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border-radius: var(--radius-md);
+      background: var(--color-neutral-100);
+      border-color: var(--color-neutral-200);
+      color: var(--color-neutral-600);
+    }
+
+    .btn-icon:hover {
+      background: var(--color-primary-50);
+      color: var(--color-primary-800);
+      border-color: var(--color-primary-200);
+    }
+
+    .btn-sm { padding: 0.4rem 0.875rem; font-size: var(--text-xs); }
+    .btn-lg { padding: 0.875rem 1.75rem; font-size: var(--text-body-lg); border-radius: var(--radius-lg); }
+
+    /* — INPUTS — */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--color-neutral-700);
+    }
+
+    .form-label .required {
+      color: var(--color-danger);
+      margin-right: var(--space-1);
+    }
+
+    .input {
+      width: 100%;
+      padding: 0.625rem 1rem;
+      border: 1.5px solid var(--color-neutral-200);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: var(--text-body);
+      color: var(--color-neutral-800);
+      background: #fff;
+      transition: all var(--transition-base);
+      outline: none;
+    }
+
+    .input::placeholder { color: var(--color-neutral-400); }
+
+    .input:hover { border-color: var(--color-neutral-300); }
+
+    .input:focus {
+      border-color: var(--color-primary-600);
+      box-shadow: 0 0 0 3px rgba(16,42,76,0.08);
+    }
+
+    .input.error {
+      border-color: var(--color-danger);
+      box-shadow: 0 0 0 3px rgba(192,57,43,0.08);
+    }
+
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-with-icon .input {
+      padding-right: 2.75rem;
+    }
+
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      right: 0.875rem;
+      transform: translateY(-50%);
+      color: var(--color-neutral-400);
+      pointer-events: none;
+    }
+
+    .form-hint {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+    }
+
+    .form-error {
+      font-size: var(--text-xs);
+      color: var(--color-danger);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236E7F9C' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: left 0.875rem center;
+      padding-left: 2.5rem;
+    }
+
+    /* CHECKBOX + SWITCH */
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      cursor: pointer;
+    }
+
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--color-neutral-300);
+      border-radius: var(--radius-xs);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .checkbox.checked {
+      background: var(--color-primary-800);
+      border-color: var(--color-primary-800);
+    }
+
+    .checkbox.checked::after {
+      content: '';
+      width: 10px;
+      height: 5px;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      transform: rotate(-45deg) translateY(-1px);
+    }
+
+    .checkbox-label {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-700);
+    }
+
+    /* SWITCH */
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .switch-track {
+      position: absolute;
+      inset: 0;
+      background: var(--color-neutral-200);
+      border-radius: var(--radius-full);
+      transition: background var(--transition-base);
+      cursor: pointer;
+    }
+
+    .switch-track::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      top: 3px;
+      right: 3px;
+      transition: transform var(--transition-base);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .switch input:checked + .switch-track {
+      background: var(--color-primary-700);
+    }
+
+    .switch input:checked + .switch-track::after {
+      transform: translateX(-20px);
+    }
+
+    .switch-wrapper {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    /* — BADGES / PILLS / STATUS CHIPS — */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+      line-height: 1.5;
+    }
+
+    .badge-navy    { background: var(--color-primary-100); color: var(--color-primary-700); }
+    .badge-gold    { background: var(--color-accent-100);  color: var(--color-accent-800); }
+    .badge-success { background: var(--color-success-light); color: var(--color-success-dark); }
+    .badge-warning { background: var(--color-warning-light); color: var(--color-warning-dark); }
+    .badge-danger  { background: var(--color-danger-light);  color: var(--color-danger-dark); }
+    .badge-info    { background: var(--color-info-light);    color: var(--color-info-dark); }
+    .badge-neutral { background: var(--color-neutral-100);   color: var(--color-neutral-600); }
+
+    .badge-dot::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 4px 12px;
+      border-radius: var(--radius-sm);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      border: 1px solid;
+    }
+
+    .chip-new      { background: #E8F1FF; color: #1A56C4; border-color: #BFCFEE; }
+    .chip-contact  { background: #FDF8EE; color: var(--color-accent-700); border-color: var(--color-accent-200); }
+    .chip-viewing  { background: #EEF2FF; color: #5B5FD4; border-color: #C7C9ED; }
+    .chip-offer    { background: var(--color-warning-light); color: var(--color-warning-dark); border-color: #F3C97E; }
+    .chip-won      { background: var(--color-success-light); color: var(--color-success-dark); border-color: #A3CEB7; }
+    .chip-lost     { background: var(--color-danger-light);  color: var(--color-danger-dark); border-color: #E8ACA5; }
+
+    /* — CARDS — */
+    .card {
+      background: var(--surface-card);
+      border: var(--border-thin);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: box-shadow var(--transition-base), transform var(--transition-base);
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .card-header {
+      padding: var(--space-5) var(--space-6);
+      border-bottom: var(--border-thin);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: var(--text-h4);
+      font-weight: 700;
+      color: var(--color-primary-800);
+    }
+
+    .card-body {
+      padding: var(--space-6);
+    }
+
+    .card-accent {
+      border-top: 3px solid var(--color-accent-500);
+    }
+
+    .card-navy {
+      background: var(--color-primary-800);
+      border-color: var(--color-primary-700);
+      color: #fff;
+    }
+
+    .card-navy .card-title { color: #fff; }
+
+    /* — KPI / STAT CARDS — */
+    .kpi-card {
+      background: var(--surface-card);
+      border: var(--border-thin);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition-base);
+    }
+
+    .kpi-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-3px);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 0 var(--radius-xl) 0 80px;
+      opacity: 0.06;
+    }
+
+    .kpi-card.kpi-navy::before  { background: var(--color-primary-800); }
+    .kpi-card.kpi-gold::before  { background: var(--color-accent-500); }
+    .kpi-card.kpi-success::before { background: var(--color-success); }
+    .kpi-card.kpi-warning::before { background: var(--color-warning); }
+
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .kpi-icon.icon-navy    { background: var(--color-primary-100); color: var(--color-primary-700); }
+    .kpi-icon.icon-gold    { background: var(--color-accent-100);  color: var(--color-accent-700); }
+    .kpi-icon.icon-success { background: var(--color-success-light); color: var(--color-success); }
+    .kpi-icon.icon-warning { background: var(--color-warning-light); color: var(--color-warning); }
+
+    .kpi-value {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-primary-800);
+      line-height: 1;
+      margin-bottom: var(--space-2);
+    }
+
+    .kpi-label {
+      font-size: var(--text-sm);
+      color: var(--color-neutral-500);
+      margin-bottom: var(--space-3);
+    }
+
+    .kpi-trend {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: var(--text-xs);
+      font-weight: 600;
+    }
+
+    .kpi-trend.up   { color: var(--color-success); }
+    .kpi-trend.down { color: var(--color-danger); }
+
+    .kpi-divider {
+      width: 32px;
+      height: 2px;
+      background: var(--color-accent-400);
+      border-radius: var(--radius-full);
+      margin: var(--space-3) 0;
+    }
+
+    /* — TABLE — */
+    .table-wrapper {
+      border: var(--border-thin);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+
+    .data-table thead {
+      background: var(--color-neutral-50);
+      border-bottom: 1.5px solid var(--color-neutral-200);
+    }
+
+    .data-table th {
+      padding: var(--space-3) var(--space-5);
+      text-align: right;
+      font-weight: 600;
+      color: var(--color-neutral-600);
+      font-size: var(--text-xs);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .data-table th.th-sortable {
+      cursor: pointer;
+    }
+
+    .data-table th.th-sortable:hover { color: var(--color-primary-700); }
+
+    .data-table td {
+      padding: var(--space-4) var(--space-5);
+      border-bottom: var(--border-thin);
+      color: var(--color-neutral-700);
+      vertical-align: middle;
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+
+    .data-table tbody tr:hover td {
+      background: var(--color-neutral-50);
+    }
+
+    .td-primary {
+      font-weight: 600;
+      color: var(--color-primary-800);
+    }
+
+    /* — TABS — */
+    .tabs {
+      border-bottom: 1.5px solid var(--color-neutral-200);
+      display: flex;
+      gap: 0;
+    }
+
+    .tab {
+      padding: var(--space-3) var(--space-5);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-neutral-500);
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -1.5px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .tab:hover { color: var(--color-primary-700); }
+
+    .tab.active {
+      color: var(--color-primary-800);
+      font-weight: 700;
+      border-bottom-color: var(--color-accent-500);
+    }
+
+    .tab-count {
+      background: var(--color-neutral-100);
+      color: var(--color-neutral-600);
+      border-radius: var(--radius-full);
+      padding: 1px 7px;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .tab.active .tab-count {
+      background: var(--color-primary-100);
+      color: var(--color-primary-700);
+    }
+
+    /* — ALERTS / TOAST — */
+    .alert {
+      display: flex;
+      gap: var(--space-4);
+      padding: var(--space-4) var(--space-5);
+      border-radius: var(--radius-md);
+      border: 1px solid;
+      font-size: var(--text-sm);
+    }
+
+    .alert-icon { flex-shrink: 0; margin-top: 1px; }
+
+    .alert-content { flex: 1; }
+    .alert-title { font-weight: 700; margin-bottom: 2px; }
+
+    .alert-success { background: var(--color-success-light); border-color: #A3CEB7; color: var(--color-success-dark); }
+    .alert-warning { background: var(--color-warning-light); border-color: #F3C97E; color: var(--color-warning-dark); }
+    .alert-danger  { background: var(--color-danger-light);  border-color: #E8ACA5; color: var(--color-danger-dark); }
+    .alert-info    { background: var(--color-info-light);    border-color: #AECBEE; color: var(--color-info-dark); }
+
+    .toast {
+      background: var(--color-primary-800);
+      color: #fff;
+      padding: var(--space-4) var(--space-5);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      min-width: 280px;
+    }
+
+    .toast-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(200,162,75,0.2);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-accent-400);
+      flex-shrink: 0;
+    }
+
+    .toast-close {
+      margin-right: auto;
+      color: rgba(255,255,255,0.4);
+      font-size: 1.1rem;
+      cursor: pointer;
+    }
+
+    /* — AVATARS — */
+    .avatar {
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-family: var(--font-latin-ui);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .avatar-sm  { width: 28px; height: 28px; font-size: 0.65rem; }
+    .avatar-md  { width: 36px; height: 36px; font-size: 0.75rem; }
+    .avatar-lg  { width: 48px; height: 48px; font-size: 0.9rem; }
+    .avatar-xl  { width: 64px; height: 64px; font-size: 1.1rem; }
+
+    .av-navy    { background: var(--color-primary-700); color: #fff; }
+    .av-gold    { background: var(--color-accent-500); color: var(--color-primary-900); }
+    .av-teal    { background: #1A7A7A; color: #fff; }
+    .av-purple  { background: #5B3D8A; color: #fff; }
+    .av-rust    { background: #8A3D1A; color: #fff; }
+
+    .avatar-group {
+      display: flex;
+      direction: ltr;
+    }
+
+    .avatar-group .avatar {
+      border: 2px solid #fff;
+      margin-right: -10px;
+      box-shadow: var(--shadow-xs);
+    }
+
+    .avatar-group .avatar:last-child { margin-right: 0; }
+
+    .avatar-group .av-more {
+      background: var(--color-neutral-200);
+      color: var(--color-neutral-600);
+    }
+
+    /* — SIDEBAR NAV ITEM — */
+    .sidebar-demo {
+      background: var(--color-primary-800);
+      border-radius: var(--radius-xl);
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      width: 240px;
+    }
+
+    .nav-section-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      padding: var(--space-3) var(--space-3) var(--space-1);
+      margin-top: var(--space-2);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-3);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.55);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+
+    .nav-item:hover {
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.85);
+    }
+
+    .nav-item.active {
+      background: rgba(200,162,75,0.15);
+      color: var(--color-accent-400);
+    }
+
+    .nav-item.active::before {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 60%;
+      background: var(--color-accent-500);
+      border-radius: var(--radius-full) 0 0 var(--radius-full);
+    }
+
+    .nav-item svg { flex-shrink: 0; }
+
+    .nav-badge {
+      margin-right: auto;
+      background: var(--color-accent-500);
+      color: var(--color-primary-900);
+      font-size: 0.6rem;
+      font-weight: 800;
+      border-radius: var(--radius-full);
+      padding: 1px 6px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* — MODAL PREVIEW — */
+    .modal-preview {
+      position: relative;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      border: var(--border-thin);
+      max-width: 520px;
+    }
+
+    .modal-overlay-sample {
+      background: rgba(6,15,30,0.6);
+      padding: var(--space-8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-box {
+      background: var(--surface-card);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-5) var(--space-6);
+      border-bottom: var(--border-thin);
+    }
+
+    .modal-header-left { display: flex; align-items: center; gap: var(--space-3); }
+
+    .modal-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--color-primary-100);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary-700);
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: var(--text-h4);
+      font-weight: 700;
+      color: var(--color-primary-800);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-neutral-400);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--color-neutral-100);
+      color: var(--color-neutral-700);
+    }
+
+    .modal-body {
+      padding: var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .modal-footer {
+      padding: var(--space-4) var(--space-6);
+      border-top: var(--border-thin);
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      background: var(--color-neutral-50);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       5. CRM SCREEN MOCK — LEADS KANBAN
+    ═══════════════════════════════════════════════════════ */
+    .crm-screen {
+      background: var(--surface-bg);
+      min-height: 100vh;
+    }
+
+    /* App Chrome */
+    .app-shell {
+      display: flex;
+      height: 100%;
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      border: var(--border-thin);
+      min-height: 700px;
+    }
+
+    /* Sidebar */
+    .app-sidebar {
+      width: 240px;
+      background: var(--surface-sidebar);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      border-left: 1px solid rgba(200,162,75,0.1);
+    }
+
+    .sidebar-logo-area {
+      padding: var(--space-5) var(--space-5);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .sidebar-logo-mark {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--color-accent-500), var(--color-accent-400));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-latin);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-primary-900);
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-family: var(--font-latin);
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .sidebar-brand span { color: var(--color-accent-400); }
+
+    .sidebar-tenant {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.35);
+      margin-top: 1px;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--space-4) var(--space-3);
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      overflow-y: auto;
+    }
+
+    .sidebar-user {
+      padding: var(--space-4) var(--space-5);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .sidebar-user-info { flex: 1; }
+
+    .sidebar-user-name {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .sidebar-user-role {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* Main content */
+    .app-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--surface-bg);
+      overflow: hidden;
+    }
+
+    /* Top bar */
+    .app-topbar {
+      background: var(--surface-card);
+      border-bottom: var(--border-thin);
+      padding: var(--space-4) var(--space-6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .topbar-title {
+      font-family: var(--font-display);
+      font-size: var(--text-h4);
+      font-weight: 700;
+      color: var(--color-primary-800);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .topbar-breadcrumb {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+      font-weight: 400;
+    }
+
+    .topbar-actions { display: flex; align-items: center; gap: var(--space-3); }
+
+    .topbar-search {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--color-neutral-100);
+      border: var(--border-thin);
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--color-neutral-400);
+      cursor: text;
+      min-width: 200px;
+      transition: all var(--transition-fast);
+    }
+
+    .topbar-search:hover {
+      border-color: var(--color-neutral-300);
+      background: #fff;
+    }
+
+    /* Kanban */
+    .kanban-area {
+      flex: 1;
+      overflow: hidden;
+      padding: var(--space-5) var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .kanban-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kanban-tabs {
+      display: flex;
+      gap: 0;
+    }
+
+    .kanban-tab {
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-neutral-500);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .kanban-tab.active {
+      color: var(--color-primary-800);
+      font-weight: 700;
+      border-bottom-color: var(--color-accent-500);
+    }
+
+    .kanban-board {
+      display: flex;
+      gap: var(--space-4);
+      overflow-x: auto;
+      flex: 1;
+      padding-bottom: var(--space-3);
+    }
+
+    .kanban-board::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .kanban-board::-webkit-scrollbar-track {
+      background: var(--color-neutral-100);
+      border-radius: var(--radius-full);
+    }
+
+    .kanban-board::-webkit-scrollbar-thumb {
+      background: var(--color-neutral-300);
+      border-radius: var(--radius-full);
+    }
+
+    .kanban-col {
+      min-width: 240px;
+      width: 240px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      flex-shrink: 0;
+    }
+
+    .kanban-col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+      background: var(--surface-card);
+      border-radius: var(--radius-md);
+      border: var(--border-thin);
+    }
+
+    .kanban-col-title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-neutral-700);
+    }
+
+    .kanban-col-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .kanban-col-count {
+      font-size: var(--text-xs);
+      font-weight: 700;
+      background: var(--color-neutral-100);
+      color: var(--color-neutral-500);
+      border-radius: var(--radius-full);
+      padding: 2px 8px;
+    }
+
+    .kanban-cards {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      flex: 1;
+    }
+
+    .lead-card {
+      background: var(--surface-card);
+      border: var(--border-thin);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: var(--shadow-xs);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      position: relative;
+    }
+
+    .lead-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: var(--color-primary-200);
+    }
+
+    .lead-card.priority-high::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 12px;
+      width: 3px;
+      height: 24px;
+      background: var(--color-danger);
+      border-radius: var(--radius-full) 0 0 var(--radius-full);
+    }
+
+    .lead-card.priority-gold::after {
+      background: var(--color-accent-500);
+    }
+
+    .lead-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-3);
+    }
+
+    .lead-name {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-primary-800);
+      line-height: 1.3;
+    }
+
+    .lead-ref {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+      margin-top: 1px;
+    }
+
+    .lead-prop {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-600);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      margin-bottom: var(--space-3);
+    }
+
+    .lead-value {
+      font-family: var(--font-display);
+      font-size: var(--text-body);
+      font-weight: 700;
+      color: var(--color-accent-700);
+      margin-bottom: var(--space-3);
+    }
+
+    .lead-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .lead-assignee {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--color-neutral-500);
+    }
+
+    .lead-date {
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       6. TOKENS SHOWCASE
+    ═══════════════════════════════════════════════════════ */
+    .tokens-section {
+      background: var(--color-neutral-50);
+    }
+
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: var(--space-3);
+      margin-bottom: var(--space-8);
+    }
+
+    .token-card {
+      background: var(--surface-card);
+      border: var(--border-thin);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      text-align: center;
+    }
+
+    .token-sample {
+      margin: 0 auto var(--space-3);
+    }
+
+    .token-name {
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-neutral-600);
+      margin-bottom: 2px;
+    }
+
+    .token-value {
+      font-family: var(--font-latin-ui);
+      font-size: 0.6rem;
+      color: var(--color-neutral-400);
+      font-weight: 500;
+    }
+
+    /* Radius samples */
+    .radius-box {
+      width: 48px;
+      height: 48px;
+      background: var(--color-primary-200);
+      border: 2px solid var(--color-primary-400);
+    }
+
+    /* Shadow samples */
+    .shadow-box {
+      width: 48px;
+      height: 48px;
+      background: #fff;
+      border-radius: var(--radius-md);
+    }
+
+    /* Spacing */
+    .spacing-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-3) 0;
+      border-bottom: var(--border-thin);
+    }
+
+    .spacing-row:last-child { border-bottom: none; }
+
+    .spacing-bar-bg {
+      background: var(--color-primary-100);
+      border-radius: var(--radius-xs);
+      height: 24px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .spacing-bar {
+      height: 100%;
+      background: var(--color-primary-700);
+      border-radius: var(--radius-xs);
+    }
+
+    .spacing-name {
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-neutral-700);
+      min-width: 70px;
+    }
+
+    .spacing-val {
+      font-family: var(--font-latin-ui);
+      font-size: var(--text-xs);
+      color: var(--color-neutral-400);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       DARK SURFACE SAMPLE
+    ═══════════════════════════════════════════════════════ */
+    .dark-sample {
+      background: var(--color-primary-900);
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dark-sample::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      left: -40px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(200,162,75,0.1) 0%, transparent 70%);
+    }
+
+    .dark-sample-title {
+      font-family: var(--font-display);
+      font-size: var(--text-h3);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: var(--space-2);
+    }
+
+    .dark-sample-sub {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.5);
+      margin-bottom: var(--space-6);
+    }
+
+    .dark-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      backdrop-filter: blur(8px);
+    }
+
+    .dark-card-value {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .dark-card-value span { color: var(--color-accent-400); }
+
+    .dark-card-label {
+      font-size: var(--text-xs);
+      color: rgba(255,255,255,0.45);
+      margin-top: var(--space-2);
+      letter-spacing: 0.04em;
+    }
+
+    .dark-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(200,162,75,0.3), transparent);
+      margin: var(--space-5) 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════════════ */
+    .design-footer {
+      background: var(--color-primary-900);
+      padding: var(--space-10) var(--space-8);
+      text-align: center;
+      border-top: 1px solid rgba(200,162,75,0.15);
+    }
+
+    .footer-brand {
+      font-family: var(--font-display);
+      font-size: var(--text-h3);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: var(--space-2);
+    }
+
+    .footer-brand span { color: var(--color-accent-400); }
+
+    .footer-direction {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: rgba(200,162,75,0.1);
+      border: 1px solid rgba(200,162,75,0.2);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-5);
+      font-size: var(--text-xs);
+      color: var(--color-accent-400);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: var(--space-4);
+    }
+
+    .footer-copy {
+      font-size: var(--text-sm);
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       UTILITIES
+    ═══════════════════════════════════════════════════════ */
+    .divider-gold {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--color-accent-400), transparent);
+      margin: var(--space-8) 0;
+    }
+
+    .text-gold { color: var(--color-accent-600); }
+    .text-navy { color: var(--color-primary-800); }
+    .text-muted { color: var(--color-neutral-500); }
+
+    .inline-code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8em;
+      background: var(--color-neutral-100);
+      border: var(--border-thin);
+      border-radius: var(--radius-xs);
+      padding: 1px 5px;
+      color: var(--color-primary-700);
+    }
+
+    /* SVG Icons inline helper */
+    .icon { display: inline-flex; align-items: center; justify-content: center; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .grid-4, .grid-5 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .font-showcase { grid-template-columns: 1fr; }
+      .hero-brand { font-size: 2.5rem; }
+      .semantic-swatches { grid-template-columns: repeat(2,1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .container { padding-inline: var(--space-5); }
+      .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+      .type-scale-item { flex-direction: column; gap: var(--space-2); }
+      .type-meta { min-width: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     1. HERO / COVER
+═══════════════════════════════════════════════════ -->
+<section class="hero">
+
+  <!-- Nav -->
+  <nav class="hero-nav">
+    <div class="hero-logo">
+      <div class="hero-logo-mark">E8</div>
+      <div>
+        <div class="hero-logo-text">Est8<span>Core</span></div>
+      </div>
+    </div>
+    <div class="hero-tag">Design System — Option 1</div>
+  </nav>
+
+  <!-- Body -->
+  <div class="hero-body">
+    <div class="hero-direction-pill">Direction 1 — Trust &amp; Authority</div>
+
+    <h1 class="hero-brand">Est8<span>Core</span></h1>
+    <p class="hero-subtitle-ar">منصة الوساطة العقارية الذكية</p>
+
+    <div class="hero-divider"></div>
+
+    <blockquote class="hero-philosophy">
+      "الثقة لا تُبنى بالكلمات — تُبنى بالهيكل والنظام والحضور المؤسسي."
+      <cite>Trust &amp; Authority · Real Estate Excellence</cite>
+    </blockquote>
+
+    <div class="hero-badges">
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        بنية محكمة
+      </div>
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Multi-Tenant SaaS
+      </div>
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        عربي أولاً
+      </div>
+      <div class="hero-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        CRM عقاري
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>استكشف</span>
+    <div class="scroll-line"></div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     2. COLOR PALETTE
+═══════════════════════════════════════════════════ -->
+<section class="section palette-section">
+  <div class="container">
+    <div class="section-label">الألوان</div>
+    <h2 class="section-title">لوحة الألوان</h2>
+    <p class="section-desc">
+      عمق البحري يُرسّخ الوقار المؤسسي، والذهب يمنح اللمسة الراقية — معاً يُجسّدان ثقة عملاء الوساطة العقارية الفاخرة.
+    </p>
+
+    <!-- Primary Navy -->
+    <div class="palette-row-label">Navy Primary — اللون الأساسي</div>
+    <div class="swatch-row">
+      <div class="swatch sw-p50 light">
+        <div class="swatch-label">#EAF0F8<span class="step">50</span></div>
+      </div>
+      <div class="swatch sw-p100 light">
+        <div class="swatch-label">#C5D5E9<span class="step">100</span></div>
+      </div>
+      <div class="swatch sw-p200 light">
+        <div class="swatch-label">#9BB5D7<span class="step">200</span></div>
+      </div>
+      <div class="swatch sw-p300 light">
+        <div class="swatch-label">#6E92C4<span class="step">300</span></div>
+      </div>
+      <div class="swatch sw-p400 dark">
+        <div class="swatch-label">#4A75B4<span class="step">400</span></div>
+      </div>
+      <div class="swatch sw-p500 dark">
+        <div class="swatch-label">#2458A5<span class="step">500</span></div>
+      </div>
+      <div class="swatch sw-p600 dark">
+        <div class="swatch-label">#1A4590<span class="step">600</span></div>
+      </div>
+      <div class="swatch sw-p700 dark">
+        <div class="swatch-label">#102A4C<span class="step">700 ★</span></div>
+      </div>
+      <div class="swatch sw-p800 dark">
+        <div class="swatch-label">#0B1F3A<span class="step">800 ★</span></div>
+      </div>
+      <div class="swatch sw-p900 dark">
+        <div class="swatch-label">#060F1E<span class="step">900</span></div>
+      </div>
+    </div>
+
+    <!-- Accent Gold -->
+    <div class="palette-row-label">Gold Accent — الذهبي</div>
+    <div class="swatch-row">
+      <div class="swatch sw-a50 light">
+        <div class="swatch-label">#FDF8EE<span class="step">50</span></div>
+      </div>
+      <div class="swatch sw-a100 light">
+        <div class="swatch-label">#F7EACC<span class="step">100</span></div>
+      </div>
+      <div class="swatch sw-a200 light">
+        <div class="swatch-label">#EFD499<span class="step">200</span></div>
+      </div>
+      <div class="swatch sw-a300 light">
+        <div class="swatch-label">#E3BA66<span class="step">300</span></div>
+      </div>
+      <div class="swatch sw-a400 light">
+        <div class="swatch-label">#D4A23E<span class="step">400</span></div>
+      </div>
+      <div class="swatch sw-a500 light">
+        <div class="swatch-label">#C8A24B<span class="step">500 ★</span></div>
+      </div>
+      <div class="swatch sw-a600 dark">
+        <div class="swatch-label">#B08B35<span class="step">600</span></div>
+      </div>
+      <div class="swatch sw-a700 dark">
+        <div class="swatch-label">#8C6E27<span class="step">700</span></div>
+      </div>
+      <div class="swatch sw-a800 dark">
+        <div class="swatch-label">#6A521B<span class="step">800</span></div>
+      </div>
+      <div class="swatch sw-a900 dark">
+        <div class="swatch-label">#493810<span class="step">900</span></div>
+      </div>
+    </div>
+
+    <!-- Neutrals -->
+    <div class="palette-row-label">Neutrals — الرمادي المحايد</div>
+    <div class="swatch-row">
+      <div class="swatch sw-n50 light">
+        <div class="swatch-label">#F8F9FB<span class="step">50</span></div>
+      </div>
+      <div class="swatch sw-n100 light">
+        <div class="swatch-label">#EEF0F5<span class="step">100</span></div>
+      </div>
+      <div class="swatch sw-n200 light">
+        <div class="swatch-label">#DDE1EA<span class="step">200</span></div>
+      </div>
+      <div class="swatch sw-n300 light">
+        <div class="swatch-label">#C4CBDA<span class="step">300</span></div>
+      </div>
+      <div class="swatch sw-n400 dark">
+        <div class="swatch-label">#9BA6BB<span class="step">400</span></div>
+      </div>
+      <div class="swatch sw-n500 dark">
+        <div class="swatch-label">#6E7F9C<span class="step">500</span></div>
+      </div>
+      <div class="swatch sw-n600 dark">
+        <div class="swatch-label">#4D5F7A<span class="step">600</span></div>
+      </div>
+      <div class="swatch sw-n700 dark">
+        <div class="swatch-label">#344260<span class="step">700</span></div>
+      </div>
+      <div class="swatch sw-n800 dark">
+        <div class="swatch-label">#1E2A45<span class="step">800</span></div>
+      </div>
+      <div class="swatch sw-n900 dark">
+        <div class="swatch-label">#0D1424<span class="step">900</span></div>
+      </div>
+    </div>
+
+    <!-- Semantic -->
+    <div class="divider-gold"></div>
+    <div class="palette-row-label">Semantic Colors — الألوان الدلالية</div>
+    <div class="semantic-swatches">
+      <div class="semantic-card">
+        <div class="semantic-top" style="background:var(--color-success);color:#fff;">SUCCESS</div>
+        <div class="semantic-bottom">
+          <div class="name">نجاح / مكتمل</div>
+          <div class="hex">#1A8C4E · #E8F5EE</div>
+        </div>
+      </div>
+      <div class="semantic-card">
+        <div class="semantic-top" style="background:var(--color-warning);color:#fff;">WARNING</div>
+        <div class="semantic-bottom">
+          <div class="name">تحذير / قيد المعالجة</div>
+          <div class="hex">#D4860A · #FEF7E6</div>
+        </div>
+      </div>
+      <div class="semantic-card">
+        <div class="semantic-top" style="background:var(--color-danger);color:#fff;">DANGER</div>
+        <div class="semantic-bottom">
+          <div class="name">خطر / خسارة</div>
+          <div class="hex">#C0392B · #FDECEA</div>
+        </div>
+      </div>
+      <div class="semantic-card">
+        <div class="semantic-top" style="background:var(--color-info);color:#fff;">INFO</div>
+        <div class="semantic-bottom">
+          <div class="name">معلومة / تنبيه</div>
+          <div class="hex">#1565C0 · #E6F2FD</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     3. TYPOGRAPHY
+═══════════════════════════════════════════════════ -->
+<section class="section type-section">
+  <div class="container">
+    <div class="section-label">الخطوط</div>
+    <h2 class="section-title">منظومة الطباعة</h2>
+    <p class="section-desc">
+      خط عربي كلاسيكي راقٍ (Amiri) للعناوين والعروض، مقترنًا بخط عصري مقروء (IBM Plex Sans Arabic) للنصوص — واللاتيني Playfair Display + Inter لتكامل ثنائي اللغة.
+    </p>
+
+    <!-- Font Showcase -->
+    <div class="font-showcase">
+      <div class="font-card">
+        <div class="font-card-name">Arabic Display — Amiri</div>
+        <div class="font-card-big" style="font-family:var(--font-display);">
+          العقارات بثقة
+        </div>
+        <div class="font-card-alphabet" style="font-family:var(--font-display);">
+          أ ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن هـ و ي
+        </div>
+        <div class="divider-gold" style="margin:var(--space-4) 0;"></div>
+        <div style="font-family:var(--font-display);font-size:var(--text-sm);font-style:italic;color:var(--color-neutral-500);">
+          "الوساطة العقارية الاحترافية تبدأ بالأدوات الصحيحة"
+        </div>
+      </div>
+      <div class="font-card">
+        <div class="font-card-name">Arabic Body — IBM Plex Sans Arabic</div>
+        <div class="font-card-big" style="font-family:var(--font-body);font-weight:600;">
+          إدارة العملاء
+        </div>
+        <div class="font-card-alphabet" style="font-family:var(--font-body);font-weight:300;">
+          أ ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن هـ و ي
+        </div>
+        <div class="divider-gold" style="margin:var(--space-4) 0;"></div>
+        <div style="font-family:var(--font-body);font-size:var(--text-sm);color:var(--color-neutral-500);">
+          منصة متكاملة لإدارة دورة حياة العميل العقاري من الاستفسار إلى إغلاق الصفقة
+        </div>
+      </div>
+    </div>
+
+    <!-- Type Scale -->
+    <div class="type-scale-item">
+      <div class="type-meta">
+        <div class="type-meta-label">Display</div>
+        <div class="type-meta-detail">Amiri · 700 · 3.5–4rem</div>
+      </div>
+      <div class="type-sample-ar serif" style="font-size:var(--text-display);font-weight:700;line-height:1.1;">العقار والثقة</div>
+      <div class="type-sample-en" style="font-size:1.8rem;font-weight:700;">Real Estate</div>
+    </div>
+
+    <div class="type-scale-item">
+      <div class="type-meta">
+        <div class="type-meta-label">H1 — Page Title</div>
+        <div class="type-meta-detail">Amiri · 700 · 2–2.75rem</div>
+      </div>
+      <div class="type-sample-ar serif" style="font-size:var(--text-h1);font-weight:700;">لوحة التحكم الرئيسية</div>
+      <div class="type-sample-en" style="font-size:1.5rem;font-weight:700;">Dashboard Overview</div>
+    </div>
+
+    <div class="type-scale-item">
+      <div class="type-meta">
+        <div class="type-meta-label">H2 — Section</div>
+        <div class="type-meta-detail">Amiri · 700 · 1.5–2rem</div>
+      </div>
+      <div class="type-sample-ar serif" style="font-size:var(--text-h2);font-weight:700;">صفقات الشهر الحالي</div>
+      <div class="type-sample-en" style="font-size:1.25rem;font-weight:700;">This Month's Deals</div>
+    </div>
+
+    <div class="type-scale-item">
+      <div class="type-meta">
+        <div class="type-meta-label">H3 — Sub-section</div>
+        <div class="type-meta-detail">IBM Plex · 700 · 1.2–1.5rem</div>
+      </div>
+      <div class="type-sample-ar" style="font-size:var(--text-h3);font-weight:700;">تفاصيل العقار</div>
+      <div class="type-sample-en sans" style="font-size:1.1rem;font-weight:700;font-family:var(--font-latin-ui);">Property Details</div>
+    </div>
+
+    <div class="type-scale-item">
+      <div class="type-meta">
+        <div class="type-meta-label">H4 — Card Title</div>
+        <div class="type-meta-detail">IBM Plex · 600 · 1.125rem</div>
+      </div>
+      <div class="type-sample-ar" style="font-size:var(--text-h4);font-weight:600;">بيانات العميل</div>
+      <div class="type-sample-en sans" style="font-size:1rem;font-weight:600;font-family:var(--font-latin-ui);">Client Profile</div>
+    </div>
+
+    <div class="type-scale-item">
+      <div class="type-meta">
+        <div class="type-meta-label">Body Large</div>
+        <div class="type-meta-detail">IBM Plex · 400 · 1.0625rem</div>
+      </div>
+      <div class="type-sample-ar" style="font-size:var(--text-body-lg);">يبحث عن شقة سكنية في منطقة الزمالك، ميزانية ٢.٥ مليون جنيه مصري.</div>
+      <div class="type-sample-en sans" style="font-size:0.9rem;font-family:var(--font-latin-ui);">Looking for a residential apartment in Zamalek.</div>
+    </div>
+
+    <div class="type-scale-item">
+      <div class="type-meta">
+        <div class="type-meta-label">Body</div>
+        <div class="type-meta-detail">IBM Plex · 400 · 0.9375rem</div>
+      </div>
+      <div class="type-sample-ar" style="font-size:var(--text-body);">تسجيل الاستفسار، متابعة العرض، وتوثيق المفاوضات في مكان واحد.</div>
+      <div class="type-sample-en sans" style="font-size:0.8rem;font-family:var(--font-latin-ui);">Track inquiries, proposals, and negotiations.</div>
+    </div>
+
+    <div class="type-scale-item">
+      <div class="type-meta">
+        <div class="type-meta-label">Caption / Label</div>
+        <div class="type-meta-detail">IBM Plex · 500 · 0.75rem</div>
+      </div>
+      <div class="type-sample-ar" style="font-size:var(--text-caption);font-weight:500;letter-spacing:0.04em;color:var(--color-neutral-500);">آخر تحديث: منذ ٣ ساعات</div>
+      <div class="type-sample-en sans" style="font-size:0.7rem;font-family:var(--font-latin-ui);color:var(--color-neutral-400);">LAST UPDATED · 3 HOURS AGO</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     4. COMPONENTS LIBRARY
+═══════════════════════════════════════════════════ -->
+<section class="section components-section">
+  <div class="container">
+    <div class="section-label">المكونات</div>
+    <h2 class="section-title">مكتبة المكونات</h2>
+    <p class="section-desc">كل مكوّن مُصمَّم للصمود في بيئة إنتاج — متجاوب، قابل للوصول، ومبني فوق متغيرات التصميم.</p>
+
+    <!-- BUTTONS -->
+    <div class="comp-group">
+      <div class="comp-group-title">Buttons — الأزرار</div>
+      <div class="comp-row" style="margin-bottom:var(--space-3);">
+        <button class="btn btn-primary">إضافة عميل جديد</button>
+        <button class="btn btn-gold">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.64 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.55 1.1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.64a16 16 0 0 0 6.21 6.21l1.77-1.77a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          اتصل الآن
+        </button>
+        <button class="btn btn-secondary">عرض التفاصيل</button>
+        <button class="btn btn-ghost">إلغاء</button>
+        <button class="btn btn-danger">حذف العقد</button>
+        <button class="btn btn-icon" title="إعدادات">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="btn btn-icon" title="بحث">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+      </div>
+      <div class="comp-row">
+        <button class="btn btn-primary btn-sm">صغير</button>
+        <button class="btn btn-primary">متوسط (افتراضي)</button>
+        <button class="btn btn-gold btn-lg">كبير — إغلاق الصفقة</button>
+      </div>
+    </div>
+
+    <!-- INPUTS -->
+    <div class="comp-group">
+      <div class="comp-group-title">Inputs — حقول الإدخال</div>
+      <div class="grid-3" style="gap:var(--space-5);">
+        <div class="form-group">
+          <label class="form-label">اسم العميل <span class="required">*</span></label>
+          <input class="input" type="text" placeholder="أدخل الاسم الكامل" />
+          <span class="form-hint">الاسم كما يظهر في الهوية</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رقم الهاتف</label>
+          <div class="input-with-icon">
+            <input class="input" type="tel" placeholder="+20 100 000 0000" />
+            <span class="input-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.64 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.55 1.1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.64a16 16 0 0 0 6.21 6.21l1.77-1.77a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">نوع العقار</label>
+          <select class="input select">
+            <option>اختر النوع</option>
+            <option>شقة سكنية</option>
+            <option>فيلا</option>
+            <option>مكتب تجاري</option>
+            <option>أرض</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">البريد الإلكتروني</label>
+          <input class="input error" type="email" value="ahmed@example" />
+          <span class="form-error">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            صيغة البريد الإلكتروني غير صحيحة
+          </span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">البحث عن عقار</label>
+          <div class="input-with-icon">
+            <input class="input" type="search" placeholder="ابحث بالعنوان أو الكود..." />
+            <span class="input-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="form-group" style="justify-content:flex-end;gap:var(--space-4);">
+          <div class="checkbox-wrapper">
+            <div class="checkbox checked"></div>
+            <span class="checkbox-label">عميل VIP</span>
+          </div>
+          <div class="checkbox-wrapper">
+            <div class="checkbox"></div>
+            <span class="checkbox-label">إرسال إشعار</span>
+          </div>
+          <div class="switch-wrapper">
+            <label class="switch">
+              <input type="checkbox" checked />
+              <span class="switch-track"></span>
+            </label>
+            <span class="checkbox-label">تفعيل المتابعة</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BADGES -->
+    <div class="comp-group">
+      <div class="comp-group-title">Badges &amp; Status Chips — الشارات والحالات</div>
+      <div class="comp-row" style="margin-bottom:var(--space-4);flex-wrap:wrap;">
+        <span class="badge badge-navy">مميز</span>
+        <span class="badge badge-gold">⭐ VIP</span>
+        <span class="badge badge-success">مكتمل</span>
+        <span class="badge badge-warning">قيد المتابعة</span>
+        <span class="badge badge-danger">ملغي</span>
+        <span class="badge badge-info">جديد</span>
+        <span class="badge badge-neutral">مؤرشف</span>
+        <span class="badge badge-success badge-dot">نشط</span>
+        <span class="badge badge-danger badge-dot">غير متاح</span>
+        <span class="badge badge-warning badge-dot">في الانتظار</span>
+      </div>
+      <div class="comp-row flex-wrap" style="gap:var(--space-2);">
+        <span class="status-chip chip-new">استفسار جديد</span>
+        <span class="status-chip chip-contact">تم التواصل</span>
+        <span class="status-chip chip-viewing">معاينة مجدولة</span>
+        <span class="status-chip chip-offer">عرض مقدَّم</span>
+        <span class="status-chip chip-won">صفقة مكتملة</span>
+        <span class="status-chip chip-lost">صفقة خاسرة</span>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="comp-group">
+      <div class="comp-group-title">Cards — البطاقات</div>
+      <div class="grid-3">
+        <!-- Standard Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">ملف العقار</div>
+            <span class="badge badge-success badge-dot">متاح</span>
+          </div>
+          <div class="card-body">
+            <p style="font-size:var(--text-sm);color:var(--color-neutral-600);margin-bottom:var(--space-4);">
+              شقة ٣ غرف، ١٨٠م² — الزمالك، القاهرة
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--color-accent-700);">٢٫٨ مليون ج.م</span>
+              <button class="btn btn-secondary btn-sm">تفاصيل</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gold Accent Card -->
+        <div class="card card-accent">
+          <div class="card-header">
+            <div class="card-title">عميل مستهدف</div>
+            <span class="badge badge-gold">⭐ VIP</span>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4);">
+              <div class="avatar avatar-md av-navy">أح</div>
+              <div>
+                <div style="font-weight:700;font-size:var(--text-sm);color:var(--color-primary-800);">أحمد منصور</div>
+                <div style="font-size:var(--text-xs);color:var(--color-neutral-500);">مدير تنفيذي · عميل منذ ٢٠٢٣</div>
+              </div>
+            </div>
+            <p style="font-size:var(--text-sm);color:var(--color-neutral-600);">يبحث عن فيلا سكنية ≥ ٥٠٠م²</p>
+          </div>
+        </div>
+
+        <!-- Navy Card -->
+        <div class="card card-navy">
+          <div class="card-header" style="border-color:rgba(255,255,255,0.1);">
+            <div class="card-title">إجمالي العمولات</div>
+            <span class="badge" style="background:rgba(200,162,75,0.2);color:var(--color-accent-400);">هذا الشهر</span>
+          </div>
+          <div class="card-body">
+            <div style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--color-accent-400);line-height:1;margin-bottom:var(--space-2);">
+              ٤٨٥,٠٠٠
+              <span style="font-size:1rem;color:rgba(255,255,255,0.5);">ج.م</span>
+            </div>
+            <div style="font-size:var(--text-sm);color:rgba(255,255,255,0.5);">من ١٢ صفقة مكتملة</div>
+            <div style="height:1px;background:rgba(200,162,75,0.2);margin:var(--space-4) 0;"></div>
+            <div style="font-size:var(--text-xs);color:rgba(255,255,255,0.4);">↑ ٢٣٪ عن الشهر السابق</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="comp-group">
+      <div class="comp-group-title">KPI / Stat Cards — بطاقات المؤشرات</div>
+      <div class="grid-4">
+        <div class="kpi-card kpi-navy">
+          <div class="kpi-icon icon-navy">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="kpi-divider"></div>
+          <div class="kpi-value">٢٤٧</div>
+          <div class="kpi-label">إجمالي العملاء النشطين</div>
+          <div class="kpi-trend up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            +١٢٪ هذا الشهر
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-icon icon-gold">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="kpi-divider"></div>
+          <div class="kpi-value">٤.٨م</div>
+          <div class="kpi-label">حجم الصفقات (ج.م)</div>
+          <div class="kpi-trend up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            +٣١٪ هذا الربع
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-success">
+          <div class="kpi-icon icon-success">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="kpi-divider" style="background:var(--color-success);"></div>
+          <div class="kpi-value">٣٨</div>
+          <div class="kpi-label">صفقات مكتملة</div>
+          <div class="kpi-trend up">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            معدّل تحويل ٦٢٪
+          </div>
+        </div>
+
+        <div class="kpi-card kpi-warning">
+          <div class="kpi-icon icon-warning">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="kpi-divider" style="background:var(--color-warning);"></div>
+          <div class="kpi-value">١٤</div>
+          <div class="kpi-label">تحتاج متابعة عاجلة</div>
+          <div class="kpi-trend down">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+            منذ أكثر من ٧ أيام
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="comp-group">
+      <div class="comp-group-title">Data Table — جدول البيانات</div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>العميل</th>
+              <th>العقار</th>
+              <th class="th-sortable">القيمة ↕</th>
+              <th>الوكيل</th>
+              <th>الحالة</th>
+              <th>التاريخ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--space-3);">
+                  <div class="avatar avatar-sm av-navy">أم</div>
+                  <div>
+                    <div class="td-primary">أحمد محمد</div>
+                    <div style="font-size:var(--text-xs);color:var(--color-neutral-400);">+20 100 123 4567</div>
+                  </div>
+                </div>
+              </td>
+              <td>شقة الزمالك · ١٨٠م²</td>
+              <td><span style="font-family:var(--font-display);font-weight:700;color:var(--color-accent-700);">٢٫٨م</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--space-2);">
+                  <div class="avatar avatar-sm av-gold">سم</div>
+                  سارة ماهر
+                </div>
+              </td>
+              <td><span class="status-chip chip-offer">عرض مقدَّم</span></td>
+              <td style="color:var(--color-neutral-400);font-size:var(--text-xs);">٢٠٢٦/٠٦/١٥</td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--space-3);">
+                  <div class="avatar avatar-sm av-teal">ند</div>
+                  <div>
+                    <div class="td-primary">نور الدين أحمد</div>
+                    <div style="font-size:var(--text-xs);color:var(--color-neutral-400);">+20 111 987 6543</div>
+                  </div>
+                </div>
+              </td>
+              <td>فيلا المعادي · ٣٥٠م²</td>
+              <td><span style="font-family:var(--font-display);font-weight:700;color:var(--color-accent-700);">٥٫٥م</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--space-2);">
+                  <div class="avatar avatar-sm av-navy">كع</div>
+                  كريم عادل
+                </div>
+              </td>
+              <td><span class="status-chip chip-viewing">معاينة مجدولة</span></td>
+              <td style="color:var(--color-neutral-400);font-size:var(--text-xs);">٢٠٢٦/٠٦/١٨</td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--space-3);">
+                  <div class="avatar avatar-sm av-purple">فر</div>
+                  <div>
+                    <div class="td-primary">فاطمة رضا</div>
+                    <div style="font-size:var(--text-xs);color:var(--color-neutral-400);">+20 122 456 7890</div>
+                  </div>
+                </div>
+              </td>
+              <td>مكتب مدينة نصر · ١٢٠م²</td>
+              <td><span style="font-family:var(--font-display);font-weight:700;color:var(--color-success-dark);">١٫٢م</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--space-2);">
+                  <div class="avatar avatar-sm av-rust">مس</div>
+                  مريم سعيد
+                </div>
+              </td>
+              <td><span class="status-chip chip-won">صفقة مكتملة</span></td>
+              <td style="color:var(--color-neutral-400);font-size:var(--text-xs);">٢٠٢٦/٠٦/١٠</td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--space-3);">
+                  <div class="avatar avatar-sm av-rust">عخ</div>
+                  <div>
+                    <div class="td-primary">عمر خليل</div>
+                    <div style="font-size:var(--text-xs);color:var(--color-neutral-400);">+20 105 321 0987</div>
+                  </div>
+                </div>
+              </td>
+              <td>أرض التجمع الخامس · ٥٠٠م²</td>
+              <td><span style="font-family:var(--font-display);font-weight:700;color:var(--color-accent-700);">٨٫٠م</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:var(--space-2);">
+                  <div class="avatar avatar-sm av-navy">أح</div>
+                  أحمد حسن
+                </div>
+              </td>
+              <td><span class="status-chip chip-new">استفسار جديد</span></td>
+              <td style="color:var(--color-neutral-400);font-size:var(--text-xs);">٢٠٢٦/٠٦/١٩</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="comp-group">
+      <div class="comp-group-title">Tabs — التبويبات</div>
+      <div class="tabs">
+        <div class="tab active">
+          الكل
+          <span class="tab-count">٢٤٧</span>
+        </div>
+        <div class="tab">
+          نشط
+          <span class="tab-count">١٨٩</span>
+        </div>
+        <div class="tab">
+          قيد المتابعة
+          <span class="tab-count">٣٨</span>
+        </div>
+        <div class="tab">
+          مكتمل
+          <span class="tab-count">٢٦</span>
+        </div>
+        <div class="tab">
+          ملغي
+          <span class="tab-count">١٢</span>
+        </div>
+      </div>
+      <div style="padding:var(--space-4) 0 0;font-size:var(--text-sm);color:var(--color-neutral-500);">
+        يُعرض المحتوى هنا حسب التبويب المحدد.
+      </div>
+    </div>
+
+    <!-- ALERTS & TOAST -->
+    <div class="comp-group">
+      <div class="comp-group-title">Alerts &amp; Toast — التنبيهات</div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-3);margin-bottom:var(--space-6);">
+        <div class="alert alert-success">
+          <div class="alert-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="alert-content">
+            <div class="alert-title">تم إغلاق الصفقة بنجاح</div>
+            <div>صفقة فيلا المعادي أُغلقت بقيمة ٥.٥ مليون جنيه — العمولة قيد التحويل.</div>
+          </div>
+        </div>
+        <div class="alert alert-warning">
+          <div class="alert-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="alert-content">
+            <div class="alert-title">تنبيه: ١٤ عميلاً لم يُتابَعوا</div>
+            <div>يُنصح بمراجعة قائمة المتابعة العاجلة قبل نهاية اليوم.</div>
+          </div>
+        </div>
+        <div class="alert alert-danger">
+          <div class="alert-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="alert-content">
+            <div class="alert-title">خطأ في رفع المستند</div>
+            <div>تعذّر رفع عقد البيع — الصيغة غير مدعومة. الصيغ المقبولة: PDF, DOCX.</div>
+          </div>
+        </div>
+        <div class="alert alert-info">
+          <div class="alert-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <div class="alert-content">
+            <div class="alert-title">تحديث النظام</div>
+            <div>سيتوفر الإصدار ٢.١ يوم الأحد ٢٢ يونيو مع ميزات جديدة للتقارير.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast -->
+      <div style="display:flex;gap:var(--space-4);flex-wrap:wrap;">
+        <div class="toast">
+          <div class="toast-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>تم تحديث ملف العميل بنجاح</div>
+          <button class="toast-close">×</button>
+        </div>
+        <div class="toast" style="background:var(--color-accent-500);color:var(--color-primary-900);">
+          <div class="toast-icon" style="background:rgba(11,31,58,0.15);color:var(--color-primary-900);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.64 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.55 1.1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.64a16 16 0 0 0 6.21 6.21l1.77-1.77a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div>مكالمة واردة من: أحمد منصور</div>
+          <button class="toast-close" style="color:rgba(11,31,58,0.4);">×</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVATARS -->
+    <div class="comp-group">
+      <div class="comp-group-title">Avatars — الصور الرمزية</div>
+      <div class="comp-row" style="margin-bottom:var(--space-4);">
+        <div class="avatar avatar-xl av-navy">أم</div>
+        <div class="avatar avatar-lg av-gold">سر</div>
+        <div class="avatar avatar-md av-teal">كع</div>
+        <div class="avatar avatar-sm av-purple">فر</div>
+        <div class="avatar avatar-sm av-rust">مس</div>
+      </div>
+      <div class="avatar-group" style="margin-bottom:var(--space-2);">
+        <div class="avatar avatar-md av-navy">أم</div>
+        <div class="avatar avatar-md av-gold">سر</div>
+        <div class="avatar avatar-md av-teal">كع</div>
+        <div class="avatar avatar-md av-purple">فر</div>
+        <div class="avatar avatar-md av-more">+٥</div>
+      </div>
+      <div style="font-size:var(--text-xs);color:var(--color-neutral-400);margin-top:var(--space-2);">Avatar Group — مجموعة الفريق</div>
+    </div>
+
+    <!-- SIDEBAR + MODAL -->
+    <div class="comp-group">
+      <div class="comp-group-title">Sidebar Nav &amp; Modal Preview</div>
+      <div class="flex gap-6 items-start" style="flex-wrap:wrap;">
+
+        <!-- Sidebar -->
+        <div class="sidebar-demo">
+          <div class="nav-section-label">القائمة الرئيسية</div>
+          <div class="nav-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            لوحة التحكم
+          </div>
+          <div class="nav-item active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            العملاء (Leads)
+            <span class="nav-badge" style="margin-right:auto;">١٤</span>
+          </div>
+          <div class="nav-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            العقارات
+          </div>
+          <div class="nav-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            الصفقات
+          </div>
+          <div class="nav-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            المحادثات
+          </div>
+          <div class="nav-section-label">الإدارة</div>
+          <div class="nav-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            التقارير
+          </div>
+          <div class="nav-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            الإعدادات
+          </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal-preview" style="flex:1;min-width:280px;">
+          <div class="modal-overlay-sample">
+            <div class="modal-box">
+              <div class="modal-header">
+                <div class="modal-header-left">
+                  <div class="modal-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  </div>
+                  <span class="modal-title">إضافة عميل جديد</span>
+                </div>
+                <div class="modal-close">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </div>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label class="form-label">الاسم الكامل <span class="required">*</span></label>
+                  <input class="input" type="text" placeholder="أدخل اسم العميل" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">رقم الهاتف</label>
+                  <input class="input" type="tel" placeholder="+20 100 000 0000" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">مصدر الاستفسار</label>
+                  <select class="input select">
+                    <option>اختر المصدر</option>
+                    <option>واتساب</option>
+                    <option>المعرض العقاري</option>
+                    <option>الموقع الإلكتروني</option>
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-ghost">إلغاء</button>
+                <button class="btn btn-primary">حفظ العميل</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     5. CRM SCREEN MOCK — LEADS KANBAN
+═══════════════════════════════════════════════════ -->
+<section class="section crm-screen">
+  <div class="container">
+    <div class="section-label">الشاشة الفعلية</div>
+    <h2 class="section-title">محاكاة شاشة CRM — قناة Leads</h2>
+    <p class="section-desc">كيف يبدو النظام في الاستخدام الحقيقي — لوحة Kanban لإدارة مسار العملاء.</p>
+
+    <div class="app-shell">
+
+      <!-- Sidebar -->
+      <div class="app-sidebar">
+        <div class="sidebar-logo-area">
+          <div class="sidebar-logo-mark">E8</div>
+          <div>
+            <div class="sidebar-brand">Est8<span>Core</span></div>
+            <div class="sidebar-tenant">شركة النيل للوساطة</div>
+          </div>
+        </div>
+
+        <div class="sidebar-nav">
+          <div class="nav-section-label" style="padding-top:0;">القائمة الرئيسية</div>
+          <div class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            لوحة التحكم
+          </div>
+          <div class="nav-item active">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            العملاء (Leads)
+            <span class="nav-badge">١٤</span>
+          </div>
+          <div class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            العقارات
+          </div>
+          <div class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            الصفقات
+          </div>
+          <div class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            المحادثات
+          </div>
+          <div class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            المستندات
+          </div>
+
+          <div class="nav-section-label">إدارة الفريق</div>
+          <div class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            الوكلاء
+          </div>
+          <div class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            التقارير
+          </div>
+          <div class="nav-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            الإعدادات
+          </div>
+        </div>
+
+        <div class="sidebar-user">
+          <div class="avatar avatar-md av-gold">سد</div>
+          <div class="sidebar-user-info">
+            <div class="sidebar-user-name">صبري داود</div>
+            <div class="sidebar-user-role">مدير الفرع الرئيسي</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main App Area -->
+      <div class="app-main">
+
+        <!-- Top Bar -->
+        <div class="app-topbar">
+          <div>
+            <div class="topbar-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              العملاء المحتملون
+            </div>
+            <div class="topbar-breadcrumb">الرئيسية / Leads / قناة المبيعات</div>
+          </div>
+          <div class="topbar-actions">
+            <div class="topbar-search">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              بحث في العملاء...
+            </div>
+            <button class="btn btn-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg>
+            </button>
+            <button class="btn btn-primary btn-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              عميل جديد
+            </button>
+          </div>
+        </div>
+
+        <!-- Kanban Area -->
+        <div class="kanban-area">
+
+          <!-- Toolbar -->
+          <div class="kanban-toolbar">
+            <div class="kanban-tabs">
+              <div class="kanban-tab active">Kanban</div>
+              <div class="kanban-tab">قائمة</div>
+              <div class="kanban-tab">تقرير</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-3);">
+              <div style="display:flex;align-items:center;gap:var(--space-2);">
+                <div class="avatar-group" style="direction:rtl;">
+                  <div class="avatar avatar-sm av-navy">سد</div>
+                  <div class="avatar avatar-sm av-gold">كع</div>
+                  <div class="avatar avatar-sm av-teal">مس</div>
+                </div>
+                <span style="font-size:var(--text-xs);color:var(--color-neutral-500);">الفريق</span>
+              </div>
+              <button class="btn btn-ghost btn-sm">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                تصفية
+              </button>
+            </div>
+          </div>
+
+          <!-- Kanban Board -->
+          <div class="kanban-board">
+
+            <!-- Col 1: New -->
+            <div class="kanban-col">
+              <div class="kanban-col-header">
+                <div class="kanban-col-title">
+                  <div class="kanban-col-dot" style="background:#1A56C4;"></div>
+                  استفسار جديد
+                </div>
+                <span class="kanban-col-count">٤</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="lead-card priority-gold">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">عمر خليل إبراهيم</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٨١</div>
+                    </div>
+                    <span class="badge badge-gold" style="font-size:0.6rem;">VIP</span>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    أرض للبيع — التجمع الخامس
+                  </div>
+                  <div class="lead-value">٨٫٠ مليون ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-navy">كع</div>
+                      كريم عادل
+                    </div>
+                    <div class="lead-date">منذ ساعة</div>
+                  </div>
+                </div>
+
+                <div class="lead-card">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">هبة الرحمن محمد</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٨٢</div>
+                    </div>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    شقة سكنية — مدينة نصر
+                  </div>
+                  <div class="lead-value">١٫٦ مليون ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-teal">مس</div>
+                      مريم سعيد
+                    </div>
+                    <div class="lead-date">٣ ساعات</div>
+                  </div>
+                </div>
+
+                <div class="lead-card">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">مصطفى عبد الله</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٨٣</div>
+                    </div>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    مكتب تجاري — المهندسين
+                  </div>
+                  <div class="lead-value">٩٠٠,٠٠٠ ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-gold">سر</div>
+                      سارة ماهر
+                    </div>
+                    <div class="lead-date">اليوم</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Col 2: Contacted -->
+            <div class="kanban-col">
+              <div class="kanban-col-header">
+                <div class="kanban-col-title">
+                  <div class="kanban-col-dot" style="background:var(--color-accent-500);"></div>
+                  تم التواصل
+                </div>
+                <span class="kanban-col-count">٣</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="lead-card priority-high">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">أحمد محمد منصور</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٧٥</div>
+                    </div>
+                    <span class="badge badge-danger" style="font-size:0.6rem;">عاجل</span>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    شقة سكنية — الزمالك
+                  </div>
+                  <div class="lead-value">٢٫٨ مليون ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-gold">سر</div>
+                      سارة ماهر
+                    </div>
+                    <div class="lead-date">٧ أيام</div>
+                  </div>
+                </div>
+
+                <div class="lead-card">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">ليلى عبد الرحمن</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٧٦</div>
+                    </div>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    فيلا — القاهرة الجديدة
+                  </div>
+                  <div class="lead-value">٤٫٢ مليون ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-navy">كع</div>
+                      كريم عادل
+                    </div>
+                    <div class="lead-date">٣ أيام</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Col 3: Viewing -->
+            <div class="kanban-col">
+              <div class="kanban-col-header">
+                <div class="kanban-col-title">
+                  <div class="kanban-col-dot" style="background:#5B5FD4;"></div>
+                  معاينة مجدولة
+                </div>
+                <span class="kanban-col-count">٢</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="lead-card priority-gold">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">نور الدين أحمد</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٦٩</div>
+                    </div>
+                    <span class="badge badge-gold" style="font-size:0.6rem;">VIP</span>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    فيلا — المعادي
+                  </div>
+                  <div class="lead-value">٥٫٥ مليون ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-navy">كع</div>
+                      كريم عادل
+                    </div>
+                    <div class="lead-date">غداً ١٠:٠٠ص</div>
+                  </div>
+                </div>
+
+                <div class="lead-card">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">رنا حسن علي</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٧٠</div>
+                    </div>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    شقة — الدقي
+                  </div>
+                  <div class="lead-value">١٫٩ مليون ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-teal">مس</div>
+                      مريم سعيد
+                    </div>
+                    <div class="lead-date">الأحد ٢:٠٠م</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Col 4: Offer -->
+            <div class="kanban-col">
+              <div class="kanban-col-header">
+                <div class="kanban-col-title">
+                  <div class="kanban-col-dot" style="background:var(--color-warning);"></div>
+                  عرض مقدَّم
+                </div>
+                <span class="kanban-col-count">٣</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="lead-card priority-high">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">كريم سامي عوض</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٦١</div>
+                    </div>
+                    <span class="badge badge-warning" style="font-size:0.6rem;">مفاوضة</span>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    فيلا — الشيخ زايد
+                  </div>
+                  <div class="lead-value">٧٫١ مليون ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-gold">سر</div>
+                      سارة ماهر
+                    </div>
+                    <div class="lead-date">٥ أيام</div>
+                  </div>
+                </div>
+
+                <div class="lead-card">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">إيمان حسين</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٦٢</div>
+                    </div>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    شقة — النزهة
+                  </div>
+                  <div class="lead-value">٢٫١ مليون ج.م</div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-purple">أح</div>
+                      أحمد حسن
+                    </div>
+                    <div class="lead-date">٢ أيام</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Col 5: Won -->
+            <div class="kanban-col">
+              <div class="kanban-col-header">
+                <div class="kanban-col-title">
+                  <div class="kanban-col-dot" style="background:var(--color-success);"></div>
+                  صفقة مكتملة
+                </div>
+                <span class="kanban-col-count">٢</span>
+              </div>
+              <div class="kanban-cards">
+                <div class="lead-card">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">فاطمة رضا السيد</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٥٢</div>
+                    </div>
+                    <span class="badge badge-success" style="font-size:0.6rem;">مكتمل</span>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    مكتب — مدينة نصر
+                  </div>
+                  <div class="lead-value" style="color:var(--color-success-dark);">١٫٢ مليون ج.م</div>
+                  <div style="font-size:var(--text-xs);color:var(--color-success);margin-bottom:var(--space-3);">
+                    عمولة: ٣٦,٠٠٠ ج.م
+                  </div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-teal">مس</div>
+                      مريم سعيد
+                    </div>
+                    <div class="lead-date">١٠ يونيو</div>
+                  </div>
+                </div>
+
+                <div class="lead-card">
+                  <div class="lead-card-top">
+                    <div>
+                      <div class="lead-name">ياسر العمراوي</div>
+                      <div class="lead-ref">#L-٢٠٢٦-٠٠٤٨</div>
+                    </div>
+                    <span class="badge badge-success" style="font-size:0.6rem;">مكتمل</span>
+                  </div>
+                  <div class="lead-prop">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    شقة — العجوزة
+                  </div>
+                  <div class="lead-value" style="color:var(--color-success-dark);">١٫٨ مليون ج.م</div>
+                  <div style="font-size:var(--text-xs);color:var(--color-success);margin-bottom:var(--space-3);">
+                    عمولة: ٥٤,٠٠٠ ج.م
+                  </div>
+                  <div class="lead-footer">
+                    <div class="lead-assignee">
+                      <div class="avatar avatar-sm av-gold">سر</div>
+                      سارة ماهر
+                    </div>
+                    <div class="lead-date">٥ يونيو</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- end kanban-board -->
+        </div><!-- end kanban-area -->
+      </div><!-- end app-main -->
+    </div><!-- end app-shell -->
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     6. SPACING, RADIUS, SHADOW, ELEVATION TOKENS
+═══════════════════════════════════════════════════ -->
+<section class="section tokens-section">
+  <div class="container">
+    <div class="section-label">رموز التصميم</div>
+    <h2 class="section-title">التباعد، الزوايا، الظلال</h2>
+    <p class="section-desc">المتغيرات الأساسية للنظام — مُصمَّمة للاتساق والقابلية للتوسع.</p>
+
+    <!-- Spacing -->
+    <div class="palette-row-label">Spacing Scale — مقياس التباعد</div>
+    <div style="background:var(--surface-card);border:var(--border-thin);border-radius:var(--radius-lg);padding:var(--space-6);box-shadow:var(--shadow-sm);margin-bottom:var(--space-8);">
+      <div class="spacing-row">
+        <div class="spacing-name">--space-1</div>
+        <div class="spacing-bar-bg" style="width:200px;">
+          <div class="spacing-bar" style="width:4px;"></div>
+        </div>
+        <div class="spacing-val">4px · 0.25rem</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-name">--space-2</div>
+        <div class="spacing-bar-bg" style="width:200px;">
+          <div class="spacing-bar" style="width:8px;"></div>
+        </div>
+        <div class="spacing-val">8px · 0.5rem</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-name">--space-4</div>
+        <div class="spacing-bar-bg" style="width:200px;">
+          <div class="spacing-bar" style="width:16px;"></div>
+        </div>
+        <div class="spacing-val">16px · 1rem</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-name">--space-6</div>
+        <div class="spacing-bar-bg" style="width:200px;">
+          <div class="spacing-bar" style="width:24px;"></div>
+        </div>
+        <div class="spacing-val">24px · 1.5rem</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-name">--space-8</div>
+        <div class="spacing-bar-bg" style="width:200px;">
+          <div class="spacing-bar" style="width:32px;"></div>
+        </div>
+        <div class="spacing-val">32px · 2rem</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-name">--space-12</div>
+        <div class="spacing-bar-bg" style="width:200px;">
+          <div class="spacing-bar" style="width:48px;"></div>
+        </div>
+        <div class="spacing-val">48px · 3rem</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-name">--space-16</div>
+        <div class="spacing-bar-bg" style="width:200px;">
+          <div class="spacing-bar" style="width:64px;"></div>
+        </div>
+        <div class="spacing-val">64px · 4rem</div>
+      </div>
+      <div class="spacing-row">
+        <div class="spacing-name">--space-24</div>
+        <div class="spacing-bar-bg" style="width:200px;">
+          <div class="spacing-bar" style="width:96px;"></div>
+        </div>
+        <div class="spacing-val">96px · 6rem</div>
+      </div>
+    </div>
+
+    <!-- Border Radius -->
+    <div class="palette-row-label">Border Radius — زوايا الحواف</div>
+    <div class="token-grid" style="margin-bottom:var(--space-8);">
+      <div class="token-card">
+        <div class="token-sample radius-box" style="border-radius:var(--radius-xs);width:64px;height:64px;margin:0 auto var(--space-3);"></div>
+        <div class="token-name">radius-xs</div>
+        <div class="token-value">2px</div>
+      </div>
+      <div class="token-card">
+        <div class="token-sample radius-box" style="border-radius:var(--radius-sm);width:64px;height:64px;margin:0 auto var(--space-3);"></div>
+        <div class="token-name">radius-sm</div>
+        <div class="token-value">4px</div>
+      </div>
+      <div class="token-card">
+        <div class="token-sample radius-box" style="border-radius:var(--radius-md);width:64px;height:64px;margin:0 auto var(--space-3);"></div>
+        <div class="token-name">radius-md</div>
+        <div class="token-value">8px</div>
+      </div>
+      <div class="token-card">
+        <div class="token-sample radius-box" style="border-radius:var(--radius-lg);width:64px;height:64px;margin:0 auto var(--space-3);"></div>
+        <div class="token-name">radius-lg</div>
+        <div class="token-value">12px</div>
+      </div>
+      <div class="token-card">
+        <div class="token-sample radius-box" style="border-radius:var(--radius-xl);width:64px;height:64px;margin:0 auto var(--space-3);"></div>
+        <div class="token-name">radius-xl</div>
+        <div class="token-value">16px</div>
+      </div>
+      <div class="token-card">
+        <div class="token-sample radius-box" style="border-radius:var(--radius-2xl);width:64px;height:64px;margin:0 auto var(--space-3);"></div>
+        <div class="token-name">radius-2xl</div>
+        <div class="token-value">24px</div>
+      </div>
+      <div class="token-card">
+        <div class="token-sample radius-box" style="border-radius:var(--radius-full);width:64px;height:64px;margin:0 auto var(--space-3);"></div>
+        <div class="token-name">radius-full</div>
+        <div class="token-value">9999px</div>
+      </div>
+    </div>
+
+    <!-- Shadows / Elevation -->
+    <div class="palette-row-label">Shadows &amp; Elevation — الظلال والارتفاع</div>
+    <div class="token-grid">
+      <div class="token-card">
+        <div class="shadow-box" style="box-shadow:var(--shadow-xs);margin:0 auto var(--space-3);width:64px;height:64px;"></div>
+        <div class="token-name">shadow-xs</div>
+        <div class="token-value">Elevation 1</div>
+      </div>
+      <div class="token-card">
+        <div class="shadow-box" style="box-shadow:var(--shadow-sm);margin:0 auto var(--space-3);width:64px;height:64px;"></div>
+        <div class="token-name">shadow-sm</div>
+        <div class="token-value">Elevation 2</div>
+      </div>
+      <div class="token-card">
+        <div class="shadow-box" style="box-shadow:var(--shadow-md);margin:0 auto var(--space-3);width:64px;height:64px;"></div>
+        <div class="token-name">shadow-md</div>
+        <div class="token-value">Elevation 3</div>
+      </div>
+      <div class="token-card">
+        <div class="shadow-box" style="box-shadow:var(--shadow-lg);margin:0 auto var(--space-3);width:64px;height:64px;"></div>
+        <div class="token-name">shadow-lg</div>
+        <div class="token-value">Elevation 4</div>
+      </div>
+      <div class="token-card">
+        <div class="shadow-box" style="box-shadow:var(--shadow-xl);margin:0 auto var(--space-3);width:64px;height:64px;"></div>
+        <div class="token-name">shadow-xl</div>
+        <div class="token-value">Elevation 5</div>
+      </div>
+      <div class="token-card">
+        <div class="shadow-box" style="box-shadow:var(--shadow-gold);background:linear-gradient(135deg,var(--color-accent-100),var(--color-accent-50));margin:0 auto var(--space-3);width:64px;height:64px;"></div>
+        <div class="token-name">shadow-gold</div>
+        <div class="token-value">Gold Glow</div>
+      </div>
+    </div>
+
+    <!-- Dark Surface Sample -->
+    <div class="divider-gold"></div>
+    <div class="palette-row-label">Dark Surface — السطح الداكن</div>
+    <div class="dark-sample">
+      <div class="dark-sample-title">لوحة الأداء الليلية</div>
+      <div class="dark-sample-sub">عينة من الوضع الداكن — تتمسك الهوية البصرية بالذهبي والبحري على خلفية عميقة</div>
+      <div class="grid-4">
+        <div class="dark-card">
+          <div class="dark-card-value">٤٨<span>م</span></div>
+          <div class="dark-card-label">حجم الصفقات</div>
+        </div>
+        <div class="dark-card">
+          <div class="dark-card-value" style="color:var(--color-accent-400);">٦٢<span style="color:rgba(255,255,255,0.4);">٪</span></div>
+          <div class="dark-card-label">معدّل التحويل</div>
+        </div>
+        <div class="dark-card">
+          <div class="dark-card-value" style="color:var(--color-success-light);">٣٨</div>
+          <div class="dark-card-label">صفقات ناجحة</div>
+        </div>
+        <div class="dark-card">
+          <div class="dark-card-value">١٤</div>
+          <div class="dark-card-label">قيد المتابعة</div>
+        </div>
+      </div>
+      <div class="dark-divider"></div>
+      <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;">
+        <button class="btn" style="background:rgba(200,162,75,0.15);color:var(--color-accent-400);border-color:rgba(200,162,75,0.3);">
+          عرض التقرير الكامل
+        </button>
+        <button class="btn" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.1);">
+          تصدير البيانات
+        </button>
+        <span class="badge" style="background:rgba(200,162,75,0.1);color:var(--color-accent-400);border:1px solid rgba(200,162,75,0.2);font-size:0.65rem;padding:4px 10px;border-radius:99px;">
+          ← سطح داكن تجريبي
+        </span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════ -->
+<footer class="design-footer">
+  <div class="footer-direction">Direction 1 — Trust &amp; Authority</div>
+  <div class="footer-brand">Est8<span>Core</span></div>
+  <p class="footer-copy">
+    Design System · Option 1 of 3 · نظام تصميم للتقييم
+    <br />
+    Deep Navy #0B1F3A · Gold Accent #C8A24B · Amiri · IBM Plex Sans Arabic
+  </p>
+</footer>
+
+</body>
+</html>

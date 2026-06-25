@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — لوحة المنصة · إعدادات المنصة</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant platform shell) ===== */
+    .adm-shell { display:flex; min-height:100vh; }
+    .adm-sidebar { width:264px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .adm-main { flex:1; min-width:0; margin-inline-start:264px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .adm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .adm-sidebar.open{ transform:translateX(0);} .adm-main{ margin-inline-start:0; } }
+    .adm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav ===== */
+    .adm-brand { display:flex; align-items:center; gap:.65rem; padding:1.15rem 1.25rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .adm-nav { flex:1; overflow-y:auto; padding:1rem .75rem 1.5rem; }
+    .adm-nav-label { font-size:.7rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:1rem .75rem .4rem; text-transform:uppercase; }
+    .adm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .adm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .adm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .adm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.75rem; top:50%; transform:translateY(-50%); width:3.5px; height:60%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .adm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .adm-nav-item .soon { margin-inline-start:auto; font-size:.62rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:600; }
+
+    /* ===== Topbar ===== */
+    .adm-topbar { height:64px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:1rem; padding:0 1.5rem; position:sticky; top:0; z-index:30; }
+    .adm-env { display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700; color:#1A8C4E; background:rgba(26,140,78,.1); padding:.28rem .65rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .adm-content { padding:1.6rem 1.75rem 3rem; max-width:1400px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.6rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Cards / KPI ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:.0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.85rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+
+    /* ===== Table ===== */
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.85rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+
+    /* ===== Badges / status ===== */
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+
+    /* ===== Buttons ===== */
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+
+    /* ===== Inputs ===== */
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+
+    /* ===== Tabs ===== */
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+
+    /* ===== Pills (filters) ===== */
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+
+    /* ===== Modal ===== */
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+
+    /* ===== Toggle switch ===== */
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+
+    /* ===== Progress (usage) ===== */
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+
+    /* ===== Info grid ===== */
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+
+    /* ===== Empty / pagination ===== */
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-pagination { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.25rem; border-top:1px solid #F1F3F5; flex-wrap:wrap; }
+    .adm-page-btn { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; border:1px solid #DDE1EA; font-size:.8rem; color:#4D5F7A; cursor:pointer; }
+    .adm-page-btn:hover:not(:disabled){ background:#F4F6FA; } .adm-page-btn:disabled{ opacity:.4; cursor:not-allowed; }
+    .adm-page-btn.on { background:#0B1F3A; color:#fff; border-color:#0B1F3A; }
+
+    /* ===== Audit diff ===== */
+    .adm-diff { font-family:'Inter',monospace; font-size:.78rem; border-radius:.5rem; padding:.7rem .9rem; white-space:pre-wrap; word-break:break-word; }
+    .adm-diff.before { background:rgba(192,57,43,.05); border:1px solid rgba(192,57,43,.15); color:#7a2018; }
+    .adm-diff.after { background:rgba(26,140,78,.05); border:1px solid rgba(26,140,78,.15); color:#0f5a31; }
+
+    /* ===== JSON viewer (collapsible tree · syntax-highlighted · VSCode-like) ===== */
+    .jv-root { font-family:'Inter',ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.74rem; line-height:1.75; color:#344260; direction:ltr; text-align:left; }
+    .jv-row { white-space:pre-wrap; word-break:break-word; }
+    .jv-children { padding-inline-start:1.1rem; margin-inline-start:.35rem; border-inline-start:1px dashed #DDE1EA; }
+    details.jv-node > summary { list-style:none; cursor:pointer; display:block; border-radius:4px; }
+    details.jv-node > summary:hover { background:#EEF0F5; }
+    details.jv-node > summary::-webkit-details-marker { display:none; }
+    details.jv-node > summary::before { content:'▾'; display:inline-block; width:1em; margin-inline-end:.1rem; color:#9BA6BB; font-size:.8em; }
+    details.jv-node:not([open]) > summary::before { content:'▸'; }
+    details.jv-node[open] > summary > .jv-count, details.jv-node[open] > summary > .jv-ellipsis { display:none; }
+    .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
+    .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
+    .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+  </style>
+</head>
+
+<body x-data="shell()" x-cloak>
+<div class="adm-shell">
+
+  <!-- Mobile backdrop -->
+  <div class="adm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="adm-sidebar" :class="navOpen && 'open'">
+    <div class="adm-brand">
+      <img src="../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div>
+        <div class="font-latin text-base font-bold text-white leading-none">Est8<span class="text-accent-500">Core</span></div>
+        <div class="text-[.66rem] text-primary-200 mt-1 font-semibold tracking-wide">لوحة المنصة</div>
+      </div>
+    </div>
+    <nav class="adm-nav">
+      <div class="adm-nav-label">الرئيسية</div>
+      <a href="dashboard.html" class="adm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+      <a href="notifications.html" class="adm-nav-item" data-nav="notifications">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 3z"/><path d="M8.5 16.5a1.5 1.5 0 003 0"/></svg>
+        التنبيهات
+        <span class="soon" x-show="alertCount>0" x-text="alertCount"></span>
+      </a>
+      <div class="adm-nav-label">الإدارة</div>
+      <a href="tenants.html" class="adm-nav-item" data-nav="tenants">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V6l5-3 5 3v11"/><path d="M13 8l4 2v7"/><path d="M2 17h16M6 8h2M6 11h2M6 14h2"/></svg>
+        المنشآت
+      </a>
+      <a href="plans.html" class="adm-nav-item" data-nav="plans">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M2.5 8h15M6 12h3"/></svg>
+        خطط الاشتراك
+      </a>
+      <a href="invoices.html" class="adm-nav-item" data-nav="invoices">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2.5h10v15l-2.5-1.5L10 17l-2.5-1L5 17.5z"/><path d="M8 6.5h4M8 9.5h4M8 12.5h2.5"/></svg>
+        الفواتير
+      </a>
+      <div class="adm-nav-label">النظام</div>
+      <a href="admins.html" class="adm-nav-item" data-nav="admins">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7.5" cy="7" r="2.5"/><path d="M3 16c0-2.6 2-4.5 4.5-4.5S12 13.4 12 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        فريق المنصة
+      </a>
+      <a href="settings.html" class="adm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        إعدادات المنصة
+      </a>
+      <a href="audit-log.html" class="adm-nav-item" data-nav="audit">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 2.5h8l4 4V17.5H4z"/><path d="M12 2.5v4h4M7 10h6M7 13h6"/></svg>
+        سجل التدقيق
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 text-[.68rem] text-primary-300 flex items-center gap-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> النظام يعمل · v2.0.0
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="adm-main">
+    <header class="adm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث في المنصة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="adm-env"><span class="w-1.5 h-1.5 rounded-full bg-success"></span> الإنتاج</span>
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="التنبيهات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alertCount>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+              <span class="text-sm font-bold text-primary-800">التنبيهات التشغيلية</span>
+              <span class="adm-badge b-danger" x-show="alertCount>0" x-text="alertCount + ' بحاجة لإجراء'"></span>
+            </div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div>
+                    <div class="text-xs text-neutral-500 mt-0.5" x-text="a.desc"></div>
+                  </div>
+                </a>
+              </template>
+            </div>
+            <a href="notifications.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض كل التنبيهات</a>
+          </div>
+        </div>
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="w-8 h-8 rounded-lg bg-primary-800 text-accent-400 text-xs font-bold flex items-center justify-center">صد</span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none">صبري داوود</div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5">مدير عام للمنصة</div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="adm-content">
+
+<!-- S-064 · إعدادات المنصة · GET /api/v1/admin/settings · GET /api/v1/admin/settings/:group · PUT /api/v1/admin/settings/:group/:key -->
+<div x-data="settings()">
+
+  <!-- ===== Maintenance top banner ===== -->
+  <div x-show="s.maintenance.enabled" x-transition
+       class="mb-4 flex items-start gap-3 bg-danger/10 border border-danger/30 rounded-xl p-4">
+    <svg class="shrink-0 text-danger mt-0.5" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+      <path d="M10 2.5L2 17h16L10 2.5z"/><path d="M10 8v4M10 14.5h.01"/>
+    </svg>
+    <div>
+      <p class="text-sm font-bold text-danger">وضع الصيانة مفعّل — المنصة غير متاحة للمستأجرين</p>
+      <p class="text-xs text-danger/80 mt-0.5" x-text="s.maintenance.message || 'جارٍ أعمال الصيانة، نعود قريباً.'"></p>
+    </div>
+  </div>
+
+  <!-- ===== Page header ===== -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">إعدادات المنصة</h1>
+      <p class="adm-page-sub">إعدادات المزوّدين والبنية التحتية لـ Est8Core</p>
+    </div>
+    <div x-show="dirty" x-transition class="flex items-center gap-2">
+      <span class="text-xs text-warning font-semibold flex items-center gap-1.5">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2 1.5"/></svg>
+        تغييرات غير محفوظة
+      </span>
+      <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="cancel()">إلغاء</button>
+      <button class="adm-btn adm-btn-primary adm-btn-sm" @click="save()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8.5l3 3 7-7"/></svg>
+        حفظ التغييرات
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== Save success toast ===== -->
+  <div x-show="saved" x-transition.opacity
+       class="fixed bottom-6 end-6 z-50 flex items-center gap-2.5 bg-success text-white text-sm font-semibold px-4 py-3 rounded-xl shadow-xl">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l3 3 7-7"/></svg>
+    تم الحفظ بنجاح
+  </div>
+
+  <!-- ===== Two-column layout ===== -->
+  <div class="flex gap-5 items-start">
+
+    <!-- ── Left group nav ── -->
+    <div class="adm-card shrink-0 w-56 sticky top-20">
+      <div class="p-2 flex flex-col gap-0.5">
+        <template x-for="g in groups" :key="g.id">
+          <button
+            @click="activeGroup=g.id"
+            class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-start"
+            :class="activeGroup===g.id
+              ? 'bg-primary-800 text-white font-semibold'
+              : 'text-neutral-600 hover:bg-neutral-50 hover:text-primary-800'">
+            <span x-html="g.icon"
+                  class="shrink-0 w-[18px] h-[18px] flex items-center justify-center"
+                  :class="activeGroup===g.id ? 'text-accent-300' : 'text-neutral-400'"></span>
+            <span x-text="g.label" class="flex-1 text-start"></span>
+            <span x-show="g.soon"      class="text-[.62rem] bg-accent-100 text-accent-700 px-1.5 py-px rounded font-bold">قريباً</span>
+            <span x-show="g.viewOnly" class="text-[.62rem] bg-neutral-100 text-neutral-500 px-1.5 py-px rounded font-bold">عرض</span>
+          </button>
+        </template>
+      </div>
+    </div>
+
+    <!-- ── Right content pane ── -->
+    <div class="flex-1 min-w-0 pb-20">
+
+      <!-- ══════════════════════════════════════════════════════════
+           الدفع — payment
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='payment'" x-cloak>
+
+        <!-- الضريبة العامة -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head"><div class="adm-card-title">الضريبة العامة</div></div>
+          <div class="p-5 max-w-xs">
+            <label class="ec-label">نسبة الضريبة العامة <span class="text-neutral-400 font-normal">(٪)</span></label>
+            <p class="text-xs text-neutral-500 mb-2">تُطبَّق على جميع الفواتير الصادرة عن المنصة</p>
+            <input type="number" min="0" max="100" step="0.01" class="ec-input"
+                   x-model.number="s.payment.tax_rate" placeholder="مثال: 15" />
+          </div>
+        </div>
+
+        <!-- سترايب -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">سترايب</div>
+              <p class="text-xs text-neutral-500 mt-0.5">بوابة الدفع الدولية</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.payment.stripe_enabled && 'on'"
+                   @click="s.payment.stripe_enabled=!s.payment.stripe_enabled"
+                   role="switch" :aria-checked="s.payment.stripe_enabled"></div>
+            </div>
+          </div>
+          <div class="p-5 max-w-lg" x-show="s.payment.stripe_enabled" x-collapse>
+            <label class="ec-label">المفتاح السري</label>
+            <p class="text-xs text-neutral-500 mb-2">مفتاح سترايب السري (sk_live_… أو sk_test_…)</p>
+            <input type="password" class="ec-input font-latin" x-model="s.payment.stripe_secretKey"
+                   placeholder="sk_live_••••••••••••••••" autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- باي‌موب -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">باي‌موب</div>
+              <p class="text-xs text-neutral-500 mt-0.5">بوابة دفع مصرية</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.payment.paymob_enabled && 'on'"
+                   @click="s.payment.paymob_enabled=!s.payment.paymob_enabled"
+                   role="switch" :aria-checked="s.payment.paymob_enabled"></div>
+            </div>
+          </div>
+          <div class="p-5" x-show="s.payment.paymob_enabled" x-collapse>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">مفتاح الواجهة البرمجية</label>
+                <p class="text-xs text-neutral-500 mb-2">API Key الخاص بحساب باي‌موب</p>
+                <input type="password" class="ec-input font-latin" x-model="s.payment.paymob_apiKey"
+                       placeholder="••••••••••" autocomplete="off" />
+              </div>
+              <div>
+                <label class="ec-label">معرّف التكامل</label>
+                <p class="text-xs text-neutral-500 mb-2">Integration ID من لوحة باي‌موب</p>
+                <input type="text" class="ec-input font-latin" x-model="s.payment.paymob_integrationId" placeholder="123456" />
+              </div>
+              <div>
+                <label class="ec-label">معرّف الإطار</label>
+                <p class="text-xs text-neutral-500 mb-2">Iframe ID للدفع المدمج</p>
+                <input type="text" class="ec-input font-latin" x-model="s.payment.paymob_iframeId" placeholder="789012" />
+              </div>
+              <div>
+                <label class="ec-label">مفتاح HMAC السري</label>
+                <p class="text-xs text-neutral-500 mb-2">لتحقّق التوقيع في الـ webhook</p>
+                <input type="password" class="ec-input font-latin" x-model="s.payment.paymob_hmacSecret"
+                       placeholder="••••••••••" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- باي‌تابس -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">باي‌تابس</div>
+              <p class="text-xs text-neutral-500 mt-0.5">بوابة دفع خليجية</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.payment.paytabs_enabled && 'on'"
+                   @click="s.payment.paytabs_enabled=!s.payment.paytabs_enabled"
+                   role="switch" :aria-checked="s.payment.paytabs_enabled"></div>
+            </div>
+          </div>
+          <div class="p-5" x-show="s.payment.paytabs_enabled" x-collapse>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">معرّف الملف التعريفي</label>
+                <p class="text-xs text-neutral-500 mb-2">Profile ID من لوحة باي‌تابس</p>
+                <input type="text" class="ec-input font-latin" x-model="s.payment.paytabs_profileId" placeholder="12345" />
+              </div>
+              <div>
+                <label class="ec-label">مفتاح الخادم</label>
+                <p class="text-xs text-neutral-500 mb-2">Server Key السري للاتصال</p>
+                <input type="password" class="ec-input font-latin" x-model="s.payment.paytabs_serverKey"
+                       placeholder="••••••••••" autocomplete="off" />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="ec-label">رابط الواجهة الأساسي</label>
+                <p class="text-xs text-neutral-500 mb-2">Base URL لخادم باي‌تابس حسب المنطقة</p>
+                <input type="url" class="ec-input font-latin" x-model="s.payment.paytabs_baseUrl"
+                       placeholder="https://secure.paytabs.sa" dir="ltr" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- يدوي -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">يدوي</div>
+              <p class="text-xs text-neutral-500 mt-0.5">تحويل بنكي، إنستاباي، محافظ إلكترونية</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.payment.manual_enabled && 'on'"
+                   @click="s.payment.manual_enabled=!s.payment.manual_enabled"
+                   role="switch" :aria-checked="s.payment.manual_enabled"></div>
+            </div>
+          </div>
+          <div class="p-5" x-show="s.payment.manual_enabled" x-collapse>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">تعليمات التحويل البنكي</label>
+                <p class="text-xs text-neutral-500 mb-2">اسم البنك، الآيبان، اسم المستفيد</p>
+                <textarea class="ec-input" rows="3" x-model="s.payment.manual_bank"
+                          placeholder="بنك الراجحي — SA…"></textarea>
+              </div>
+              <div>
+                <label class="ec-label">تعليمات إنستاباي</label>
+                <p class="text-xs text-neutral-500 mb-2">رقم الهاتف أو رابط الدفع</p>
+                <textarea class="ec-input" rows="3" x-model="s.payment.manual_instapay"
+                          placeholder="+966 5X XXX XXXX"></textarea>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="ec-label">تعليمات المحافظ الإلكترونية</label>
+                <p class="text-xs text-neutral-500 mb-2">STC Pay، فودافون كاش، وغيرها</p>
+                <textarea class="ec-input" rows="2" x-model="s.payment.manual_wallets"
+                          placeholder="STC Pay: 05XXXXXXXX"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- فوترة إلكترونية — زاتكا -->
+        <div class="adm-card mb-4">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">الفوترة الإلكترونية — زاتكا (ZATCA)</div>
+              <p class="text-xs text-neutral-500 mt-0.5">إصدار الفواتير وفق معايير هيئة الزكاة والضريبة السعودية</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.payment.zatca_enabled && 'on'"
+                   @click="s.payment.zatca_enabled=!s.payment.zatca_enabled"
+                   role="switch" :aria-checked="s.payment.zatca_enabled"></div>
+            </div>
+          </div>
+          <div class="p-5" x-show="s.payment.zatca_enabled" x-collapse>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">الرقم الضريبي</label>
+                <p class="text-xs text-neutral-500 mb-2">رقم تسجيل ضريبة القيمة المضافة</p>
+                <input type="text" class="ec-input font-latin" x-model="s.payment.zatca_vatNumber"
+                       placeholder="300XXXXXXXXX0003" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">اسم البائع</label>
+                <p class="text-xs text-neutral-500 mb-2">الاسم الرسمي المسجَّل في زاتكا</p>
+                <input type="text" class="ec-input" x-model="s.payment.zatca_sellerName"
+                       placeholder="شركة ..." />
+              </div>
+              <div class="sm:col-span-2">
+                <label class="ec-label">عنوان البائع</label>
+                <input type="text" class="ec-input" x-model="s.payment.zatca_sellerAddress"
+                       placeholder="الرياض، المملكة العربية السعودية" />
+              </div>
+              <div>
+                <label class="ec-label">شهادة الامتثال (CSID)</label>
+                <p class="text-xs text-neutral-500 mb-2">مُولَّدة من بوابة زاتكا</p>
+                <input type="password" class="ec-input font-latin" x-model="s.payment.zatca_csid"
+                       placeholder="••••••••" autocomplete="off" />
+              </div>
+              <div>
+                <label class="ec-label">بيئة التشغيل</label>
+                <p class="text-xs text-neutral-500 mb-2">اختبار أو إنتاج</p>
+                <select class="ec-input" x-model="s.payment.zatca_environment">
+                  <option value="sandbox">اختبار (Sandbox)</option>
+                  <option value="production">إنتاج (Production)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- فوترة إلكترونية — ETA المصرية -->
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div>
+              <div class="adm-card-title">الفوترة الإلكترونية — ETA المصرية</div>
+              <p class="text-xs text-neutral-500 mt-0.5">تكامل مع منظومة الفاتورة الإلكترونية المصرية</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.payment.eta_enabled && 'on'"
+                   @click="s.payment.eta_enabled=!s.payment.eta_enabled"
+                   role="switch" :aria-checked="s.payment.eta_enabled"></div>
+            </div>
+          </div>
+          <div class="p-5" x-show="s.payment.eta_enabled" x-collapse>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">معرّف العميل</label>
+                <p class="text-xs text-neutral-500 mb-2">Client ID من بوابة ETA</p>
+                <input type="text" class="ec-input font-latin" x-model="s.payment.eta_clientId"
+                       placeholder="Client-ID" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">سرّ العميل</label>
+                <p class="text-xs text-neutral-500 mb-2">Client Secret السري</p>
+                <input type="password" class="ec-input font-latin" x-model="s.payment.eta_clientSecret"
+                       placeholder="••••••••" autocomplete="off" />
+              </div>
+              <div>
+                <label class="ec-label">الرقم التعريفي للمُصدِر (RIN)</label>
+                <p class="text-xs text-neutral-500 mb-2">رقم تسجيل المُموّل لدى مصلحة الضرائب المصرية</p>
+                <input type="text" class="ec-input font-latin" x-model="s.payment.eta_rin"
+                       placeholder="123456789" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">الرقم الضريبي</label>
+                <p class="text-xs text-neutral-500 mb-2">VAT Number المصري</p>
+                <input type="text" class="ec-input font-latin" x-model="s.payment.eta_vatNumber"
+                       placeholder="100XXXXXXXXX" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">اسم المُصدِر</label>
+                <p class="text-xs text-neutral-500 mb-2">الاسم الرسمي للمنشأة المصدِرة</p>
+                <input type="text" class="ec-input" x-model="s.payment.eta_issuerName"
+                       placeholder="شركة ..." />
+              </div>
+              <div>
+                <label class="ec-label">بيئة التشغيل</label>
+                <select class="ec-input" x-model="s.payment.eta_environment">
+                  <option value="pre-production">ما قبل الإنتاج</option>
+                  <option value="production">إنتاج</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /payment -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           البريد — email
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='email'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">إعدادات البريد الإلكتروني</div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.email.enabled && 'on'"
+                   @click="s.email.enabled=!s.email.enabled"
+                   role="switch" :aria-checked="s.email.enabled"></div>
+            </div>
+          </div>
+          <div class="p-5" x-show="s.email.enabled" x-collapse>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div class="sm:col-span-2">
+                <label class="ec-label">مزوّد الخدمة</label>
+                <p class="text-xs text-neutral-500 mb-2">اختر مزوّد الإرسال المستخدَم</p>
+                <select class="ec-input" x-model="s.email.provider">
+                  <option value="smtp">SMTP مباشر</option>
+                  <option value="sendgrid">SendGrid</option>
+                  <option value="mailgun">Mailgun</option>
+                  <option value="resend">Resend</option>
+                </select>
+              </div>
+              <div>
+                <label class="ec-label">اسم المُرسِل</label>
+                <p class="text-xs text-neutral-500 mb-2">يظهر في حقل "من" للمستلم</p>
+                <input type="text" class="ec-input" x-model="s.email.from_name" placeholder="Est8Core" />
+              </div>
+              <div>
+                <label class="ec-label">بريد المُرسِل</label>
+                <p class="text-xs text-neutral-500 mb-2">العنوان الذي تُرسَل منه الرسائل</p>
+                <input type="email" class="ec-input font-latin" x-model="s.email.from_email"
+                       placeholder="no-reply@est8core.com" dir="ltr" />
+              </div>
+              <!-- SMTP-only fields -->
+              <template x-if="s.email.provider==='smtp'">
+                <div class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="ec-label">خادم SMTP</label>
+                    <input type="text" class="ec-input font-latin" x-model="s.email.smtp_host"
+                           placeholder="smtp.mailprovider.com" dir="ltr" />
+                  </div>
+                  <div>
+                    <label class="ec-label">المنفذ</label>
+                    <input type="number" class="ec-input font-latin" x-model.number="s.email.smtp_port" placeholder="587" />
+                  </div>
+                  <div>
+                    <label class="ec-label">اسم المستخدم</label>
+                    <input type="text" class="ec-input font-latin" x-model="s.email.smtp_user"
+                           placeholder="user@domain.com" dir="ltr" />
+                  </div>
+                  <div>
+                    <label class="ec-label">كلمة المرور</label>
+                    <input type="password" class="ec-input font-latin" x-model="s.email.smtp_pass"
+                           placeholder="••••••••" autocomplete="off" />
+                  </div>
+                  <div class="flex items-center gap-3 sm:col-span-2">
+                    <div class="adm-switch" :class="s.email.smtp_secure && 'on'"
+                         @click="s.email.smtp_secure=!s.email.smtp_secure"
+                         role="switch" :aria-checked="s.email.smtp_secure"></div>
+                    <div>
+                      <p class="text-sm font-semibold text-neutral-700">تشفير SSL/TLS</p>
+                      <p class="text-xs text-neutral-500">تفعيل الاتصال الآمن (المنفذ 465 أو 587)</p>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div><!-- /email -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           الرسائل النصية — sms
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='sms'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">إعدادات الرسائل النصية القصيرة</div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.sms.enabled && 'on'"
+                   @click="s.sms.enabled=!s.sms.enabled"
+                   role="switch" :aria-checked="s.sms.enabled"></div>
+            </div>
+          </div>
+          <div class="p-5" x-show="s.sms.enabled" x-collapse>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div class="sm:col-span-2">
+                <label class="ec-label">مزوّد الخدمة</label>
+                <select class="ec-input" x-model="s.sms.provider">
+                  <option value="twilio">Twilio</option>
+                  <option value="vonage">Vonage</option>
+                  <option value="aws_sns">AWS SNS</option>
+                </select>
+              </div>
+              <div>
+                <label class="ec-label">معرّف حساب Twilio</label>
+                <p class="text-xs text-neutral-500 mb-2">Account SID من لوحة Twilio</p>
+                <input type="text" class="ec-input font-latin" x-model="s.sms.twilio_account_sid"
+                       placeholder="ACxxxxxxxxxxxxxxxx" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">رمز المصادقة</label>
+                <p class="text-xs text-neutral-500 mb-2">Auth Token السري</p>
+                <input type="password" class="ec-input font-latin" x-model="s.sms.twilio_auth_token"
+                       placeholder="••••••••" autocomplete="off" />
+              </div>
+              <div>
+                <label class="ec-label">رقم الإرسال</label>
+                <p class="text-xs text-neutral-500 mb-2">الرقم المُرسَل منه بصيغة E.164</p>
+                <input type="tel" class="ec-input font-latin" x-model="s.sms.twilio_from_number"
+                       placeholder="+966XXXXXXXXX" dir="ltr" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /sms -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           واتساب — whatsapp
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='whatsapp'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="flex items-center gap-2.5">
+              <div class="adm-card-title">إعدادات واتساب للأعمال</div>
+              <span class="adm-badge b-accent">قريباً</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.whatsapp.enabled && 'on'"
+                   @click="s.whatsapp.enabled=!s.whatsapp.enabled"
+                   role="switch" :aria-checked="s.whatsapp.enabled"></div>
+            </div>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">معرّف رقم الهاتف</label>
+                <p class="text-xs text-neutral-500 mb-2">Phone Number ID من Meta for Developers</p>
+                <input type="text" class="ec-input font-latin" x-model="s.whatsapp.phone_number_id"
+                       placeholder="1234567890" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">معرّف حساب الأعمال</label>
+                <p class="text-xs text-neutral-500 mb-2">معرّف حساب واتساب للأعمال</p>
+                <input type="text" class="ec-input font-latin" x-model="s.whatsapp.business_account_id"
+                       placeholder="0987654321" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">مفتاح الواجهة البرمجية</label>
+                <p class="text-xs text-neutral-500 mb-2">رمز الوصول الدائم (Permanent Access Token)</p>
+                <input type="password" class="ec-input font-latin" x-model="s.whatsapp.api_key"
+                       placeholder="••••••••" autocomplete="off" />
+              </div>
+              <div>
+                <label class="ec-label">رمز التحقّق من الـ Webhook</label>
+                <p class="text-xs text-neutral-500 mb-2">Verify Token لتأكيد ربط webhook</p>
+                <input type="text" class="ec-input font-latin" x-model="s.whatsapp.webhook_verify_token"
+                       placeholder="my_verify_token" dir="ltr" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /whatsapp -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           تيليجرام — telegram  (view only)
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='telegram'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="flex items-center gap-2.5">
+              <div class="adm-card-title">إعدادات تيليجرام</div>
+              <span class="adm-badge b-neutral">عرض فقط — غير مُفعَّل</span>
+            </div>
+            <div class="flex items-center gap-2 opacity-40 pointer-events-none select-none">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" role="switch" aria-checked="false"></div>
+            </div>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="ec-label">اسم مستخدم البوت</label>
+                <p class="text-xs text-neutral-500 mb-2">Bot Username بدون @</p>
+                <input type="text" class="ec-input font-latin opacity-50" x-model="s.telegram.bot_username"
+                       placeholder="est8core_bot" dir="ltr" disabled />
+              </div>
+              <div>
+                <label class="ec-label">رمز البوت</label>
+                <p class="text-xs text-neutral-500 mb-2">Bot Token من @BotFather</p>
+                <input type="password" class="ec-input font-latin opacity-50" x-model="s.telegram.bot_token"
+                       placeholder="••••••••" disabled />
+              </div>
+            </div>
+            <p class="text-xs text-neutral-400 mt-4 flex items-center gap-1.5">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5h.01"/></svg>
+              قناة تيليجرام غير مُدرجة في إشعارات المنصة الحالية — التفعيل في إصدار مستقبلي.
+            </p>
+          </div>
+        </div>
+      </div><!-- /telegram -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           الإشعارات الفورية — push
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='push'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">إعدادات الإشعارات الفورية</div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-neutral-500">تفعيل</span>
+              <div class="adm-switch" :class="s.push.enabled && 'on'"
+                   @click="s.push.enabled=!s.push.enabled"
+                   role="switch" :aria-checked="s.push.enabled"></div>
+            </div>
+          </div>
+          <div class="p-5" x-show="s.push.enabled" x-collapse>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div class="sm:col-span-2">
+                <label class="ec-label">مزوّد الخدمة</label>
+                <select class="ec-input" x-model="s.push.provider">
+                  <option value="fcm">FCM — Firebase Cloud Messaging</option>
+                  <option value="apns">APNs — Apple Push Notification</option>
+                </select>
+              </div>
+              <div>
+                <label class="ec-label">معرّف مشروع Firebase</label>
+                <p class="text-xs text-neutral-500 mb-2">Project ID من لوحة Firebase</p>
+                <input type="text" class="ec-input font-latin" x-model="s.push.fcm_project_id"
+                       placeholder="my-project-id" dir="ltr" />
+              </div>
+              <div>
+                <label class="ec-label">مفتاح خادم FCM</label>
+                <p class="text-xs text-neutral-500 mb-2">Server Key السري</p>
+                <input type="password" class="ec-input font-latin" x-model="s.push.fcm_server_key"
+                       placeholder="••••••••" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /push -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           التخزين — storage
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='storage'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">إعدادات التخزين</div>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div class="sm:col-span-2">
+                <label class="ec-label">مزوّد التخزين</label>
+                <p class="text-xs text-neutral-500 mb-2">محلي للتطوير، S3 أو كلاودفلير R2 للإنتاج</p>
+                <select class="ec-input" x-model="s.storage.provider">
+                  <option value="local">محلي (Local)</option>
+                  <option value="s3">Amazon S3</option>
+                  <option value="r2">كلاودفلير R2</option>
+                </select>
+              </div>
+
+              <!-- Local notice -->
+              <div class="sm:col-span-2" x-show="s.storage.provider==='local'">
+                <div class="flex items-start gap-3 bg-info/5 border border-info/20 rounded-lg p-3.5 text-sm text-info">
+                  <svg class="shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5h.01"/></svg>
+                  التخزين المحلي مُوصى به للتطوير فقط. استخدم S3 أو كلاودفلير R2 في بيئة الإنتاج.
+                </div>
+              </div>
+
+              <!-- S3 / R2 fields -->
+              <template x-if="s.storage.provider==='s3' || s.storage.provider==='r2'">
+                <div class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="ec-label">اسم الحاوية (Bucket)</label>
+                    <input type="text" class="ec-input font-latin" x-model="s.storage.bucket"
+                           placeholder="est8core-uploads" dir="ltr" />
+                  </div>
+                  <div>
+                    <label class="ec-label">المنطقة (Region)</label>
+                    <input type="text" class="ec-input font-latin" x-model="s.storage.region"
+                           placeholder="me-south-1" dir="ltr" />
+                  </div>
+                  <div class="sm:col-span-2">
+                    <label class="ec-label">نقطة النهاية (Endpoint)</label>
+                    <p class="text-xs text-neutral-500 mb-2">مطلوب لـ R2 وخدمات S3-compatible</p>
+                    <input type="url" class="ec-input font-latin" x-model="s.storage.endpoint"
+                           placeholder="https://xxxxxxxx.r2.cloudflarestorage.com" dir="ltr" />
+                  </div>
+                  <div>
+                    <label class="ec-label">معرّف مفتاح الوصول</label>
+                    <input type="text" class="ec-input font-latin" x-model="s.storage.access_key_id"
+                           placeholder="AKIAIOSFODNN7EXAMPLE" dir="ltr" />
+                  </div>
+                  <div>
+                    <label class="ec-label">المفتاح السري</label>
+                    <input type="password" class="ec-input font-latin" x-model="s.storage.secret_access_key"
+                           placeholder="••••••••" autocomplete="off" />
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div><!-- /storage -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           حدود المعدّل — rate_limit  (view only)
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='rate_limit'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="flex items-center gap-2.5">
+              <div class="adm-card-title">إعدادات حدود المعدّل</div>
+              <span class="adm-badge b-neutral">عرض فقط</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl opacity-60 pointer-events-none select-none">
+              <div class="sm:col-span-2 flex items-center gap-3 pb-4 border-b border-neutral-100">
+                <div class="adm-switch" :class="s.rate_limit.enabled && 'on'"
+                     role="switch" :aria-checked="s.rate_limit.enabled" disabled></div>
+                <div>
+                  <p class="text-sm font-semibold text-neutral-700">تفعيل حدود المعدّل</p>
+                  <p class="text-xs text-neutral-500">تفعيل أو إيقاف Rate Limiting على جميع مسارات المنصة</p>
+                </div>
+              </div>
+              <div>
+                <label class="ec-label">نافذة الحساب (مللي ثانية)</label>
+                <p class="text-xs text-neutral-500 mb-2">window_ms — مدة النافذة الزمنية</p>
+                <input type="number" class="ec-input font-latin" x-model.number="s.rate_limit.window_ms"
+                       placeholder="60000" disabled />
+              </div>
+              <div>
+                <label class="ec-label">الحد الأقصى للطلبات</label>
+                <p class="text-xs text-neutral-500 mb-2">max_requests — طلبات عامة لكل نافذة</p>
+                <input type="number" class="ec-input font-latin" x-model.number="s.rate_limit.max_requests"
+                       placeholder="100" disabled />
+              </div>
+              <div>
+                <label class="ec-label">الحد الأقصى لطلبات المصادقة</label>
+                <p class="text-xs text-neutral-500 mb-2">auth_max_requests — حماية من محاولات الاختراق</p>
+                <input type="number" class="ec-input font-latin" x-model.number="s.rate_limit.auth_max_requests"
+                       placeholder="20" disabled />
+              </div>
+            </div>
+            <p class="text-xs text-neutral-400 mt-4 flex items-center gap-1.5">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5h.01"/></svg>
+              تُعدَّل من ملف البيئة (ENV) أو عبر super_admin مباشرة في الإصدار القادم.
+            </p>
+          </div>
+        </div>
+      </div><!-- /rate_limit -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           التطبيق — app
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='app'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">إعدادات التطبيق</div>
+          </div>
+          <div class="p-5">
+            <div class="flex flex-col gap-5 max-w-lg">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-sm font-semibold text-neutral-800">تفعيل فترة التجربة المجانية</p>
+                  <p class="text-xs text-neutral-500 mt-0.5">trial_enabled — السماح للمنشآت الجديدة بتجربة المنصة قبل الدفع</p>
+                </div>
+                <div class="adm-switch" :class="s.app.trial_enabled && 'on'"
+                     @click="s.app.trial_enabled=!s.app.trial_enabled"
+                     role="switch" :aria-checked="s.app.trial_enabled"></div>
+              </div>
+              <div x-show="s.app.trial_enabled" x-collapse class="max-w-xs">
+                <label class="ec-label">مدة التجربة (بالأيام)</label>
+                <p class="text-xs text-neutral-500 mb-2">trial_duration_days — الحد الافتراضي لكل منشأة جديدة</p>
+                <input type="number" min="1" max="365" class="ec-input font-latin"
+                       x-model.number="s.app.trial_duration_days" placeholder="14" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /app -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           الأمان — security
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='security'" x-cloak>
+        <div class="adm-card mb-4">
+          <div class="adm-card-head"><div class="adm-card-title">إعدادات الأمان</div></div>
+          <div class="p-5 max-w-lg">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <p class="text-sm font-semibold text-neutral-800">إلزام المصادقة الثنائية</p>
+                <p class="text-xs text-neutral-500 mt-0.5">enforce_2fa — يُجبر كل مستخدم على تفعيل المصادقة الثنائية للدخول</p>
+              </div>
+              <div class="adm-switch" :class="s.security.enforce_2fa && 'on'"
+                   @click="s.security.enforce_2fa=!s.security.enforce_2fa"
+                   role="switch" :aria-checked="s.security.enforce_2fa"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- التسجيل الاجتماعي -->
+        <div class="adm-card">
+          <div class="adm-card-head"><div class="adm-card-title">التسجيل الاجتماعي</div></div>
+          <div class="p-5 flex flex-col gap-6">
+
+            <!-- جوجل -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-bold text-neutral-800 flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24"><path d="M21.8 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.5c-.2 1.3-1 2.4-2.1 3.1v2.6h3.4c2-1.8 3-4.5 3-7.5z" fill="#4285F4"/><path d="M12 22c2.7 0 5-.9 6.8-2.4l-3.4-2.6c-.9.6-2.1 1-3.4 1-2.6 0-4.8-1.7-5.6-4.1H2.9v2.6C4.7 19.9 8.1 22 12 22z" fill="#34A853"/><path d="M6.4 13.9c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V7.5H2.9C2.3 8.7 2 10.3 2 12s.3 3.3.9 4.5l3.5-2.6z" fill="#FBBC05"/><path d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.8-2.8C16.9 2.8 14.6 2 12 2 8.1 2 4.7 4.1 2.9 7.5l3.5 2.6C7.2 7.6 9.4 5.9 12 5.9z" fill="#EA4335"/></svg>
+                  جوجل
+                </p>
+                <div class="adm-switch" :class="s.security.google_enabled && 'on'"
+                     @click="s.security.google_enabled=!s.security.google_enabled"
+                     role="switch" :aria-checked="s.security.google_enabled"></div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" x-show="s.security.google_enabled" x-collapse>
+                <div>
+                  <label class="ec-label">معرّف العميل</label>
+                  <input type="text" class="ec-input font-latin" x-model="s.security.google_client_id"
+                         placeholder="xxxx.apps.googleusercontent.com" dir="ltr" />
+                </div>
+                <div>
+                  <label class="ec-label">سرّ العميل</label>
+                  <input type="password" class="ec-input font-latin" x-model="s.security.google_client_secret"
+                         placeholder="••••••••" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+
+            <div class="h-px bg-neutral-100"></div>
+
+            <!-- فيسبوك -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-bold text-neutral-800 flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12C24 5.4 18.6 0 12 0S0 5.4 0 12c0 6 4.4 10.9 10.1 11.9V15.5H7.1V12h3v-2.6c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3H15.8c-1.5 0-2 .9-2 1.9V12h3.3l-.5 3.5h-2.8v8.4C19.6 22.9 24 18 24 12z"/></svg>
+                  فيسبوك
+                </p>
+                <div class="adm-switch" :class="s.security.facebook_enabled && 'on'"
+                     @click="s.security.facebook_enabled=!s.security.facebook_enabled"
+                     role="switch" :aria-checked="s.security.facebook_enabled"></div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" x-show="s.security.facebook_enabled" x-collapse>
+                <div>
+                  <label class="ec-label">معرّف التطبيق</label>
+                  <input type="text" class="ec-input font-latin" x-model="s.security.facebook_client_id"
+                         placeholder="App ID" dir="ltr" />
+                </div>
+                <div>
+                  <label class="ec-label">سرّ التطبيق</label>
+                  <input type="password" class="ec-input font-latin" x-model="s.security.facebook_client_secret"
+                         placeholder="••••••••" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+
+            <div class="h-px bg-neutral-100"></div>
+
+            <!-- لينكدإن -->
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-bold text-neutral-800 flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#0A66C2"><path d="M20.4 20.4h-3.6v-5.6c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.7H9.3V9h3.4v1.6h.1c.5-.9 1.6-1.8 3.3-1.8 3.5 0 4.2 2.3 4.2 5.3v6.3zM5.3 7.4a2.1 2.1 0 110-4.2 2.1 2.1 0 010 4.2zM7 20.4H3.5V9H7v11.4z"/></svg>
+                  لينكدإن
+                </p>
+                <div class="adm-switch" :class="s.security.linkedin_enabled && 'on'"
+                     @click="s.security.linkedin_enabled=!s.security.linkedin_enabled"
+                     role="switch" :aria-checked="s.security.linkedin_enabled"></div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" x-show="s.security.linkedin_enabled" x-collapse>
+                <div>
+                  <label class="ec-label">معرّف العميل</label>
+                  <input type="text" class="ec-input font-latin" x-model="s.security.linkedin_client_id"
+                         placeholder="Client ID" dir="ltr" />
+                </div>
+                <div>
+                  <label class="ec-label">سرّ العميل</label>
+                  <input type="password" class="ec-input font-latin" x-model="s.security.linkedin_client_secret"
+                         placeholder="••••••••" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /security -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           قنوات الإشعارات — notifications  (view only)
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='notifications'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="flex items-center gap-2.5">
+              <div class="adm-card-title">قنوات الإشعارات</div>
+              <span class="adm-badge b-neutral">عرض فقط</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <p class="text-xs text-neutral-500 mb-5">تُتحكَّم في هذه القنوات من إعدادات البريد / الرسائل / واتساب / الإشعارات الفورية. هذه الشاشة للاستعراض فقط.</p>
+            <div class="flex flex-col gap-4 max-w-md opacity-60 pointer-events-none select-none">
+              <template x-for="ch in notifChannels" :key="ch.key">
+                <div class="flex items-center justify-between gap-4">
+                  <div>
+                    <p class="text-sm font-semibold text-neutral-800" x-text="ch.label"></p>
+                    <p class="text-xs text-neutral-500" x-text="ch.desc"></p>
+                  </div>
+                  <div class="adm-switch" :class="s.notifications[ch.key] && 'on'"
+                       role="switch" :aria-checked="s.notifications[ch.key]" disabled></div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div><!-- /notifications -->
+
+      <!-- ══════════════════════════════════════════════════════════
+           وضع الصيانة — maintenance
+      ══════════════════════════════════════════════════════════ -->
+      <div x-show="activeGroup==='maintenance'" x-cloak>
+        <div class="adm-card">
+          <div class="adm-card-head">
+            <div class="adm-card-title">وضع الصيانة</div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold" :class="s.maintenance.enabled ? 'text-danger' : 'text-neutral-500'"
+                    x-text="s.maintenance.enabled ? 'مفعّل' : 'موقوف'"></span>
+              <div class="adm-switch" :class="s.maintenance.enabled && 'on'"
+                   @click="s.maintenance.enabled=!s.maintenance.enabled"
+                   role="switch" :aria-checked="s.maintenance.enabled"></div>
+            </div>
+          </div>
+          <div class="p-5">
+            <!-- Danger banner when active -->
+            <div x-show="s.maintenance.enabled" x-transition
+                 class="mb-5 flex items-start gap-3 bg-danger/8 border border-danger/25 rounded-xl p-4">
+              <svg class="shrink-0 text-danger mt-0.5" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M10 2.5L2 17h16L10 2.5z"/><path d="M10 8v4M10 14.5h.01"/>
+              </svg>
+              <div>
+                <p class="text-sm font-bold text-danger">تحذير: وضع الصيانة مُفعَّل</p>
+                <p class="text-xs text-danger/75 mt-0.5">جميع المنشآت لن تتمكّن من الوصول للمنصة حتى إيقاف هذا الوضع.</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div class="sm:col-span-2">
+                <label class="ec-label">رسالة الصيانة</label>
+                <p class="text-xs text-neutral-500 mb-2">تُعرَض للمستخدمين أثناء فترة الصيانة</p>
+                <textarea class="ec-input" rows="3" x-model="s.maintenance.message"
+                          placeholder="نعمل على تحسين المنصة، نعود قريباً. شكراً لصبركم."></textarea>
+              </div>
+              <div>
+                <label class="ec-label">وقت العودة المتوقّع</label>
+                <p class="text-xs text-neutral-500 mb-2">returnTime — يظهر للمستخدمين كمعلومة توجيهية</p>
+                <input type="datetime-local" class="ec-input font-latin" x-model="s.maintenance.returnTime" dir="ltr" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /maintenance -->
+
+    </div><!-- /right content -->
+  </div><!-- /two-column -->
+
+  <!-- ===== Sticky bottom save bar ===== -->
+  <div x-show="dirty" x-transition
+       class="fixed bottom-0 start-0 end-0 z-40 bg-white border-t border-neutral-200 shadow-xl flex items-center justify-end gap-3 px-6 py-3.5">
+    <span class="text-xs text-warning font-semibold me-auto flex items-center gap-1.5">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2 1.5"/></svg>
+      لديك تغييرات غير محفوظة
+    </span>
+    <button class="adm-btn adm-btn-ghost" @click="cancel()">إلغاء</button>
+    <button class="adm-btn adm-btn-primary" @click="save()">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8.5l3 3 7-7"/></svg>
+      حفظ التغييرات
+    </button>
+  </div>
+</div>
+
+<script>
+function settings() {
+  return {
+    activeGroup: 'payment',
+    saved: false,
+    _saveTimer: null,
+
+    groups: [
+      { id:'payment',       label:'الدفع',                 soon:false, viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="M2.5 8.5h15M6 13h2"/></svg>' },
+      { id:'email',         label:'البريد',                soon:false, viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="15" height="10" rx="2"/><path d="M2.5 5l7.5 6L17.5 5"/></svg>' },
+      { id:'sms',           label:'الرسائل النصية',        soon:false, viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3h14a1 1 0 011 1v9a1 1 0 01-1 1H9l-4 3V4a1 1 0 011-1z"/></svg>' },
+      { id:'whatsapp',      label:'واتساب',                soon:true,  viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M7 10c.5 1 1.5 2.5 3 3l1-1.5c.5-.3 1 0 1.5.5s.5 1 0 1.5c-1.5 1.5-5.5-.5-7-5 0-.5.5-1 1-1s1 .5.5 1.5z"/></svg>' },
+      { id:'telegram',      label:'تيليجرام',              soon:false, viewOnly:true,  icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17.5 3L2.5 9.5l5 1.5 1.5 5L12 13l4 4 1.5-14z"/></svg>' },
+      { id:'push',          label:'الإشعارات الفورية',     soon:false, viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16.5a1.5 1.5 0 003 0"/></svg>' },
+      { id:'storage',       label:'التخزين',               soon:false, viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="5" width="15" height="4.5" rx="1.5"/><rect x="2.5" y="10.5" width="15" height="4.5" rx="1.5"/><circle cx="15.5" cy="7.25" r=".75" fill="currentColor"/><circle cx="15.5" cy="12.75" r=".75" fill="currentColor"/></svg>' },
+      { id:'rate_limit',    label:'حدود المعدّل',          soon:false, viewOnly:true,  icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 1.5"/></svg>' },
+      { id:'app',           label:'التطبيق',               soon:false, viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="14" height="14" rx="3"/><path d="M3 8h14"/></svg>' },
+      { id:'security',      label:'الأمان',                soon:false, viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5L4 5v5c0 3.5 2.7 6.8 6 7.5 3.3-.7 6-4 6-7.5V5l-6-2.5z"/></svg>' },
+      { id:'notifications', label:'قنوات الإشعارات',      soon:false, viewOnly:true,  icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16.5a1.5 1.5 0 003 0"/></svg>' },
+      { id:'maintenance',   label:'وضع الصيانة',          soon:false, viewOnly:false, icon:'<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16.5 4.5l-2 2L12 5l-.5-2.5 2-2a5 5 0 015 4zm0 0L11 10M6 10l-3.5 7L5 18.5l7-3.5M6 10l4 4"/></svg>' },
+    ],
+
+    notifChannels: [
+      { key:'email_enabled',    label:'البريد الإلكتروني', desc:'إرسال الإشعارات عبر البريد الإلكتروني' },
+      { key:'sms_enabled',      label:'الرسائل النصية',    desc:'إرسال الإشعارات عبر SMS' },
+      { key:'push_enabled',     label:'الإشعارات الفورية', desc:'إشعارات المتصفح والتطبيق' },
+      { key:'whatsapp_enabled', label:'واتساب',            desc:'إشعارات عبر واتساب للأعمال' },
+      { key:'in_app_enabled',   label:'داخل التطبيق',      desc:'الإشعارات المُدمجة في الواجهة' },
+    ],
+
+    // Loaded from GET /api/v1/admin/settings (all groups)
+    s: {
+      payment: {
+        tax_rate: 15,
+        stripe_enabled: true,
+        stripe_secretKey: '',
+        paymob_enabled: false,
+        paymob_apiKey: '', paymob_integrationId: '', paymob_iframeId: '', paymob_hmacSecret: '',
+        paytabs_enabled: false,
+        paytabs_profileId: '', paytabs_serverKey: '', paytabs_baseUrl: 'https://secure.paytabs.sa',
+        manual_enabled: true,
+        manual_bank: 'بنك الراجحي — IBAN: SA…', manual_instapay: '', manual_wallets: '',
+        zatca_enabled: false,
+        zatca_vatNumber: '', zatca_sellerName: '', zatca_sellerAddress: '',
+        zatca_csid: '', zatca_environment: 'sandbox',
+        eta_enabled: false,
+        eta_clientId: '', eta_clientSecret: '', eta_rin: '',
+        eta_vatNumber: '', eta_issuerName: '', eta_environment: 'pre-production',
+      },
+      email: {
+        enabled: true,
+        provider: 'smtp',
+        from_name: 'Est8Core',
+        from_email: 'no-reply@est8core.com',
+        smtp_host: 'smtp.mailprovider.com',
+        smtp_port: 587,
+        smtp_secure: true,
+        smtp_user: '',
+        smtp_pass: '',
+      },
+      sms: {
+        enabled: false,
+        provider: 'twilio',
+        twilio_account_sid: '',
+        twilio_auth_token: '',
+        twilio_from_number: '',
+      },
+      whatsapp: {
+        enabled: false,
+        phone_number_id: '',
+        business_account_id: '',
+        api_key: '',
+        webhook_verify_token: '',
+      },
+      telegram: {
+        enabled: false,
+        bot_username: '',
+        bot_token: '',
+      },
+      push: {
+        enabled: false,
+        provider: 'fcm',
+        fcm_project_id: '',
+        fcm_server_key: '',
+      },
+      storage: {
+        provider: 'local',
+        bucket: '',
+        region: '',
+        endpoint: '',
+        access_key_id: '',
+        secret_access_key: '',
+      },
+      rate_limit: {
+        enabled: true,
+        window_ms: 60000,
+        max_requests: 100,
+        auth_max_requests: 20,
+      },
+      app: {
+        trial_enabled: true,
+        trial_duration_days: 14,
+      },
+      security: {
+        enforce_2fa: false,
+        google_enabled: false,
+        google_client_id: '',
+        google_client_secret: '',
+        facebook_enabled: false,
+        facebook_client_id: '',
+        facebook_client_secret: '',
+        linkedin_enabled: false,
+        linkedin_client_id: '',
+        linkedin_client_secret: '',
+      },
+      notifications: {
+        email_enabled: true,
+        sms_enabled: false,
+        push_enabled: false,
+        whatsapp_enabled: false,
+        in_app_enabled: true,
+      },
+      maintenance: {
+        enabled: false,
+        message: '',
+        returnTime: '',
+      },
+    },
+
+    original: '',
+
+    // NOTE: never structuredClone an Alpine reactive proxy (throws DataCloneError → aborts init →
+    // every s.* binding then reads null). Snapshot/restore via JSON instead.
+    init() {
+      this.original = JSON.stringify(this.s);
+    },
+
+    get dirty() {
+      return JSON.stringify(this.s) !== this.original;
+    },
+
+    cancel() {
+      this.s = JSON.parse(this.original);
+    },
+
+    save() {
+      // PUT /api/v1/admin/settings/:group/:key — per changed key/group
+      this.original = JSON.stringify(this.s);
+      this.saved = true;
+      clearTimeout(this._saveTimer);
+      this._saveTimer = setTimeout(() => { this.saved = false; }, 2800);
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared platform shell component (sidebar + topbar) =====
+  // Operational alerts are DERIVED from real endpoints (no admin-notifications backend exists):
+  //   pending manual invoices (/admin/billing/invoices/pending) · queue failures (/admin/platform/queues)
+  //   · expiring trials (/admin/tenants?status=trial) · recently suspended (/admin/tenants?status=suspended)
+  function shell() {
+    const ICO = {
+      invoice:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v12l-2-1-2 1-2-1-2 1z"/><path d="M6 6h4M6 9h4"/></svg>',
+      queue:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l6 3.5v6L8 14.5 2 11V5z"/><path d="M8 5v3.5M8 11v.3" stroke-linecap="round"/></svg>',
+      trial:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
+      suspend:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 5.5l5 5"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false,
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.invoice, title:'٣ فواتير بانتظار التحقق اليدوي', desc:'تحتاج اعتماد أو رفض', href:'invoices.html' },
+        { id:2, tone:'danger',  icon:ICO.queue,   title:'وظيفتان فشلتا في طابور البريد', desc:'راجع صحة الطوابير', href:'dashboard.html' },
+        { id:3, tone:'info',    icon:ICO.trial,   title:'٥ تجارب تنتهي خلال ٣ أيام', desc:'منشآت قد تحتاج متابعة', href:'tenants.html' },
+        { id:4, tone:'danger',  icon:ICO.suspend, title:'منشأة موقوفة حديثاً', desc:'عقارات المستقبل — عدم سداد', href:'tenant-detail.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'settings';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.adm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'USD',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable JSON tree viewer → HTML string (collapsible via native <details>, syntax-highlighted) =====
+  function jsonTreeHtml(value){
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const prim = v => {
+      if (v === null) return '<span class="jv-null">null</span>';
+      const t = typeof v;
+      if (t === 'number')  return '<span class="jv-num">'+v+'</span>';
+      if (t === 'boolean') return '<span class="jv-bool">'+v+'</span>';
+      return '<span class="jv-str">"'+esc(v)+'"</span>';
+    };
+    const keyHtml = (k, parent) => {
+      if (parent === 'root')  return '';
+      if (parent === 'array') return '<span class="jv-idx">'+k+'</span><span class="jv-punc">: </span>';
+      return '<span class="jv-key">"'+esc(k)+'"</span><span class="jv-punc">: </span>';
+    };
+    const node = (k, v, parent) => {
+      const kh = keyHtml(k, parent);
+      if (v !== null && typeof v === 'object') {
+        const isA = Array.isArray(v);
+        const keys = isA ? v.map((_,i)=>i) : Object.keys(v);
+        const open = isA ? '[' : '{', close = isA ? ']' : '}';
+        if (keys.length === 0) return '<div class="jv-row">'+kh+'<span class="jv-punc">'+open+close+'</span></div>';
+        const unit = isA ? 'عنصر' : 'حقل';
+        const children = keys.map(kk => node(kk, v[kk], isA?'array':'object')).join('');
+        return '<details class="jv-node" open><summary class="jv-row">'+kh+'<span class="jv-punc">'+open+'</span>'
+             + '<span class="jv-count">'+keys.length+' '+unit+'</span><span class="jv-ellipsis"> … '+close+'</span></summary>'
+             + '<div class="jv-children">'+children+'</div>'
+             + '<div class="jv-row jv-close"><span class="jv-punc">'+close+'</span></div></details>';
+      }
+      return '<div class="jv-row">'+kh+prim(v)+'</div>';
+    };
+    return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+</script>
+</body>
+</html>

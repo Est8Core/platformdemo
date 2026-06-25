@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — لوحة المنصة · خطط الاشتراك</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant platform shell) ===== */
+    .adm-shell { display:flex; min-height:100vh; }
+    .adm-sidebar { width:264px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .adm-main { flex:1; min-width:0; margin-inline-start:264px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .adm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .adm-sidebar.open{ transform:translateX(0);} .adm-main{ margin-inline-start:0; } }
+    .adm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav ===== */
+    .adm-brand { display:flex; align-items:center; gap:.65rem; padding:1.15rem 1.25rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .adm-nav { flex:1; overflow-y:auto; padding:1rem .75rem 1.5rem; }
+    .adm-nav-label { font-size:.7rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:1rem .75rem .4rem; text-transform:uppercase; }
+    .adm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .adm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .adm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .adm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.75rem; top:50%; transform:translateY(-50%); width:3.5px; height:60%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .adm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .adm-nav-item .soon { margin-inline-start:auto; font-size:.62rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:600; }
+
+    /* ===== Topbar ===== */
+    .adm-topbar { height:64px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:1rem; padding:0 1.5rem; position:sticky; top:0; z-index:30; }
+    .adm-env { display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700; color:#1A8C4E; background:rgba(26,140,78,.1); padding:.28rem .65rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .adm-content { padding:1.6rem 1.75rem 3rem; max-width:1400px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.6rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Cards / KPI ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:.0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.85rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+
+    /* ===== Table ===== */
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.85rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+
+    /* ===== Badges / status ===== */
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+
+    /* ===== Buttons ===== */
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+
+    /* ===== Inputs ===== */
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+
+    /* ===== Tabs ===== */
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+
+    /* ===== Pills (filters) ===== */
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+
+    /* ===== Modal ===== */
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+
+    /* ===== Toggle switch ===== */
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+
+    /* ===== Progress (usage) ===== */
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+
+    /* ===== Info grid ===== */
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+
+    /* ===== Empty / pagination ===== */
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-pagination { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.25rem; border-top:1px solid #F1F3F5; flex-wrap:wrap; }
+    .adm-page-btn { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; border:1px solid #DDE1EA; font-size:.8rem; color:#4D5F7A; cursor:pointer; }
+    .adm-page-btn:hover:not(:disabled){ background:#F4F6FA; } .adm-page-btn:disabled{ opacity:.4; cursor:not-allowed; }
+    .adm-page-btn.on { background:#0B1F3A; color:#fff; border-color:#0B1F3A; }
+
+    /* ===== Audit diff ===== */
+    .adm-diff { font-family:'Inter',monospace; font-size:.78rem; border-radius:.5rem; padding:.7rem .9rem; white-space:pre-wrap; word-break:break-word; }
+    .adm-diff.before { background:rgba(192,57,43,.05); border:1px solid rgba(192,57,43,.15); color:#7a2018; }
+    .adm-diff.after { background:rgba(26,140,78,.05); border:1px solid rgba(26,140,78,.15); color:#0f5a31; }
+
+    /* ===== JSON viewer (collapsible tree · syntax-highlighted · VSCode-like) ===== */
+    .jv-root { font-family:'Inter',ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.74rem; line-height:1.75; color:#344260; direction:ltr; text-align:left; }
+    .jv-row { white-space:pre-wrap; word-break:break-word; }
+    .jv-children { padding-inline-start:1.1rem; margin-inline-start:.35rem; border-inline-start:1px dashed #DDE1EA; }
+    details.jv-node > summary { list-style:none; cursor:pointer; display:block; border-radius:4px; }
+    details.jv-node > summary:hover { background:#EEF0F5; }
+    details.jv-node > summary::-webkit-details-marker { display:none; }
+    details.jv-node > summary::before { content:'▾'; display:inline-block; width:1em; margin-inline-end:.1rem; color:#9BA6BB; font-size:.8em; }
+    details.jv-node:not([open]) > summary::before { content:'▸'; }
+    details.jv-node[open] > summary > .jv-count, details.jv-node[open] > summary > .jv-ellipsis { display:none; }
+    .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
+    .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
+    .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+  </style>
+</head>
+
+<body x-data="shell()" x-cloak>
+<div class="adm-shell">
+
+  <!-- Mobile backdrop -->
+  <div class="adm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="adm-sidebar" :class="navOpen && 'open'">
+    <div class="adm-brand">
+      <img src="../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div>
+        <div class="font-latin text-base font-bold text-white leading-none">Est8<span class="text-accent-500">Core</span></div>
+        <div class="text-[.66rem] text-primary-200 mt-1 font-semibold tracking-wide">لوحة المنصة</div>
+      </div>
+    </div>
+    <nav class="adm-nav">
+      <div class="adm-nav-label">الرئيسية</div>
+      <a href="dashboard.html" class="adm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+      <a href="notifications.html" class="adm-nav-item" data-nav="notifications">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 3z"/><path d="M8.5 16.5a1.5 1.5 0 003 0"/></svg>
+        التنبيهات
+        <span class="soon" x-show="alertCount>0" x-text="alertCount"></span>
+      </a>
+      <div class="adm-nav-label">الإدارة</div>
+      <a href="tenants.html" class="adm-nav-item" data-nav="tenants">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V6l5-3 5 3v11"/><path d="M13 8l4 2v7"/><path d="M2 17h16M6 8h2M6 11h2M6 14h2"/></svg>
+        المنشآت
+      </a>
+      <a href="plans.html" class="adm-nav-item" data-nav="plans">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M2.5 8h15M6 12h3"/></svg>
+        خطط الاشتراك
+      </a>
+      <a href="invoices.html" class="adm-nav-item" data-nav="invoices">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2.5h10v15l-2.5-1.5L10 17l-2.5-1L5 17.5z"/><path d="M8 6.5h4M8 9.5h4M8 12.5h2.5"/></svg>
+        الفواتير
+      </a>
+      <div class="adm-nav-label">النظام</div>
+      <a href="admins.html" class="adm-nav-item" data-nav="admins">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7.5" cy="7" r="2.5"/><path d="M3 16c0-2.6 2-4.5 4.5-4.5S12 13.4 12 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        فريق المنصة
+      </a>
+      <a href="settings.html" class="adm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        إعدادات المنصة
+      </a>
+      <a href="audit-log.html" class="adm-nav-item" data-nav="audit">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 2.5h8l4 4V17.5H4z"/><path d="M12 2.5v4h4M7 10h6M7 13h6"/></svg>
+        سجل التدقيق
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 text-[.68rem] text-primary-300 flex items-center gap-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> النظام يعمل · v2.0.0
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="adm-main">
+    <header class="adm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث في المنصة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="adm-env"><span class="w-1.5 h-1.5 rounded-full bg-success"></span> الإنتاج</span>
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="التنبيهات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alertCount>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+              <span class="text-sm font-bold text-primary-800">التنبيهات التشغيلية</span>
+              <span class="adm-badge b-danger" x-show="alertCount>0" x-text="alertCount + ' بحاجة لإجراء'"></span>
+            </div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div>
+                    <div class="text-xs text-neutral-500 mt-0.5" x-text="a.desc"></div>
+                  </div>
+                </a>
+              </template>
+            </div>
+            <a href="notifications.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض كل التنبيهات</a>
+          </div>
+        </div>
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="w-8 h-8 rounded-lg bg-primary-800 text-accent-400 text-xs font-bold flex items-center justify-center">صد</span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none">صبري داوود</div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5">مدير عام للمنصة</div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="adm-content">
+
+<!-- S-062 · خطط الاشتراك · GET /api/v1/admin/billing/plans · GET /api/v1/admin/billing/subscriptions · GET /api/v1/admin/billing/coupons · POST /api/v1/admin/billing/plans · PATCH /api/v1/admin/billing/plans/:id · DELETE /api/v1/admin/billing/plans/:id · POST /api/v1/admin/billing/coupons -->
+<div x-data="plans()">
+
+  <!-- ===== رأس الصفحة ===== -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">خطط الاشتراك</h1>
+      <p class="adm-page-sub">إدارة الباقات والأسعار والقيود وكوبونات الخصم</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <template x-if="activeTab === 'plans'">
+        <button class="adm-btn adm-btn-gold" @click="openPlanModal()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v12M2 8h12"/></svg>
+          خطة جديدة
+        </button>
+      </template>
+      <template x-if="activeTab === 'coupons'">
+        <button class="adm-btn adm-btn-gold" @click="openCouponModal()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v12M2 8h12"/></svg>
+          كوبون جديد
+        </button>
+      </template>
+    </div>
+  </div>
+
+  <!-- ===== التبويبات ===== -->
+  <div class="adm-tabs mb-6">
+    <button class="adm-tab" :class="activeTab==='plans' && 'on'" @click="activeTab='plans'">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M1.5 6.5h13M4.5 10h3"/></svg>
+      الخطط
+      <span class="cnt" x-text="plans.length"></span>
+    </button>
+    <button class="adm-tab" :class="activeTab==='subscriptions' && 'on'" @click="activeTab='subscriptions'">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>
+      الاشتراكات
+      <span class="cnt" x-text="subscriptions.length"></span>
+    </button>
+    <button class="adm-tab" :class="activeTab==='coupons' && 'on'" @click="activeTab='coupons'">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 10l8-8M9 2l5 5-8 8-5-5z"/><circle cx="5.5" cy="5.5" r="1.2"/><circle cx="10.5" cy="10.5" r="1.2"/></svg>
+      الكوبونات
+      <span class="cnt" x-text="coupons.length"></span>
+    </button>
+  </div>
+
+  <!-- ===== تبويب: الخطط ===== -->
+  <div x-show="activeTab==='plans'">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+      <template x-for="plan in plans" :key="plan.id">
+        <div class="adm-card flex flex-col">
+
+          <!-- رأس البطاقة -->
+          <div class="p-5 pb-4 flex items-start justify-between gap-3 border-b border-neutral-100">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1.5">
+                <h3 class="font-bold text-primary-800 text-base leading-tight" x-text="plan.name"></h3>
+                <span class="adm-badge b-accent" x-text="pricingModelLabel(plan.pricingModel)"></span>
+              </div>
+              <span class="inline-block font-latin text-xs font-semibold bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-md tracking-wide" x-text="plan.code"></span>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0 pt-0.5">
+              <button
+                class="adm-switch"
+                :class="plan.isActive && 'on'"
+                @click="toggleActive(plan)"
+                :title="plan.isActive ? 'إيقاف الخطة' : 'تفعيل الخطة'"
+                :aria-pressed="plan.isActive"
+                role="switch"
+              ></button>
+            </div>
+          </div>
+
+          <!-- الأسعار -->
+          <div class="p-5 pb-3 grid grid-cols-2 gap-3">
+            <div class="bg-neutral-50 rounded-lg p-3 text-center">
+              <div class="text-[.7rem] text-neutral-400 font-semibold mb-1">شهرياً</div>
+              <div class="font-latin font-bold text-primary-800 text-lg leading-none" x-text="fmtMoney(plan.priceMonthly, 'USD')"></div>
+            </div>
+            <div class="bg-accent-50 rounded-lg p-3 text-center relative overflow-hidden">
+              <div class="text-[.7rem] text-accent-700 font-semibold mb-1">سنوياً</div>
+              <div class="font-latin font-bold text-accent-700 text-lg leading-none" x-text="fmtMoney(plan.priceYearly, 'USD')"></div>
+              <div class="absolute top-1 end-1 text-[.58rem] font-bold text-accent-600 bg-accent-100 px-1 rounded" x-show="plan.priceYearly > 0 && plan.priceYearly < plan.priceMonthly * 12">وفّر</div>
+            </div>
+          </div>
+
+          <!-- القيود -->
+          <div class="px-5 pb-4 flex flex-col gap-2">
+            <div class="text-[.72rem] font-bold text-neutral-400 uppercase tracking-wide mb-0.5">القيود</div>
+            <template x-for="limit in limitsDisplay(plan)" :key="limit.key">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-neutral-600 flex items-center gap-1.5">
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-300"><circle cx="7" cy="7" r="5.5"/></svg>
+                  <span x-text="limit.label"></span>
+                </span>
+                <span
+                  class="font-latin font-semibold"
+                  :class="limit.value === -1 ? 'text-success' : 'text-primary-700'"
+                  x-text="limit.value === -1 ? 'غير محدود' : fmtNum(limit.value)"
+                ></span>
+              </div>
+            </template>
+          </div>
+
+          <!-- أزرار الإجراءات -->
+          <div class="mt-auto p-4 pt-3 border-t border-neutral-100 flex gap-2">
+            <button class="adm-btn adm-btn-ghost adm-btn-sm flex-1" @click="openPlanModal(plan)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11.3 2.7a2 2 0 112.8 2.8L5 14.5H2v-3z"/></svg>
+              تعديل
+            </button>
+            <button class="adm-btn adm-btn-danger adm-btn-sm" @click="confirmDelete(plan)" title="حذف الخطة">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5h11M5.5 4.5V3h5v1.5M6 7v5M10 7v5M3.5 4.5l.8 9h7.4l.8-9"/></svg>
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <template x-if="plans.length === 0">
+        <div class="adm-empty md:col-span-2 xl:col-span-3">
+          <svg class="mx-auto mb-3 text-neutral-300" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M8 15h4"/></svg>
+          <div class="font-semibold text-neutral-500">لا توجد خطط بعد</div>
+          <div class="text-sm mt-1">أنشئ أول خطة اشتراك للمنصة</div>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <!-- ===== تبويب: الاشتراكات ===== -->
+  <div x-show="activeTab==='subscriptions'">
+    <div class="adm-card">
+      <div class="adm-card-head">
+        <div class="adm-card-title">الاشتراكات النشطة والتاريخية</div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="relative">
+            <input type="search" placeholder="بحث بالمنشأة…" class="ec-input ps-8 text-sm" style="padding-block:.42rem; width:180px;" x-model="subSearch" @input="subPage=1">
+            <svg class="absolute top-1/2 -translate-y-1/2 start-2.5 text-neutral-400" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+          </div>
+          <div class="flex gap-1 flex-wrap">
+            <template x-for="f in subFilters" :key="f.v">
+              <button class="adm-pill" :class="subFilter===f.v && 'on'" @click="subFilter=f.v; subPage=1" x-text="f.l" style="padding:.3rem .65rem; font-size:.74rem;"></button>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>المنشأة</th>
+              <th>الباقة</th>
+              <th>الحالة</th>
+              <th>تاريخ البدء</th>
+              <th>تاريخ التجديد</th>
+              <th>الفترة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="s in pagedSubs" :key="s.id">
+              <tr>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-primary-50 text-primary-700 text-xs font-bold flex items-center justify-center flex-shrink-0" x-text="s.tenantName.slice(0,2)"></span>
+                    <span class="font-semibold text-primary-800 text-sm" x-text="s.tenantName"></span>
+                  </div>
+                </td>
+                <td class="font-medium text-sm" x-text="s.planName"></td>
+                <td>
+                  <span class="adm-badge" :class="subStatusClass(s.status)" x-text="subStatusLabel(s.status)"></span>
+                </td>
+                <td class="text-neutral-500 text-xs font-latin" x-text="fmtDate(s.startDate)"></td>
+                <td class="text-xs">
+                  <span
+                    :class="isExpiringSoon(s.renewDate) ? 'text-warning font-semibold' : 'text-neutral-500 font-latin'"
+                    x-text="s.renewDate ? fmtDate(s.renewDate) : '—'"
+                  ></span>
+                  <span x-show="isExpiringSoon(s.renewDate)" class="adm-badge b-warning ms-1.5">قريباً</span>
+                </td>
+                <td>
+                  <span class="adm-badge b-neutral" x-text="s.billingInterval === 'yearly' ? 'سنوي' : 'شهري'"></span>
+                </td>
+              </tr>
+            </template>
+            <template x-if="filteredSubs.length === 0">
+              <tr>
+                <td colspan="6">
+                  <div class="adm-empty py-8">
+                    <div class="font-semibold text-neutral-500">لا توجد اشتراكات مطابقة</div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="adm-pagination" x-show="subTotalPages > 1">
+        <span class="text-sm text-neutral-500">
+          عرض
+          <span class="font-semibold text-primary-700" x-text="((subPage-1)*subLimit)+1"></span>–<span class="font-semibold text-primary-700" x-text="Math.min(subPage*subLimit, filteredSubs.length)"></span>
+          من <span x-text="filteredSubs.length"></span>
+        </span>
+        <div class="flex gap-1">
+          <button class="adm-page-btn" @click="subPage--" :disabled="subPage===1">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 4l-4 4 4 4"/></svg>
+          </button>
+          <template x-for="p in subTotalPages" :key="p">
+            <button class="adm-page-btn" :class="p===subPage && 'on'" @click="subPage=p" x-text="p"></button>
+          </template>
+          <button class="adm-page-btn" @click="subPage++" :disabled="subPage===subTotalPages">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== تبويب: الكوبونات ===== -->
+  <div x-show="activeTab==='coupons'">
+    <div class="adm-card">
+      <div class="adm-card-head">
+        <div class="adm-card-title">كوبونات الخصم</div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>الكود</th>
+              <th>نوع الخصم</th>
+              <th>القيمة</th>
+              <th>الصلاحية</th>
+              <th>المستخدَم</th>
+              <th>الحد الأقصى</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="c in coupons" :key="c.id">
+              <tr>
+                <td>
+                  <span class="font-latin font-bold text-primary-800 bg-primary-50 px-2.5 py-0.5 rounded-md text-sm tracking-widest" x-text="c.code"></span>
+                </td>
+                <td>
+                  <span class="adm-badge" :class="c.discountType==='percent' ? 'b-info' : 'b-accent'" x-text="c.discountType==='percent' ? 'نسبة مئوية' : 'مبلغ ثابت'"></span>
+                </td>
+                <td class="font-latin font-semibold text-primary-700">
+                  <span x-text="c.discountType==='percent' ? c.discountValue+'%' : fmtMoney(c.discountValue, 'USD')"></span>
+                </td>
+                <td>
+                  <template x-if="c.expiresAt">
+                    <span
+                      class="text-xs font-latin"
+                      :class="isExpired(c.expiresAt) ? 'text-danger font-bold' : 'text-neutral-500'"
+                      x-text="fmtDate(c.expiresAt)"
+                    ></span>
+                  </template>
+                  <template x-if="!c.expiresAt">
+                    <span class="adm-badge b-success">دائم</span>
+                  </template>
+                </td>
+                <td class="font-latin font-semibold text-center" x-text="fmtNum(c.usedCount)"></td>
+                <td class="font-latin text-neutral-500 text-center" x-text="c.maxUses ? fmtNum(c.maxUses) : '∞'"></td>
+                <td>
+                  <div class="flex gap-1.5 justify-end">
+                    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="openCouponModal(c)" title="تعديل الكوبون">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11.3 2.7a2 2 0 112.8 2.8L5 14.5H2v-3z"/></svg>
+                    </button>
+                    <button class="adm-btn adm-btn-danger adm-btn-sm" @click="deleteCoupon(c)" title="حذف الكوبون">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5h11M5.5 4.5V3h5v1.5M6 7v5M10 7v5M3.5 4.5l.8 9h7.4l.8-9"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <template x-if="coupons.length === 0">
+              <tr>
+                <td colspan="7">
+                  <div class="adm-empty py-8">
+                    <div class="font-semibold text-neutral-500">لا توجد كوبونات بعد</div>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== مودال: إنشاء / تعديل خطة ===== -->
+  <div class="adm-overlay" x-show="planModal.open" x-transition.opacity @click.self="planModal.open=false" x-cloak>
+    <div class="adm-modal" @click.stop>
+      <div class="adm-modal-head">
+        <h2 class="font-bold text-primary-800 text-base" x-text="planModal.editId ? 'تعديل الخطة' : 'خطة جديدة'"></h2>
+        <button class="adm-icon-btn" @click="planModal.open=false" aria-label="إغلاق">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <div class="adm-modal-body flex flex-col gap-4">
+        <!-- الاسم -->
+        <div>
+          <label class="ec-label">اسم الخطة <span class="text-danger">*</span></label>
+          <input type="text" class="ec-input" placeholder="مثال: باقة الأعمال المتميزة" x-model="planModal.name">
+        </div>
+        <!-- كود الخطة -->
+        <div>
+          <label class="ec-label">كود الخطة <span class="text-danger">*</span></label>
+          <input
+            type="text"
+            class="ec-input font-latin tracking-wide"
+            placeholder="مثال: PRO_MONTHLY"
+            x-model="planModal.code"
+            :disabled="!!planModal.editId"
+            @input="planModal.code = planModal.code.toUpperCase()"
+          >
+          <p class="text-[.72rem] text-neutral-400 mt-1" x-show="!!planModal.editId">لا يمكن تغيير الكود بعد الإنشاء</p>
+        </div>
+        <!-- نموذج التسعير -->
+        <div>
+          <label class="ec-label">نموذج التسعير <span class="text-danger">*</span></label>
+          <select class="ec-input" x-model="planModal.pricingModel">
+            <option value="">اختر نموذج التسعير…</option>
+            <option value="flat">سعر ثابت</option>
+            <option value="per_seat">لكل مقعد</option>
+            <option value="custom">مخصّص</option>
+          </select>
+        </div>
+        <!-- الأسعار -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="ec-label">السعر الشهري (USD)</label>
+            <input type="number" min="0" step="0.01" class="ec-input font-latin" placeholder="0.00" x-model.number="planModal.priceMonthly">
+          </div>
+          <div>
+            <label class="ec-label">السعر السنوي (USD)</label>
+            <input type="number" min="0" step="0.01" class="ec-input font-latin" placeholder="0.00" x-model.number="planModal.priceYearly">
+          </div>
+        </div>
+        <!-- القيود الخمسة -->
+        <div>
+          <div class="text-[.72rem] font-bold text-neutral-400 uppercase tracking-wide mb-2.5">القيود — أدخل -1 للقيد غير المحدود</div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="ec-label">الحد الأقصى للمستخدمين</label>
+              <input type="number" min="-1" class="ec-input font-latin" placeholder="-1" x-model.number="planModal.limits.maxUsers">
+            </div>
+            <div>
+              <label class="ec-label">الحد الأقصى للفروع</label>
+              <input type="number" min="-1" class="ec-input font-latin" placeholder="-1" x-model.number="planModal.limits.maxBranches">
+            </div>
+            <div>
+              <label class="ec-label">الحد الأقصى للعملاء المحتملين</label>
+              <input type="number" min="-1" class="ec-input font-latin" placeholder="-1" x-model.number="planModal.limits.maxLeads">
+            </div>
+            <div>
+              <label class="ec-label">الحد الأقصى للعقارات</label>
+              <input type="number" min="-1" class="ec-input font-latin" placeholder="-1" x-model.number="planModal.limits.maxProperties">
+            </div>
+            <div>
+              <label class="ec-label">الحد الأقصى للصفقات</label>
+              <input type="number" min="-1" class="ec-input font-latin" placeholder="-1" x-model.number="planModal.limits.maxDeals">
+            </div>
+          </div>
+        </div>
+        <!-- مفتاح النشاط -->
+        <div class="flex items-center justify-between py-2.5 px-3 bg-neutral-50 rounded-lg">
+          <div>
+            <div class="text-sm font-semibold text-primary-800">الخطة نشطة</div>
+            <div class="text-xs text-neutral-400 mt-0.5">تتيح للمنشآت الجديدة الاشتراك في هذه الخطة</div>
+          </div>
+          <button
+            class="adm-switch"
+            :class="planModal.isActive && 'on'"
+            @click="planModal.isActive = !planModal.isActive"
+            role="switch"
+            :aria-pressed="planModal.isActive"
+          ></button>
+        </div>
+      </div>
+      <div class="adm-modal-foot">
+        <button
+          class="adm-btn adm-btn-primary"
+          @click="savePlan()"
+          :disabled="!planModal.name || !planModal.code || !planModal.pricingModel"
+        >
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 4 7-7"/></svg>
+          <span x-text="planModal.editId ? 'حفظ التعديلات' : 'إنشاء الخطة'"></span>
+        </button>
+        <button class="adm-btn adm-btn-ghost" @click="planModal.open=false">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== مودال: تأكيد حذف الخطة ===== -->
+  <div class="adm-overlay" x-show="deleteModal.open" x-transition.opacity @click.self="deleteModal.open=false" x-cloak>
+    <div class="adm-modal" style="max-width:440px;" @click.stop>
+      <div class="adm-modal-head">
+        <h2 class="font-bold text-danger text-base">تأكيد حذف الخطة</h2>
+        <button class="adm-icon-btn" @click="deleteModal.open=false" aria-label="إغلاق">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <div class="adm-modal-body flex flex-col gap-4">
+        <div class="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <svg class="text-danger flex-shrink-0 mt-0.5" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5l8 14H2z"/><path d="M10 9v3.5M10 14.5v.5"/></svg>
+          <div>
+            <div class="font-bold text-danger text-sm">تحذير — إجراء لا يمكن التراجع عنه</div>
+            <div class="text-sm text-red-700 mt-1">
+              سيُزال نهائياً من المنصة. إذا كانت هناك اشتراكات مرتبطة بهذه الخطة، <strong>سيُرفض الحذف تلقائياً</strong>.
+            </div>
+          </div>
+        </div>
+        <div class="text-sm text-neutral-600">
+          هل تريد المتابعة وحذف خطة "<span class="font-semibold text-primary-800" x-text="deleteModal.planName"></span>"؟
+        </div>
+      </div>
+      <div class="adm-modal-foot">
+        <button class="adm-btn adm-btn-danger-solid" @click="executePlanDelete()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 4.5h11M5.5 4.5V3h5v1.5M6 7v5M10 7v5M3.5 4.5l.8 9h7.4l.8-9"/></svg>
+          نعم، احذف الخطة
+        </button>
+        <button class="adm-btn adm-btn-ghost" @click="deleteModal.open=false">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== مودال: إنشاء / تعديل كوبون ===== -->
+  <div class="adm-overlay" x-show="couponModal.open" x-transition.opacity @click.self="couponModal.open=false" x-cloak>
+    <div class="adm-modal" style="max-width:480px;" @click.stop>
+      <div class="adm-modal-head">
+        <h2 class="font-bold text-primary-800 text-base" x-text="couponModal.editId ? 'تعديل الكوبون' : 'كوبون جديد'"></h2>
+        <button class="adm-icon-btn" @click="couponModal.open=false" aria-label="إغلاق">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <div class="adm-modal-body flex flex-col gap-4">
+        <div>
+          <label class="ec-label">كود الكوبون <span class="text-danger">*</span></label>
+          <input
+            type="text"
+            class="ec-input font-latin tracking-widest"
+            placeholder="مثال: SUMMER25"
+            x-model="couponModal.code"
+            @input="couponModal.code = couponModal.code.toUpperCase()"
+          >
+        </div>
+        <div>
+          <label class="ec-label">نوع الخصم <span class="text-danger">*</span></label>
+          <select class="ec-input" x-model="couponModal.discountType">
+            <option value="">اختر نوع الخصم…</option>
+            <option value="percent">نسبة مئوية (%)</option>
+            <option value="amount">مبلغ ثابت (USD)</option>
+          </select>
+        </div>
+        <div>
+          <label class="ec-label">قيمة الخصم <span class="text-danger">*</span></label>
+          <div class="relative">
+            <input
+              type="number" min="0" step="0.01"
+              class="ec-input font-latin pe-8"
+              placeholder="0"
+              x-model.number="couponModal.discountValue"
+            >
+            <span class="absolute top-1/2 -translate-y-1/2 end-3 text-neutral-400 text-sm font-semibold" x-text="couponModal.discountType==='percent' ? '%' : '$'"></span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="ec-label">تاريخ انتهاء الصلاحية</label>
+            <input type="date" class="ec-input font-latin" x-model="couponModal.expiresAt">
+            <p class="text-[.7rem] text-neutral-400 mt-0.5">اتركه فارغاً للكوبون الدائم</p>
+          </div>
+          <div>
+            <label class="ec-label">الحد الأقصى للاستخدام</label>
+            <input type="number" min="1" class="ec-input font-latin" placeholder="غير محدود" x-model.number="couponModal.maxUses">
+          </div>
+        </div>
+      </div>
+      <div class="adm-modal-foot">
+        <button
+          class="adm-btn adm-btn-primary"
+          @click="saveCoupon()"
+          :disabled="!couponModal.code || !couponModal.discountType || !couponModal.discountValue"
+        >
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 4 7-7"/></svg>
+          <span x-text="couponModal.editId ? 'حفظ التعديلات' : 'إنشاء الكوبون'"></span>
+        </button>
+        <button class="adm-btn adm-btn-ghost" @click="couponModal.open=false">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function plans() {
+  /* مساعدات التنسيق (fmtNum/fmtMoney/fmtDate) مُعرّفة عالمياً في الـ shell */
+  return {
+    activeTab: 'plans',
+
+    /* ── فلاتر وترقيم صفحات الاشتراكات ── */
+    subSearch: '',
+    subFilter: 'all',
+    subPage: 1,
+    subLimit: 8,
+    subFilters: [
+      {v:'all',       l:'الكل'},
+      {v:'active',    l:'نشطة'},
+      {v:'trial',     l:'تجربة'},
+      {v:'cancelled', l:'ملغاة'},
+      {v:'suspended', l:'موقوفة'},
+    ],
+
+    /* ════════════════════════════════════════
+       بيانات الخطط — GET /api/v1/admin/billing/plans
+       ════════════════════════════════════════ */
+    plans: [
+      {
+        id:'plan-1', name:'الباقة المجانية', code:'FREE',
+        priceMonthly:0, priceYearly:0, pricingModel:'flat',
+        limits:{maxUsers:1, maxBranches:1, maxLeads:50, maxProperties:20, maxDeals:10},
+        isActive:true,
+      },
+      {
+        id:'plan-2', name:'باقة المبتدئين', code:'STARTER_MONTHLY',
+        priceMonthly:29, priceYearly:290, pricingModel:'flat',
+        limits:{maxUsers:3, maxBranches:1, maxLeads:300, maxProperties:100, maxDeals:50},
+        isActive:true,
+      },
+      {
+        id:'plan-3', name:'الباقة الاحترافية', code:'PRO_YEARLY',
+        priceMonthly:79, priceYearly:790, pricingModel:'flat',
+        limits:{maxUsers:10, maxBranches:3, maxLeads:2000, maxProperties:500, maxDeals:200},
+        isActive:true,
+      },
+      {
+        id:'plan-4', name:'باقة الأعمال', code:'BUSINESS_MONTHLY',
+        priceMonthly:179, priceYearly:1790, pricingModel:'per_seat',
+        limits:{maxUsers:30, maxBranches:10, maxLeads:10000, maxProperties:2000, maxDeals:1000},
+        isActive:true,
+      },
+      {
+        id:'plan-5', name:'باقة المؤسسات', code:'ENTERPRISE',
+        priceMonthly:499, priceYearly:4990, pricingModel:'custom',
+        limits:{maxUsers:-1, maxBranches:-1, maxLeads:-1, maxProperties:-1, maxDeals:-1},
+        isActive:true,
+      },
+      {
+        id:'plan-6', name:'تجربة مجانية 30 يوم', code:'TRIAL_30',
+        priceMonthly:0, priceYearly:0, pricingModel:'flat',
+        limits:{maxUsers:5, maxBranches:2, maxLeads:100, maxProperties:50, maxDeals:20},
+        isActive:false,
+      },
+    ],
+
+    /* ════════════════════════════════════════
+       بيانات الاشتراكات — GET /api/v1/admin/billing/subscriptions
+       ════════════════════════════════════════ */
+    subscriptions: [
+      {id:'s-01', tenantName:'دار العقارية',          planName:'الباقة الاحترافية',   status:'active',    startDate:'2026-01-15', renewDate:'2026-07-15', billingInterval:'monthly'},
+      {id:'s-02', tenantName:'مفاتيح الخليج',         planName:'باقة المبتدئين',      status:'trial',     startDate:'2026-06-10', renewDate:'2026-07-10', billingInterval:'monthly'},
+      {id:'s-03', tenantName:'أحمد الراشد',           planName:'باقة المبتدئين',      status:'active',    startDate:'2025-12-01', renewDate:'2026-12-01', billingInterval:'yearly'},
+      {id:'s-04', tenantName:'النخبة للتسويق',        planName:'الباقة الاحترافية',   status:'suspended', startDate:'2026-02-20', renewDate:'2026-07-20', billingInterval:'monthly'},
+      {id:'s-05', tenantName:'عقارات المستقبل',       planName:'باقة المؤسسات',      status:'cancelled', startDate:'2025-06-01', renewDate:null,          billingInterval:'yearly'},
+      {id:'s-06', tenantName:'بيوت العرب',            planName:'باقة الأعمال',        status:'active',    startDate:'2026-03-05', renewDate:'2026-09-05', billingInterval:'monthly'},
+      {id:'s-07', tenantName:'ريادة العقارات',        planName:'الباقة المجانية',     status:'active',    startDate:'2026-05-11', renewDate:null,          billingInterval:'monthly'},
+      {id:'s-08', tenantName:'جولدن هومز',            planName:'الباقة الاحترافية',   status:'active',    startDate:'2026-04-01', renewDate:'2026-07-01', billingInterval:'monthly'},
+      {id:'s-09', tenantName:'فرصتك العقارية',        planName:'باقة المبتدئين',      status:'trial',     startDate:'2026-06-20', renewDate:'2026-07-20', billingInterval:'monthly'},
+      {id:'s-10', tenantName:'الرائد للوساطة',        planName:'باقة الأعمال',        status:'active',    startDate:'2025-09-15', renewDate:'2026-09-15', billingInterval:'yearly'},
+      {id:'s-11', tenantName:'نجمة المدينة',          planName:'باقة المبتدئين',      status:'cancelled', startDate:'2026-01-08', renewDate:null,          billingInterval:'monthly'},
+      {id:'s-12', tenantName:'الخبراء العقاريون',     planName:'باقة المؤسسات',      status:'active',    startDate:'2025-11-20', renewDate:'2026-11-20', billingInterval:'yearly'},
+    ],
+
+    /* ════════════════════════════════════════
+       بيانات الكوبونات — GET /api/v1/admin/billing/coupons
+       ════════════════════════════════════════ */
+    coupons: [
+      {id:'c-1', code:'SUMMER25',  discountType:'percent', discountValue:25,  expiresAt:'2026-08-31', usedCount:43,  maxUses:200},
+      {id:'c-2', code:'WELCOME50', discountType:'amount',  discountValue:50,  expiresAt:null,          usedCount:118, maxUses:null},
+      {id:'c-3', code:'RAMADAN30', discountType:'percent', discountValue:30,  expiresAt:'2026-03-15', usedCount:67,  maxUses:100},
+      {id:'c-4', code:'VIP100',    discountType:'amount',  discountValue:100, expiresAt:'2026-12-31', usedCount:9,   maxUses:50},
+      {id:'c-5', code:'ANNUAL20',  discountType:'percent', discountValue:20,  expiresAt:null,          usedCount:214, maxUses:null},
+      {id:'c-6', code:'LAUNCH15',  discountType:'percent', discountValue:15,  expiresAt:'2026-07-01', usedCount:88,  maxUses:500},
+      {id:'c-7', code:'PARTNER40', discountType:'percent', discountValue:40,  expiresAt:'2026-09-30', usedCount:12,  maxUses:30},
+      {id:'c-8', code:'FREEMONTH', discountType:'amount',  discountValue:79,  expiresAt:null,          usedCount:31,  maxUses:null},
+    ],
+
+    /* ── حالات المودالات ── */
+    planModal: {
+      open:false, editId:null,
+      name:'', code:'', pricingModel:'',
+      priceMonthly:0, priceYearly:0,
+      limits:{maxUsers:10, maxBranches:3, maxLeads:500, maxProperties:200, maxDeals:100},
+      isActive:true,
+    },
+    deleteModal: { open:false, planId:null, planName:'' },
+    couponModal: {
+      open:false, editId:null,
+      code:'', discountType:'', discountValue:0,
+      expiresAt:'', maxUses:null,
+    },
+
+    /* ── دوال مساعدة مُصدَّرة ── */
+    fmtNum, fmtMoney, fmtDate,
+
+    pricingModelLabel(m){
+      return {flat:'سعر ثابت', per_seat:'لكل مقعد', custom:'مخصّص'}[m] || m;
+    },
+
+    limitsDisplay(plan){
+      const L = plan.limits || {};
+      return [
+        {key:'maxUsers',      label:'الحد الأقصى للمستخدمين',        value: L.maxUsers      ?? -1},
+        {key:'maxBranches',   label:'الحد الأقصى للفروع',            value: L.maxBranches   ?? -1},
+        {key:'maxLeads',      label:'الحد الأقصى للعملاء المحتملين', value: L.maxLeads      ?? -1},
+        {key:'maxProperties', label:'الحد الأقصى للعقارات',          value: L.maxProperties ?? -1},
+        {key:'maxDeals',      label:'الحد الأقصى للصفقات',           value: L.maxDeals      ?? -1},
+      ];
+    },
+
+    toggleActive(plan){
+      plan.isActive = !plan.isActive;
+      /* PATCH /api/v1/admin/billing/plans/:id { isActive } */
+    },
+
+    subStatusClass(s){
+      return {active:'b-success', trial:'b-info', cancelled:'b-neutral', suspended:'b-danger', past_due:'b-warning'}[s] || 'b-neutral';
+    },
+    subStatusLabel(s){
+      return {active:'نشط', trial:'تجربة', cancelled:'ملغى', suspended:'موقوف', past_due:'متأخر السداد'}[s] || s;
+    },
+
+    isExpiringSoon(dateStr){
+      if(!dateStr) return false;
+      const diff = (new Date(dateStr) - new Date()) / 864e5;
+      return diff >= 0 && diff <= 7;
+    },
+    isExpired(dateStr){
+      if(!dateStr) return false;
+      return new Date(dateStr) < new Date();
+    },
+
+    get filteredSubs(){
+      let list = this.subscriptions;
+      if(this.subFilter !== 'all') list = list.filter(x => x.status === this.subFilter);
+      if(this.subSearch.trim()){
+        const q = this.subSearch.trim().toLowerCase();
+        list = list.filter(x => x.tenantName.includes(q) || x.planName.includes(q));
+      }
+      return list;
+    },
+    get subTotalPages(){ return Math.max(1, Math.ceil(this.filteredSubs.length / this.subLimit)); },
+    get pagedSubs(){
+      const p = this.subPage - 1;
+      return this.filteredSubs.slice(p * this.subLimit, (p + 1) * this.subLimit);
+    },
+
+    /* ── مودال الخطة ── */
+    openPlanModal(plan){
+      if(plan){
+        this.planModal = {
+          open:true, editId:plan.id,
+          name:plan.name, code:plan.code, pricingModel:plan.pricingModel,
+          priceMonthly:plan.priceMonthly, priceYearly:plan.priceYearly,
+          limits:{ ...plan.limits },
+          isActive:plan.isActive,
+        };
+      } else {
+        this.planModal = {
+          open:true, editId:null,
+          name:'', code:'', pricingModel:'',
+          priceMonthly:0, priceYearly:0,
+          limits:{maxUsers:10, maxBranches:3, maxLeads:500, maxProperties:200, maxDeals:100},
+          isActive:true,
+        };
+      }
+    },
+
+    savePlan(){
+      const m = this.planModal;
+      if(m.editId){
+        const idx = this.plans.findIndex(p => p.id === m.editId);
+        if(idx > -1) this.plans[idx] = {
+          ...this.plans[idx],
+          name:m.name, pricingModel:m.pricingModel,
+          priceMonthly:m.priceMonthly, priceYearly:m.priceYearly,
+          limits:{...m.limits}, isActive:m.isActive,
+        };
+        /* PATCH /api/v1/admin/billing/plans/:id */
+      } else {
+        this.plans.push({
+          id:'plan-'+Date.now(),
+          name:m.name, code:m.code.toUpperCase(), pricingModel:m.pricingModel,
+          priceMonthly:m.priceMonthly, priceYearly:m.priceYearly,
+          limits:{...m.limits}, isActive:m.isActive,
+        });
+        /* POST /api/v1/admin/billing/plans */
+      }
+      this.planModal.open = false;
+    },
+
+    confirmDelete(plan){
+      this.deleteModal = { open:true, planId:plan.id, planName:plan.name };
+    },
+    executePlanDelete(){
+      this.plans = this.plans.filter(p => p.id !== this.deleteModal.planId);
+      /* DELETE /api/v1/admin/billing/plans/:id */
+      this.deleteModal.open = false;
+    },
+
+    /* ── مودال الكوبون ── */
+    openCouponModal(c){
+      if(c){
+        this.couponModal = {
+          open:true, editId:c.id,
+          code:c.code, discountType:c.discountType, discountValue:c.discountValue,
+          expiresAt:c.expiresAt || '', maxUses:c.maxUses || null,
+        };
+      } else {
+        this.couponModal = {
+          open:true, editId:null,
+          code:'', discountType:'', discountValue:0,
+          expiresAt:'', maxUses:null,
+        };
+      }
+    },
+
+    saveCoupon(){
+      const m = this.couponModal;
+      if(m.editId){
+        const idx = this.coupons.findIndex(c => c.id === m.editId);
+        if(idx > -1) this.coupons[idx] = {
+          ...this.coupons[idx],
+          code:m.code.toUpperCase(), discountType:m.discountType,
+          discountValue:m.discountValue, expiresAt:m.expiresAt || null,
+          maxUses:m.maxUses || null,
+        };
+        /* PATCH /api/v1/admin/billing/coupons/:id */
+      } else {
+        this.coupons.push({
+          id:'c-'+Date.now(),
+          code:m.code.toUpperCase(), discountType:m.discountType,
+          discountValue:m.discountValue, expiresAt:m.expiresAt || null,
+          usedCount:0, maxUses:m.maxUses || null,
+        });
+        /* POST /api/v1/admin/billing/coupons */
+      }
+      this.couponModal.open = false;
+    },
+
+    deleteCoupon(c){
+      this.coupons = this.coupons.filter(x => x.id !== c.id);
+      /* DELETE /api/v1/admin/billing/coupons/:id */
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared platform shell component (sidebar + topbar) =====
+  // Operational alerts are DERIVED from real endpoints (no admin-notifications backend exists):
+  //   pending manual invoices (/admin/billing/invoices/pending) · queue failures (/admin/platform/queues)
+  //   · expiring trials (/admin/tenants?status=trial) · recently suspended (/admin/tenants?status=suspended)
+  function shell() {
+    const ICO = {
+      invoice:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v12l-2-1-2 1-2-1-2 1z"/><path d="M6 6h4M6 9h4"/></svg>',
+      queue:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l6 3.5v6L8 14.5 2 11V5z"/><path d="M8 5v3.5M8 11v.3" stroke-linecap="round"/></svg>',
+      trial:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
+      suspend:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 5.5l5 5"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false,
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.invoice, title:'٣ فواتير بانتظار التحقق اليدوي', desc:'تحتاج اعتماد أو رفض', href:'invoices.html' },
+        { id:2, tone:'danger',  icon:ICO.queue,   title:'وظيفتان فشلتا في طابور البريد', desc:'راجع صحة الطوابير', href:'dashboard.html' },
+        { id:3, tone:'info',    icon:ICO.trial,   title:'٥ تجارب تنتهي خلال ٣ أيام', desc:'منشآت قد تحتاج متابعة', href:'tenants.html' },
+        { id:4, tone:'danger',  icon:ICO.suspend, title:'منشأة موقوفة حديثاً', desc:'عقارات المستقبل — عدم سداد', href:'tenant-detail.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'plans';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.adm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'USD',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable JSON tree viewer → HTML string (collapsible via native <details>, syntax-highlighted) =====
+  function jsonTreeHtml(value){
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const prim = v => {
+      if (v === null) return '<span class="jv-null">null</span>';
+      const t = typeof v;
+      if (t === 'number')  return '<span class="jv-num">'+v+'</span>';
+      if (t === 'boolean') return '<span class="jv-bool">'+v+'</span>';
+      return '<span class="jv-str">"'+esc(v)+'"</span>';
+    };
+    const keyHtml = (k, parent) => {
+      if (parent === 'root')  return '';
+      if (parent === 'array') return '<span class="jv-idx">'+k+'</span><span class="jv-punc">: </span>';
+      return '<span class="jv-key">"'+esc(k)+'"</span><span class="jv-punc">: </span>';
+    };
+    const node = (k, v, parent) => {
+      const kh = keyHtml(k, parent);
+      if (v !== null && typeof v === 'object') {
+        const isA = Array.isArray(v);
+        const keys = isA ? v.map((_,i)=>i) : Object.keys(v);
+        const open = isA ? '[' : '{', close = isA ? ']' : '}';
+        if (keys.length === 0) return '<div class="jv-row">'+kh+'<span class="jv-punc">'+open+close+'</span></div>';
+        const unit = isA ? 'عنصر' : 'حقل';
+        const children = keys.map(kk => node(kk, v[kk], isA?'array':'object')).join('');
+        return '<details class="jv-node" open><summary class="jv-row">'+kh+'<span class="jv-punc">'+open+'</span>'
+             + '<span class="jv-count">'+keys.length+' '+unit+'</span><span class="jv-ellipsis"> … '+close+'</span></summary>'
+             + '<div class="jv-children">'+children+'</div>'
+             + '<div class="jv-row jv-close"><span class="jv-punc">'+close+'</span></div></details>';
+      }
+      return '<div class="jv-row">'+kh+prim(v)+'</div>';
+    };
+    return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+</script>
+</body>
+</html>

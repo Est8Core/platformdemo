@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — لوحة المنصة · الفواتير</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant platform shell) ===== */
+    .adm-shell { display:flex; min-height:100vh; }
+    .adm-sidebar { width:264px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .adm-main { flex:1; min-width:0; margin-inline-start:264px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .adm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .adm-sidebar.open{ transform:translateX(0);} .adm-main{ margin-inline-start:0; } }
+    .adm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav ===== */
+    .adm-brand { display:flex; align-items:center; gap:.65rem; padding:1.15rem 1.25rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .adm-nav { flex:1; overflow-y:auto; padding:1rem .75rem 1.5rem; }
+    .adm-nav-label { font-size:.7rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:1rem .75rem .4rem; text-transform:uppercase; }
+    .adm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .adm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .adm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .adm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.75rem; top:50%; transform:translateY(-50%); width:3.5px; height:60%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .adm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .adm-nav-item .soon { margin-inline-start:auto; font-size:.62rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:600; }
+
+    /* ===== Topbar ===== */
+    .adm-topbar { height:64px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:1rem; padding:0 1.5rem; position:sticky; top:0; z-index:30; }
+    .adm-env { display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700; color:#1A8C4E; background:rgba(26,140,78,.1); padding:.28rem .65rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .adm-content { padding:1.6rem 1.75rem 3rem; max-width:1400px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.6rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Cards / KPI ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:.0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.85rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+
+    /* ===== Table ===== */
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.85rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+
+    /* ===== Badges / status ===== */
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+
+    /* ===== Buttons ===== */
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+
+    /* ===== Inputs ===== */
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+
+    /* ===== Tabs ===== */
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+
+    /* ===== Pills (filters) ===== */
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+
+    /* ===== Modal ===== */
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+
+    /* ===== Toggle switch ===== */
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+
+    /* ===== Progress (usage) ===== */
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+
+    /* ===== Info grid ===== */
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+
+    /* ===== Empty / pagination ===== */
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-pagination { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.25rem; border-top:1px solid #F1F3F5; flex-wrap:wrap; }
+    .adm-page-btn { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; border:1px solid #DDE1EA; font-size:.8rem; color:#4D5F7A; cursor:pointer; }
+    .adm-page-btn:hover:not(:disabled){ background:#F4F6FA; } .adm-page-btn:disabled{ opacity:.4; cursor:not-allowed; }
+    .adm-page-btn.on { background:#0B1F3A; color:#fff; border-color:#0B1F3A; }
+
+    /* ===== Audit diff ===== */
+    .adm-diff { font-family:'Inter',monospace; font-size:.78rem; border-radius:.5rem; padding:.7rem .9rem; white-space:pre-wrap; word-break:break-word; }
+    .adm-diff.before { background:rgba(192,57,43,.05); border:1px solid rgba(192,57,43,.15); color:#7a2018; }
+    .adm-diff.after { background:rgba(26,140,78,.05); border:1px solid rgba(26,140,78,.15); color:#0f5a31; }
+
+    /* ===== JSON viewer (collapsible tree · syntax-highlighted · VSCode-like) ===== */
+    .jv-root { font-family:'Inter',ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.74rem; line-height:1.75; color:#344260; direction:ltr; text-align:left; }
+    .jv-row { white-space:pre-wrap; word-break:break-word; }
+    .jv-children { padding-inline-start:1.1rem; margin-inline-start:.35rem; border-inline-start:1px dashed #DDE1EA; }
+    details.jv-node > summary { list-style:none; cursor:pointer; display:block; border-radius:4px; }
+    details.jv-node > summary:hover { background:#EEF0F5; }
+    details.jv-node > summary::-webkit-details-marker { display:none; }
+    details.jv-node > summary::before { content:'▾'; display:inline-block; width:1em; margin-inline-end:.1rem; color:#9BA6BB; font-size:.8em; }
+    details.jv-node:not([open]) > summary::before { content:'▸'; }
+    details.jv-node[open] > summary > .jv-count, details.jv-node[open] > summary > .jv-ellipsis { display:none; }
+    .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
+    .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
+    .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+  </style>
+</head>
+
+<body x-data="shell()" x-cloak>
+<div class="adm-shell">
+
+  <!-- Mobile backdrop -->
+  <div class="adm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="adm-sidebar" :class="navOpen && 'open'">
+    <div class="adm-brand">
+      <img src="../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div>
+        <div class="font-latin text-base font-bold text-white leading-none">Est8<span class="text-accent-500">Core</span></div>
+        <div class="text-[.66rem] text-primary-200 mt-1 font-semibold tracking-wide">لوحة المنصة</div>
+      </div>
+    </div>
+    <nav class="adm-nav">
+      <div class="adm-nav-label">الرئيسية</div>
+      <a href="dashboard.html" class="adm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+      <a href="notifications.html" class="adm-nav-item" data-nav="notifications">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 3z"/><path d="M8.5 16.5a1.5 1.5 0 003 0"/></svg>
+        التنبيهات
+        <span class="soon" x-show="alertCount>0" x-text="alertCount"></span>
+      </a>
+      <div class="adm-nav-label">الإدارة</div>
+      <a href="tenants.html" class="adm-nav-item" data-nav="tenants">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V6l5-3 5 3v11"/><path d="M13 8l4 2v7"/><path d="M2 17h16M6 8h2M6 11h2M6 14h2"/></svg>
+        المنشآت
+      </a>
+      <a href="plans.html" class="adm-nav-item" data-nav="plans">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M2.5 8h15M6 12h3"/></svg>
+        خطط الاشتراك
+      </a>
+      <a href="invoices.html" class="adm-nav-item" data-nav="invoices">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 2.5h10v15l-2.5-1.5L10 17l-2.5-1L5 17.5z"/><path d="M8 6.5h4M8 9.5h4M8 12.5h2.5"/></svg>
+        الفواتير
+      </a>
+      <div class="adm-nav-label">النظام</div>
+      <a href="admins.html" class="adm-nav-item" data-nav="admins">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7.5" cy="7" r="2.5"/><path d="M3 16c0-2.6 2-4.5 4.5-4.5S12 13.4 12 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        فريق المنصة
+      </a>
+      <a href="settings.html" class="adm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        إعدادات المنصة
+      </a>
+      <a href="audit-log.html" class="adm-nav-item" data-nav="audit">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 2.5h8l4 4V17.5H4z"/><path d="M12 2.5v4h4M7 10h6M7 13h6"/></svg>
+        سجل التدقيق
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 text-[.68rem] text-primary-300 flex items-center gap-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> النظام يعمل · v2.0.0
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="adm-main">
+    <header class="adm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث في المنصة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="adm-env"><span class="w-1.5 h-1.5 rounded-full bg-success"></span> الإنتاج</span>
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="التنبيهات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alertCount>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-neutral-100">
+              <span class="text-sm font-bold text-primary-800">التنبيهات التشغيلية</span>
+              <span class="adm-badge b-danger" x-show="alertCount>0" x-text="alertCount + ' بحاجة لإجراء'"></span>
+            </div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div>
+                    <div class="text-xs text-neutral-500 mt-0.5" x-text="a.desc"></div>
+                  </div>
+                </a>
+              </template>
+            </div>
+            <a href="notifications.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض كل التنبيهات</a>
+          </div>
+        </div>
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="w-8 h-8 rounded-lg bg-primary-800 text-accent-400 text-xs font-bold flex items-center justify-center">صد</span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none">صبري داوود</div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5">مدير عام للمنصة</div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="adm-content">
+
+<!-- S-063 · الفواتير والمدفوعات · GET /admin/billing/invoices?status&tenantId · GET /admin/billing/invoices/pending · POST /admin/billing/invoices/:id/verify · POST /admin/billing/invoices/custom · GET /admin/billing/refunds · POST /admin/billing/refunds · GET /billing/invoices/:id/pdf -->
+<div x-data="invoices()">
+
+  <!-- ===== Page head ===== -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">الفواتير والمدفوعات</h1>
+      <p class="adm-page-sub">إدارة الفواتير، التحقق من المدفوعات اليدوية، والمستردات</p>
+    </div>
+    <button class="adm-btn adm-btn-gold" @click="openCustomModal()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3v10M3 8h10"/></svg>
+      إصدار فاتورة مخصّصة
+    </button>
+  </div>
+
+  <!-- ===== KPIs ===== -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-5">
+    <div class="adm-kpi">
+      <div class="adm-kpi-label">
+        <span class="adm-kpi-ico" style="background:rgba(26,140,78,.12);color:#1A8C4E">
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2v16M14 5H8a2.5 2.5 0 000 5h4a2.5 2.5 0 010 5H6"/></svg>
+        </span>
+        إجمالي المحصّل
+      </div>
+      <div class="adm-kpi-val font-latin" x-text="fmtMoney(kpi.totalCollected, 'SAR')"></div>
+      <div class="adm-trend up">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l4-4 3 3 4-5"/></svg>
+        هذا الشهر
+      </div>
+    </div>
+    <div class="adm-kpi">
+      <div class="adm-kpi-label">
+        <span class="adm-kpi-ico" style="background:rgba(212,134,10,.12);color:#D4860A">
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2"/></svg>
+        </span>
+        فواتير مفتوحة
+      </div>
+      <div class="adm-kpi-val font-latin" x-text="fmtNum(kpi.openInvoices)"></div>
+      <div class="adm-trend flat">بانتظار السداد</div>
+    </div>
+    <div class="adm-kpi">
+      <div class="adm-kpi-label">
+        <span class="adm-kpi-ico" style="background:rgba(192,57,43,.1);color:#C0392B">
+          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3.5v7M10 14.5v1"/><circle cx="10" cy="10" r="8"/></svg>
+        </span>
+        بانتظار التحقق
+      </div>
+      <div class="adm-kpi-val font-latin" x-text="fmtNum(kpi.pendingVerify)"></div>
+      <div class="adm-trend down" x-show="kpi.pendingVerify > 0">تحتاج مراجعة يدوية</div>
+      <div class="adm-trend up" x-show="kpi.pendingVerify === 0">لا طلبات معلّقة</div>
+    </div>
+  </div>
+
+  <!-- ===== Tabs ===== -->
+  <div class="adm-card">
+    <div class="px-5 pt-4">
+      <div class="adm-tabs mb-0">
+        <button class="adm-tab" :class="tab==='all' && 'on'" @click="tab='all'">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h7l3 3v9H3z"/><path d="M6 7h4M6 10h4"/></svg>
+          كل الفواتير
+          <span class="cnt" x-text="allInvoices.length"></span>
+        </button>
+        <button class="adm-tab" :class="tab==='pending' && 'on'" @click="tab='pending'">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2 1.5"/></svg>
+          بانتظار التحقق اليدوي
+          <span class="cnt" :class="pendingInvoices.length > 0 ? 'bg-red-100 text-danger' : ''" x-text="pendingInvoices.length"></span>
+        </button>
+        <button class="adm-tab" :class="tab==='refunds' && 'on'" @click="tab='refunds'">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h10M7 2L3 6l4 4M13 10v2a2 2 0 01-2 2H5"/></svg>
+          المستردات
+          <span class="cnt" x-text="refunds.length"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================== TAB: كل الفواتير ======================== -->
+    <div x-show="tab==='all'" x-cloak>
+      <!-- Filters -->
+      <div class="flex flex-wrap items-center gap-2.5 px-5 py-3.5 border-b border-neutral-100">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <template x-for="f in statusFilters" :key="f.val">
+            <button class="adm-pill" :class="statusFilter===f.val && 'on'" @click="statusFilter=f.val; page=1" x-text="f.label"></button>
+          </template>
+        </div>
+        <div class="relative ms-auto w-60">
+          <input type="search" placeholder="بحث برقم الفاتورة أو المنشأة…" class="ec-input ps-8 text-sm" x-model="searchQ" @input="page=1" />
+          <svg class="absolute top-1/2 -translate-y-1/2 start-2.5 text-neutral-400" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>رقم الفاتورة</th>
+              <th>المنشأة</th>
+              <th>المزوّد</th>
+              <th>المبلغ + الضريبة</th>
+              <th>الحالة</th>
+              <th>الفوترة الإلكترونية</th>
+              <th>تاريخ الإصدار</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="inv in pagedInvoices" :key="inv.id">
+              <tr>
+                <td>
+                  <span class="font-latin font-semibold text-primary-800 text-sm" x-text="inv.ref"></span>
+                </td>
+                <td>
+                  <span class="font-semibold text-sm" x-text="inv.tenant"></span>
+                </td>
+                <td>
+                  <span class="adm-badge" :class="providerClass(inv.providerKey)" x-text="providerLabel(inv.providerKey)"></span>
+                </td>
+                <td>
+                  <div class="font-latin font-semibold text-sm" x-text="fmtMoney(inv.amount, inv.currency)"></div>
+                  <div class="text-xs text-neutral-400 mt-0.5" x-text="'+ ضريبة ' + fmtMoney(inv.taxAmount, inv.currency)"></div>
+                </td>
+                <td>
+                  <span class="adm-badge" :class="invStatusClass(inv.status)" x-text="invStatusLabel(inv.status)"></span>
+                </td>
+                <td>
+                  <span class="adm-badge" :class="einvClass(inv.einvoiceStatus)" x-text="einvLabel(inv.einvoiceStatus, inv.einvoiceSystem)"></span>
+                </td>
+                <td class="text-neutral-500 text-xs" x-text="fmtDate(inv.issuedAt)"></td>
+                <td>
+                  <div class="flex items-center gap-1.5">
+                    <a :href="'/billing/invoices/'+inv.id+'/pdf'" target="_blank" class="adm-btn adm-btn-ghost adm-btn-sm" title="تحميل PDF">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h7l3 3v9H3zM10 2v4h3"/><path d="M5.5 10.5h5M5.5 8h3"/></svg>
+                      PDF
+                    </a>
+                    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="openDetail(inv)" title="تفاصيل">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5h.01"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <tr x-show="filteredInvoices.length === 0">
+              <td colspan="8">
+                <div class="adm-empty">
+                  <svg class="mx-auto mb-3 text-neutral-300" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+                  <div class="text-sm font-semibold">لا توجد فواتير مطابقة</div>
+                  <div class="text-xs mt-1">جرّب تغيير فلتر الحالة أو مصطلح البحث</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="adm-pagination">
+        <span class="text-xs text-neutral-500">إجمالي <strong x-text="filteredInvoices.length"></strong> فاتورة</span>
+        <div class="flex items-center gap-1">
+          <button class="adm-page-btn" :disabled="page <= 1" @click="page--">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 4l-4 4 4 4"/></svg>
+          </button>
+          <template x-for="p in totalPages" :key="p">
+            <button class="adm-page-btn" :class="page===p && 'on'" @click="page=p" x-text="p"></button>
+          </template>
+          <button class="adm-page-btn" :disabled="page >= totalPages" @click="page++">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4l4 4-4 4"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================== TAB: بانتظار التحقق اليدوي ======================== -->
+    <div x-show="tab==='pending'" x-cloak>
+      <div class="px-5 py-3 border-b border-neutral-100">
+        <p class="text-sm text-neutral-500">الفواتير اليدوية المفتوحة التي تحتاج إلى تحقق يدوي من إثبات الدفع.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>رقم الفاتورة</th>
+              <th>المنشأة</th>
+              <th>المبلغ</th>
+              <th>تاريخ الاستحقاق</th>
+              <th>إثبات الدفع</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="inv in pendingInvoices" :key="inv.id">
+              <tr>
+                <td><span class="font-latin font-semibold text-primary-800" x-text="inv.ref"></span></td>
+                <td><span class="font-semibold text-sm" x-text="inv.tenant"></span></td>
+                <td><span class="font-latin font-semibold" x-text="fmtMoney(inv.amount, inv.currency)"></span></td>
+                <td class="text-xs text-neutral-500" x-text="fmtDate(inv.dueAt)"></td>
+                <td>
+                  <template x-if="inv.paymentProofUploadId">
+                    <a :href="'/uploads/files/'+inv.paymentProofUploadId" target="_blank" class="adm-btn adm-btn-ghost adm-btn-sm">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 10l2-3 2 2 2-4"/></svg>
+                      عرض الإثبات
+                    </a>
+                  </template>
+                  <template x-if="!inv.paymentProofUploadId">
+                    <span class="text-xs text-neutral-400 italic">لم يُرفع بعد</span>
+                  </template>
+                </td>
+                <td>
+                  <button class="adm-btn adm-btn-primary adm-btn-sm" @click="openVerifyModal(inv)">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>
+                    تحقّق
+                  </button>
+                </td>
+              </tr>
+            </template>
+            <tr x-show="pendingInvoices.length === 0">
+              <td colspan="6">
+                <div class="adm-empty">
+                  <svg class="mx-auto mb-3 text-neutral-300" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+                  <div class="text-sm font-semibold">لا توجد فواتير بانتظار التحقق</div>
+                  <div class="text-xs mt-1">جميع الفواتير اليدوية تمت معالجتها</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ======================== TAB: المستردات ======================== -->
+    <div x-show="tab==='refunds'" x-cloak>
+      <div class="flex items-center justify-between px-5 py-3 border-b border-neutral-100">
+        <p class="text-sm text-neutral-500">سجل كل المبالغ المستردة عبر المنصة.</p>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="openRefundModal()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3v10M3 8h10"/></svg>
+          تسجيل استرداد
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>المنشأة</th>
+              <th>المبلغ</th>
+              <th>السبب</th>
+              <th>المرجع</th>
+              <th>التاريخ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="r in refunds" :key="r.id">
+              <tr>
+                <td><span class="font-semibold text-sm" x-text="r.tenant"></span></td>
+                <td><span class="font-latin font-semibold text-danger" x-text="'- ' + fmtMoney(r.amount, r.currency)"></span></td>
+                <td class="text-sm text-neutral-600" x-text="r.reason"></td>
+                <td><span class="font-latin text-xs text-neutral-400" x-text="r.reference || '—'"></span></td>
+                <td class="text-xs text-neutral-500" x-text="fmtDate(r.createdAt)"></td>
+              </tr>
+            </template>
+            <tr x-show="refunds.length === 0">
+              <td colspan="5">
+                <div class="adm-empty">
+                  <div class="text-sm font-semibold">لا توجد مستردات مسجّلة</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL: تفاصيل الفاتورة ======================== -->
+  <div class="adm-overlay" x-show="detailOpen" x-cloak x-transition.opacity @click.self="detailOpen=false">
+    <div class="adm-modal" style="max-width:640px" x-show="detailOpen" x-transition>
+      <div class="adm-modal-head">
+        <div>
+          <div class="font-bold text-primary-800" x-text="'فاتورة ' + (selectedInv?.ref || '')"></div>
+          <div class="text-xs text-neutral-500 mt-0.5" x-text="selectedInv?.tenant"></div>
+        </div>
+        <button class="adm-icon-btn" @click="detailOpen=false">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <div class="adm-modal-body" x-show="selectedInv">
+        <dl class="adm-info mb-4">
+          <div>
+            <dt>المزوّد</dt>
+            <dd><span class="adm-badge" :class="providerClass(selectedInv?.providerKey)" x-text="providerLabel(selectedInv?.providerKey)"></span></dd>
+          </div>
+          <div>
+            <dt>الحالة</dt>
+            <dd><span class="adm-badge" :class="invStatusClass(selectedInv?.status)" x-text="invStatusLabel(selectedInv?.status)"></span></dd>
+          </div>
+          <div>
+            <dt>تاريخ الإصدار</dt>
+            <dd x-text="fmtDate(selectedInv?.issuedAt)"></dd>
+          </div>
+          <div>
+            <dt>تاريخ الاستحقاق</dt>
+            <dd x-text="fmtDate(selectedInv?.dueAt)"></dd>
+          </div>
+          <div x-show="selectedInv?.paidAt">
+            <dt>تاريخ السداد</dt>
+            <dd x-text="fmtDate(selectedInv?.paidAt)"></dd>
+          </div>
+          <div>
+            <dt>مرجع المزوّد</dt>
+            <dd class="font-latin text-xs break-all" x-text="selectedInv?.providerReference || '—'"></dd>
+          </div>
+          <div>
+            <dt>الفوترة الإلكترونية</dt>
+            <dd><span class="adm-badge" :class="einvClass(selectedInv?.einvoiceStatus)" x-text="einvLabel(selectedInv?.einvoiceStatus, selectedInv?.einvoiceSystem)"></span></dd>
+          </div>
+          <div>
+            <dt>نسبة الضريبة</dt>
+            <dd x-text="selectedInv ? (selectedInv.taxRate * 100).toFixed(0) + '٪' : '—'"></dd>
+          </div>
+        </dl>
+
+        <div class="mb-1.5 text-xs font-bold text-neutral-500 uppercase tracking-wide">بنود الفاتورة</div>
+        <div class="border border-neutral-100 rounded-lg overflow-hidden mb-4">
+          <table class="adm-table text-xs">
+            <thead>
+              <tr>
+                <th>الوصف</th>
+                <th class="text-end">الكمية</th>
+                <th class="text-end">سعر الوحدة</th>
+                <th class="text-end">الإجمالي</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="(li, idx) in (selectedInv?.lineItems || [])" :key="idx">
+                <tr>
+                  <td x-text="li.description"></td>
+                  <td class="text-end font-latin" x-text="li.quantity"></td>
+                  <td class="text-end font-latin" x-text="fmtMoney(li.unitAmount, li.currency)"></td>
+                  <td class="text-end font-latin font-semibold" x-text="fmtMoney(li.quantity * li.unitAmount, li.currency)"></td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex flex-col items-end gap-1.5 text-sm">
+          <div class="flex gap-8 text-neutral-500">
+            <span>المجموع قبل الضريبة</span>
+            <span class="font-latin font-semibold" x-text="fmtMoney((selectedInv?.amount || 0) - (selectedInv?.taxAmount || 0), selectedInv?.currency)"></span>
+          </div>
+          <div class="flex gap-8 text-neutral-500">
+            <span>الضريبة (<span x-text="selectedInv ? (selectedInv.taxRate*100).toFixed(0) : 0"></span>٪)</span>
+            <span class="font-latin font-semibold" x-text="fmtMoney(selectedInv?.taxAmount, selectedInv?.currency)"></span>
+          </div>
+          <div class="flex gap-8 text-primary-800 font-bold border-t border-neutral-200 pt-2 mt-0.5 text-base">
+            <span>الإجمالي الكلي</span>
+            <span class="font-latin" x-text="fmtMoney(selectedInv?.amount, selectedInv?.currency)"></span>
+          </div>
+        </div>
+      </div>
+      <div class="adm-modal-foot">
+        <a :href="'/billing/invoices/'+(selectedInv?.id||'')+'/pdf'" target="_blank" class="adm-btn adm-btn-primary adm-btn-sm">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h7l3 3v9H3zM10 2v4h3"/><path d="M5 10.5h6M5 8h4"/></svg>
+          تحميل PDF
+        </a>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="detailOpen=false">إغلاق</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL: التحقق من الدفع اليدوي ======================== -->
+  <div class="adm-overlay" x-show="verifyOpen" x-cloak x-transition.opacity @click.self="verifyOpen=false">
+    <div class="adm-modal" x-show="verifyOpen" x-transition>
+      <div class="adm-modal-head">
+        <div>
+          <div class="font-bold text-primary-800">التحقق من الدفع اليدوي</div>
+          <div class="text-xs text-neutral-500 mt-0.5" x-text="(verifyInv?.ref || '') + ' · ' + (verifyInv?.tenant || '')"></div>
+        </div>
+        <button class="adm-icon-btn" @click="verifyOpen=false">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <div class="adm-modal-body flex flex-col gap-4">
+        <!-- Proof preview -->
+        <div class="border border-neutral-200 rounded-lg overflow-hidden bg-neutral-50">
+          <div class="text-xs font-semibold text-neutral-500 px-3 py-2 border-b border-neutral-200 flex items-center justify-between">
+            <span>معاينة إثبات الدفع</span>
+            <template x-if="verifyInv?.paymentProofUploadId">
+              <a :href="'/uploads/files/'+(verifyInv?.paymentProofUploadId||'')" target="_blank" class="text-primary-700 underline text-xs">فتح في تبويب جديد</a>
+            </template>
+          </div>
+          <div class="p-4 flex items-center justify-center min-h-28">
+            <template x-if="verifyInv?.paymentProofUploadId">
+              <div class="flex flex-col items-center gap-3">
+                <div class="w-40 h-28 bg-neutral-200 rounded-lg flex items-center justify-center text-neutral-400 border border-neutral-300">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7.5 12.5l3 3 5.5-6.5"/></svg>
+                </div>
+                <span class="text-xs text-neutral-400">صورة إثبات الدفع</span>
+              </div>
+            </template>
+            <template x-if="!verifyInv?.paymentProofUploadId">
+              <div class="text-neutral-400 text-sm text-center flex flex-col items-center gap-2">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" class="text-neutral-300"><path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M16 3l5 5-8 8H8v-5l8-8z"/></svg>
+                لم يُرفع إثبات دفع بعد
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="flex items-center justify-between text-sm bg-neutral-50 rounded-lg px-4 py-3">
+          <span class="text-neutral-500">المبلغ المطلوب التحقق منه</span>
+          <span class="font-latin font-bold text-primary-800 text-base" x-text="fmtMoney(verifyInv?.amount, verifyInv?.currency)"></span>
+        </div>
+
+        <!-- Decision -->
+        <div>
+          <label class="ec-label">القرار</label>
+          <div class="flex gap-3">
+            <label class="flex items-center gap-2.5 cursor-pointer p-3 rounded-xl border-2 flex-1 transition-all" :class="verifyAction==='approve' ? 'border-success bg-green-50' : 'border-neutral-200 hover:border-neutral-300'">
+              <input type="radio" name="verifyAction" value="approve" x-model="verifyAction" />
+              <div>
+                <div class="font-semibold text-sm" :class="verifyAction==='approve' ? 'text-success' : 'text-neutral-700'">اعتماد الدفع</div>
+                <div class="text-xs text-neutral-400">تحويل الفاتورة إلى مدفوعة</div>
+              </div>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer p-3 rounded-xl border-2 flex-1 transition-all" :class="verifyAction==='reject' ? 'border-danger bg-red-50' : 'border-neutral-200 hover:border-neutral-300'">
+              <input type="radio" name="verifyAction" value="reject" x-model="verifyAction" />
+              <div>
+                <div class="font-semibold text-sm" :class="verifyAction==='reject' ? 'text-danger' : 'text-neutral-700'">رفض الإثبات</div>
+                <div class="text-xs text-neutral-400">إبلاغ المنشأة للمراجعة</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Note -->
+        <div>
+          <label class="ec-label">ملاحظة <span class="font-normal text-neutral-400">(اختيارية)</span></label>
+          <textarea class="ec-input h-20 resize-none" placeholder="أضف تعليقاً للسجل أو رسالة للمنشأة…" x-model="verifyNote"></textarea>
+        </div>
+      </div>
+      <div class="adm-modal-foot">
+        <button
+          class="adm-btn adm-btn-sm"
+          :class="verifyAction==='approve' ? 'adm-btn-gold' : (verifyAction==='reject' ? 'adm-btn-danger-solid' : 'adm-btn-ghost')"
+          :disabled="!verifyAction"
+          @click="submitVerify()"
+        >
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" x-show="verifyAction==='approve'"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" x-show="verifyAction==='reject'"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          <span x-text="verifyAction==='approve' ? 'اعتماد الدفع' : (verifyAction==='reject' ? 'رفض الإثبات' : 'اختر قراراً أولاً')"></span>
+        </button>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="verifyOpen=false">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL: تسجيل استرداد ======================== -->
+  <div class="adm-overlay" x-show="refundOpen" x-cloak x-transition.opacity @click.self="refundOpen=false">
+    <div class="adm-modal" x-show="refundOpen" x-transition>
+      <div class="adm-modal-head">
+        <div class="font-bold text-primary-800">تسجيل استرداد</div>
+        <button class="adm-icon-btn" @click="refundOpen=false">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <div class="adm-modal-body flex flex-col gap-4">
+        <div>
+          <label class="ec-label">المنشأة</label>
+          <select class="ec-input" x-model="refundForm.tenantId">
+            <option value="">اختر منشأة…</option>
+            <template x-for="t in tenantOptions" :key="t.id">
+              <option :value="t.id" x-text="t.name"></option>
+            </template>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="ec-label">المبلغ</label>
+            <input type="number" class="ec-input font-latin" placeholder="0.00" x-model.number="refundForm.amount" min="0" step="0.01" />
+          </div>
+          <div>
+            <label class="ec-label">العملة</label>
+            <select class="ec-input" x-model="refundForm.currency">
+              <option value="SAR">ريال سعودي (SAR)</option>
+              <option value="EGP">جنيه مصري (EGP)</option>
+              <option value="AED">درهم إماراتي (AED)</option>
+              <option value="USD">دولار أمريكي (USD)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="ec-label">السبب</label>
+          <input type="text" class="ec-input" placeholder="مثال: إلغاء اشتراك، خطأ في الفوترة…" x-model="refundForm.reason" />
+        </div>
+        <div>
+          <label class="ec-label">المرجع <span class="font-normal text-neutral-400">(اختياري)</span></label>
+          <input type="text" class="ec-input font-latin" placeholder="REF-XXXX أو رقم معاملة المزوّد" x-model="refundForm.reference" />
+        </div>
+      </div>
+      <div class="adm-modal-foot">
+        <button
+          class="adm-btn adm-btn-danger-solid adm-btn-sm"
+          :disabled="!refundForm.tenantId || !refundForm.amount || !refundForm.reason"
+          @click="submitRefund()"
+        >
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h10M7 2L3 6l4 4M13 10v2a2 2 0 01-2 2H5"/></svg>
+          تسجيل الاسترداد
+        </button>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="refundOpen=false">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== MODAL: إصدار فاتورة مخصّصة ======================== -->
+  <div class="adm-overlay" x-show="customOpen" x-cloak x-transition.opacity @click.self="customOpen=false">
+    <div class="adm-modal" style="max-width:680px" x-show="customOpen" x-transition>
+      <div class="adm-modal-head">
+        <div class="font-bold text-primary-800">إصدار فاتورة مخصّصة</div>
+        <button class="adm-icon-btn" @click="customOpen=false">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+      <div class="adm-modal-body flex flex-col gap-4">
+        <!-- Tenant + Provider -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="ec-label">المنشأة</label>
+            <select class="ec-input" x-model="customForm.tenantId">
+              <option value="">اختر منشأة…</option>
+              <template x-for="t in tenantOptions" :key="t.id">
+                <option :value="t.id" x-text="t.name"></option>
+              </template>
+            </select>
+          </div>
+          <div>
+            <label class="ec-label">المزوّد</label>
+            <select class="ec-input" x-model="customForm.providerKey">
+              <option value="manual">يدوي</option>
+              <option value="stripe">سترايب</option>
+              <option value="paymob">باي‌موب</option>
+              <option value="paytabs">باي‌تابس</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Line items -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="ec-label mb-0">بنود الفاتورة</label>
+            <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="addLineItem()">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 3v10M3 8h10"/></svg>
+              إضافة بند
+            </button>
+          </div>
+          <div class="border border-neutral-200 rounded-lg overflow-hidden">
+            <table class="adm-table text-xs">
+              <thead>
+                <tr>
+                  <th class="w-1/2">الوصف</th>
+                  <th class="w-1/6 text-center">الكمية</th>
+                  <th class="w-1/4 text-center">سعر الوحدة</th>
+                  <th class="w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="(li, idx) in customForm.lineItems" :key="idx">
+                  <tr>
+                    <td class="pe-1"><input type="text" class="ec-input text-xs" placeholder="وصف الخدمة أو الاشتراك…" x-model="li.description" /></td>
+                    <td class="px-1"><input type="number" class="ec-input text-xs font-latin text-center" min="1" x-model.number="li.quantity" @input="calcCustomTotal()" /></td>
+                    <td class="px-1"><input type="number" class="ec-input text-xs font-latin" min="0" step="0.01" placeholder="0.00" x-model.number="li.unitAmount" @input="calcCustomTotal()" /></td>
+                    <td class="ps-1">
+                      <button
+                        class="text-danger hover:bg-red-50 w-7 h-7 flex items-center justify-center rounded transition"
+                        @click="removeLineItem(idx)"
+                        :disabled="customForm.lineItems.length <= 1"
+                        :class="customForm.lineItems.length <= 1 ? 'opacity-30 cursor-not-allowed' : ''"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tax + Due + Currency -->
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="ec-label">نسبة الضريبة (٪)</label>
+            <input type="number" class="ec-input font-latin" min="0" max="100" step="1" placeholder="14" x-model.number="customForm.taxRatePct" @input="calcCustomTotal()" />
+          </div>
+          <div>
+            <label class="ec-label">تاريخ الاستحقاق</label>
+            <input type="date" class="ec-input font-latin" x-model="customForm.dueAt" />
+          </div>
+          <div>
+            <label class="ec-label">العملة</label>
+            <select class="ec-input" x-model="customForm.currency">
+              <option value="SAR">SAR — ريال سعودي</option>
+              <option value="EGP">EGP — جنيه مصري</option>
+              <option value="AED">AED — درهم إماراتي</option>
+              <option value="USD">USD — دولار أمريكي</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Live total -->
+        <div class="bg-primary-50 border border-primary-100 rounded-xl p-4 flex flex-col gap-1.5 text-sm">
+          <div class="flex justify-between text-neutral-600">
+            <span>المجموع قبل الضريبة</span>
+            <span class="font-latin font-semibold" x-text="fmtMoney(customTotals.subtotal, customForm.currency)"></span>
+          </div>
+          <div class="flex justify-between text-neutral-600">
+            <span>الضريبة (<span x-text="customForm.taxRatePct || 0"></span>٪)</span>
+            <span class="font-latin font-semibold" x-text="fmtMoney(customTotals.tax, customForm.currency)"></span>
+          </div>
+          <div class="flex justify-between text-primary-800 font-bold border-t border-primary-200 pt-2 mt-1 text-base">
+            <span>الإجمالي الكلي</span>
+            <span class="font-latin" x-text="fmtMoney(customTotals.total, customForm.currency)"></span>
+          </div>
+        </div>
+      </div>
+      <div class="adm-modal-foot">
+        <button
+          class="adm-btn adm-btn-gold adm-btn-sm"
+          :disabled="!customForm.tenantId || customTotals.total <= 0"
+          @click="submitCustomInvoice()"
+        >
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h7l3 3v9H3zM10 2v4h3"/><path d="M5 10.5h6M5 8h4"/></svg>
+          إصدار الفاتورة
+        </button>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="customOpen=false">إلغاء</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function invoices() {
+  /* ── demo data (helpers fmtNum/fmtMoney/fmtDate/fmtDateTime/timeAgo provided globally by the shell) ── */
+  const D = (daysAgo) => new Date(Date.now() - daysAgo * 86400e3).toISOString();
+
+  const allInvoices = [
+    { id:'inv-001', ref:'INV-2026-001', tenant:'دار العقارية', providerKey:'stripe', providerReference:'pi_3NxT2F2eZvKYlo2C', amount:1840, taxAmount:240, taxRate:0.15, currency:'SAR', status:'paid', issuedAt:D(45), paidAt:D(43), dueAt:D(38), einvoiceStatus:'accepted', einvoiceSystem:'zatca', paymentProofUploadId:null, lineItems:[{description:'اشتراك Professional — مايو 2026',quantity:1,unitAmount:1600,currency:'SAR'}] },
+    { id:'inv-002', ref:'INV-2026-002', tenant:'مفاتيح الخليج', providerKey:'manual', providerReference:null, amount:920, taxAmount:120, taxRate:0.15, currency:'SAR', status:'open', issuedAt:D(12), paidAt:null, dueAt:D(-5), einvoiceStatus:'none', einvoiceSystem:null, paymentProofUploadId:'upl-abc123', lineItems:[{description:'اشتراك Starter — يونيو 2026',quantity:1,unitAmount:800,currency:'SAR'}] },
+    { id:'inv-003', ref:'INV-2026-003', tenant:'النخبة للتسويق', providerKey:'paymob', providerReference:'paymob_tx_88821', amount:3680, taxAmount:480, taxRate:0.15, currency:'SAR', status:'paid', issuedAt:D(30), paidAt:D(29), dueAt:D(22), einvoiceStatus:'submitted', einvoiceSystem:'eta', paymentProofUploadId:null, lineItems:[{description:'اشتراك Enterprise — مايو 2026',quantity:1,unitAmount:3200,currency:'SAR'}] },
+    { id:'inv-004', ref:'INV-2026-004', tenant:'عقارات المستقبل', providerKey:'stripe', providerReference:'pi_4KzA1G3fAwLZmp3D', amount:3680, taxAmount:480, taxRate:0.15, currency:'SAR', status:'void', issuedAt:D(20), paidAt:null, dueAt:D(13), einvoiceStatus:'none', einvoiceSystem:null, paymentProofUploadId:null, lineItems:[{description:'اشتراك Enterprise — ملغى قبل الإصدار',quantity:1,unitAmount:3200,currency:'SAR'}] },
+    { id:'inv-005', ref:'INV-2026-005', tenant:'أحمد الراشد', providerKey:'manual', providerReference:null, amount:460, taxAmount:60, taxRate:0.15, currency:'SAR', status:'open', issuedAt:D(8), paidAt:null, dueAt:D(-2), einvoiceStatus:'none', einvoiceSystem:null, paymentProofUploadId:null, lineItems:[{description:'اشتراك Starter — يونيو 2026',quantity:1,unitAmount:400,currency:'SAR'}] },
+    { id:'inv-006', ref:'INV-2026-006', tenant:'بيت الاستثمار', providerKey:'paytabs', providerReference:'PT-TXN-55901', amount:2300, taxAmount:300, taxRate:0.15, currency:'SAR', status:'paid', issuedAt:D(60), paidAt:D(58), dueAt:D(53), einvoiceStatus:'accepted', einvoiceSystem:'zatca', paymentProofUploadId:null, lineItems:[{description:'اشتراك Professional — أبريل 2026',quantity:1,unitAmount:2000,currency:'SAR'}] },
+    { id:'inv-007', ref:'INV-2026-007', tenant:'سكن للتطوير', providerKey:'manual', providerReference:null, amount:1150, taxAmount:150, taxRate:0.15, currency:'SAR', status:'open', issuedAt:D(5), paidAt:null, dueAt:D(10), einvoiceStatus:'none', einvoiceSystem:null, paymentProofUploadId:'upl-def456', lineItems:[{description:'اشتراك Professional — يونيو 2026',quantity:1,unitAmount:1000,currency:'SAR'}] },
+    { id:'inv-008', ref:'INV-2026-008', tenant:'الوطنية للعقار', providerKey:'stripe', providerReference:'pi_5LmB2H4gBxMaqn4E', amount:920, taxAmount:120, taxRate:0.15, currency:'SAR', status:'uncollectible', issuedAt:D(90), paidAt:null, dueAt:D(83), einvoiceStatus:'rejected', einvoiceSystem:'eta', paymentProofUploadId:null, lineItems:[{description:'اشتراك Starter — مارس 2026',quantity:1,unitAmount:800,currency:'SAR'}] },
+    { id:'inv-009', ref:'INV-2026-009', tenant:'ذهب للوساطة', providerKey:'paymob', providerReference:'paymob_tx_99101', amount:4600, taxAmount:600, taxRate:0.15, currency:'EGP', status:'paid', issuedAt:D(15), paidAt:D(14), dueAt:D(8), einvoiceStatus:'submitted', einvoiceSystem:'eta', paymentProofUploadId:null, lineItems:[{description:'اشتراك Enterprise — يونيو 2026',quantity:1,unitAmount:4000,currency:'EGP'}] },
+    { id:'inv-010', ref:'INV-2026-010', tenant:'البوابة العقارية', providerKey:'manual', providerReference:null, amount:1150, taxAmount:150, taxRate:0.15, currency:'SAR', status:'open', issuedAt:D(3), paidAt:null, dueAt:D(12), einvoiceStatus:'none', einvoiceSystem:null, paymentProofUploadId:'upl-ghi789', lineItems:[{description:'اشتراك Professional — يونيو 2026',quantity:1,unitAmount:1000,currency:'SAR'}] },
+    { id:'inv-011', ref:'INV-2026-011', tenant:'أرض ومبنى', providerKey:'paytabs', providerReference:'PT-TXN-66122', amount:1058, taxAmount:138, taxRate:0.15, currency:'AED', status:'paid', issuedAt:D(25), paidAt:D(24), dueAt:D(18), einvoiceStatus:'none', einvoiceSystem:null, paymentProofUploadId:null, lineItems:[{description:'اشتراك Starter — مايو 2026',quantity:1,unitAmount:920,currency:'AED'}] },
+    { id:'inv-012', ref:'INV-2026-012', tenant:'مدينة الخدمات', providerKey:'stripe', providerReference:'pi_6NnC3I5hCyNbro5F', amount:3680, taxAmount:480, taxRate:0.15, currency:'SAR', status:'paid', issuedAt:D(10), paidAt:D(9), dueAt:D(3), einvoiceStatus:'accepted', einvoiceSystem:'zatca', paymentProofUploadId:null, lineItems:[{description:'اشتراك Enterprise — يونيو 2026',quantity:1,unitAmount:3200,currency:'SAR'}] },
+  ];
+
+  const refundsData = [
+    { id:'ref-001', tenant:'عقارات المستقبل', amount:3680, currency:'SAR', reason:'إلغاء الاشتراك قبل بدء الفترة الفوترية', reference:'pi_4KzA1G3fAwLZmp3D', createdAt:D(18) },
+    { id:'ref-002', tenant:'الوطنية للعقار', amount:460, currency:'SAR', reason:'خطأ في الفوترة — تكرار الخصم', reference:'CB-2026-884', createdAt:D(75) },
+    { id:'ref-003', tenant:'مفاتيح الخليج', amount:200, currency:'SAR', reason:'استرداد جزئي بعد تسوية النزاع', reference:'REF-2026-003', createdAt:D(5) },
+  ];
+
+  const tenantOptions = [
+    { id:'t-001', name:'دار العقارية' },
+    { id:'t-002', name:'مفاتيح الخليج' },
+    { id:'t-003', name:'النخبة للتسويق' },
+    { id:'t-004', name:'عقارات المستقبل' },
+    { id:'t-005', name:'أحمد الراشد' },
+    { id:'t-006', name:'بيت الاستثمار' },
+    { id:'t-007', name:'سكن للتطوير' },
+    { id:'t-008', name:'البوابة العقارية' },
+  ];
+
+  return {
+    /* ── state ── */
+    tab: 'all',
+    statusFilter: 'all',
+    searchQ: '',
+    page: 1,
+    pageSize: 8,
+
+    /* modal state */
+    detailOpen: false,
+    selectedInv: null,
+    verifyOpen: false,
+    verifyInv: null,
+    verifyAction: '',
+    verifyNote: '',
+    refundOpen: false,
+    refundForm: { tenantId:'', amount:0, currency:'SAR', reason:'', reference:'' },
+    customOpen: false,
+    customForm: {
+      tenantId: '',
+      providerKey: 'manual',
+      currency: 'SAR',
+      taxRatePct: 15,
+      dueAt: new Date(Date.now() + 30*86400e3).toISOString().slice(0,10),
+      lineItems: [{ description:'', quantity:1, unitAmount:0 }],
+    },
+    customTotals: { subtotal:0, tax:0, total:0 },
+
+    /* data */
+    allInvoices,
+    refunds: refundsData,
+    tenantOptions,
+
+    /* ── computed ── */
+    get kpi() {
+      const paid = this.allInvoices.filter(i => i.status === 'paid');
+      return {
+        totalCollected: paid.reduce((s, i) => s + i.amount, 0),
+        openInvoices: this.allInvoices.filter(i => i.status === 'open').length,
+        pendingVerify: this.pendingInvoices.length,
+      };
+    },
+    get pendingInvoices() {
+      return this.allInvoices.filter(i => i.providerKey === 'manual' && i.status === 'open');
+    },
+    get statusFilters() {
+      return [
+        { val:'all',           label:'الكل' },
+        { val:'open',          label:'مفتوحة' },
+        { val:'paid',          label:'مدفوعة' },
+        { val:'void',          label:'ملغاة' },
+        { val:'uncollectible', label:'غير قابلة للتحصيل' },
+      ];
+    },
+    get filteredInvoices() {
+      let list = this.allInvoices;
+      if (this.statusFilter !== 'all') list = list.filter(i => i.status === this.statusFilter);
+      if (this.searchQ.trim()) {
+        const q = this.searchQ.trim();
+        list = list.filter(i => i.ref.includes(q) || i.tenant.includes(q));
+      }
+      return list;
+    },
+    get pagedInvoices() {
+      const s = (this.page - 1) * this.pageSize;
+      return this.filteredInvoices.slice(s, s + this.pageSize);
+    },
+    get totalPages() {
+      return Math.max(1, Math.ceil(this.filteredInvoices.length / this.pageSize));
+    },
+
+    /* ── helpers ── */
+    fmtNum,
+    fmtMoney,
+    fmtDate,
+
+    /* ── label / class helpers ── */
+    providerLabel(k) {
+      return { stripe:'سترايب', paymob:'باي‌موب', paytabs:'باي‌تابس', manual:'يدوي' }[k] || k || '—';
+    },
+    providerClass(k) {
+      return { stripe:'b-info', paymob:'b-accent', paytabs:'b-neutral', manual:'b-warning' }[k] || 'b-neutral';
+    },
+    invStatusLabel(s) {
+      return { open:'مفتوحة', paid:'مدفوعة', void:'ملغاة', uncollectible:'غير قابلة للتحصيل' }[s] || s;
+    },
+    invStatusClass(s) {
+      return { open:'b-warning', paid:'b-success', void:'b-neutral', uncollectible:'b-danger' }[s] || 'b-neutral';
+    },
+    einvLabel(s, sys) {
+      const sl = { none:'بلا فوترة', submitted:'مُرسلة', accepted:'مقبولة', rejected:'مرفوضة' }[s] || s;
+      if (!sys || s === 'none') return sl;
+      const sysl = { eta:'هيئة الزكاة', zatca:'زاتكا' }[sys] || sys;
+      return sl + ' · ' + sysl;
+    },
+    einvClass(s) {
+      return { none:'b-neutral', submitted:'b-info', accepted:'b-success', rejected:'b-danger' }[s] || 'b-neutral';
+    },
+
+    /* ── actions ── */
+    openDetail(inv) {
+      this.selectedInv = inv;
+      this.detailOpen = true;
+    },
+    openVerifyModal(inv) {
+      this.verifyInv = inv;
+      this.verifyAction = '';
+      this.verifyNote = '';
+      this.verifyOpen = true;
+    },
+    submitVerify() {
+      if (!this.verifyAction) return;
+      const inv = this.allInvoices.find(i => i.id === this.verifyInv.id);
+      if (inv && this.verifyAction === 'approve') {
+        inv.status = 'paid';
+        inv.paidAt = new Date().toISOString();
+      }
+      /* POST /admin/billing/invoices/:id/verify { approve: verifyAction==='approve', note: verifyNote } */
+      this.verifyOpen = false;
+    },
+    openRefundModal() {
+      this.refundForm = { tenantId:'', amount:0, currency:'SAR', reason:'', reference:'' };
+      this.refundOpen = true;
+    },
+    submitRefund() {
+      if (!this.refundForm.tenantId || !this.refundForm.amount || !this.refundForm.reason) return;
+      const tenantName = (this.tenantOptions.find(t => t.id === this.refundForm.tenantId) || {}).name || '';
+      this.refunds.unshift({
+        id: 'ref-' + Date.now(),
+        tenant: tenantName,
+        amount: this.refundForm.amount,
+        currency: this.refundForm.currency,
+        reason: this.refundForm.reason,
+        reference: this.refundForm.reference || null,
+        createdAt: new Date().toISOString(),
+      });
+      /* POST /admin/billing/refunds */
+      this.refundOpen = false;
+    },
+    openCustomModal() {
+      this.customForm = {
+        tenantId: '',
+        providerKey: 'manual',
+        currency: 'SAR',
+        taxRatePct: 15,
+        dueAt: new Date(Date.now() + 30*86400e3).toISOString().slice(0,10),
+        lineItems: [{ description:'', quantity:1, unitAmount:0 }],
+      };
+      this.customTotals = { subtotal:0, tax:0, total:0 };
+      this.customOpen = true;
+    },
+    addLineItem() {
+      this.customForm.lineItems.push({ description:'', quantity:1, unitAmount:0 });
+    },
+    removeLineItem(idx) {
+      if (this.customForm.lineItems.length > 1) {
+        this.customForm.lineItems.splice(idx, 1);
+        this.calcCustomTotal();
+      }
+    },
+    calcCustomTotal() {
+      const subtotal = this.customForm.lineItems.reduce((s, li) => s + (li.quantity || 0) * (li.unitAmount || 0), 0);
+      const taxRate  = (this.customForm.taxRatePct || 0) / 100;
+      const tax      = subtotal * taxRate;
+      this.customTotals = { subtotal, tax, total: subtotal + tax };
+    },
+    submitCustomInvoice() {
+      if (!this.customForm.tenantId || this.customTotals.total <= 0) return;
+      const tenantName = (this.tenantOptions.find(t => t.id === this.customForm.tenantId) || {}).name || '';
+      const seq = String(this.allInvoices.length + 1).padStart(3, '0');
+      this.allInvoices.unshift({
+        id: 'inv-' + Date.now(),
+        ref: 'INV-2026-' + seq,
+        tenant: tenantName,
+        providerKey: this.customForm.providerKey,
+        providerReference: null,
+        amount: Math.round(this.customTotals.total * 100) / 100,
+        taxAmount: Math.round(this.customTotals.tax * 100) / 100,
+        taxRate: (this.customForm.taxRatePct || 0) / 100,
+        currency: this.customForm.currency,
+        status: 'open',
+        issuedAt: new Date().toISOString(),
+        paidAt: null,
+        dueAt: new Date(this.customForm.dueAt).toISOString(),
+        einvoiceStatus: 'none',
+        einvoiceSystem: null,
+        paymentProofUploadId: null,
+        lineItems: this.customForm.lineItems.map(li => ({ ...li, currency: this.customForm.currency })),
+      });
+      /* POST /admin/billing/invoices/custom */
+      this.statusFilter = 'all';
+      this.page = 1;
+      this.customOpen = false;
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<script>
+  // ===== Shared platform shell component (sidebar + topbar) =====
+  // Operational alerts are DERIVED from real endpoints (no admin-notifications backend exists):
+  //   pending manual invoices (/admin/billing/invoices/pending) · queue failures (/admin/platform/queues)
+  //   · expiring trials (/admin/tenants?status=trial) · recently suspended (/admin/tenants?status=suspended)
+  function shell() {
+    const ICO = {
+      invoice:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h8v12l-2-1-2 1-2-1-2 1z"/><path d="M6 6h4M6 9h4"/></svg>',
+      queue:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l6 3.5v6L8 14.5 2 11V5z"/><path d="M8 5v3.5M8 11v.3" stroke-linecap="round"/></svg>',
+      trial:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></svg>',
+      suspend:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.5"/><path d="M5.5 5.5l5 5"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false,
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.invoice, title:'٣ فواتير بانتظار التحقق اليدوي', desc:'تحتاج اعتماد أو رفض', href:'invoices.html' },
+        { id:2, tone:'danger',  icon:ICO.queue,   title:'وظيفتان فشلتا في طابور البريد', desc:'راجع صحة الطوابير', href:'dashboard.html' },
+        { id:3, tone:'info',    icon:ICO.trial,   title:'٥ تجارب تنتهي خلال ٣ أيام', desc:'منشآت قد تحتاج متابعة', href:'tenants.html' },
+        { id:4, tone:'danger',  icon:ICO.suspend, title:'منشأة موقوفة حديثاً', desc:'عقارات المستقبل — عدم سداد', href:'tenant-detail.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'invoices';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.adm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'USD',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable JSON tree viewer → HTML string (collapsible via native <details>, syntax-highlighted) =====
+  function jsonTreeHtml(value){
+    const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const prim = v => {
+      if (v === null) return '<span class="jv-null">null</span>';
+      const t = typeof v;
+      if (t === 'number')  return '<span class="jv-num">'+v+'</span>';
+      if (t === 'boolean') return '<span class="jv-bool">'+v+'</span>';
+      return '<span class="jv-str">"'+esc(v)+'"</span>';
+    };
+    const keyHtml = (k, parent) => {
+      if (parent === 'root')  return '';
+      if (parent === 'array') return '<span class="jv-idx">'+k+'</span><span class="jv-punc">: </span>';
+      return '<span class="jv-key">"'+esc(k)+'"</span><span class="jv-punc">: </span>';
+    };
+    const node = (k, v, parent) => {
+      const kh = keyHtml(k, parent);
+      if (v !== null && typeof v === 'object') {
+        const isA = Array.isArray(v);
+        const keys = isA ? v.map((_,i)=>i) : Object.keys(v);
+        const open = isA ? '[' : '{', close = isA ? ']' : '}';
+        if (keys.length === 0) return '<div class="jv-row">'+kh+'<span class="jv-punc">'+open+close+'</span></div>';
+        const unit = isA ? 'عنصر' : 'حقل';
+        const children = keys.map(kk => node(kk, v[kk], isA?'array':'object')).join('');
+        return '<details class="jv-node" open><summary class="jv-row">'+kh+'<span class="jv-punc">'+open+'</span>'
+             + '<span class="jv-count">'+keys.length+' '+unit+'</span><span class="jv-ellipsis"> … '+close+'</span></summary>'
+             + '<div class="jv-children">'+children+'</div>'
+             + '<div class="jv-row jv-close"><span class="jv-punc">'+close+'</span></div></details>';
+      }
+      return '<div class="jv-row">'+kh+prim(v)+'</div>';
+    };
+    return '<div class="jv-root">'+node(null, value, 'root')+'</div>';
+  }
+</script>
+</body>
+</html>

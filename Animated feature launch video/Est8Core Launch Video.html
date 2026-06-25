@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Est8Core — فيديو الإطلاق</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="preload" as="image" href="est8-logo.png" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; background: #060F1E; overflow: hidden; }
+  #root { position: fixed; inset: 0; }
+  #sound-btn {
+    position: fixed; top: 18px; left: 18px; z-index: 9999;
+    display: flex; align-items: center; gap: 9px; padding: 10px 16px;
+    background: rgba(11,31,58,0.85); border: 1px solid rgba(200,162,75,0.4);
+    border-radius: 999px; color: #F7F3EA; cursor: pointer;
+    font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 14px; font-weight: 600;
+    direction: rtl; backdrop-filter: blur(6px); transition: all .2s; user-select: none;
+  }
+  #sound-btn:hover { border-color: #C8A24B; background: rgba(11,31,58,0.95); }
+  #sound-btn.muted { animation: sbpulse 1.8s ease-in-out infinite; }
+  @keyframes sbpulse { 0%,100% { box-shadow: 0 0 0 0 rgba(200,162,75,0.0); } 50% { box-shadow: 0 0 0 6px rgba(200,162,75,0.18); } }
+</style>
+</head>
+<body>
+<div id="root" data-screen-label="00:00"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="audio.js"></script>
+<script src="voiceover.js"></script>
+
+<script type="text/babel" src="animations.jsx"></script>
+<script type="text/babel" src="brand.jsx"></script>
+<script type="text/babel" src="screens.jsx"></script>
+<script type="text/babel" src="scenes-intro.jsx"></script>
+<script type="text/babel" src="scenes-mktg.jsx"></script>
+<script type="text/babel" src="scenes-social.jsx"></script>
+<script type="text/babel" src="scenes-a.jsx"></script>
+<script type="text/babel" src="scenes-b.jsx"></script>
+
+<script type="text/babel">
+const { useEffect, useRef, useState } = React;
+
+const SFX = [
+  { t: 0.20, n: 'riser' }, { t: 1.60, n: 'chime' }, { t: 3.85, n: 'whoosh' },
+  { t: 9.55, n: 'whoosh' },
+  { t: 13.95, n: 'whoosh' }, { t: 15.40, n: 'pop' }, { t: 16.50, n: 'ding' },
+  { t: 20.15, n: 'whoosh' }, { t: 23.95, n: 'pop' }, { t: 24.20, n: 'pop' }, { t: 24.45, n: 'pop' },
+  { t: 26.75, n: 'whoosh' }, { t: 29.00, n: 'pop' },
+  { t: 31.95, n: 'whoosh' }, { t: 34.70, n: 'ding' },
+  { t: 37.55, n: 'whoosh' }, { t: 38.30, n: 'pop' }, { t: 38.55, n: 'pop' }, { t: 38.80, n: 'pop' }, { t: 39.05, n: 'pop' },
+  { t: 43.95, n: 'whoosh' }, { t: 44.60, n: 'pop' }, { t: 44.85, n: 'pop' }, { t: 45.10, n: 'pop' }, { t: 45.35, n: 'pop' },
+  { t: 49.15, n: 'whoosh' }, { t: 49.95, n: 'pop' }, { t: 50.30, n: 'pop' }, { t: 50.65, n: 'pop' },
+  { t: 55.30, n: 'riser' }, { t: 56.55, n: 'impact' }, { t: 57.30, n: 'chime' },
+];
+
+const VO = [
+  { t: 0.7,  x: 'إست إيت كور. منصة الوساطة العقارية الذكية.' },
+  { t: 4.3,  x: 'في سوق العقارات، كل ثانية بتفرق. بس العملاء بيتبعتروا بين الواتساب، والإكسيل، والورق، وصفقات كتير بتضيع.' },
+  { t: 10.0, x: 'تخيّل كل ده في مكان واحد.' },
+  { t: 14.5, x: 'كل عميل بيتسجّل تلقائياً، ويتوزّع على الوكيل المناسب، وتتابع رحلته من أول استفسار لحد إغلاق الصفقة.' },
+  { t: 20.7, x: 'والعمولات، والأقساط، والموافقات، كلها بتتحسب وتتوثّق تلقائياً، من غير أخطاء.' },
+  { t: 27.3, x: 'فروع، وفِرق، ووكلاء. كل واحد يشوف نطاقه، والمدير يشوف الصورة كاملة.' },
+  { t: 32.5, x: 'وكل أرقامك حيّة قدامك، لحظة بلحظة.' },
+  { t: 38.1, x: 'متعدّد الفروع، عربي بالكامل، آمن، وسهل إن أي فريق يبدأ بيه.' },
+  { t: 44.4, x: 'وقبل ما نطلق رسمياً، الثقة بدأت تكبر. مئات الشركات والوكلاء مستنيين.' },
+  { t: 49.5, x: 'وده اللي بيقولوه اللي جرّبوه بدري.' },
+  { t: 55.8, x: 'إست إيت كور. قريباً. كن أول من يجرّبها.' },
+];
+
+function Backdrop() {
+  const time = useTime();
+  const gx = 50 + Math.sin(time * 0.18) * 18;
+  const gy = 42 + Math.cos(time * 0.14) * 12;
+  return (
+    <div style={{ position:'absolute', inset:0, overflow:'hidden' }}>
+      <div style={{ position:'absolute', inset:0, background:`radial-gradient(circle at ${gx}% ${gy}%, #14304F 0%, ${E8.navy} 46%, ${E8.navy900} 100%)` }} />
+      <div style={{ position:'absolute', inset:0, background:`radial-gradient(120% 80% at 50% 120%, rgba(200,162,75,0.07), transparent 55%)` }} />
+      <div style={{ position:'absolute', inset:0, boxShadow:'inset 0 0 320px rgba(4,10,20,0.7)' }} />
+    </div>
+  );
+}
+
+function TimeLabel() {
+  const time = useTime();
+  useEffect(() => {
+    const m = Math.floor(time / 60), s = Math.floor(time % 60);
+    document.getElementById('root').setAttribute('data-screen-label', `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
+  }, [Math.floor(time)]);
+  return null;
+}
+
+function AudioConductor() {
+  const { time, playing } = useTimeline();
+  const prev = useRef(time);
+  useEffect(() => { E8Audio.setPlaying(playing); }, [playing]);
+  useEffect(() => {
+    const p = prev.current; prev.current = time;
+    if (!playing) return;
+    if (time < p || time - p > 1.0) return; // seek/loop guard
+    for (const ev of SFX) if (ev.t > p && ev.t <= time) E8Audio.sfx(ev.n);
+    for (const ev of VO)  if (ev.t > p && ev.t <= time) E8VO.speak(ev.x);
+  }, [time, playing]);
+  return null;
+}
+
+function Video() {
+  return (
+    <Stage width={1920} height={1080} duration={62} background={E8.navy} persistKey="est8core-launch-v5">
+      <Backdrop />
+      <TimeLabel />
+      <AudioConductor />
+      <Sprite start={0}    end={4.3}>  <SceneIntro /></Sprite>
+      <Sprite start={3.9}  end={10.1}> <SceneHook /></Sprite>
+      <Sprite start={9.6}  end={14.5}> <SceneValue /></Sprite>
+      <Sprite start={14.0} end={20.7}> <SceneKanban /></Sprite>
+      <Sprite start={20.2} end={27.3}> <SceneDeal /></Sprite>
+      <Sprite start={26.8} end={32.5}> <SceneTeams /></Sprite>
+      <Sprite start={32.0} end={38.1}> <SceneDashboard /></Sprite>
+      <Sprite start={37.6} end={44.4}> <SceneFeatures /></Sprite>
+      <Sprite start={44.0} end={49.6}> <SceneStats /></Sprite>
+      <Sprite start={49.2} end={55.8}> <SceneTestimonials /></Sprite>
+      <Sprite start={55.4} end={62.0}> <SceneComingSoon /></Sprite>
+    </Stage>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Video />);
+
+// ── sound toggle (outside React canvas, fixed) ──────────────────────────────
+(function () {
+  const btn = document.createElement('div');
+  btn.id = 'sound-btn'; btn.className = 'muted';
+  const render = (muted) => {
+    btn.innerHTML = muted
+      ? '<span style="font-size:16px">🔇</span><span>تشغيل الصوت</span>'
+      : '<span style="font-size:16px">🔊</span><span>الصوت يعمل</span>';
+    btn.classList.toggle('muted', muted);
+  };
+  render(true);
+  btn.addEventListener('click', () => {
+    E8Audio.ensure(); E8Audio.resume();
+    const next = !E8Audio.isMuted();
+    E8Audio.setMuted(next);
+    E8VO.setEnabled(!next);
+    render(next);
+  });
+  document.body.appendChild(btn);
+  // btn.click();
+  // resume context on any gesture (keeps mute state)
+  const wake = () => { E8Audio.ensure(); E8Audio.resume(); };
+  window.addEventListener('keydown', wake, { once: false });
+  window.addEventListener('pointerdown', wake, { once: false });
+})();
+</script>
+</body>
+</html>
