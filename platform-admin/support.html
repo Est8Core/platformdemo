@@ -213,16 +213,25 @@
     .crm-win-grip.bl::after { left:4px; right:auto; border-right:0; border-left:2px solid #C0C8D8; border-radius:0 0 0 4px; }
     .crm-win.max .crm-win-grip { display:none; }
     .crm-dragmask { position:fixed; inset:0; z-index:300; }
-    /* Vertical dock (left edge) — open windows */
-    .crm-dock { position:fixed; left:.85rem; top:50%; transform:translateY(-50%); z-index:64; display:flex; flex-direction:column; gap:.45rem; background:#0B1F3A; padding:.5rem; border-radius:16px; box-shadow:0 14px 40px rgba(6,15,30,.34); border:1px solid rgba(255,255,255,.06); }
-    .crm-dock-item { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; color:#A9C0DD; cursor:pointer; position:relative; font-weight:800; font-size:.82rem; background:rgba(255,255,255,.05); transition:.15s; }
-    .crm-dock-item:hover { background:rgba(255,255,255,.13); color:#fff; transform:scale(1.06); }
-    .crm-dock-item.active { background:rgba(200,162,75,.22); color:#fff; box-shadow:inset 0 0 0 1.5px #C8A24B; }
-    .crm-dock-item.min { opacity:.5; }
-    .crm-dock-tip { position:absolute; left:50px; top:50%; transform:translateY(-50%); white-space:nowrap; background:#0B1F3A; color:#fff; font-size:.72rem; font-weight:600; padding:.32rem .6rem; border-radius:7px; opacity:0; pointer-events:none; transition:.15s; box-shadow:0 6px 18px rgba(0,0,0,.3); }
-    .crm-dock-item:hover .crm-dock-tip { opacity:1; }
-    .crm-dock-x { position:absolute; top:-5px; right:-5px; width:17px; height:17px; background:#C0392B; color:#fff; border-radius:50%; display:none; align-items:center; justify-content:center; border:2px solid #0B1F3A; }
-    .crm-dock-item:hover .crm-dock-x { display:flex; }
+    /* Taskbar (bottom-center) — overlapping window pills that fan out + reveal titles on hover */
+    .crm-taskbar { position:fixed; left:50%; transform:translateX(-50%); bottom:1.1rem; z-index:90; display:flex; align-items:center; background:#0B1F3A; padding:.45rem .55rem; border-radius:16px; box-shadow:0 16px 46px rgba(6,15,30,.42); border:1px solid rgba(255,255,255,.08); max-width:92vw; }
+    .crm-taskbar::before { content:""; position:absolute; inset-inline-start:.9rem; top:-7px; width:24px; height:3px; border-radius:3px; background:rgba(255,255,255,.18); }
+    .crm-task { display:flex; align-items:center; gap:.5rem; height:44px; padding:0 .35rem; margin-inline-start:-18px; background:#15294b; border:1.5px solid #0B1F3A; border-radius:12px; cursor:pointer; flex-shrink:0; max-width:46px; overflow:hidden; transition:margin .22s cubic-bezier(.4,0,.2,1), max-width .26s cubic-bezier(.4,0,.2,1), background .15s, border-color .15s; }
+    .crm-task:first-child { margin-inline-start:0; }
+    .crm-taskbar:hover .crm-task { margin-inline-start:.35rem; max-width:230px; }
+    .crm-taskbar:hover .crm-task:first-child { margin-inline-start:0; }
+    .crm-task:hover { background:#1d3a64; }
+    .crm-task.active { max-width:230px; margin-inline-start:.35rem; background:#17325c; border-color:#C8A24B; }
+    .crm-task.active:first-child { margin-inline-start:0; }
+    .crm-task.min { opacity:.55; }
+    .crm-task-av { width:34px; height:34px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.74rem; background:rgba(200,162,75,.16); color:#E6CF9C; }
+    .crm-task.active .crm-task-av { background:#C8A24B; color:#0B1F3A; }
+    .crm-task-label { color:#fff; font-size:.78rem; font-weight:600; white-space:nowrap; opacity:0; transition:opacity .2s .04s; }
+    .crm-taskbar:hover .crm-task-label, .crm-task.active .crm-task-label { opacity:1; }
+    .crm-task-x { width:24px; height:24px; border-radius:7px; flex-shrink:0; color:rgba(255,255,255,.55); display:flex; align-items:center; justify-content:center; transition:.12s; }
+    .crm-task-x:hover { background:rgba(192,57,43,.9); color:#fff; }
+    .crm-taskbar-min { width:30px; height:36px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.5); cursor:pointer; border-radius:8px; margin-inline-start:.3rem; }
+    .crm-taskbar-min:hover { background:rgba(255,255,255,.1); color:#fff; }
   </style>
 </head>
 
@@ -1102,15 +1111,16 @@ function support() {
 <!-- drag/resize mask: captures the pointer while moving over iframes -->
 <div class="crm-dragmask" x-show="dragId" :style="dragMode==='resize' ? 'cursor:nwse-resize' : 'cursor:grabbing'"
      @mousemove="winMove($event)" @mouseup="winEnd()" @mouseleave="winEnd()" x-cloak></div>
-<!-- vertical dock of open windows -->
-<div class="crm-dock" x-show="windows.length" x-transition.opacity x-cloak>
-  <template x-for="w in windows" :key="'d'+w.id">
-    <div class="crm-dock-item" :class="{ active:!w.min && w.z===topZ, min:w.min }" @click="dockClick(w)" :title="w.title">
-      <span x-text="winInitials(w.title)"></span>
-      <span class="crm-dock-tip" x-text="w.title"></span>
-      <button class="crm-dock-x" @click.stop="closeWin(w.id)"><svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+<!-- taskbar: overlapping window pills (fan out + reveal titles on hover) -->
+<div class="crm-taskbar" x-show="windows.length" x-transition.opacity x-cloak>
+  <template x-for="w in windows" :key="'t'+w.id">
+    <div class="crm-task" :class="{ active:!w.min && w.z===topZ, min:w.min }" @click="dockClick(w)" :title="w.title">
+      <span class="crm-task-av" x-text="winInitials(w.title)"></span>
+      <span class="crm-task-label" x-text="w.title"></span>
+      <button class="crm-task-x" @click.stop="closeWin(w.id)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
     </div>
   </template>
+  <div class="crm-taskbar-min" @click="windows.forEach(w=>w.min=true)" title="تصغير الكل"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h10"/></svg></div>
 </div>
 
 <script>
@@ -1133,11 +1143,20 @@ function support() {
         const key = d.key || d.title || d.src;
         const ex = this.windows.find(w => w.key === key);
         if (ex){ ex.min=false; ex.z=++this.topZ; return; }
+        // Tile new windows in alternating left/right columns within the content area (left of the sidebar),
+        // so a 2nd window appears clearly BESIDE the 1st (not stacked on top → "looks like one window").
         const vw = window.innerWidth, vh = window.innerHeight;
-        const W = Math.min(960, Math.round(vw*0.72)), H = Math.min(640, Math.round(vh*0.80));
-        const k = this.windows.length % 7;
+        const sb = document.querySelector('.crm-sidebar, .adm-sidebar');
+        const rightEdge = sb ? Math.round(sb.getBoundingClientRect().left) : vw;
+        const leftEdge = 16, gutter = 16;
+        const avail = rightEdge - leftEdge;
+        const W = Math.min(560, Math.max(360, Math.round(avail/2) - gutter));
+        const H = Math.min(640, Math.round(vh*0.82));
+        const i = this.windows.length, col = i % 2, step = Math.floor(i/2) % 4;
+        const x = col === 0 ? (leftEdge + step*26) : Math.max(leftEdge, rightEdge - W - gutter - step*26);
+        const y = 54 + step*26;
         this.windows.push({ id:++this.winSeq, key, src:d.src, title:d.title, full:d.full,
-          min:false, max:false, z:++this.topZ, x:110 + k*38, y:64 + k*34, w:W, h:H });
+          min:false, max:false, z:++this.topZ, x, y, w:W, h:H });
       },
       focusWin(id){ const w=this.windows.find(x=>x.id===id); if(w && w.z!==this.topZ) w.z=++this.topZ; },
       minWin(id){ const w=this.windows.find(x=>x.id===id); if(w) w.min=true; },
