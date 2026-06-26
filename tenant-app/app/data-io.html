@@ -395,189 +395,759 @@
     </div>
   </div>
 
-  <!-- =================== TAB 1: EXPORT BUILDER =================== -->
+  <!-- =================== TAB 1: EXPORT =================== -->
   <div x-show="tab==='export'">
 
-    <!-- Step indicator -->
-    <div class="adm-card mb-4 p-4">
-      <div class="flex items-center gap-0">
-        <template x-for="(s, i) in exportSteps" :key="i">
-          <div class="flex items-center">
-            <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition"
-                   :class="exportStep>i ? 'bg-success text-white' : (exportStep===i ? 'bg-primary-800 text-white' : 'bg-neutral-100 text-neutral-400')">
-                <template x-if="exportStep>i">
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
-                </template>
-                <span x-show="exportStep<=i" x-text="i+1"></span>
-              </div>
-              <span class="text-sm font-semibold hidden sm:block" :class="exportStep===i?'text-primary-800':'text-neutral-400'" x-text="s"></span>
-            </div>
-            <div x-show="i<exportSteps.length-1" class="flex-1 h-0.5 mx-3 min-w-[2rem]" :class="exportStep>i?'bg-success':'bg-neutral-200'"></div>
+    <!-- ─── MODE: CHOICE ─── -->
+    <div x-show="exportMode===''">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-2">
+
+        <!-- Quick Export Card -->
+        <button @click="exportMode='quick'"
+                class="adm-card p-7 text-start flex flex-col gap-4 border-2 transition hover:border-primary-300 hover:shadow-md group"
+                style="border-color:#e5e7eb">
+          <div class="w-12 h-12 rounded-2xl bg-primary-50 flex items-center justify-center group-hover:bg-primary-100 transition">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0B1F3A" stroke-width="1.7"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </div>
-        </template>
-      </div>
-    </div>
-
-    <!-- Step 1: Entity -->
-    <div x-show="exportStep===0" class="adm-card p-6">
-      <h3 class="text-base font-bold text-primary-800 mb-4">اختر نوع البيانات</h3>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <template x-for="e in entities" :key="e.id">
-          <button @click="selectEntity(e)"
-                  class="flex flex-col items-center gap-3 p-5 rounded-xl border-2 text-center transition"
-                  :class="exportEntity===e.id ? 'border-primary-800 bg-primary-50' : 'border-neutral-200 hover:border-neutral-300 bg-white'">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center" :class="exportEntity===e.id?'bg-primary-800 text-white':'bg-neutral-100 text-neutral-600'" x-html="e.icon"></div>
-            <div>
-              <div class="font-bold text-sm" :class="exportEntity===e.id?'text-primary-800':'text-neutral-700'" x-text="e.label"></div>
-              <div class="text-xs text-neutral-400 mt-0.5" x-text="fmtNum(e.count) + ' سجل'"></div>
-            </div>
-          </button>
-        </template>
-      </div>
-      <div class="flex justify-end mt-5">
-        <button class="adm-btn adm-btn-primary" :disabled="!exportEntity" @click="exportStep=1">
-          التالي
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 2: Columns -->
-    <div x-show="exportStep===1" class="adm-card p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold text-primary-800">اختر الأعمدة</h3>
-        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="toggleAllCols()">
-          <span x-text="selectedCols.length === currentCols.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'"></span>
-        </button>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-        <template x-for="col in currentCols" :key="col.key">
-          <label class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition"
-                 :class="selectedCols.includes(col.key) ? 'border-primary-700 bg-primary-50' : 'border-neutral-200 hover:border-neutral-300'">
-            <input type="checkbox" :value="col.key" x-model="selectedCols" class="rounded" />
-            <span class="text-sm font-medium text-neutral-700" x-text="col.label"></span>
-          </label>
-        </template>
-      </div>
-      <p class="text-xs text-neutral-400 mt-3" x-text="selectedCols.length + ' عمود محدد'"></p>
-      <div class="flex justify-between mt-5">
-        <button class="adm-btn adm-btn-ghost" @click="exportStep=0">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
-          السابق
-        </button>
-        <button class="adm-btn adm-btn-primary" :disabled="!selectedCols.length" @click="exportStep=2">التالي <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg></button>
-      </div>
-    </div>
-
-    <!-- Step 3: Filters + Date Range -->
-    <div x-show="exportStep===2" class="adm-card p-6">
-      <h3 class="text-base font-bold text-primary-800 mb-4">تصفية البيانات (اختياري)</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <template x-for="f in currentFilters" :key="f.key">
           <div>
-            <label class="ec-label" x-text="f.label"></label>
-            <select x-model="exportFilters[f.key]" class="ec-input">
-              <option value="">الكل</option>
-              <template x-for="opt in f.options" :key="opt.value">
-                <option :value="opt.value" x-text="opt.label"></option>
-              </template>
-            </select>
+            <div class="text-lg font-bold text-primary-800 mb-1">تصدير سريع</div>
+            <div class="text-sm text-neutral-500 leading-relaxed">اختر الكيان والأعمدة وصدّر فوراً — ٥ خطوات بسيطة.</div>
           </div>
-        </template>
-        <div>
-          <label class="ec-label">تاريخ الإنشاء — من</label>
-          <input type="date" dir="ltr" x-model="exportDateFrom" class="ec-input font-latin" />
-        </div>
-        <div>
-          <label class="ec-label">تاريخ الإنشاء — إلى</label>
-          <input type="date" dir="ltr" x-model="exportDateTo" class="ec-input font-latin" />
-        </div>
-      </div>
-      <div class="flex justify-between mt-5">
-        <button class="adm-btn adm-btn-ghost" @click="exportStep=1"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
-        <button class="adm-btn adm-btn-primary" @click="loadPreview()">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3a5 5 0 100 10A5 5 0 008 3zM8 6v4M6 8h4"/></svg>
-          معاينة النتائج
+          <div class="flex items-center gap-1.5 text-primary-700 text-sm font-semibold mt-auto">
+            <span>ابدأ التصدير</span>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg>
+          </div>
+        </button>
+
+        <!-- Advanced Builder Card -->
+        <button @click="exportMode='advanced'; advStep=0; advTested=false; advTestResult=null; advBase=''; advJoins=[]; advCols=[]; advFilters=[]; advDateFrom=''; advDateTo=''; advDateCol='created_at'; advFormat='csv'"
+                class="adm-card p-7 text-start flex flex-col gap-4 border-2 transition group"
+                style="border-color:#C8A24B;background:linear-gradient(135deg,#fffbf0 0%,#fff8e6 100%)">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition" style="background:#C8A24B">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14v6M14.5 17h6"/></svg>
+          </div>
+          <div>
+            <div class="text-lg font-bold mb-1" style="color:#7A5C1A">منشئ التقارير المتقدّم</div>
+            <div class="text-sm leading-relaxed" style="color:#9A7530">ادمج كيانات متعددة، أضف فلاتر ديناميكية، واختبر النتائج قبل التصدير.</div>
+          </div>
+          <div class="flex items-center gap-1.5 text-sm font-semibold mt-auto" style="color:#C8A24B">
+            <span>افتح المنشئ</span>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg>
+          </div>
         </button>
       </div>
     </div>
 
-    <!-- Step 4: Preview -->
-    <div x-show="exportStep===3" class="adm-card">
-      <div class="adm-card-head">
-        <div class="adm-card-title">معاينة البيانات (أول ١٠ صفوف)</div>
-        <span class="adm-badge b-info">بيانات تجريبية</span>
+    <!-- ─── MODE: QUICK (existing simple builder) ─── -->
+    <div x-show="exportMode==='quick'">
+      <!-- Back -->
+      <div class="mb-4">
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="exportMode=''">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3l-5 5 5 5"/></svg>
+          العودة للاختيار
+        </button>
       </div>
-      <div class="overflow-x-auto">
-        <table class="adm-table">
-          <thead>
-            <tr>
-              <template x-for="col in previewCols" :key="col">
-                <th x-text="colLabel(col)"></th>
-              </template>
-            </tr>
-          </thead>
-          <tbody>
-            <template x-for="(row, ri) in previewRows" :key="ri">
+
+      <!-- Step indicator -->
+      <div class="adm-card mb-4 p-4">
+        <div class="flex items-center gap-0">
+          <template x-for="(s, i) in exportSteps" :key="i">
+            <div class="flex items-center">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition"
+                     :class="exportStep>i ? 'bg-success text-white' : (exportStep===i ? 'bg-primary-800 text-white' : 'bg-neutral-100 text-neutral-400')">
+                  <template x-if="exportStep>i">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
+                  </template>
+                  <span x-show="exportStep<=i" x-text="i+1"></span>
+                </div>
+                <span class="text-sm font-semibold hidden sm:block" :class="exportStep===i?'text-primary-800':'text-neutral-400'" x-text="s"></span>
+              </div>
+              <div x-show="i<exportSteps.length-1" class="flex-1 h-0.5 mx-3 min-w-[2rem]" :class="exportStep>i?'bg-success':'bg-neutral-200'"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Step 1: Entity -->
+      <div x-show="exportStep===0" class="adm-card p-6">
+        <h3 class="text-base font-bold text-primary-800 mb-4">اختر نوع البيانات</h3>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <template x-for="e in entities" :key="e.id">
+            <button @click="selectEntity(e)"
+                    class="flex flex-col items-center gap-3 p-5 rounded-xl border-2 text-center transition"
+                    :class="exportEntity===e.id ? 'border-primary-800 bg-primary-50' : 'border-neutral-200 hover:border-neutral-300 bg-white'">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center" :class="exportEntity===e.id?'bg-primary-800 text-white':'bg-neutral-100 text-neutral-600'" x-html="e.icon"></div>
+              <div>
+                <div class="font-bold text-sm" :class="exportEntity===e.id?'text-primary-800':'text-neutral-700'" x-text="e.label"></div>
+                <div class="text-xs text-neutral-400 mt-0.5" x-text="fmtNum(e.count) + ' سجل'"></div>
+              </div>
+            </button>
+          </template>
+        </div>
+        <div class="flex justify-end mt-5">
+          <button class="adm-btn adm-btn-primary" :disabled="!exportEntity" @click="exportStep=1">
+            التالي
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Columns -->
+      <div x-show="exportStep===1" class="adm-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-bold text-primary-800">اختر الأعمدة</h3>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="toggleAllCols()">
+            <span x-text="selectedCols.length === currentCols.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'"></span>
+          </button>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          <template x-for="col in currentCols" :key="col.key">
+            <label class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition"
+                   :class="selectedCols.includes(col.key) ? 'border-primary-700 bg-primary-50' : 'border-neutral-200 hover:border-neutral-300'">
+              <input type="checkbox" :value="col.key" x-model="selectedCols" class="rounded" />
+              <span class="text-sm font-medium text-neutral-700" x-text="col.label"></span>
+            </label>
+          </template>
+        </div>
+        <p class="text-xs text-neutral-400 mt-3" x-text="selectedCols.length + ' عمود محدد'"></p>
+        <div class="flex justify-between mt-5">
+          <button class="adm-btn adm-btn-ghost" @click="exportStep=0">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
+            السابق
+          </button>
+          <button class="adm-btn adm-btn-primary" :disabled="!selectedCols.length" @click="exportStep=2">التالي <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Step 3: Filters + Date Range -->
+      <div x-show="exportStep===2" class="adm-card p-6">
+        <h3 class="text-base font-bold text-primary-800 mb-4">تصفية البيانات (اختياري)</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <template x-for="f in currentFilters" :key="f.key">
+            <div>
+              <label class="ec-label" x-text="f.label"></label>
+              <select x-model="exportFilters[f.key]" class="ec-input">
+                <option value="">الكل</option>
+                <template x-for="opt in f.options" :key="opt.value">
+                  <option :value="opt.value" x-text="opt.label"></option>
+                </template>
+              </select>
+            </div>
+          </template>
+          <div>
+            <label class="ec-label">تاريخ الإنشاء — من</label>
+            <input type="date" dir="ltr" x-model="exportDateFrom" class="ec-input font-latin" />
+          </div>
+          <div>
+            <label class="ec-label">تاريخ الإنشاء — إلى</label>
+            <input type="date" dir="ltr" x-model="exportDateTo" class="ec-input font-latin" />
+          </div>
+        </div>
+        <div class="flex justify-between mt-5">
+          <button class="adm-btn adm-btn-ghost" @click="exportStep=1"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
+          <button class="adm-btn adm-btn-primary" @click="loadPreview()">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3a5 5 0 100 10A5 5 0 008 3zM8 6v4M6 8h4"/></svg>
+            معاينة النتائج
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Preview -->
+      <div x-show="exportStep===3" class="adm-card">
+        <div class="adm-card-head">
+          <div class="adm-card-title">معاينة البيانات (أول ١٠ صفوف)</div>
+          <span class="adm-badge b-info">بيانات تجريبية</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="adm-table">
+            <thead>
               <tr>
                 <template x-for="col in previewCols" :key="col">
-                  <td class="font-latin text-xs" dir="ltr" x-text="row[col] ?? '—'"></td>
+                  <th x-text="colLabel(col)"></th>
                 </template>
               </tr>
+            </thead>
+            <tbody>
+              <template x-for="(row, ri) in previewRows" :key="ri">
+                <tr>
+                  <template x-for="col in previewCols" :key="col">
+                    <td class="font-latin text-xs" dir="ltr" x-text="row[col] ?? '—'"></td>
+                  </template>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <div class="p-4 bg-neutral-50 border-t border-neutral-100 text-xs text-neutral-500">
+          عرض ١٠ صفوف تجريبية — السجل الحقيقي سيتضمن كل البيانات المصفّاة.
+        </div>
+        <div class="flex justify-between p-4 border-t border-neutral-100">
+          <button class="adm-btn adm-btn-ghost" @click="exportStep=2"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
+          <button class="adm-btn adm-btn-primary" @click="exportStep=4">التالي <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg></button>
+        </div>
+      </div>
+
+      <!-- Step 5: Format + Export -->
+      <div x-show="exportStep===4" class="adm-card p-6">
+        <h3 class="text-base font-bold text-primary-800 mb-4">صيغة التصدير</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <template x-for="fmt in formats" :key="fmt.id">
+            <button @click="exportFormat=fmt.id"
+                    class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition"
+                    :class="exportFormat===fmt.id ? 'border-accent-500 bg-accent-50' : 'border-neutral-200 hover:border-neutral-300'">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm" :style="'background:'+fmt.color+';color:#fff'" x-text="fmt.ext"></div>
+              <span class="text-sm font-semibold" :class="exportFormat===fmt.id?'text-accent-700':'text-neutral-600'" x-text="fmt.label"></span>
+            </button>
+          </template>
+        </div>
+
+        <div class="rounded-xl border border-accent-200 bg-accent-50 p-4 mb-6 flex items-start gap-3">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#8C6E27" stroke-width="1.6" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5.5V8l2 1.5"/></svg>
+          <div class="text-sm">
+            <div class="font-bold text-accent-800 mb-1">حدود الاستخدام</div>
+            <ul class="text-accent-700 space-y-0.5 text-xs">
+              <li>• حد أقصى ٣ مهام تصدير نشطة في وقت واحد</li>
+              <li>• رابط التحميل صالح لمدة ٢٤ ساعة فقط</li>
+              <li>• <span x-text="fmtNum(quotaLimit - quotaUsed)"></span> تصدير متبقٍّ في باقتك هذا الشهر</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3 justify-between">
+          <button class="adm-btn adm-btn-ghost" @click="exportStep=3"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
+          <div class="flex gap-2">
+            <button class="adm-btn adm-btn-ghost" @click="openSaveTemplate()">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h8l3 3v9H3z"/><path d="M5 2v4h6V2M5 14v-4h6v4"/></svg>
+              حفظ كقالب
+            </button>
+            <button class="adm-btn adm-btn-gold" :disabled="!exportFormat || quotaUsed >= quotaLimit" @click="doExport()">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+              تصدير الآن
+            </button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /quick -->
+
+    <!-- ─── MODE: ADVANCED REPORT BUILDER ─── -->
+    <div x-show="exportMode==='advanced'">
+
+      <!-- Back + Title bar -->
+      <div class="flex items-center justify-between mb-4">
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="exportMode=''">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3l-5 5 5 5"/></svg>
+          العودة للاختيار
+        </button>
+        <div class="flex items-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="1.7"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M11.5 9v4M9.5 11h4"/></svg>
+          <span class="text-sm font-bold text-primary-800">منشئ التقارير المتقدّم</span>
+        </div>
+      </div>
+
+      <!-- 5-step progress indicator -->
+      <div class="adm-card mb-4 p-4">
+        <div class="flex items-center gap-0">
+          <template x-for="(s, i) in advSteps" :key="i">
+            <div class="flex items-center min-w-0">
+              <div class="flex items-center gap-2 shrink-0">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition"
+                     :class="advStep>i ? 'bg-success text-white' : (advStep===i ? 'text-white' : 'bg-neutral-100 text-neutral-400')"
+                     :style="advStep===i ? 'background:#C8A24B' : ''">
+                  <template x-if="advStep>i">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
+                  </template>
+                  <span x-show="advStep<=i" x-text="i+1"></span>
+                </div>
+                <span class="text-sm font-semibold hidden sm:block" :class="advStep===i?'text-primary-800':'text-neutral-400'" x-text="s"></span>
+              </div>
+              <div x-show="i<advSteps.length-1" class="flex-1 h-0.5 mx-3 min-w-[1.5rem]" :class="advStep>i?'bg-success':'bg-neutral-200'"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- ═══ ADV STEP 1: Base Entity ═══ -->
+      <div x-show="advStep===0" class="adm-card p-6">
+        <h3 class="text-base font-bold text-primary-800 mb-1">اختر الكيان الأساسي</h3>
+        <p class="text-sm text-neutral-500 mb-5">الكيان الذي ستبني التقرير حوله — يمكنك إضافة بيانات مرتبطة في الخطوة التالية.</p>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <template x-for="e in advCatalogBaseEntities" :key="e.name">
+            <button @click="advBase=e.name; advJoins=[]; advCols=[]; advFilters=[]; advTested=false; advTestResult=null"
+                    class="flex flex-col items-center gap-3 p-5 rounded-2xl border-2 text-center transition"
+                    :class="advBase===e.name ? 'border-amber-400 bg-amber-50' : 'border-neutral-200 hover:border-neutral-300 bg-white'">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center transition"
+                   :class="advBase===e.name ? 'text-white' : 'bg-neutral-100 text-neutral-500'"
+                   :style="advBase===e.name ? 'background:#C8A24B' : ''">
+                <template x-if="e.name==='leads'">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20v-1a5 5 0 015-5h2a5 5 0 015 5v1"/><circle cx="10" cy="7" r="4"/><path d="M18 8l2.5 2.5L18 13"/></svg>
+                </template>
+                <template x-if="e.name==='contacts'">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-4 3-7 7-7s7 3 7 7"/></svg>
+                </template>
+                <template x-if="e.name==='properties'">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l9-7 9 7v9H3z"/><path d="M9 21v-6h6v6"/></svg>
+                </template>
+                <template x-if="e.name==='deals'">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l3 6 6.5.5-4.5 5 1.5 6.5L12 17l-6.5 3 1.5-6.5L2.5 8.5 9 8z"/></svg>
+                </template>
+              </div>
+              <div>
+                <div class="font-bold text-sm" :class="advBase===e.name?'text-amber-800':'text-neutral-700'" x-text="e.label"></div>
+                <div class="text-xs text-neutral-400 mt-0.5" x-text="e.desc"></div>
+              </div>
+            </button>
+          </template>
+        </div>
+        <!-- ═══ قوالب محفوظة — تُحمَّل مباشرة لخطوة الاختبار ═══ -->
+        <div class="mt-7" x-show="advTemplates.length > 0">
+          <div class="flex items-center gap-2 mb-3">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8A24B" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M17.5 14v7"/></svg>
+            <span class="text-sm font-bold text-primary-800">أو جلب قالب محفوظ</span>
+            <span class="adm-badge b-neutral text-xs" x-text="advTemplates.length + ' قالب'"></span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <template x-for="t in advTemplates" :key="t.id">
+              <div class="flex items-start gap-3 p-4 rounded-xl border border-neutral-200 bg-white hover:border-amber-300 hover:bg-amber-50 transition cursor-pointer group"
+                   @click="advLoadTemplate(t)">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-neutral-100 group-hover:bg-amber-100 transition">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A24B" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-bold text-primary-800 group-hover:text-amber-800 transition" x-text="t.name"></span>
+                    <span class="adm-badge text-xs" :class="t.isShared ? 'b-info' : 'b-neutral'" x-text="t.isShared ? 'مشترك' : 'خاص'"></span>
+                  </div>
+                  <div class="text-xs text-neutral-500 mt-0.5 truncate" x-text="t.description||'—'"></div>
+                  <div class="flex items-center gap-3 mt-1.5">
+                    <span class="text-xs text-neutral-400 flex items-center gap-1">
+                      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5l2 1.5"/></svg>
+                      <span x-text="t.lastUsedAt ? fmtDate(t.lastUsedAt) : '—'"></span>
+                    </span>
+                    <span class="text-xs text-neutral-400 flex items-center gap-1">
+                      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v12M2 8h12"/></svg>
+                      <span x-text="fmtNum(t.usageCount) + ' استخدام'"></span>
+                    </span>
+                  </div>
+                </div>
+                <div class="shrink-0 opacity-0 group-hover:opacity-100 transition mt-0.5">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2"><path d="M10 3l5 5-5 5"/><path d="M1 8h14"/></svg>
+                </div>
+              </div>
             </template>
-          </tbody>
-        </table>
-      </div>
-      <div class="p-4 bg-neutral-50 border-t border-neutral-100 text-xs text-neutral-500">
-        عرض ١٠ صفوف تجريبية — السجل الحقيقي سيتضمن كل البيانات المصفّاة.
-      </div>
-      <div class="flex justify-between p-4 border-t border-neutral-100">
-        <button class="adm-btn adm-btn-ghost" @click="exportStep=2"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
-        <button class="adm-btn adm-btn-primary" @click="exportStep=4">التالي <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg></button>
-      </div>
-    </div>
+          </div>
+        </div>
 
-    <!-- Step 5: Format + Export -->
-    <div x-show="exportStep===4" class="adm-card p-6">
-      <h3 class="text-base font-bold text-primary-800 mb-4">صيغة التصدير</h3>
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <template x-for="fmt in formats" :key="fmt.id">
-          <button @click="exportFormat=fmt.id"
-                  class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition"
-                  :class="exportFormat===fmt.id ? 'border-accent-500 bg-accent-50' : 'border-neutral-200 hover:border-neutral-300'">
-            <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm" :style="'background:'+fmt.color+';color:#fff'" x-text="fmt.ext"></div>
-            <span class="text-sm font-semibold" :class="exportFormat===fmt.id?'text-accent-700':'text-neutral-600'" x-text="fmt.label"></span>
+        <div class="flex justify-end mt-6">
+          <button class="adm-btn adm-btn-primary" :disabled="!advBase" @click="advStep=1" style="background:#C8A24B;border-color:#C8A24B">
+            التالي — إضافة بيانات مرتبطة
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
           </button>
+        </div>
+      </div>
+
+      <!-- ═══ ADV STEP 2: Joins ═══ -->
+      <div x-show="advStep===1" class="adm-card p-6">
+        <div class="flex items-start justify-between mb-1">
+          <div>
+            <h3 class="text-base font-bold text-primary-800">إضافة بيانات مرتبطة</h3>
+            <p class="text-sm text-neutral-500 mt-0.5">اختر الجداول التي تريد ضمّها — يمكن تركها فارغة.</p>
+          </div>
+          <span class="adm-badge b-neutral text-xs" x-text="advJoins.length + ' علاقة مضافة'"></span>
+        </div>
+
+        <!-- Added joins chips -->
+        <div class="flex flex-wrap gap-2 mt-4 mb-5 min-h-[2rem]" x-show="advJoins.length">
+          <template x-for="jid in advJoins" :key="jid">
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition"
+                 :class="advCatalogRelations.find(r=>r.id===jid)&&advCatalogRelations.find(r=>r.id===jid).relType==='one_to_many' ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-primary-50 border-primary-200 text-primary-800'">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+              <span x-text="advCatalogRelations.find(r=>r.id===jid) ? advCatalogRelations.find(r=>r.id===jid).label : jid"></span>
+              <button @click="advJoins=advJoins.filter(x=>x!==jid); advCols=advCols.filter(c=>!c.startsWith((advCatalogRelations.find(r=>r.id===jid)||{}).to+'.')); advTested=false; advTestResult=null" class="hover:text-danger ml-1">
+                <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+              </button>
+            </div>
+          </template>
+        </div>
+
+        <!-- Available relations grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <template x-for="rel in advAvailableRelations()" :key="rel.id">
+            <div class="flex items-start gap-3 p-4 rounded-xl border-2 transition cursor-pointer"
+                 :class="advJoins.includes(rel.id) ? 'border-amber-400 bg-amber-50' : 'border-neutral-200 hover:border-neutral-300 bg-white'"
+                 @click="advToggleJoin(rel.id)">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="font-semibold text-sm" :class="advJoins.includes(rel.id)?'text-amber-800':'text-neutral-700'" x-text="rel.label"></span>
+                  <span x-show="rel.relType==='one_to_many'" class="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">١-لـ-ن</span>
+                </div>
+                <p x-show="rel.relType==='one_to_many'" class="text-xs text-amber-600">قد يضاعف الصفوف — ستُجمَّع تلقائياً</p>
+                <p x-show="rel.relType==='many_to_one'" class="text-xs text-neutral-400">إضافة أعمدة من <span x-text="rel.toLabel"></span></p>
+              </div>
+              <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition"
+                   :class="advJoins.includes(rel.id) ? 'bg-amber-400 text-white' : 'bg-neutral-100 text-neutral-400'">
+                <template x-if="advJoins.includes(rel.id)">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
+                </template>
+                <template x-if="!advJoins.includes(rel.id)">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <template x-if="advAvailableRelations().length===0">
+          <div class="text-center py-8 text-neutral-400 text-sm">لا علاقات متاحة لهذا الكيان</div>
         </template>
-      </div>
 
-      <div class="rounded-xl border border-accent-200 bg-accent-50 p-4 mb-6 flex items-start gap-3">
-        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#8C6E27" stroke-width="1.6" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5.5V8l2 1.5"/></svg>
-        <div class="text-sm">
-          <div class="font-bold text-accent-800 mb-1">حدود الاستخدام</div>
-          <ul class="text-accent-700 space-y-0.5 text-xs">
-            <li>• حد أقصى ٣ مهام تصدير نشطة في وقت واحد</li>
-            <li>• رابط التحميل صالح لمدة ٢٤ ساعة فقط</li>
-            <li>• <span x-text="fmtNum(quotaLimit - quotaUsed)"></span> تصدير متبقٍّ في باقتك هذا الشهر</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap gap-3 justify-between">
-        <button class="adm-btn adm-btn-ghost" @click="exportStep=3"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
-        <div class="flex gap-2">
-          <button class="adm-btn adm-btn-ghost" @click="openSaveTemplate()">
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h8l3 3v9H3z"/><path d="M5 2v4h6V2M5 14v-4h6v4"/></svg>
-            حفظ كقالب
+        <div class="flex justify-between mt-6">
+          <button class="adm-btn adm-btn-ghost" @click="advStep=0">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
+            السابق
           </button>
-          <button class="adm-btn adm-btn-gold" :disabled="!exportFormat || quotaUsed >= quotaLimit" @click="doExport()">
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
-            تصدير الآن
+          <button class="adm-btn adm-btn-primary" @click="advStep=2; if(!advCols.length) advAutoSelectCols()" style="background:#C8A24B;border-color:#C8A24B">
+            التالي — اختر الأعمدة
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
           </button>
         </div>
       </div>
-    </div>
+
+      <!-- ═══ ADV STEP 3: Columns ═══ -->
+      <div x-show="advStep===2" class="adm-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-base font-bold text-primary-800">اختر الأعمدة</h3>
+            <p class="text-sm text-neutral-500 mt-0.5">مُجمَّعة حسب الكيان — الأعمدة المجمَّعة تحتاج دالة تجميع.</p>
+          </div>
+          <span class="adm-badge b-info" x-text="advCols.length + ' عمود محدد'"></span>
+        </div>
+
+        <!-- Groups -->
+        <template x-for="grp in advColumnGroups()" :key="grp.relId||grp.entity">
+          <div class="mb-6">
+            <!-- Group header -->
+            <div class="flex items-center gap-2 mb-3">
+              <div class="h-px flex-1 bg-neutral-200"></div>
+              <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold"
+                   :class="grp.isJoin && grp.isOneToMany ? 'bg-amber-100 text-amber-800' : 'bg-primary-50 text-primary-700'">
+                <span x-text="grp.label"></span>
+                <span x-show="grp.isJoin && grp.isOneToMany" class="text-amber-600">• تجميع</span>
+              </div>
+              <div class="h-px flex-1 bg-neutral-200"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              <template x-for="col in grp.cols" :key="grp.entity+'.'+col.key">
+                <div class="rounded-xl border-2 overflow-hidden transition"
+                     :class="advCols.includes(grp.entity+'.'+col.key) ? (grp.isJoin && grp.isOneToMany ? 'border-amber-400' : 'border-primary-400') : 'border-neutral-200'">
+                  <label class="flex items-center gap-2.5 p-3 cursor-pointer bg-white hover:bg-neutral-50 transition">
+                    <input type="checkbox" :value="grp.entity+'.'+col.key"
+                           :checked="advCols.includes(grp.entity+'.'+col.key)"
+                           @change="advToggleCol(grp.entity+'.'+col.key, $event.target.checked); advTested=false; advTestResult=null"
+                           class="rounded shrink-0" />
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-neutral-700 truncate" x-text="col.label"></div>
+                      <div class="text-xs text-neutral-400 font-latin truncate" x-text="col.type"></div>
+                    </div>
+                  </label>
+                  <!-- Aggregate picker — only for one-to-many joined cols -->
+                  <div x-show="advCols.includes(grp.entity+'.'+col.key) && grp.isJoin && grp.isOneToMany"
+                       class="border-t border-amber-200 bg-amber-50 px-3 pb-2 pt-1.5">
+                    <label class="text-xs text-amber-700 font-semibold mb-1 block">دالة التجميع</label>
+                    <select :value="advAgg[grp.entity+'.'+col.key] || 'count'"
+                            @change="advAgg[grp.entity+'.'+col.key]=$event.target.value; advTested=false; advTestResult=null"
+                            class="ec-input text-xs py-1" style="min-height:auto">
+                      <template x-for="fn in advCatalogAggFns" :key="fn.id">
+                        <option :value="fn.id" :selected="(advAgg[grp.entity+'.'+col.key]||'count')===fn.id" x-text="fn.label"></option>
+                      </template>
+                    </select>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <div class="flex justify-between mt-2">
+          <button class="adm-btn adm-btn-ghost" @click="advStep=1">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
+            السابق
+          </button>
+          <button class="adm-btn adm-btn-primary" :disabled="!advCols.length" @click="advStep=3" style="background:#C8A24B;border-color:#C8A24B">
+            التالي — الفلاتر
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ ADV STEP 4: Filters + Date Range ═══ -->
+      <div x-show="advStep===3" class="adm-card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-base font-bold text-primary-800">الفلاتر ونطاق التاريخ</h3>
+            <p class="text-sm text-neutral-500 mt-0.5">كل الفلاتر اختيارية. يمكن إضافة أكثر من فلتر على نفس العمود.</p>
+          </div>
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="advAddFilter()">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+            إضافة فلتر
+          </button>
+        </div>
+
+        <!-- Filter rows -->
+        <div class="space-y-3 mb-5">
+          <template x-for="(f, fi) in advFilters" :key="fi">
+            <div class="flex items-start gap-2 p-3 rounded-xl bg-neutral-50 border border-neutral-200">
+              <!-- Column picker -->
+              <div class="flex-1 min-w-0">
+                <label class="text-xs text-neutral-500 font-semibold mb-1 block">العمود</label>
+                <select x-model="f.col" @change="f.op=advOpsForCol(f.col)[0]||''; f.val=''; advTested=false; advTestResult=null" class="ec-input text-sm">
+                  <option value="">— اختر عموداً —</option>
+                  <template x-for="grp in advColumnGroups()" :key="grp.relId||grp.entity">
+                    <optgroup :label="grp.label">
+                      <template x-for="col in grp.cols" :key="(grp.relId||grp.entity)+'.'+col.key">
+                        <option :value="grp.entity+'.'+col.key" x-text="col.label"></option>
+                      </template>
+                    </optgroup>
+                  </template>
+                </select>
+              </div>
+              <!-- Operator -->
+              <div style="width:120px; shrink:0">
+                <label class="text-xs text-neutral-500 font-semibold mb-1 block">العملية</label>
+                <select x-model="f.op" @change="f.val=''; f.val2=''; advTested=false; advTestResult=null" class="ec-input text-sm">
+                  <template x-for="op in advOpsForCol(f.col)" :key="op">
+                    <option :value="op" x-text="advOpLabel(op)"></option>
+                  </template>
+                </select>
+              </div>
+              <!-- Value -->
+              <div class="flex-1 min-w-0">
+                <label class="text-xs text-neutral-500 font-semibold mb-1 block">القيمة</label>
+                <div class="flex gap-1">
+                  <input x-show="f.op!=='isNull' && f.op!=='notNull'"
+                         type="text" x-model="f.val"
+                         @input="advTested=false; advTestResult=null"
+                         class="ec-input text-sm flex-1" placeholder="القيمة" />
+                  <input x-show="f.op==='between'" type="text" x-model="f.val2"
+                         @input="advTested=false; advTestResult=null"
+                         class="ec-input text-sm flex-1" placeholder="إلى" />
+                  <span x-show="f.op==='isNull'||f.op==='notNull'" class="text-xs text-neutral-400 py-2">لا قيمة</span>
+                </div>
+              </div>
+              <!-- Remove -->
+              <button @click="advFilters.splice(fi,1); advTested=false; advTestResult=null" class="adm-icon-btn w-7 h-7 text-danger mt-5 shrink-0">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+              </button>
+            </div>
+          </template>
+          <template x-if="!advFilters.length">
+            <div class="text-center py-6 text-neutral-400 text-sm border-2 border-dashed border-neutral-200 rounded-xl">
+              لا فلاتر — التقرير سيشمل كل البيانات
+            </div>
+          </template>
+        </div>
+
+        <!-- Date range -->
+        <div class="rounded-xl border border-neutral-200 bg-neutral-50 p-4 mb-2">
+          <div class="text-sm font-bold text-primary-800 mb-3 flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 7h12M5 1.5v3M11 1.5v3"/></svg>
+            نطاق التاريخ
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="ec-label">عمود التاريخ</label>
+              <select x-model="advDateCol" @change="advTested=false; advTestResult=null" class="ec-input text-sm">
+                <option value="created_at">تاريخ الإنشاء</option>
+                <option value="updated_at">آخر تحديث</option>
+                <template x-if="advBase==='deals'">
+                  <option value="closed_at">تاريخ الإغلاق</option>
+                </template>
+              </select>
+            </div>
+            <div>
+              <label class="ec-label">من تاريخ</label>
+              <input type="date" dir="ltr" x-model="advDateFrom" @change="advTested=false; advTestResult=null" class="ec-input font-latin text-sm" />
+            </div>
+            <div>
+              <label class="ec-label">إلى تاريخ</label>
+              <input type="date" dir="ltr" x-model="advDateTo" @change="advTested=false; advTestResult=null" class="ec-input font-latin text-sm" />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between mt-5">
+          <button class="adm-btn adm-btn-ghost" @click="advStep=2">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
+            السابق
+          </button>
+          <button class="adm-btn adm-btn-primary" @click="advStep=4" style="background:#C8A24B;border-color:#C8A24B">
+            التالي — اختبار التقرير
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ ADV STEP 5: Test + Export ═══ -->
+      <div x-show="advStep===4">
+
+        <!-- Test Panel (prominent, always visible) -->
+        <div class="adm-card mb-4">
+          <div class="p-6 border-b border-neutral-100">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h3 class="text-base font-bold text-primary-800">اختبار التقرير</h3>
+                <p class="text-sm text-neutral-500 mt-0.5">يُنفَّذ الاستعلام على بياناتك الفعلية (أول ٥ صفوف فقط).</p>
+              </div>
+              <button @click="advRunTest()"
+                      class="adm-btn adm-btn-primary gap-2 px-6"
+                      :class="advTesting ? 'opacity-70 cursor-wait' : ''"
+                      :disabled="advTesting || !advCols.length"
+                      style="background:#0B1F3A;border-color:#0B1F3A">
+                <svg x-show="!advTesting" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3l8 5-8 5V3z"/></svg>
+                <svg x-show="advTesting" class="animate-spin" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 2a6 6 0 100 12A6 6 0 008 2z" opacity=".3"/><path d="M8 2a6 6 0 016 6"/></svg>
+                <span x-text="advTesting ? 'جاري الاختبار...' : 'تشغيل الاختبار'"></span>
+              </button>
+            </div>
+
+            <!-- Spec summary badges -->
+            <div class="flex flex-wrap gap-2 mt-3">
+              <span class="adm-badge b-neutral text-xs">
+                <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="8" r="6"/></svg>
+                <span x-text="advCatalogBaseEntities.find(e=>e.name===advBase)?.label||advBase"></span>
+              </span>
+              <template x-for="jid in advJoins" :key="jid">
+                <span class="adm-badge b-info text-xs" x-text="'+' + (advCatalogRelations.find(r=>r.id===jid)?.label||jid)"></span>
+              </template>
+              <span class="adm-badge b-neutral text-xs" x-text="advCols.length + ' عمود'"></span>
+              <span x-show="advFilters.filter(f=>f.col).length" class="adm-badge b-warning text-xs" x-text="advFilters.filter(f=>f.col).length + ' فلتر'"></span>
+            </div>
+          </div>
+
+          <!-- Test result area -->
+          <div x-show="advTestResult">
+            <!-- Warnings -->
+            <div x-show="advTestResult && advTestResult.warnings && advTestResult.warnings.length" class="px-6 pt-4">
+              <template x-for="w in (advTestResult ? advTestResult.warnings : [])" :key="w">
+                <div class="flex items-start gap-2.5 rounded-xl p-3 mb-2"
+                     :class="w==='REPORT_WARN_LARGE_RESULT_BACKGROUND' ? 'bg-blue-50 border border-blue-200' : 'bg-amber-50 border border-amber-200'">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" class="shrink-0 mt-0.5"
+                       :stroke="w==='REPORT_WARN_LARGE_RESULT_BACKGROUND' ? '#1565C0' : '#B5730A'" stroke-width="1.6">
+                    <path d="M8 3v5M8 11v1"/><circle cx="8" cy="8" r="6.5"/>
+                  </svg>
+                  <span class="text-xs font-semibold" x-text="advWarnLabel(w)"></span>
+                </div>
+              </template>
+            </div>
+
+            <!-- Stats row -->
+            <div class="grid grid-cols-3 gap-0 border-b border-neutral-100" x-show="advTestResult && advTestResult.valid">
+              <div class="px-6 py-4 text-center border-l border-neutral-100">
+                <div class="text-2xl font-bold text-primary-800" x-text="fmtNum(advTestResult ? advTestResult.totalRows : 0)"></div>
+                <div class="text-xs text-neutral-400 mt-1">إجمالي السجلات</div>
+              </div>
+              <div class="px-6 py-4 text-center border-l border-neutral-100">
+                <div class="text-2xl font-bold text-neutral-700" x-text="advTestResult && advTestResult.estimatedMs ? (advTestResult.estimatedMs < 1000 ? advTestResult.estimatedMs+'ms' : (advTestResult.estimatedMs/1000).toFixed(1)+'s') : '—'"></div>
+                <div class="text-xs text-neutral-400 mt-1">وقت الاستعلام</div>
+              </div>
+              <div class="px-6 py-4 text-center">
+                <div class="text-2xl font-bold text-neutral-700" x-text="advTestResult && advTestResult.estimatedSize ? (advTestResult.estimatedSize < 1024 ? advTestResult.estimatedSize+'KB' : (advTestResult.estimatedSize/1024).toFixed(1)+'MB') : '—'"></div>
+                <div class="text-xs text-neutral-400 mt-1">الحجم التقديري</div>
+              </div>
+            </div>
+
+            <!-- Sample rows table -->
+            <div x-show="advTestResult && advTestResult.valid && advTestResult.sampleRows && advTestResult.sampleRows.length" class="overflow-x-auto">
+              <table class="adm-table">
+                <thead>
+                  <tr>
+                    <template x-for="col in advCols.slice(0,6)" :key="col">
+                      <th class="text-xs" x-text="advColLabel(col)"></th>
+                    </template>
+                    <th x-show="advCols.length>6" class="text-xs text-neutral-400">...</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="(row, ri) in (advTestResult ? advTestResult.sampleRows : [])" :key="ri">
+                    <tr>
+                      <template x-for="col in advCols.slice(0,6)" :key="col">
+                        <td class="text-xs font-latin" dir="ltr" x-text="row[col] !== undefined ? row[col] : '—'"></td>
+                      </template>
+                      <td x-show="advCols.length>6" class="text-xs text-neutral-300">...</td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+              <div class="px-4 py-2 bg-neutral-50 text-xs text-neutral-400 border-t border-neutral-100">
+                معاينة أول <span x-text="advTestResult ? advTestResult.sampleRows.length : 0"></span> صفوف
+              </div>
+            </div>
+
+            <!-- Error state -->
+            <div x-show="advTestResult && !advTestResult.valid" class="px-6 py-4">
+              <div class="flex items-start gap-3 p-4 rounded-xl bg-danger/5 border border-danger/20">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C0392B" stroke-width="1.7" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v4M8 11.5v.5"/></svg>
+                <div>
+                  <div class="font-bold text-sm text-danger mb-1">فشل الاختبار</div>
+                  <div class="text-xs text-danger/80" x-text="advTestResult ? advTestResult.errorMsg : ''"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Not-tested placeholder -->
+          <div x-show="!advTestResult" class="px-6 py-8 text-center text-neutral-400">
+            <svg class="mx-auto mb-3" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="20" cy="20" r="17"/><path d="M14 20l8-5v10z"/></svg>
+            <p class="text-sm">اضغط «تشغيل الاختبار» للتحقق من النتائج قبل التصدير</p>
+          </div>
+        </div>
+
+        <!-- Format + Actions (only after successful test) -->
+        <div x-show="advTested && advTestResult && advTestResult.valid" x-transition class="adm-card p-6">
+          <h3 class="text-base font-bold text-primary-800 mb-4">صيغة التصدير</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <template x-for="fmt in formats" :key="fmt.id">
+              <button @click="advFormat=fmt.id"
+                      class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition"
+                      :class="advFormat===fmt.id ? 'border-amber-400 bg-amber-50' : 'border-neutral-200 hover:border-neutral-300'">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm" :style="'background:'+fmt.color+';color:#fff'" x-text="fmt.ext"></div>
+                <span class="text-sm font-semibold" :class="advFormat===fmt.id?'text-amber-700':'text-neutral-600'" x-text="fmt.label"></span>
+              </button>
+            </template>
+          </div>
+          <div class="flex flex-wrap gap-3 justify-between">
+            <button class="adm-btn adm-btn-ghost" @click="advStep=3">
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
+              السابق
+            </button>
+            <div class="flex gap-2 flex-wrap">
+              <button class="adm-btn adm-btn-ghost" @click="advOpenSaveModal()">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h8l3 3v9H3z"/><path d="M5 2v4h6V2M5 14v-4h6v4"/></svg>
+                حفظ كقالب متقدّم
+              </button>
+              <button class="adm-btn adm-btn-gold" :disabled="!advFormat || quotaUsed >= quotaLimit" @click="advDoExport()">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+                تصدير التقرير
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Not-tested nudge -->
+        <div x-show="!advTested || !advTestResult || !advTestResult.valid" class="rounded-xl border-2 border-dashed border-neutral-300 p-5 text-center text-sm text-neutral-400 mt-0">
+          يُطلب تشغيل الاختبار بنجاح قبل ظهور أزرار الحفظ والتصدير.
+        </div>
+
+        <div class="mt-4">
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="advStep=3">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
+            السابق — الفلاتر
+          </button>
+        </div>
+
+      </div><!-- /adv step 5 -->
+
+    </div><!-- /advanced -->
 
     <!-- Toast -->
     <div x-show="toast" x-transition class="fixed bottom-6 inset-inline-start-6 bg-primary-800 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl2 flex items-center gap-3 z-50">
@@ -1085,6 +1655,48 @@
     </div>
   </template>
 
+  <!-- Advanced Builder Save Template Modal -->
+  <template x-if="advSaveModal">
+    <div class="adm-overlay" @click.self="advSaveModal=null">
+      <div class="adm-modal" style="max-width:440px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">حفظ كقالب متقدّم</div>
+          <button @click="advSaveModal=null" class="adm-icon-btn">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 gap-4">
+          <div>
+            <label class="ec-label">اسم القالب <span class="text-danger">*</span></label>
+            <input type="text" x-model="advSaveModal.name" class="ec-input" placeholder="مثال: تقرير صفقات مع تفاصيل العملاء" />
+          </div>
+          <div>
+            <label class="ec-label">الوصف</label>
+            <input type="text" x-model="advSaveModal.description" class="ec-input" placeholder="وصف اختياري" />
+          </div>
+          <div class="rounded-xl bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800 space-y-1">
+            <div class="font-bold mb-1">ملخص المواصفات</div>
+            <div>الكيان الأساسي: <span class="font-semibold" x-text="advCatalogBaseEntities.find(e=>e.name===advBase)?.label||advBase"></span></div>
+            <div x-show="advJoins.length">العلاقات: <span class="font-semibold" x-text="advJoins.map(j=>advCatalogRelations.find(r=>r.id===j)?.label||j).join('، ')"></span></div>
+            <div>الأعمدة: <span class="font-semibold" x-text="advCols.length + ' عمود'"></span></div>
+            <div x-show="advFilters.filter(f=>f.col).length">الفلاتر: <span class="font-semibold" x-text="advFilters.filter(f=>f.col).length + ' فلتر'"></span></div>
+          </div>
+          <label class="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
+            <div class="adm-switch" :class="advSaveModal.isShared&&'on'" @click="advSaveModal.isShared=!advSaveModal.isShared"></div>
+            مشاركة هذا القالب مع الفريق
+          </label>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="advSaveTemplate()" :disabled="!advSaveModal.name" class="adm-btn adm-btn-primary">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h8l3 3v9H3z"/><path d="M5 2v4h6V2M5 14v-4h6v4"/></svg>
+            حفظ القالب
+          </button>
+          <button @click="advSaveModal=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
   <!-- Download Link Modal -->
   <template x-if="downloadModal">
     <div class="adm-overlay" @click.self="downloadModal=null">
@@ -1275,7 +1887,10 @@ function dataIO() {
       ],
     },
 
-    // ---- Export builder state ----
+    // ---- Export mode: '' | 'quick' | 'advanced' ----
+    exportMode: '',
+
+    // ---- Export builder state (simple / quick) ----
     exportSteps: ['الكيان', 'الأعمدة', 'الفلاتر', 'معاينة', 'التصدير'],
     exportStep: 0,
     exportEntity: '',
@@ -1607,6 +2222,404 @@ function dataIO() {
       return { csv: '#1A8C4E', xlsx: '#1565C0', json: '#B5730A', pdf: '#C0392B' }[fmt] || '#6E7F9C';
     },
 
+    // ═══════════════════════════════════════════════
+    // ADVANCED REPORT BUILDER — Catalog + State + Fns
+    // ═══════════════════════════════════════════════
+
+    // ─ Catalog (mirrors Catalog.ts + reports.ts i18n) ─
+    advCatalogBaseEntities: [
+      { name: 'leads',      label: 'العملاء المحتملون', desc: 'العملاء + المراحل + المصادر' },
+      { name: 'contacts',   label: 'جهات الاتصال',       desc: 'جهات الاتصال + الهواتف + البريد' },
+      { name: 'properties', label: 'العقارات',            desc: 'العقارات + الوسائط + القوائم' },
+      { name: 'deals',      label: 'الصفقات',             desc: 'الصفقات + العمولات + الأقساط' },
+    ],
+
+    advCatalogColumns: {
+      leads: [
+        { key: 'id',            label: 'المعرّف',           type: 'uuid'    },
+        { key: 'first_name',    label: 'الاسم الأول',       type: 'text'    },
+        { key: 'last_name',     label: 'الاسم الأخير',      type: 'text'    },
+        { key: 'email',         label: 'البريد الإلكتروني', type: 'text'    },
+        { key: 'phone',         label: 'رقم الجوال',        type: 'text'    },
+        { key: 'status',        label: 'الحالة',            type: 'enum'    },
+        { key: 'budget',        label: 'الميزانية',         type: 'number'  },
+        { key: 'currency',      label: 'العملة',            type: 'enum'    },
+        { key: 'country',       label: 'الدولة',            type: 'text'    },
+        { key: 'city',          label: 'المدينة',           type: 'text'    },
+        { key: 'area',          label: 'المنطقة',           type: 'text'    },
+        { key: 'source_id',     label: 'المصدر',            type: 'uuid'    },
+        { key: 'branch_id',     label: 'الفرع',             type: 'uuid'    },
+        { key: 'stage_id',      label: 'المرحلة',           type: 'uuid'    },
+        { key: 'notes',         label: 'الملاحظات',         type: 'text'    },
+        { key: 'created_at',    label: 'تاريخ الإنشاء',     type: 'date'    },
+        { key: 'updated_at',    label: 'آخر تحديث',         type: 'date'    },
+      ],
+      contacts: [
+        { key: 'id',            label: 'المعرّف',           type: 'uuid'    },
+        { key: 'first_name',    label: 'الاسم الأول',       type: 'text'    },
+        { key: 'last_name',     label: 'الاسم الأخير',      type: 'text'    },
+        { key: 'company_name',  label: 'الشركة',            type: 'text'    },
+        { key: 'email',         label: 'البريد الإلكتروني', type: 'text'    },
+        { key: 'phone',         label: 'الجوال',            type: 'text'    },
+        { key: 'priority',      label: 'الأولوية',          type: 'enum'    },
+        { key: 'type',          label: 'النوع',             type: 'enum'    },
+        { key: 'nationality',   label: 'الجنسية',           type: 'text'    },
+        { key: 'profession',    label: 'المهنة',            type: 'text'    },
+        { key: 'branch_id',     label: 'الفرع',             type: 'uuid'    },
+        { key: 'notes',         label: 'الملاحظات',         type: 'text'    },
+        { key: 'created_at',    label: 'تاريخ الإنشاء',     type: 'date'    },
+        { key: 'updated_at',    label: 'آخر تحديث',         type: 'date'    },
+      ],
+      properties: [
+        { key: 'id',            label: 'المعرّف',           type: 'uuid'    },
+        { key: 'title',         label: 'العنوان',           type: 'text'    },
+        { key: 'purpose',       label: 'الغرض',             type: 'enum'    },
+        { key: 'status',        label: 'الحالة',            type: 'enum'    },
+        { key: 'price',         label: 'السعر',             type: 'number'  },
+        { key: 'currency',      label: 'العملة',            type: 'enum'    },
+        { key: 'country',       label: 'الدولة',            type: 'text'    },
+        { key: 'city',          label: 'المدينة',           type: 'text'    },
+        { key: 'area',          label: 'المنطقة',           type: 'text'    },
+        { key: 'address',       label: 'العنوان التفصيلي',  type: 'text'    },
+        { key: 'size',          label: 'المساحة (م²)',      type: 'number'  },
+        { key: 'bedrooms',      label: 'غرف النوم',         type: 'number'  },
+        { key: 'bathrooms',     label: 'دورات المياه',      type: 'number'  },
+        { key: 'finishing',     label: 'التشطيب',           type: 'enum'    },
+        { key: 'furnished',     label: 'مفروش',             type: 'boolean' },
+        { key: 'commission',    label: 'العمولة',           type: 'number'  },
+        { key: 'is_published',  label: 'منشور',             type: 'boolean' },
+        { key: 'branch_id',     label: 'الفرع',             type: 'uuid'    },
+        { key: 'created_at',    label: 'تاريخ الإنشاء',     type: 'date'    },
+        { key: 'updated_at',    label: 'آخر تحديث',         type: 'date'    },
+      ],
+      deals: [
+        { key: 'id',                 label: 'المعرّف',            type: 'uuid'    },
+        { key: 'deal_number',        label: 'رقم الصفقة',         type: 'text'    },
+        { key: 'status',             label: 'الحالة',             type: 'enum'    },
+        { key: 'stage',              label: 'المرحلة',            type: 'enum'    },
+        { key: 'asking_price',       label: 'سعر الطلب',          type: 'number'  },
+        { key: 'offer_price',        label: 'سعر العرض',          type: 'number'  },
+        { key: 'final_price',        label: 'السعر النهائي',      type: 'number'  },
+        { key: 'currency',           label: 'العملة',             type: 'enum'    },
+        { key: 'commission_type',    label: 'نوع العمولة',         type: 'enum'    },
+        { key: 'commission_rate',    label: 'نسبة العمولة',       type: 'number'  },
+        { key: 'commission_amount',  label: 'مبلغ العمولة',       type: 'number'  },
+        { key: 'agency_commission',  label: 'عمولة الوكالة',      type: 'number'  },
+        { key: 'agent_commission',   label: 'عمولة الوكيل',       type: 'number'  },
+        { key: 'co_broke_commission',label: 'عمولة المشارك',      type: 'number'  },
+        { key: 'win_reason',         label: 'سبب الكسب',          type: 'text'    },
+        { key: 'lose_reason',        label: 'سبب الخسارة',        type: 'text'    },
+        { key: 'notes',              label: 'الملاحظات',           type: 'text'    },
+        { key: 'branch_id',          label: 'الفرع',              type: 'uuid'    },
+        { key: 'closed_at',          label: 'تاريخ الإغلاق',      type: 'date'    },
+        { key: 'created_at',         label: 'تاريخ الإنشاء',      type: 'date'    },
+        { key: 'updated_at',         label: 'آخر تحديث',          type: 'date'    },
+      ],
+      branches: [
+        { key: 'id',       label: 'معرّف الفرع',  type: 'uuid' },
+        { key: 'name',     label: 'اسم الفرع',    type: 'text' },
+        { key: 'city',     label: 'المدينة',       type: 'text' },
+        { key: 'country',  label: 'الدولة',        type: 'text' },
+        { key: 'is_active',label: 'نشط',           type: 'boolean' },
+      ],
+      users: [
+        { key: 'id',         label: 'معرّف المستخدم', type: 'uuid' },
+        { key: 'first_name', label: 'الاسم الأول',    type: 'text' },
+        { key: 'last_name',  label: 'الاسم الأخير',   type: 'text' },
+        { key: 'email',      label: 'البريد',          type: 'text' },
+        { key: 'role',       label: 'الدور',           type: 'enum' },
+        { key: 'branch_id',  label: 'الفرع',           type: 'uuid' },
+      ],
+    },
+
+    advCatalogRelations: [
+      // leads
+      { id: 'lead.contact',        from: 'leads', to: 'contacts', relType: 'many_to_one', label: 'جهة اتصال العميل',     toLabel: 'جهات الاتصال' },
+      { id: 'lead.branch',         from: 'leads', to: 'branches', relType: 'many_to_one', label: 'فرع العميل',            toLabel: 'الفروع' },
+      { id: 'lead.assignees',      from: 'leads', to: 'users',    relType: 'one_to_many', label: 'المسؤولون (تجميع)',    toLabel: 'المستخدمون' },
+      // contacts
+      { id: 'contact.branch',       from: 'contacts', to: 'branches', relType: 'many_to_one', label: 'فرع جهة الاتصال',   toLabel: 'الفروع' },
+      { id: 'contact.assigned_user',from: 'contacts', to: 'users',    relType: 'many_to_one', label: 'الوكيل المسؤول',    toLabel: 'المستخدمون' },
+      // properties
+      { id: 'property.owner_contact',  from: 'properties', to: 'contacts', relType: 'many_to_one', label: 'مالك العقار',         toLabel: 'جهات الاتصال' },
+      { id: 'property.listing_agent',  from: 'properties', to: 'users',    relType: 'many_to_one', label: 'الوكيل المدرج',       toLabel: 'المستخدمون' },
+      { id: 'property.branch',         from: 'properties', to: 'branches', relType: 'many_to_one', label: 'فرع العقار',          toLabel: 'الفروع' },
+      // deals
+      { id: 'deal.lead',          from: 'deals', to: 'leads',    relType: 'many_to_one', label: 'العميل المحتمل',    toLabel: 'العملاء' },
+      { id: 'deal.property',      from: 'deals', to: 'properties',relType: 'many_to_one', label: 'العقار',            toLabel: 'العقارات' },
+      { id: 'deal.buyer_contact', from: 'deals', to: 'contacts', relType: 'many_to_one', label: 'جهة اتصال المشتري', toLabel: 'جهات الاتصال' },
+      { id: 'deal.seller_contact',from: 'deals', to: 'contacts', relType: 'many_to_one', label: 'جهة اتصال البائع',  toLabel: 'جهات الاتصال' },
+      { id: 'deal.branch',        from: 'deals', to: 'branches', relType: 'many_to_one', label: 'فرع الصفقة',        toLabel: 'الفروع' },
+      { id: 'deal.seller_agent',  from: 'deals', to: 'users',    relType: 'many_to_one', label: 'وكيل البائع',       toLabel: 'المستخدمون' },
+      { id: 'deal.buyer_agent',   from: 'deals', to: 'users',    relType: 'many_to_one', label: 'وكيل المشتري',      toLabel: 'المستخدمون' },
+    ],
+
+    advCatalogOpsByType: {
+      text:    ['eq','neq','contains','in','isNull','notNull'],
+      number:  ['eq','neq','gt','gte','lt','lte','between','isNull'],
+      date:    ['gt','gte','lt','lte','between','isNull','notNull'],
+      enum:    ['eq','neq','in'],
+      boolean: ['eq'],
+      uuid:    ['eq','neq','in','isNull','notNull'],
+    },
+
+    advCatalogAggFns: [
+      { id: 'count',  label: 'العدد' },
+      { id: 'sum',    label: 'المجموع' },
+      { id: 'min',    label: 'الأدنى' },
+      { id: 'max',    label: 'الأعلى' },
+      { id: 'concat', label: 'دمج النصوص' },
+    ],
+
+    advOpLabels: {
+      eq: 'يساوي', neq: 'لا يساوي', gt: 'أكبر من', gte: 'أكبر من أو يساوي',
+      lt: 'أصغر من', lte: 'أصغر من أو يساوي', between: 'بين', in: 'ضمن',
+      contains: 'يحتوي على', isNull: 'فارغ', notNull: 'غير فارغ',
+    },
+
+    // ─ Advanced Builder State ─
+    advSteps: ['الكيان الأساسي', 'البيانات المرتبطة', 'الأعمدة', 'الفلاتر', 'الاختبار والتصدير'],
+    advStep: 0,
+    advBase: '',
+    advJoins: [],
+    advCols: [],
+    advAgg: {},
+    advFilters: [],
+    advDateCol: 'created_at',
+    advDateFrom: '',
+    advDateTo: '',
+    advFormat: 'csv',
+    advTesting: false,
+    advTested: false,
+    advTestResult: null,
+    advSaveModal: null,
+    advTemplates: [
+      {
+        id: 'tpl-adv-1', name: 'تقرير العملاء مع المراحل', isShared: true,
+        description: 'قائمة العملاء المحتملين مع مراحلهم ومصادرهم والوسيل المسؤول',
+        usageCount: 14, lastUsedAt: '2026-06-20T10:00:00Z',
+        spec: {
+          base: 'leads', joins: ['lead.stage', 'lead.source'],
+          columns: ['leads.first_name','leads.last_name','leads.email','leads.budget','leads.created_at'],
+          agg: {}, filters: [], dateCol: 'leads.created_at', dateFrom: '', dateTo: '', format: 'xlsx'
+        }
+      },
+      {
+        id: 'tpl-adv-2', name: 'ملخّص الصفقات والعمولات', isShared: false,
+        description: 'إجمالي الصفقات المُغلقة مع تفاصيل العمولة لكل وكيل',
+        usageCount: 7, lastUsedAt: '2026-06-18T14:30:00Z',
+        spec: {
+          base: 'deals', joins: ['deal.assigned_agent'],
+          columns: ['deals.title','deals.status','deals.deal_value','deals.commission_amount','deals.closed_at'],
+          agg: {}, filters: [{ col: 'deals.status', op: 'eq', val: 'closed' }], dateCol: 'deals.closed_at', dateFrom: '', dateTo: '', format: 'csv'
+        }
+      },
+    ],
+
+    // ─ Advanced Builder Functions ─
+
+    advAvailableRelations() {
+      return this.advCatalogRelations.filter(r => r.from === this.advBase);
+    },
+
+    advToggleJoin(relId) {
+      const idx = this.advJoins.indexOf(relId);
+      if (idx > -1) {
+        // remove join + its columns
+        const rel = this.advCatalogRelations.find(r => r.id === relId);
+        if (rel) this.advCols = this.advCols.filter(c => !c.startsWith(rel.to + '.'));
+        this.advJoins = this.advJoins.filter(x => x !== relId);
+      } else {
+        this.advJoins = [...this.advJoins, relId];
+      }
+      this.advTested = false;
+      this.advTestResult = null;
+    },
+
+    advAutoSelectCols() {
+      const baseCols = (this.advCatalogColumns[this.advBase] || []).slice(0, 5).map(c => this.advBase + '.' + c.key);
+      this.advCols = baseCols;
+    },
+
+    advColumnGroups() {
+      const groups = [];
+      // Base entity
+      const baseCols = this.advCatalogColumns[this.advBase] || [];
+      if (baseCols.length) {
+        const baseEnt = this.advCatalogBaseEntities.find(e => e.name === this.advBase);
+        groups.push({ entity: this.advBase, label: baseEnt ? baseEnt.label : this.advBase, cols: baseCols, isJoin: false, isOneToMany: false });
+      }
+      // Joined entities — use relId as key to avoid dup entity keys
+      for (const relId of this.advJoins) {
+        const rel = this.advCatalogRelations.find(r => r.id === relId);
+        if (!rel) continue;
+        const cols = this.advCatalogColumns[rel.to] || [];
+        groups.push({ entity: rel.to, relId, label: rel.label, cols, isJoin: true, isOneToMany: rel.relType === 'one_to_many' });
+      }
+      return groups;
+    },
+
+    advToggleCol(fullKey, checked) {
+      if (checked) {
+        if (!this.advCols.includes(fullKey)) this.advCols = [...this.advCols, fullKey];
+      } else {
+        this.advCols = this.advCols.filter(c => c !== fullKey);
+        delete this.advAgg[fullKey];
+      }
+    },
+
+    advColType(fullKey) {
+      const [entity, colKey] = fullKey.split('.');
+      const col = (this.advCatalogColumns[entity] || []).find(c => c.key === colKey);
+      return col ? col.type : 'text';
+    },
+
+    advColLabel(fullKey) {
+      const [entity, colKey] = fullKey.split('.');
+      const col = (this.advCatalogColumns[entity] || []).find(c => c.key === colKey);
+      return col ? col.label : fullKey;
+    },
+
+    advOpsForCol(fullKey) {
+      if (!fullKey) return [];
+      const type = this.advColType(fullKey);
+      return this.advCatalogOpsByType[type] || ['eq'];
+    },
+
+    advOpLabel(op) {
+      return this.advOpLabels[op] || op;
+    },
+
+    advAddFilter() {
+      this.advFilters = [...this.advFilters, { col: '', op: 'eq', val: '', val2: '' }];
+    },
+
+    advWarnLabel(code) {
+      const map = {
+        'REPORT_WARN_LARGE_RESULT_BACKGROUND': 'النتائج تتجاوز ١٠٠ ألف سجل — سيُنفَّذ التصدير في الخلفية وستُبلَّغ عند الاكتمال.',
+        'REPORT_WARN_ONE_TO_MANY_FANOUT': 'توجد علاقة واحد-لـ-متعدد — الأعمدة المضافة من هذه العلاقة ستُجمَّع تلقائياً.',
+        'REPORT_WARN_SLOW_QUERY': 'الاستعلام قد يستغرق وقتاً — تأكد من وجود فلاتر كافية لتضييق نطاق النتائج.',
+      };
+      return map[code] || code;
+    },
+
+    advRunTest() {
+      if (!this.advCols.length) return;
+      this.advTesting = true;
+      this.advTested = false;
+      this.advTestResult = null;
+      // Mock DryRunReport response (mirrors TDryRunResult)
+      setTimeout(() => {
+        const hasOneToMany = this.advJoins.some(jid => {
+          const rel = this.advCatalogRelations.find(r => r.id === jid);
+          return rel && rel.relType === 'one_to_many';
+        });
+        const totalRows = Math.floor(Math.random() * 800) + 20;
+        const warns = [];
+        if (hasOneToMany) warns.push('REPORT_WARN_ONE_TO_MANY_FANOUT');
+        if (totalRows > 500) warns.push('REPORT_WARN_SLOW_QUERY');
+        // Build mock sample rows with selected columns
+        const sampleRows = Array.from({ length: Math.min(5, totalRows) }, (_, ri) => {
+          const row = {};
+          this.advCols.forEach(fullKey => {
+            const type = this.advColType(fullKey);
+            const label = this.advColLabel(fullKey);
+            if (type === 'uuid')    row[fullKey] = fullKey.split('.')[0].slice(0,2).toUpperCase() + '-' + (1000+ri);
+            else if (type === 'number')  row[fullKey] = (Math.floor(Math.random()*900000)+100000).toLocaleString('ar');
+            else if (type === 'date')    row[fullKey] = '2026-0' + (ri+1) + '-' + (10+ri);
+            else if (type === 'boolean') row[fullKey] = ri % 2 === 0 ? 'نعم' : 'لا';
+            else if (type === 'enum')    row[fullKey] = ['نشط','مكتمل','مُعلَّق'][ri % 3];
+            else                         row[fullKey] = label + ' ' + (ri+1);
+          });
+          return row;
+        });
+        this.advTestResult = {
+          valid: true,
+          sampleRows,
+          totalRows,
+          estimatedMs: Math.floor(Math.random() * 800) + 80,
+          estimatedSize: Math.floor(totalRows * this.advCols.length * 0.03),
+          warnings: warns,
+        };
+        this.advTested = true;
+        this.advTesting = false;
+      }, 1200);
+    },
+
+    advDoExport() {
+      if (!this.advTested || !this.advTestResult || !this.advTestResult.valid) return;
+      if (this.quotaUsed >= this.quotaLimit) return;
+      const newJob = {
+        id: 'j' + Date.now(),
+        entityType: this.advBase,
+        jobType: 'export',
+        format: this.advFormat,
+        status: 'queued',
+        progress: 0,
+        fileName: 'report-' + this.advBase + '-' + new Date().toISOString().slice(0, 10) + '.' + this.advFormat,
+        fileSize: null,
+        downloadCount: 0,
+        error: null,
+        createdAt: new Date().toISOString(),
+      };
+      this.jobs.unshift(newJob);
+      this.quotaUsed++;
+      this.showToast('تقرير التصدير قيد الإعداد — سيظهر في السجل عند اكتماله');
+      setTimeout(() => { const j = this.jobs.find(x => x.id === newJob.id); if (j) { j.status = 'processing'; j.progress = 35; } }, 900);
+      setTimeout(() => { const j = this.jobs.find(x => x.id === newJob.id); if (j) { j.progress = 78; } }, 1900);
+      setTimeout(() => { const j = this.jobs.find(x => x.id === newJob.id); if (j) { j.status = 'completed'; j.progress = 100; j.fileSize = Math.floor((this.advTestResult ? this.advTestResult.estimatedSize : 500) * 1024); } }, 2800);
+    },
+
+    advOpenSaveModal() {
+      this.advSaveModal = { name: '', description: '', isShared: false };
+    },
+
+    advSaveTemplate() {
+      if (!this.advSaveModal || !this.advSaveModal.name) return;
+      const spec = {
+        base: this.advBase,
+        joins: this.advJoins.slice(),
+        columns: this.advCols.slice(),
+        agg: Object.assign({}, this.advAgg),
+        filters: this.advFilters.map(f => Object.assign({}, f)),
+        dateCol: this.advDateCol,
+        dateFrom: this.advDateFrom,
+        dateTo: this.advDateTo,
+        format: this.advFormat,
+      };
+      this.advTemplates.unshift({
+        id: 'adv-' + Date.now(),
+        name: this.advSaveModal.name,
+        description: this.advSaveModal.description,
+        isShared: this.advSaveModal.isShared,
+        spec,
+        usageCount: 0,
+        savedAt: new Date().toISOString(),
+      });
+      this.advSaveModal = null;
+      this.showToast('تم حفظ القالب المتقدّم');
+    },
+
+    advLoadTemplate(t) {
+      if (!t || !t.spec) return;
+      const s = t.spec;
+      this.advBase     = s.base     || '';
+      this.advJoins    = s.joins    ? s.joins.slice()   : [];
+      this.advCols     = s.columns  ? s.columns.slice() : [];
+      this.advAgg      = s.agg      ? Object.assign({}, s.agg) : {};
+      this.advFilters  = s.filters  ? s.filters.map(f => Object.assign({}, f)) : [];
+      this.advDateCol  = s.dateCol  || 'created_at';
+      this.advDateFrom = s.dateFrom || '';
+      this.advDateTo   = s.dateTo   || '';
+      this.advFormat   = s.format   || 'csv';
+      this.advTested   = false;
+      this.advTestResult = null;
+      this.advStep     = 4; // jump to test step
+      this.exportMode  = 'advanced';
+      t.usageCount     = (t.usageCount || 0) + 1;
+      this.showToast('تم تحميل القالب في المنشئ المتقدّم');
+    },
+
     // ---- URL param routing ----
     init() {
       const p = new URLSearchParams(window.location.search);
@@ -1615,11 +2628,11 @@ function dataIO() {
       if (view && ['export', 'import', 'templates', 'scheduled', 'jobs'].includes(view)) this.tab = view;
       const validEntities = ['leads', 'contacts', 'properties', 'deals'];
       if (entity && validEntities.includes(entity)) {
-        // اختيار الكيان مسبقاً وتحميل الأعمدة الافتراضية
+        // Deep-link: go straight to quick builder with pre-selected entity
+        this.exportMode = 'quick';
         const entityObj = this.entities.find(e => e.id === entity);
         if (entityObj) {
           this.selectEntity(entityObj);
-          // الانتقال مباشرةً إلى خطوة الأعمدة (step 2)
           this.exportStep = 1;
         }
       }
