@@ -906,7 +906,7 @@
 
   <!-- ===== Floating row-action menu ===== -->
   <div class="adm-rowmenu" x-show="menu.open" x-cloak
-       :style="`top:${menu.y}px;inset-inline-end:${menu.x}px;`"
+       :style="`top:${menu.y}px;inset-inline-end:0px;`"
        @click.outside="menu.open=false"
        x-transition.origin.top.end>
     <button @click="openDetail(menu.tk); menu.open=false">
