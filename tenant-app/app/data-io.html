@@ -1853,8 +1853,7 @@
                     <div class="text-xs text-neutral-400" x-text="s.templateName ? entityLabel(s.entityType) : ''"></div>
                   </td>
                   <td>
-                    <div class="font-mono text-xs text-neutral-500 font-latin" dir="ltr" x-text="s.cronPattern"></div>
-                    <div class="text-xs text-neutral-400 mt-0.5" x-text="cronDesc(s.cronPattern)"></div>
+                    <div class="text-sm text-primary-700" x-text="scheduleSummary(s.scheduleConfig || cronToConfig(s.cronPattern || ''))"></div>
                   </td>
                   <td>
                     <span class="font-bold text-xs px-2 py-1 rounded-md text-white" :style="'background:'+formatColor(s.format)" x-text="s.format.toUpperCase()"></span>
@@ -1903,8 +1902,9 @@
                 <div class="flex flex-col gap-1 min-w-0 flex-1">
                   <div class="flex items-center gap-2 flex-wrap">
                     <span class="font-semibold text-primary-800 text-sm" x-text="reportTypeLabel(s.reportType)"></span>
-                    <span class="adm-badge" :class="s.frequency==='daily'?'b-info':s.frequency==='weekly'?'b-warning':'b-success'" x-text="s.frequency==='daily'?'يومي':s.frequency==='weekly'?'أسبوعي':'شهري'"></span>
+                    <span class="adm-badge" :class="(s.scheduleConfig?.frequency||s.frequency)==='daily'?'b-info':(s.scheduleConfig?.frequency||s.frequency)==='weekly'?'b-warning':'b-success'" x-text="(s.scheduleConfig?.frequency||s.frequency)==='daily'?'يومي':(s.scheduleConfig?.frequency||s.frequency)==='weekly'?'أسبوعي':'شهري'"></span>
                   </div>
+                  <div class="text-xs text-neutral-500 mt-0.5" x-text="scheduleSummary(s.scheduleConfig)"></div>
                   <div class="flex flex-wrap gap-1 mt-1">
                     <template x-for="email in s.recipients" :key="email">
                       <span class="inline-flex items-center gap-1 text-xs rounded-full bg-primary-50 text-primary-700 border border-primary-200 px-2 py-0.5" x-text="email"></span>
@@ -2886,19 +2886,215 @@
                 </div>
             </div>
           </div>
+          <!-- التكرار + الوقت -->
           <div class="sm:col-span-2">
-            <label class="ec-label">التكرار</label>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1">
-              <button @click="schedModal.cronPattern='0 8 * * *'" class="adm-btn adm-btn-ghost adm-btn-sm" :class="schedModal.cronPattern==='0 8 * * *'&&'border-primary-700 text-primary-800 bg-primary-50'">يومياً ٨ص</button>
-              <button @click="schedModal.cronPattern='0 8 * * 0'" class="adm-btn adm-btn-ghost adm-btn-sm" :class="schedModal.cronPattern==='0 8 * * 0'&&'border-primary-700 text-primary-800 bg-primary-50'">أسبوعياً</button>
-              <button @click="schedModal.cronPattern='0 8 1 * *'" class="adm-btn adm-btn-ghost adm-btn-sm" :class="schedModal.cronPattern==='0 8 1 * *'&&'border-primary-700 text-primary-800 bg-primary-50'">شهرياً</button>
-              <button @click="schedModal.cronPattern='0 8 * * 0,3'" class="adm-btn adm-btn-ghost adm-btn-sm" :class="schedModal.cronPattern==='0 8 * * 0,3'&&'border-primary-700 text-primary-800 bg-primary-50'">مرتين/أسبوع</button>
+            <label class="ec-label">التكرار <span class="text-danger">*</span></label>
+            <div class="flex gap-2 mt-1">
+              <button @click="schedModal.scheduleConfig.frequency='daily'; delete schedModal.scheduleConfig.weekday; delete schedModal.scheduleConfig.monthDay" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="schedModal.scheduleConfig.frequency==='daily'&&'border-primary-700 text-primary-800 bg-primary-50'">يومي</button>
+              <button @click="schedModal.scheduleConfig.frequency='weekly'; schedModal.scheduleConfig.weekday=schedModal.scheduleConfig.weekday??0; delete schedModal.scheduleConfig.monthDay" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="schedModal.scheduleConfig.frequency==='weekly'&&'border-primary-700 text-primary-800 bg-primary-50'">أسبوعي</button>
+              <button @click="schedModal.scheduleConfig.frequency='monthly'; schedModal.scheduleConfig.monthDay=schedModal.scheduleConfig.monthDay??1; delete schedModal.scheduleConfig.weekday" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="schedModal.scheduleConfig.frequency==='monthly'&&'border-primary-700 text-primary-800 bg-primary-50'">شهري</button>
             </div>
-            <div class="mt-2">
-              <label class="ec-label">أو أدخل cron مخصص (٥ أجزاء)</label>
-              <input type="text" x-model="schedModal.cronPattern" dir="ltr" class="ec-input font-latin" placeholder="0 8 * * *" />
-              <p class="text-xs text-neutral-400 mt-1" x-text="cronDesc(schedModal.cronPattern)"></p>
+          </div>
+          <div>
+            <label class="ec-label">وقت التشغيل <span class="text-danger">*</span></label>
+            <input type="time" x-model="schedModal.scheduleConfig.time" dir="ltr" class="ec-input font-latin" />
+          </div>
+          <!-- يوم الأسبوع (أسبوعي فقط) -->
+          <div x-show="schedModal.scheduleConfig.frequency==='weekly'">
+            <label class="ec-label">يوم الأسبوع</label>
+            <div class="ec-input p-0 overflow-visible"
+                 x-data="{ ...smartSelect({ optionsFn: () => [
+                   { value: 0, label: 'الأحد' }, { value: 1, label: 'الإثنين' }, { value: 2, label: 'الثلاثاء' },
+                   { value: 3, label: 'الأربعاء' }, { value: 4, label: 'الخميس' }, { value: 5, label: 'الجمعة' }, { value: 6, label: 'السبت' }
+                 ], multi: false, searchable: false, selectAll: false, grouped: false, placeholder: '— اختر اليوم —', onChange: v => { schedModal.scheduleConfig.weekday = v } }) }"
+                 x-effect="ssValue = schedModal.scheduleConfig.weekday ?? 0"
+                 @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                 @keydown.escape.window="ssForceClose()">
+              <!-- Smart Select trigger -->
+                <button type="button"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        @click.stop="ssTriggerClick($event)">
+                  <template x-if="ssMulti && ssHasValue()">
+                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
+                      <template x-for="chip in ssValue" :key="chip">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
+                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                        </span>
+                      </template>
+                    </span>
+                  </template>
+                  <template x-if="!ssMulti && ssHasValue()">
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                  </template>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
+                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Smart Select panel (fixed → escapes overflow) -->
+                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                  </div>
+                  <div class="overflow-y-auto flex-1">
+                    <template x-if="ssGrouped">
+                      <div>
+                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                          <div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <template x-for="opt in grp.items" :key="opt.value">
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                                   @click="ssSelect(opt.value)">
+                                <template x-if="ssMulti">
+                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                                </template>
+                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                                </template>
+                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                                  <span class="w-3.5 shrink-0"></span>
+                                </template>
+                                <span x-text="opt.label"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="!ssGrouped">
+                      <div>
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                               @click="ssSelect(opt.value)">
+                            <template x-if="ssMulti">
+                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            </template>
+                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                              <span class="w-3.5 shrink-0"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                    </template>
+                  </div>
+                </div>
             </div>
+          </div>
+          <!-- يوم الشهر (شهري فقط) -->
+          <div x-show="schedModal.scheduleConfig.frequency==='monthly'">
+            <label class="ec-label">يوم الشهر</label>
+            <div class="ec-input p-0 overflow-visible"
+                 x-data="{ ...smartSelect({ optionsFn: () => Array.from({length:31},(_,i)=>({ value: i+1, label: String(i+1) })), multi: false, searchable: false, selectAll: false, grouped: false, placeholder: '— اختر اليوم —', onChange: v => { schedModal.scheduleConfig.monthDay = v } }) }"
+                 x-effect="ssValue = schedModal.scheduleConfig.monthDay ?? 1"
+                 @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                 @keydown.escape.window="ssForceClose()">
+              <!-- Smart Select trigger -->
+                <button type="button"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        @click.stop="ssTriggerClick($event)">
+                  <template x-if="ssMulti && ssHasValue()">
+                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
+                      <template x-for="chip in ssValue" :key="chip">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
+                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                        </span>
+                      </template>
+                    </span>
+                  </template>
+                  <template x-if="!ssMulti && ssHasValue()">
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                  </template>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
+                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Smart Select panel (fixed → escapes overflow) -->
+                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                  </div>
+                  <div class="overflow-y-auto flex-1">
+                    <template x-if="ssGrouped">
+                      <div>
+                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                          <div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <template x-for="opt in grp.items" :key="opt.value">
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                                   @click="ssSelect(opt.value)">
+                                <template x-if="ssMulti">
+                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                                </template>
+                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                                </template>
+                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                                  <span class="w-3.5 shrink-0"></span>
+                                </template>
+                                <span x-text="opt.label"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="!ssGrouped">
+                      <div>
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                               @click="ssSelect(opt.value)">
+                            <template x-if="ssMulti">
+                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            </template>
+                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                              <span class="w-3.5 shrink-0"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                    </template>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <!-- معاينة بشرية -->
+          <div class="sm:col-span-2">
+            <p class="text-xs text-primary-700 bg-primary-50 border border-primary-200 rounded-lg px-3 py-2" x-text="scheduleSummary(schedModal.scheduleConfig)"></p>
           </div>
           <div class="sm:col-span-2">
             <label class="ec-label">المستلمون <span class="text-danger">*</span> (١ — ٢٠)</label>
@@ -2923,7 +3119,7 @@
           </div>
         </div>
         <div class="adm-modal-foot">
-          <button @click="saveSched()" :disabled="!schedModal.entityType || !schedModal.format || !schedModal.cronPattern || !schedModal.recipients.length" class="adm-btn adm-btn-primary" x-text="schedModal.id?'حفظ':'إنشاء'"></button>
+          <button @click="saveSched()" :disabled="!schedModal.entityType || !schedModal.format || !schedModal.scheduleConfig?.frequency || !schedModal.scheduleConfig?.time || !schedModal.recipients.length" class="adm-btn adm-btn-primary" x-text="schedModal.id?'حفظ':'إنشاء'"></button>
           <button @click="schedModal=null" class="adm-btn adm-btn-ghost">إلغاء</button>
         </div>
       </div>
@@ -3040,10 +3236,212 @@
           <div class="sm:col-span-2">
             <label class="ec-label">التكرار <span class="text-danger">*</span></label>
             <div class="flex gap-2 mt-1">
-              <button @click="reportSchedModal.frequency='daily'" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.frequency==='daily'&&'border-primary-700 text-primary-800 bg-primary-50'">يومي</button>
-              <button @click="reportSchedModal.frequency='weekly'" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.frequency==='weekly'&&'border-primary-700 text-primary-800 bg-primary-50'">أسبوعي</button>
-              <button @click="reportSchedModal.frequency='monthly'" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.frequency==='monthly'&&'border-primary-700 text-primary-800 bg-primary-50'">شهري</button>
+              <button @click="reportSchedModal.scheduleConfig.frequency='daily'; delete reportSchedModal.scheduleConfig.weekday; delete reportSchedModal.scheduleConfig.monthDay" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.scheduleConfig.frequency==='daily'&&'border-primary-700 text-primary-800 bg-primary-50'">يومي</button>
+              <button @click="reportSchedModal.scheduleConfig.frequency='weekly'; reportSchedModal.scheduleConfig.weekday=reportSchedModal.scheduleConfig.weekday??0; delete reportSchedModal.scheduleConfig.monthDay" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.scheduleConfig.frequency==='weekly'&&'border-primary-700 text-primary-800 bg-primary-50'">أسبوعي</button>
+              <button @click="reportSchedModal.scheduleConfig.frequency='monthly'; reportSchedModal.scheduleConfig.monthDay=reportSchedModal.scheduleConfig.monthDay??1; delete reportSchedModal.scheduleConfig.weekday" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.scheduleConfig.frequency==='monthly'&&'border-primary-700 text-primary-800 bg-primary-50'">شهري</button>
             </div>
+          </div>
+          <!-- الوقت -->
+          <div>
+            <label class="ec-label">وقت التشغيل <span class="text-danger">*</span></label>
+            <input type="time" x-model="reportSchedModal.scheduleConfig.time" dir="ltr" class="ec-input font-latin" />
+          </div>
+          <!-- يوم الأسبوع (أسبوعي فقط) -->
+          <div x-show="reportSchedModal.scheduleConfig.frequency==='weekly'">
+            <label class="ec-label">يوم الأسبوع</label>
+            <div class="ec-input p-0 overflow-visible"
+                 x-data="{ ...smartSelect({ optionsFn: () => [
+                   { value: 0, label: 'الأحد' }, { value: 1, label: 'الإثنين' }, { value: 2, label: 'الثلاثاء' },
+                   { value: 3, label: 'الأربعاء' }, { value: 4, label: 'الخميس' }, { value: 5, label: 'الجمعة' }, { value: 6, label: 'السبت' }
+                 ], multi: false, searchable: false, selectAll: false, grouped: false, placeholder: '— اختر اليوم —', onChange: v => { reportSchedModal.scheduleConfig.weekday = v } }) }"
+                 x-effect="ssValue = reportSchedModal.scheduleConfig.weekday ?? 0"
+                 @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                 @keydown.escape.window="ssForceClose()">
+              <!-- Smart Select trigger -->
+                <button type="button"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        @click.stop="ssTriggerClick($event)">
+                  <template x-if="ssMulti && ssHasValue()">
+                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
+                      <template x-for="chip in ssValue" :key="chip">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
+                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                        </span>
+                      </template>
+                    </span>
+                  </template>
+                  <template x-if="!ssMulti && ssHasValue()">
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                  </template>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
+                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Smart Select panel (fixed → escapes overflow) -->
+                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                  </div>
+                  <div class="overflow-y-auto flex-1">
+                    <template x-if="ssGrouped">
+                      <div>
+                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                          <div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <template x-for="opt in grp.items" :key="opt.value">
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                                   @click="ssSelect(opt.value)">
+                                <template x-if="ssMulti">
+                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                                </template>
+                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                                </template>
+                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                                  <span class="w-3.5 shrink-0"></span>
+                                </template>
+                                <span x-text="opt.label"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="!ssGrouped">
+                      <div>
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                               @click="ssSelect(opt.value)">
+                            <template x-if="ssMulti">
+                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            </template>
+                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                              <span class="w-3.5 shrink-0"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                    </template>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <!-- يوم الشهر (شهري فقط) -->
+          <div x-show="reportSchedModal.scheduleConfig.frequency==='monthly'">
+            <label class="ec-label">يوم الشهر</label>
+            <div class="ec-input p-0 overflow-visible"
+                 x-data="{ ...smartSelect({ optionsFn: () => Array.from({length:31},(_,i)=>({ value: i+1, label: String(i+1) })), multi: false, searchable: false, selectAll: false, grouped: false, placeholder: '— اختر اليوم —', onChange: v => { reportSchedModal.scheduleConfig.monthDay = v } }) }"
+                 x-effect="ssValue = reportSchedModal.scheduleConfig.monthDay ?? 1"
+                 @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                 @keydown.escape.window="ssForceClose()">
+              <!-- Smart Select trigger -->
+                <button type="button"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        @click.stop="ssTriggerClick($event)">
+                  <template x-if="ssMulti && ssHasValue()">
+                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
+                      <template x-for="chip in ssValue" :key="chip">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
+                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                        </span>
+                      </template>
+                    </span>
+                  </template>
+                  <template x-if="!ssMulti && ssHasValue()">
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                  </template>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
+                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Smart Select panel (fixed → escapes overflow) -->
+                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                  </div>
+                  <div class="overflow-y-auto flex-1">
+                    <template x-if="ssGrouped">
+                      <div>
+                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                          <div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <template x-for="opt in grp.items" :key="opt.value">
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                                   @click="ssSelect(opt.value)">
+                                <template x-if="ssMulti">
+                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                                </template>
+                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                                </template>
+                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                                  <span class="w-3.5 shrink-0"></span>
+                                </template>
+                                <span x-text="opt.label"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="!ssGrouped">
+                      <div>
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                               @click="ssSelect(opt.value)">
+                            <template x-if="ssMulti">
+                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            </template>
+                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                              <span class="w-3.5 shrink-0"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                    </template>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <!-- معاينة بشرية -->
+          <div class="sm:col-span-2">
+            <p class="text-xs text-primary-700 bg-primary-50 border border-primary-200 rounded-lg px-3 py-2" x-text="scheduleSummary(reportSchedModal.scheduleConfig)"></p>
           </div>
           <!-- المستلمون (email chips) -->
           <div class="sm:col-span-2">
@@ -3077,7 +3475,7 @@
           </div>
         </div>
         <div class="adm-modal-foot">
-          <button @click="saveReportSched()" :disabled="!reportSchedModal.reportType || !reportSchedModal.frequency || !reportSchedModal.recipients.length" class="adm-btn adm-btn-primary" x-text="reportSchedModal.id ? 'حفظ' : 'إنشاء'"></button>
+          <button @click="saveReportSched()" :disabled="!reportSchedModal.reportType || !reportSchedModal.scheduleConfig?.frequency || !reportSchedModal.scheduleConfig?.time || !reportSchedModal.recipients.length" class="adm-btn adm-btn-primary" x-text="reportSchedModal.id ? 'حفظ' : 'إنشاء'"></button>
           <button @click="reportSchedModal=null" class="adm-btn adm-btn-ghost">إلغاء</button>
         </div>
       </div>
@@ -3488,8 +3886,8 @@ function dataIO() {
       { id: 'u5', name: 'محمد العتيبي', initials: 'مع' },
     ],
     schedules: [
-      { id: 'sc1', templateId: 't1', templateName: 'تقرير العملاء الشهري', entityType: 'leads', format: 'xlsx', cronPattern: '0 8 1 * *', recipients: [{ userId: 'u1', initials: 'سق' }, { userId: 'u5', initials: 'مع' }], isActive: true, nextRun: D(-30) },
-      { id: 'sc2', templateId: null, templateName: null, entityType: 'deals', format: 'csv', cronPattern: '0 8 * * 0', recipients: [{ userId: 'u5', initials: 'مع' }], isActive: true, nextRun: D(-7) },
+      { id: 'sc1', templateId: 't1', templateName: 'تقرير العملاء الشهري', entityType: 'leads', format: 'xlsx', scheduleConfig: { frequency: 'monthly', time: '08:00', monthDay: 1 }, recipients: [{ userId: 'u1', initials: 'سق' }, { userId: 'u5', initials: 'مع' }], isActive: true, nextRun: D(-30) },
+      { id: 'sc2', templateId: null, templateName: null, entityType: 'deals', format: 'csv', scheduleConfig: { frequency: 'weekly', time: '08:00', weekday: 0 }, recipients: [{ userId: 'u5', initials: 'مع' }], isActive: true, nextRun: D(-7) },
     ],
 
     // ---- Report Schedules ----
@@ -3506,9 +3904,9 @@ function dataIO() {
       { id: 'executive-dashboard',label: 'اللوحة التنفيذية' },
     ],
     reportSchedules: [
-      { id: 'rs1', reportType: 'summary',        frequency: 'monthly',  recipients: ['owner@est8.sa', 'gm@est8.sa'],       isActive: true,  nextRunAt: D(-30) },
-      { id: 'rs2', reportType: 'leads-summary',  frequency: 'weekly',   recipients: ['sales@est8.sa'],                     isActive: true,  nextRunAt: D(-7)  },
-      { id: 'rs3', reportType: 'deals-summary',  frequency: 'daily',    recipients: ['manager@est8.sa', 'cfo@est8.sa'],    isActive: false, nextRunAt: D(-1)  },
+      { id: 'rs1', reportType: 'summary',        frequency: 'monthly',  scheduleConfig: { frequency: 'monthly',  time: '08:00', monthDay: 1  }, recipients: ['owner@est8.sa', 'gm@est8.sa'],       isActive: true,  nextRunAt: D(-30) },
+      { id: 'rs2', reportType: 'leads-summary',  frequency: 'weekly',   scheduleConfig: { frequency: 'weekly',   time: '08:00', weekday: 0   }, recipients: ['sales@est8.sa'],                     isActive: true,  nextRunAt: D(-7)  },
+      { id: 'rs3', reportType: 'deals-summary',  frequency: 'daily',    scheduleConfig: { frequency: 'daily',    time: '09:00'               }, recipients: ['manager@est8.sa', 'cfo@est8.sa'],    isActive: false, nextRunAt: D(-1)  },
     ],
 
     reportTypeLabel(type) {
@@ -3520,19 +3918,40 @@ function dataIO() {
       this.reportSchedModal = {
         id: null,
         reportType: presetType || '',
-        frequency: 'weekly',
+        scheduleConfig: { frequency: 'weekly', time: '08:00', weekday: 0 },
         recipients: [],
         isActive: true,
       };
     },
 
     openReportSchedEdit(s) {
-      this.reportSchedModal = { ...JSON.parse(JSON.stringify({ id: s.id, reportType: s.reportType, frequency: s.frequency, isActive: s.isActive })), recipients: s.recipients.slice() };
+      const sc = s.scheduleConfig ? JSON.parse(JSON.stringify(s.scheduleConfig)) : { frequency: s.frequency || 'weekly', time: '08:00' };
+      if (sc.frequency === 'weekly' && sc.weekday == null) sc.weekday = 0;
+      if (sc.frequency === 'monthly' && sc.monthDay == null) sc.monthDay = 1;
+      this.reportSchedModal = {
+        id: s.id,
+        reportType: s.reportType,
+        scheduleConfig: sc,
+        isActive: s.isActive,
+        recipients: s.recipients.slice(),
+      };
     },
 
     saveReportSched() {
-      if (!this.reportSchedModal.reportType || !this.reportSchedModal.frequency || !this.reportSchedModal.recipients.length) return;
-      const data = { ...JSON.parse(JSON.stringify({ id: this.reportSchedModal.id, reportType: this.reportSchedModal.reportType, frequency: this.reportSchedModal.frequency, isActive: this.reportSchedModal.isActive })), recipients: this.reportSchedModal.recipients.slice(), nextRunAt: D(-7) };
+      const cfg = this.reportSchedModal.scheduleConfig;
+      if (!this.reportSchedModal.reportType || !cfg || !cfg.frequency || !cfg.time || !this.reportSchedModal.recipients.length) return;
+      const scheduleConfig = { frequency: cfg.frequency, time: cfg.time };
+      if (cfg.frequency === 'weekly') scheduleConfig.weekday = cfg.weekday != null ? cfg.weekday : 0;
+      if (cfg.frequency === 'monthly') scheduleConfig.monthDay = cfg.monthDay != null ? cfg.monthDay : 1;
+      const data = {
+        id: this.reportSchedModal.id,
+        reportType: this.reportSchedModal.reportType,
+        frequency: scheduleConfig.frequency,
+        scheduleConfig,
+        isActive: this.reportSchedModal.isActive,
+        recipients: this.reportSchedModal.recipients.slice(),
+        nextRunAt: D(-7),
+      };
       if (data.id) {
         const i = this.reportSchedules.findIndex(x => x.id === data.id);
         if (i > -1) this.reportSchedules[i] = data;
@@ -3543,8 +3962,16 @@ function dataIO() {
       this.showToast('تم حفظ جدولة التقرير');
     },
 
-    openSchedCreate() { this.schedModal = { id: null, templateId: '', entityType: 'leads', format: 'csv', cronPattern: '0 8 * * *', recipients: [], isActive: true }; },
-    openSchedEdit(s) { this.schedModal = JSON.parse(JSON.stringify(s)); },
+    openSchedCreate() {
+      this.schedModal = { id: null, templateId: '', entityType: 'leads', format: 'csv', scheduleConfig: { frequency: 'daily', time: '08:00' }, recipients: [], isActive: true };
+    },
+    openSchedEdit(s) {
+      const clone = JSON.parse(JSON.stringify(s));
+      if (!clone.scheduleConfig) clone.scheduleConfig = this.cronToConfig(clone.cronPattern || '');
+      if (clone.scheduleConfig.frequency === 'weekly' && clone.scheduleConfig.weekday == null) clone.scheduleConfig.weekday = 0;
+      if (clone.scheduleConfig.frequency === 'monthly' && clone.scheduleConfig.monthDay == null) clone.scheduleConfig.monthDay = 1;
+      this.schedModal = clone;
+    },
 
     toggleSchedRecipient(u, e) {
       if (e.target.checked) {
@@ -3561,9 +3988,15 @@ function dataIO() {
     },
 
     saveSched() {
-      if (!this.schedModal.entityType || !this.schedModal.format || !this.schedModal.cronPattern || !this.schedModal.recipients.length) return;
+      const cfg = this.schedModal.scheduleConfig;
+      if (!this.schedModal.entityType || !this.schedModal.format || !cfg || !cfg.frequency || !cfg.time || !this.schedModal.recipients.length) return;
       const tpl = this.schedModal.templateId ? this.templates.find(t => t.id === this.schedModal.templateId) : null;
-      const data = { ...JSON.parse(JSON.stringify(this.schedModal)), templateName: tpl ? tpl.name : null, nextRun: D(-7) };
+      // Build clean scheduleConfig (no stale weekday/monthDay cross-contamination)
+      const scheduleConfig = { frequency: cfg.frequency, time: cfg.time };
+      if (cfg.frequency === 'weekly') scheduleConfig.weekday = cfg.weekday != null ? cfg.weekday : 0;
+      if (cfg.frequency === 'monthly') scheduleConfig.monthDay = cfg.monthDay != null ? cfg.monthDay : 1;
+      const cloned = JSON.parse(JSON.stringify({ id: this.schedModal.id, templateId: this.schedModal.templateId, entityType: this.schedModal.entityType, format: this.schedModal.format, isActive: this.schedModal.isActive }));
+      const data = { ...cloned, scheduleConfig, recipients: this.schedModal.recipients.slice(), templateName: tpl ? tpl.name : null, nextRun: D(-7) };
       if (data.id) {
         const i = this.schedules.findIndex(x => x.id === data.id);
         if (i > -1) this.schedules[i] = data;
@@ -3574,15 +4007,43 @@ function dataIO() {
       this.showToast('تم حفظ الجدولة');
     },
 
+    // ---- Schedule helpers ----
+    cronToConfig(cron) {
+      if (!cron) return { frequency: 'daily', time: '08:00' };
+      const p = (cron || '').trim().split(/\s+/);
+      if (p.length !== 5) return { frequency: 'daily', time: '08:00' };
+      const [min, hr, dom, , dow] = p;
+      const hh = String(parseInt(hr, 10) || 8).padStart(2, '0');
+      const mm = String(parseInt(min, 10) || 0).padStart(2, '0');
+      const time = hh + ':' + mm;
+      if (dom !== '*' && dow === '*') return { frequency: 'monthly', time, monthDay: parseInt(dom, 10) || 1 };
+      if (dow !== '*' && dom === '*') return { frequency: 'weekly', time, weekday: parseInt(dow, 10) || 0 };
+      return { frequency: 'daily', time };
+    },
+
+    scheduleSummary(cfg) {
+      if (!cfg) return '';
+      const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+      const timeParts = (cfg.time || '08:00').split(':');
+      let h = parseInt(timeParts[0], 10) || 0;
+      const m = timeParts[1] || '00';
+      const ampm = h >= 12 ? 'مساءً' : 'صباحاً';
+      h = h % 12 || 12;
+      const timeStr = 'الساعة ' + toAr(h) + ':' + toAr(m) + ' ' + ampm;
+      const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+      if (cfg.frequency === 'weekly') {
+        const day = days[cfg.weekday != null ? cfg.weekday : 0] || days[0];
+        return 'كل يوم ' + day + ' ' + timeStr;
+      }
+      if (cfg.frequency === 'monthly') {
+        return 'يوم ' + toAr(cfg.monthDay || 1) + ' من كل شهر ' + timeStr;
+      }
+      return 'يومياً ' + timeStr;
+    },
+
     cronDesc(pat) {
       if (!pat) return '';
-      const p = (pat || '').trim().split(/\s+/);
-      if (p.length !== 5) return 'تنسيق غير صحيح — مثال: 0 8 * * *';
-      const [min, hr, dom, mon, dow] = p;
-      if (dom !== '*' && mon === '*' && dow === '*') return 'شهرياً في اليوم ' + dom + ' الساعة ' + hr + ':' + (min === '0' ? '00' : min);
-      if (dow !== '*' && dom === '*') return 'أسبوعياً (يوم ' + dow + ') الساعة ' + hr + ':' + (min === '0' ? '00' : min);
-      if (dom === '*' && dow === '*') return 'يومياً الساعة ' + hr + ':' + (min === '0' ? '00' : min);
-      return 'مخصص';
+      return this.scheduleSummary(this.cronToConfig(pat));
     },
 
     // ---- Import wizard ----
