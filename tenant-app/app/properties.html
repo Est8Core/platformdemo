@@ -241,6 +241,10 @@
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
         التقارير
       </a>
+      <a href="data-io.html" class="crm-nav-item" data-nav="data-io">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3v9M7 9l3 3 3-3M4 16h12"/></svg>
+        التصدير والاستيراد
+      </a>
 
       <div class="crm-nav-label">المنظومة</div>
       <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
@@ -357,6 +361,11 @@
           قائمة
         </button>
       </div>
+      <button class="adm-btn adm-btn-ghost"
+              @click.prevent="$dispatch('open-drawer', { src:'data-io.html?embed=1&view=export&entity=properties', title:'تصدير العقارات', full:'data-io.html?view=export&entity=properties' })">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+        تصدير
+      </button>
       <button class="adm-btn adm-btn-gold" @click="openAdd()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
         عقار جديد

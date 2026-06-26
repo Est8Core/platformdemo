@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core CRM · التصدير والاستيراد</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script>if (location.search.indexOf('embed') > -1) document.documentElement.classList.add('crm-embed');</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
+    .font-display { font-family:'Amiri',Georgia,serif; }
+    .font-latin { font-family:'Inter',system-ui,sans-serif; }
+    [x-cloak] { display:none !important; }
+    ::-webkit-scrollbar { width:9px; height:9px; }
+    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+
+    /* ===== Layout (navy-dominant shell — Trust & Authority design system) ===== */
+    .crm-shell { display:flex; min-height:100vh; }
+    .crm-sidebar { width:258px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
+    .crm-main { flex:1; min-width:0; margin-inline-start:258px; display:flex; flex-direction:column; }
+    @media (max-width:1024px){ .crm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .crm-sidebar.open{ transform:translateX(0);} .crm-main{ margin-inline-start:0; } }
+    .crm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+
+    /* ===== Sidebar nav (navy) ===== */
+    .crm-brand { display:flex; align-items:center; gap:.65rem; padding:1.1rem 1.2rem; border-bottom:1px solid rgba(200,162,75,.15); }
+    .crm-nav { flex:1; overflow-y:auto; padding:.85rem .7rem 1.5rem; }
+    .crm-nav-label { font-size:.68rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:.9rem .75rem .35rem; text-transform:uppercase; }
+    .crm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
+    .crm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
+    .crm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
+    .crm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.7rem; top:50%; transform:translateY(-50%); width:3.5px; height:62%; background:#C8A24B; border-radius:0 4px 4px 0; }
+    .crm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
+    .crm-nav-item .cnt { margin-inline-start:auto; font-size:.66rem; background:rgba(255,255,255,.08); color:#9BB5D7; padding:.05rem .42rem; border-radius:6px; font-weight:700; }
+    .crm-nav-item.on .cnt { background:rgba(200,162,75,.28); color:#fff; }
+    .crm-nav-item .soon { margin-inline-start:auto; font-size:.6rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:700; }
+
+    /* ===== Topbar ===== */
+    .crm-topbar { height:62px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.9rem; padding:0 1.4rem; position:sticky; top:0; z-index:30; }
+    .crm-ctx { display:inline-flex; align-items:center; gap:.4rem; font-size:.74rem; font-weight:600; color:#4D5F7A; background:#F4F6FA; border:1px solid #EEF0F5; padding:.3rem .7rem; border-radius:999px; }
+    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
+    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
+    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+
+    /* ===== Content ===== */
+    .crm-content { padding:1.5rem 1.7rem 3rem; max-width:1440px; width:100%; margin:0 auto; }
+    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.4rem; }
+    .adm-page-title { font-family:'Amiri',serif; font-size:1.55rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
+    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
+    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
+    .adm-breadcrumb a:hover { color:#102A4C; }
+
+    /* ===== Shared components (design-system · identical to platform) ===== */
+    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
+    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
+    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
+    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
+    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:0; transition:.2s; }
+    .adm-kpi:hover::after { opacity:1; }
+    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
+    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
+    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
+    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
+    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
+    .adm-table tbody td { padding:.8rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
+    .adm-table tbody tr:hover { background:#FBFCFE; }
+    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
+    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
+    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
+    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
+    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
+    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
+    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
+    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
+    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .adm-btn svg { width:16px; height:16px; }
+    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
+    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
+    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
+    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
+    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
+    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
+    .ec-input::placeholder { color:#9BA6BB; }
+    .ec-input:hover { border-color:#C4CBDA; }
+    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
+    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
+    .adm-tab:hover { color:#102A4C; }
+    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
+    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .adm-pill:hover { border-color:#C4CBDA; }
+    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
+    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
+    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
+    .adm-modal-body { padding:1.4rem; }
+    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
+    .adm-switch.on { background:#1A8C4E; }
+    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
+    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
+    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
+    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
+    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
+    .adm-avatar { border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+
+    /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
+    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
+    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
+    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; } .adm-rowmenu button:disabled:hover { background:none; }
+    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
+    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
+    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
+    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
+    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+
+    /* ===== Embed mode (detail shown inside a quick-view drawer iframe → hide chrome) ===== */
+    .crm-embed .crm-sidebar, .crm-embed .crm-topbar { display:none !important; }
+    .crm-embed .crm-main { margin-inline-start:0 !important; }
+    .crm-embed .crm-content { padding:1.1rem 1.4rem 2rem; max-width:none; }
+
+    /* ===== Detail WINDOWS — draggable · resizable · multi-window · dedup · vertical dock ===== */
+    .crm-win { position:fixed; z-index:66; background:#fff; border:1px solid #E2E7F0; border-radius:14px; box-shadow:0 18px 60px rgba(6,15,30,.34); display:flex; flex-direction:column; overflow:hidden; }
+    .crm-win.appear { animation:winIn .2s cubic-bezier(.34,1.2,.5,1); }
+    @keyframes winIn { from { opacity:0; transform:translateY(10px) scale(.97); } to { opacity:1; transform:none; } }
+    .crm-win.busy { transition:none !important; will-change:left,top,width,height; }
+    .crm-win.anim { transition:left .22s ease, top .22s ease, width .22s ease, height .22s ease, border-radius .22s ease; }
+    .crm-win.max { inset:0 !important; width:auto !important; height:auto !important; border-radius:0; border:0; }
+    .crm-win-head { height:44px; flex-shrink:0; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.25rem; padding:0 .45rem 0 .8rem; cursor:grab; user-select:none; }
+    .crm-win-head:active { cursor:grabbing; }
+    .crm-win.max .crm-win-head { cursor:default; }
+    .crm-win-dot { width:9px; height:9px; border-radius:50%; background:#C8A24B; flex-shrink:0; }
+    .crm-win-frame { flex:1; border:0; width:100%; background:#F4F6FA; }
+    .crm-win-btn { width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; color:#4D5F7A; cursor:pointer; transition:.12s; }
+    .crm-win-btn:hover { background:#F2F5FA; color:#102A4C; }
+    .crm-win-btn.close:hover { background:rgba(192,57,43,.1); color:#C0392B; }
+    .crm-win-grip { position:absolute; width:20px; height:20px; bottom:0; right:0; cursor:nwse-resize; z-index:4; }
+    .crm-win-grip::after { content:""; position:absolute; right:4px; bottom:4px; width:9px; height:9px; border-right:2px solid #C0C8D8; border-bottom:2px solid #C0C8D8; border-radius:0 0 4px 0; }
+    .crm-win-grip.bl { left:0; right:auto; cursor:nesw-resize; }
+    .crm-win-grip.bl::after { left:4px; right:auto; border-right:0; border-left:2px solid #C0C8D8; border-radius:0 0 0 4px; }
+    .crm-win.max .crm-win-grip { display:none; }
+    .crm-dragmask { position:fixed; inset:0; z-index:300; }
+    /* Taskbar (bottom-center) — overlapping window pills that fan out + reveal titles on hover */
+    .crm-taskbar { position:fixed; left:50%; transform:translateX(-50%); bottom:1.1rem; z-index:90; display:flex; align-items:center; background:#0B1F3A; padding:.45rem .55rem; border-radius:16px; box-shadow:0 16px 46px rgba(6,15,30,.42); border:1px solid rgba(255,255,255,.08); max-width:92vw; }
+    .crm-taskbar::before { content:""; position:absolute; inset-inline-start:.9rem; top:-7px; width:24px; height:3px; border-radius:3px; background:rgba(255,255,255,.18); }
+    .crm-task { display:flex; align-items:center; gap:.5rem; height:44px; padding:0 .35rem; margin-inline-start:-18px; background:#15294b; border:1.5px solid #0B1F3A; border-radius:12px; cursor:pointer; flex-shrink:0; max-width:46px; overflow:hidden; transition:margin .22s cubic-bezier(.4,0,.2,1), max-width .26s cubic-bezier(.4,0,.2,1), background .15s, border-color .15s; }
+    .crm-task:first-child { margin-inline-start:0; }
+    .crm-taskbar:hover .crm-task { margin-inline-start:.35rem; max-width:230px; }
+    .crm-taskbar:hover .crm-task:first-child { margin-inline-start:0; }
+    .crm-task:hover { background:#1d3a64; }
+    .crm-task.active { max-width:230px; margin-inline-start:.35rem; background:#17325c; border-color:#C8A24B; }
+    .crm-task.active:first-child { margin-inline-start:0; }
+    .crm-task.min { opacity:.55; }
+    .crm-task-av { width:34px; height:34px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.74rem; background:rgba(200,162,75,.16); color:#E6CF9C; }
+    .crm-task.active .crm-task-av { background:#C8A24B; color:#0B1F3A; }
+    .crm-task-label { color:#fff; font-size:.78rem; font-weight:600; white-space:nowrap; opacity:0; transition:opacity .2s .04s; }
+    .crm-taskbar:hover .crm-task-label, .crm-task.active .crm-task-label { opacity:1; }
+    .crm-task-x { width:24px; height:24px; border-radius:7px; flex-shrink:0; color:rgba(255,255,255,.55); display:flex; align-items:center; justify-content:center; transition:.12s; }
+    .crm-task-x:hover { background:rgba(192,57,43,.9); color:#fff; }
+    .crm-taskbar-min { width:30px; height:36px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.5); cursor:pointer; border-radius:8px; margin-inline-start:.3rem; }
+    .crm-taskbar-min:hover { background:rgba(255,255,255,.1); color:#fff; }
+  </style>
+</head>
+
+<body class="text-neutral-800" x-data="crmShell()" @open-drawer.window="openWindow($event.detail)" x-cloak>
+<div class="crm-shell">
+
+  <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="crm-sidebar" :class="navOpen && 'open'">
+    <div class="crm-brand">
+      <img src="../../_shared/logo-gold.png" alt="Est8Core" class="w-9 h-9 object-contain" />
+      <div class="min-w-0">
+        <div class="text-sm font-bold text-white truncate" x-text="tenant.name"></div>
+        <div class="text-[.66rem] text-primary-200 font-semibold">نظام إدارة العملاء</div>
+      </div>
+    </div>
+    <nav class="crm-nav">
+      <a href="dashboard.html" class="crm-nav-item" data-nav="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+
+      <div class="crm-nav-label">المبيعات</div>
+      <a href="leads.html" class="crm-nav-item" data-nav="leads">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>
+        العملاء المحتملون
+        <span class="cnt">٤٢</span>
+      </a>
+      <a href="contacts.html" class="crm-nav-item" data-nav="contacts">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="properties.html" class="crm-nav-item" data-nav="properties">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="deals.html" class="crm-nav-item" data-nav="deals">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>
+        الصفقات
+        <span class="cnt">٨</span>
+      </a>
+      <a href="activities.html" class="crm-nav-item" data-nav="activities">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 8h14M7 2v3M13 2v3"/></svg>
+        الأنشطة
+      </a>
+
+      <div class="crm-nav-label">التحليلات</div>
+      <a href="reports.html" class="crm-nav-item" data-nav="reports">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
+        التقارير
+      </a>
+      <a href="data-io.html" class="crm-nav-item" data-nav="data-io">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3v9M7 9l3 3 3-3M4 16h12"/></svg>
+        التصدير والاستيراد
+      </a>
+
+      <div class="crm-nav-label">المنظومة</div>
+      <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="2.5"/><path d="M2.5 16c0-2.5 2-4.5 4.5-4.5S11.5 13.5 11.5 16"/><path d="M13.5 5.2a2.3 2.3 0 010 3.8M14.8 16c0-2.2-.9-3.9-2.4-4.5"/></svg>
+        الفرق والفروع
+      </a>
+      <a href="support.html" class="crm-nav-item" data-nav="support">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12v9H7l-3 3z"/><path d="M7 8h6M7 10.5h4"/></svg>
+        الدعم الفني
+      </a>
+      <a href="settings.html" class="crm-nav-item" data-nav="settings">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 flex items-center gap-2 text-[.7rem] text-primary-300">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · باقة <span class="font-semibold text-primary-100" x-text="tenant.plan"></span>
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="crm-main">
+    <header class="crm-topbar">
+      <button class="adm-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
+        <!-- Quick create -->
+        <div class="relative" @click.outside="createMenu=false">
+          <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
+          </button>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          </div>
+        </div>
+        <!-- Bell -->
+        <div class="relative" @click.outside="bellOpen=false">
+          <button @click="bellOpen=!bellOpen" class="adm-icon-btn" aria-label="الإشعارات">
+            <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+            <span class="adm-dot" x-show="alerts.length>0"></span>
+          </button>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+            <div class="max-h-80 overflow-y-auto">
+              <template x-for="a in alerts" :key="a.id">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                  <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                </a>
+              </template>
+            </div>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+          </div>
+        </div>
+        <!-- User menu -->
+        <div class="relative" @click.outside="userMenu=false">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+            <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
+            <div class="text-start hidden md:block">
+              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+            </div>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-neutral-100 my-1"></div>
+            <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="crm-content">
+
+<!-- Endpoints:
+  POST   /api/v1/export {entityType,format?,filters?,columns?,templateId?}
+  GET    /api/v1/export/preview?entityType=&filters=&columns=   (≤10 rows)
+  GET    /api/v1/export        (jobs list)
+  GET    /api/v1/export/:jobId/download
+  GET    /api/v1/export/templates
+  POST   /api/v1/export/templates  {name,entityType,format,columns,filters?,description?,isShared}
+  PUT    /api/v1/export/templates/:id
+  DELETE /api/v1/export/templates/:id
+  GET    /api/v1/export/schedules
+  POST   /api/v1/export/schedules  {templateId?,entityType?,format,cronPattern,recipients[{type,userId}],isActive}
+  PUT    /api/v1/export/schedules/:id
+  DELETE /api/v1/export/schedules/:id
+  POST   /api/v1/imports/jobs      {uploadId,entityType}
+  POST   /api/v1/imports/jobs/:id/mapping  {fieldMapping:{csvCol→field}}
+  GET    /api/v1/imports/jobs/:id/preview  (≤50 rows)
+  POST   /api/v1/imports/jobs/:id/execute  {rowActions:{rowIdx→import|skip|merge}}
+  GET    /api/v1/imports/jobs/:id/report
+-->
+<div x-data="dataIO()">
+
+  <!-- Page head -->
+  <div class="adm-page-head">
+    <div>
+      <h1 class="adm-page-title">التصدير والاستيراد</h1>
+      <p class="adm-page-sub">إدارة بيانات المنصة — تصدير · استيراد · قوالب · جدولة · سجل العمليات</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="adm-badge b-warning" x-show="quotaPercent >= 80">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3v5M8 11v1"/><circle cx="8" cy="8" r="6.5"/></svg>
+        <span x-text="fmtNum(quotaUsed) + ' / ' + fmtNum(quotaLimit) + ' تصدير هذا الشهر'"></span>
+      </span>
+      <span class="adm-badge b-neutral" x-show="quotaPercent < 80" x-text="fmtNum(quotaUsed) + ' / ' + fmtNum(quotaLimit) + ' تصدير هذا الشهر'"></span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="adm-card mb-4">
+    <div class="adm-tabs px-4">
+      <button class="adm-tab" :class="tab==='export'&&'on'" @click="tab='export'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+        تصدير
+      </button>
+      <button class="adm-tab" :class="tab==='templates'&&'on'" @click="tab='templates'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M6 6v8"/></svg>
+        القوالب
+        <span class="cnt" x-text="templates.length"></span>
+      </button>
+      <button class="adm-tab" :class="tab==='scheduled'&&'on'" @click="tab='scheduled'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 7h12M5 1.5v3M11 1.5v3"/></svg>
+        المجدول
+        <span class="cnt" x-text="schedules.length"></span>
+      </button>
+      <button class="adm-tab" :class="tab==='import'&&'on'" @click="tab='import'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6V3h10v3M8 14V6M5 9l3-3 3 3"/></svg>
+        استيراد
+      </button>
+      <button class="adm-tab" :class="tab==='jobs'&&'on'" @click="tab='jobs'">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h12M2 8h8M2 12h5"/></svg>
+        السجل
+        <span class="cnt" x-text="jobs.length"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- =================== TAB 1: EXPORT BUILDER =================== -->
+  <div x-show="tab==='export'">
+
+    <!-- Step indicator -->
+    <div class="adm-card mb-4 p-4">
+      <div class="flex items-center gap-0">
+        <template x-for="(s, i) in exportSteps" :key="i">
+          <div class="flex items-center">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition"
+                   :class="exportStep>i ? 'bg-success text-white' : (exportStep===i ? 'bg-primary-800 text-white' : 'bg-neutral-100 text-neutral-400')">
+                <template x-if="exportStep>i">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
+                </template>
+                <span x-show="exportStep<=i" x-text="i+1"></span>
+              </div>
+              <span class="text-sm font-semibold hidden sm:block" :class="exportStep===i?'text-primary-800':'text-neutral-400'" x-text="s"></span>
+            </div>
+            <div x-show="i<exportSteps.length-1" class="flex-1 h-0.5 mx-3 min-w-[2rem]" :class="exportStep>i?'bg-success':'bg-neutral-200'"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Step 1: Entity -->
+    <div x-show="exportStep===0" class="adm-card p-6">
+      <h3 class="text-base font-bold text-primary-800 mb-4">اختر نوع البيانات</h3>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <template x-for="e in entities" :key="e.id">
+          <button @click="selectEntity(e)"
+                  class="flex flex-col items-center gap-3 p-5 rounded-xl border-2 text-center transition"
+                  :class="exportEntity===e.id ? 'border-primary-800 bg-primary-50' : 'border-neutral-200 hover:border-neutral-300 bg-white'">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center" :class="exportEntity===e.id?'bg-primary-800 text-white':'bg-neutral-100 text-neutral-600'" x-html="e.icon"></div>
+            <div>
+              <div class="font-bold text-sm" :class="exportEntity===e.id?'text-primary-800':'text-neutral-700'" x-text="e.label"></div>
+              <div class="text-xs text-neutral-400 mt-0.5" x-text="fmtNum(e.count) + ' سجل'"></div>
+            </div>
+          </button>
+        </template>
+      </div>
+      <div class="flex justify-end mt-5">
+        <button class="adm-btn adm-btn-primary" :disabled="!exportEntity" @click="exportStep=1">
+          التالي
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Columns -->
+    <div x-show="exportStep===1" class="adm-card p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-primary-800">اختر الأعمدة</h3>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="toggleAllCols()">
+          <span x-text="selectedCols.length === currentCols.length ? 'إلغاء تحديد الكل' : 'تحديد الكل'"></span>
+        </button>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+        <template x-for="col in currentCols" :key="col.key">
+          <label class="flex items-center gap-2.5 p-3 rounded-lg border cursor-pointer transition"
+                 :class="selectedCols.includes(col.key) ? 'border-primary-700 bg-primary-50' : 'border-neutral-200 hover:border-neutral-300'">
+            <input type="checkbox" :value="col.key" x-model="selectedCols" class="rounded" />
+            <span class="text-sm font-medium text-neutral-700" x-text="col.label"></span>
+          </label>
+        </template>
+      </div>
+      <p class="text-xs text-neutral-400 mt-3" x-text="selectedCols.length + ' عمود محدد'"></p>
+      <div class="flex justify-between mt-5">
+        <button class="adm-btn adm-btn-ghost" @click="exportStep=0">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
+          السابق
+        </button>
+        <button class="adm-btn adm-btn-primary" :disabled="!selectedCols.length" @click="exportStep=2">التالي <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg></button>
+      </div>
+    </div>
+
+    <!-- Step 3: Filters + Date Range -->
+    <div x-show="exportStep===2" class="adm-card p-6">
+      <h3 class="text-base font-bold text-primary-800 mb-4">تصفية البيانات (اختياري)</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <template x-for="f in currentFilters" :key="f.key">
+          <div>
+            <label class="ec-label" x-text="f.label"></label>
+            <select x-model="exportFilters[f.key]" class="ec-input">
+              <option value="">الكل</option>
+              <template x-for="opt in f.options" :key="opt.value">
+                <option :value="opt.value" x-text="opt.label"></option>
+              </template>
+            </select>
+          </div>
+        </template>
+        <div>
+          <label class="ec-label">تاريخ الإنشاء — من</label>
+          <input type="date" dir="ltr" x-model="exportDateFrom" class="ec-input font-latin" />
+        </div>
+        <div>
+          <label class="ec-label">تاريخ الإنشاء — إلى</label>
+          <input type="date" dir="ltr" x-model="exportDateTo" class="ec-input font-latin" />
+        </div>
+      </div>
+      <div class="flex justify-between mt-5">
+        <button class="adm-btn adm-btn-ghost" @click="exportStep=1"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
+        <button class="adm-btn adm-btn-primary" @click="loadPreview()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3a5 5 0 100 10A5 5 0 008 3zM8 6v4M6 8h4"/></svg>
+          معاينة النتائج
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 4: Preview -->
+    <div x-show="exportStep===3" class="adm-card">
+      <div class="adm-card-head">
+        <div class="adm-card-title">معاينة البيانات (أول ١٠ صفوف)</div>
+        <span class="adm-badge b-info">بيانات تجريبية</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <template x-for="col in previewCols" :key="col">
+                <th x-text="colLabel(col)"></th>
+              </template>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(row, ri) in previewRows" :key="ri">
+              <tr>
+                <template x-for="col in previewCols" :key="col">
+                  <td class="font-latin text-xs" dir="ltr" x-text="row[col] ?? '—'"></td>
+                </template>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="p-4 bg-neutral-50 border-t border-neutral-100 text-xs text-neutral-500">
+        عرض ١٠ صفوف تجريبية — السجل الحقيقي سيتضمن كل البيانات المصفّاة.
+      </div>
+      <div class="flex justify-between p-4 border-t border-neutral-100">
+        <button class="adm-btn adm-btn-ghost" @click="exportStep=2"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
+        <button class="adm-btn adm-btn-primary" @click="exportStep=4">التالي <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg></button>
+      </div>
+    </div>
+
+    <!-- Step 5: Format + Export -->
+    <div x-show="exportStep===4" class="adm-card p-6">
+      <h3 class="text-base font-bold text-primary-800 mb-4">صيغة التصدير</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <template x-for="fmt in formats" :key="fmt.id">
+          <button @click="exportFormat=fmt.id"
+                  class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition"
+                  :class="exportFormat===fmt.id ? 'border-accent-500 bg-accent-50' : 'border-neutral-200 hover:border-neutral-300'">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm" :style="'background:'+fmt.color+';color:#fff'" x-text="fmt.ext"></div>
+            <span class="text-sm font-semibold" :class="exportFormat===fmt.id?'text-accent-700':'text-neutral-600'" x-text="fmt.label"></span>
+          </button>
+        </template>
+      </div>
+
+      <div class="rounded-xl border border-accent-200 bg-accent-50 p-4 mb-6 flex items-start gap-3">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#8C6E27" stroke-width="1.6" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 5.5V8l2 1.5"/></svg>
+        <div class="text-sm">
+          <div class="font-bold text-accent-800 mb-1">حدود الاستخدام</div>
+          <ul class="text-accent-700 space-y-0.5 text-xs">
+            <li>• حد أقصى ٣ مهام تصدير نشطة في وقت واحد</li>
+            <li>• رابط التحميل صالح لمدة ٢٤ ساعة فقط</li>
+            <li>• <span x-text="fmtNum(quotaLimit - quotaUsed)"></span> تصدير متبقٍّ في باقتك هذا الشهر</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3 justify-between">
+        <button class="adm-btn adm-btn-ghost" @click="exportStep=3"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
+        <div class="flex gap-2">
+          <button class="adm-btn adm-btn-ghost" @click="openSaveTemplate()">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h8l3 3v9H3z"/><path d="M5 2v4h6V2M5 14v-4h6v4"/></svg>
+            حفظ كقالب
+          </button>
+          <button class="adm-btn adm-btn-gold" :disabled="!exportFormat || quotaUsed >= quotaLimit" @click="doExport()">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+            تصدير الآن
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div x-show="toast" x-transition class="fixed bottom-6 inset-inline-start-6 bg-primary-800 text-white text-sm font-semibold px-5 py-3 rounded-xl shadow-xl2 flex items-center gap-3 z-50">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2"><path d="M3 8l4 4 6-7"/></svg>
+      <span x-text="toastMsg"></span>
+    </div>
+  </div>
+
+  <!-- =================== TAB 2: TEMPLATES =================== -->
+  <div x-show="tab==='templates'">
+    <div class="flex justify-between items-center mb-4">
+      <div></div>
+      <button class="adm-btn adm-btn-gold" @click="openTplCreate()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
+        قالب جديد
+      </button>
+    </div>
+    <div class="adm-card">
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead><tr>
+            <th>اسم القالب</th><th>الكيان</th><th>الصيغة</th><th>الأعمدة</th><th>النوع</th><th>الاستخدام</th><th>آخر استخدام</th><th></th>
+          </tr></thead>
+          <tbody>
+            <template x-for="t in templates" :key="t.id">
+              <tr>
+                <td>
+                  <div class="font-semibold text-primary-800 text-sm" x-text="t.name"></div>
+                  <div class="text-xs text-neutral-400 mt-0.5" x-text="t.description||'—'"></div>
+                </td>
+                <td><span class="adm-badge b-neutral" x-text="entityLabel(t.entityType)"></span></td>
+                <td>
+                  <span class="font-bold text-xs px-2 py-1 rounded-md text-white" :style="'background:'+formatColor(t.format)" x-text="t.format.toUpperCase()"></span>
+                </td>
+                <td><span class="adm-badge b-info" x-text="t.columns.length + ' عمود'"></span></td>
+                <td>
+                  <div class="adm-switch" :class="t.isShared&&'on'" @click="t.isShared=!t.isShared" title="مشترك / خاص"></div>
+                </td>
+                <td class="font-latin text-sm" x-text="fmtNum(t.usageCount)"></td>
+                <td class="text-xs text-neutral-500" x-text="t.lastUsedAt ? fmtDate(t.lastUsedAt) : '—'"></td>
+                <td>
+                  <div class="flex items-center gap-1">
+                    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="useTemplate(t)">استخدم</button>
+                    <button class="adm-icon-btn w-7 h-7" @click="openTplEdit(t)" title="تعديل">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                    </button>
+                    <button class="adm-icon-btn w-7 h-7 text-danger" @click="deleteTemplate(t)" title="حذف">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <template x-if="!templates.length"><div class="adm-empty">لا قوالب محفوظة — أنشئ أول قالب</div></template>
+    </div>
+  </div>
+
+  <!-- =================== TAB 3: SCHEDULES =================== -->
+  <div x-show="tab==='scheduled'">
+    <div class="flex justify-between items-center mb-4">
+      <div></div>
+      <button class="adm-btn adm-btn-gold" @click="openSchedCreate()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
+        جدولة جديدة
+      </button>
+    </div>
+    <div class="adm-card">
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead><tr>
+            <th>الكيان / القالب</th><th>الجدول الزمني</th><th>الصيغة</th><th>المستلمون</th><th>التشغيل القادم</th><th>نشط</th><th></th>
+          </tr></thead>
+          <tbody>
+            <template x-for="s in schedules" :key="s.id">
+              <tr>
+                <td>
+                  <div class="font-semibold text-primary-800 text-sm" x-text="s.templateName || entityLabel(s.entityType)"></div>
+                  <div class="text-xs text-neutral-400" x-text="s.templateName ? entityLabel(s.entityType) : ''"></div>
+                </td>
+                <td>
+                  <div class="font-mono text-xs text-neutral-500 font-latin" dir="ltr" x-text="s.cronPattern"></div>
+                  <div class="text-xs text-neutral-400 mt-0.5" x-text="cronDesc(s.cronPattern)"></div>
+                </td>
+                <td>
+                  <span class="font-bold text-xs px-2 py-1 rounded-md text-white" :style="'background:'+formatColor(s.format)" x-text="s.format.toUpperCase()"></span>
+                </td>
+                <td>
+                  <div class="flex -space-i-2">
+                    <template x-for="r in s.recipients.slice(0,4)" :key="r.userId">
+                      <span class="adm-avatar w-6 h-6 text-[.6rem] ring-2 ring-white bg-primary-100 text-primary-700" x-text="r.initials"></span>
+                    </template>
+                    <span x-show="s.recipients.length>4" class="adm-avatar w-6 h-6 text-[.6rem] ring-2 ring-white bg-neutral-200 text-neutral-600" x-text="'+'+(s.recipients.length-4)"></span>
+                  </div>
+                </td>
+                <td class="text-xs text-neutral-500" x-text="fmtDate(s.nextRun)"></td>
+                <td>
+                  <div class="adm-switch" :class="s.isActive&&'on'" @click="s.isActive=!s.isActive"></div>
+                </td>
+                <td>
+                  <div class="flex items-center gap-1">
+                    <button class="adm-icon-btn w-7 h-7" @click="openSchedEdit(s)" title="تعديل">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                    </button>
+                    <button class="adm-icon-btn w-7 h-7 text-danger" @click="schedules=schedules.filter(x=>x.id!==s.id)" title="حذف">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <template x-if="!schedules.length"><div class="adm-empty">لا جداول مُعدَّة — أنشئ أول جدولة تلقائية</div></template>
+    </div>
+  </div>
+
+  <!-- =================== TAB 4: IMPORT WIZARD =================== -->
+  <div x-show="tab==='import'">
+
+    <!-- Import step indicator -->
+    <div class="adm-card mb-4 p-4">
+      <div class="flex items-center gap-0">
+        <template x-for="(s, i) in importSteps" :key="i">
+          <div class="flex items-center">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition"
+                   :class="importStep>i ? 'bg-success text-white' : (importStep===i ? 'bg-primary-800 text-white' : 'bg-neutral-100 text-neutral-400')">
+                <template x-if="importStep>i"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg></template>
+                <span x-show="importStep<=i" x-text="i+1"></span>
+              </div>
+              <span class="text-sm font-semibold hidden sm:block" :class="importStep===i?'text-primary-800':'text-neutral-400'" x-text="s"></span>
+            </div>
+            <div x-show="i<importSteps.length-1" class="flex-1 h-0.5 mx-3 min-w-[2rem]" :class="importStep>i?'bg-success':'bg-neutral-200'"></div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Import Step 1: Entity + Drop Zone -->
+    <div x-show="importStep===0" class="adm-card p-6">
+      <h3 class="text-base font-bold text-primary-800 mb-4">اختر نوع البيانات وارفع الملف</h3>
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <template x-for="e in importEntities" :key="e.id">
+          <button @click="importEntity=e.id"
+                  class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 text-center transition"
+                  :class="importEntity===e.id ? 'border-primary-800 bg-primary-50' : 'border-neutral-200 hover:border-neutral-300 bg-white'">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center" :class="importEntity===e.id?'bg-primary-800 text-white':'bg-neutral-100 text-neutral-500'" x-html="e.icon"></div>
+            <span class="font-bold text-sm" :class="importEntity===e.id?'text-primary-800':'text-neutral-700'" x-text="e.label"></span>
+          </button>
+        </template>
+      </div>
+      <!-- Drop zone -->
+      <div class="border-2 border-dashed rounded-xl p-10 text-center transition cursor-pointer"
+           :class="importFile ? 'border-success bg-success/5' : 'border-neutral-300 hover:border-primary-400 hover:bg-primary-50/50'"
+           @click="$refs.fileInput.click()"
+           @dragover.prevent @drop.prevent="handleDrop($event)">
+        <input type="file" x-ref="fileInput" accept=".csv,.xlsx,.xls" class="hidden" @change="handleFileSelect($event)" />
+        <template x-if="!importFile">
+          <div>
+            <svg class="mx-auto mb-3 text-neutral-400" width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 28V12M13 19l7-7 7 7M8 32h24"/></svg>
+            <p class="text-sm font-semibold text-neutral-600">اسحب وأسقط ملف CSV أو Excel هنا</p>
+            <p class="text-xs text-neutral-400 mt-1">أو انقر للاختيار · حد أقصى ٢ ميجابايت · ١٠٠٠ صف</p>
+          </div>
+        </template>
+        <template x-if="importFile">
+          <div>
+            <svg class="mx-auto mb-2 text-success" width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 20v12h24V20M18 4v18M11 11l7-7 7 7"/></svg>
+            <p class="text-sm font-bold text-success" x-text="importFile.name"></p>
+            <p class="text-xs text-neutral-400 mt-1" x-text="formatFileSize(importFile.size)"></p>
+          </div>
+        </template>
+      </div>
+      <div class="flex justify-end mt-5">
+        <button class="adm-btn adm-btn-primary" :disabled="!importEntity || !importFile" @click="startMapping()">
+          التالي
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Import Step 2: Field Mapping -->
+    <div x-show="importStep===1" class="adm-card">
+      <div class="adm-card-head">
+        <div class="adm-card-title">ربط الأعمدة بحقول النظام</div>
+        <span class="adm-badge b-warning">الحقول الإلزامية مُعلَّمة بـ *</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead><tr>
+            <th>عمود الملف</th><th>مثال من البيانات</th><th>حقل CRM</th><th>إلزامي</th>
+          </tr></thead>
+          <tbody>
+            <template x-for="col in mockCsvCols" :key="col.key">
+              <tr>
+                <td><span class="font-mono text-xs bg-neutral-100 px-2 py-1 rounded font-latin" x-text="col.key"></span></td>
+                <td class="text-xs text-neutral-500 font-latin" x-text="col.sample"></td>
+                <td>
+                  <select x-model="fieldMapping[col.key]" class="ec-input text-sm">
+                    <option value="">— تجاهل —</option>
+                    <template x-for="f in importFieldsFor(importEntity)" :key="f.key">
+                      <option :value="f.key" x-text="f.label + (f.required?' *':'')"></option>
+                    </template>
+                  </select>
+                </td>
+                <td>
+                  <span x-show="fieldMapping[col.key] && importFieldRequired(importEntity, fieldMapping[col.key])" class="adm-badge b-warning">إلزامي</span>
+                  <span x-show="!fieldMapping[col.key]" class="text-xs text-neutral-300">—</span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="flex justify-between p-4 border-t border-neutral-100">
+        <button class="adm-btn adm-btn-ghost" @click="importStep=0"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
+        <button class="adm-btn adm-btn-primary" :disabled="!mappingValid()" @click="loadImportPreview()">
+          معاينة
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Import Step 3: Review -->
+    <div x-show="importStep===2" class="adm-card">
+      <div class="adm-card-head">
+        <div class="adm-card-title">مراجعة الصفوف</div>
+        <div class="flex items-center gap-2">
+          <span class="adm-badge b-success" x-text="importRows.filter(r=>r._status==='new').length + ' جديد'"></span>
+          <span class="adm-badge b-warning" x-text="importRows.filter(r=>r._status==='duplicate').length + ' مكرر'"></span>
+          <span class="adm-badge b-danger" x-text="importRows.filter(r=>r._status==='error').length + ' خطأ'"></span>
+        </div>
+      </div>
+      <!-- Bulk action bar -->
+      <div class="p-3 border-b border-neutral-100 flex items-center gap-3 bg-neutral-50">
+        <span class="text-xs font-semibold text-neutral-500">تطبيق على الكل:</span>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="applyAllAction('import')">استيراد الكل</button>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="applyAllAction('skip')">تجاهل الكل</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead><tr>
+            <th>#</th>
+            <template x-for="col in importPreviewCols" :key="col"><th x-text="col"></th></template>
+            <th>الحالة</th><th>الإجراء</th>
+          </tr></thead>
+          <tbody>
+            <template x-for="(row, idx) in importRows" :key="idx">
+              <tr :class="row._status==='error'?'bg-danger/5':(row._status==='duplicate'?'bg-warning/5':'')">
+                <td class="font-latin text-xs" x-text="idx+1"></td>
+                <template x-for="col in importPreviewCols" :key="col">
+                  <td class="text-xs font-latin" x-text="row[col]||'—'"></td>
+                </template>
+                <td>
+                  <span x-show="row._status==='new'" class="adm-badge b-success">جديد</span>
+                  <span x-show="row._status==='duplicate'" class="adm-badge b-warning">
+                    مكرر
+                    <span class="text-[.65rem] font-latin" x-text="row._matchId ? '#'+row._matchId : ''"></span>
+                  </span>
+                  <span x-show="row._status==='error'" class="adm-badge b-danger" x-text="'خطأ: '+(row._error||'')"></span>
+                </td>
+                <td>
+                  <select x-model="rowActions[idx]" class="ec-input text-xs" :disabled="row._status==='error'" style="width:auto;min-width:90px">
+                    <option value="import">استيراد</option>
+                    <option value="skip">تجاهل</option>
+                    <option value="merge" disabled>دمج (قريباً)</option>
+                  </select>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <div class="flex justify-between p-4 border-t border-neutral-100">
+        <button class="adm-btn adm-btn-ghost" @click="importStep=1"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg> السابق</button>
+        <button class="adm-btn adm-btn-primary" @click="executeImport()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8l4 4 6-7"/></svg>
+          تنفيذ الاستيراد
+        </button>
+      </div>
+    </div>
+
+    <!-- Import Step 4: Report -->
+    <div x-show="importStep===3" class="adm-card p-6">
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-3">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="#1A8C4E" stroke-width="2"><path d="M5 14l7 7 11-11"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-primary-800">اكتمل الاستيراد</h3>
+      </div>
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="adm-kpi text-center">
+          <div class="adm-kpi-val text-success text-center" x-text="fmtNum(importReport.created)"></div>
+          <div class="adm-kpi-label justify-center mt-1">مُستوردة</div>
+        </div>
+        <div class="adm-kpi text-center">
+          <div class="adm-kpi-val text-warning text-center" x-text="fmtNum(importReport.deduped)"></div>
+          <div class="adm-kpi-label justify-center mt-1">متجاهَلة</div>
+        </div>
+        <div class="adm-kpi text-center">
+          <div class="adm-kpi-val text-danger text-center" x-text="fmtNum(importReport.failed.length)"></div>
+          <div class="adm-kpi-label justify-center mt-1">فشلت</div>
+        </div>
+      </div>
+      <template x-if="importReport.failed.length">
+        <div class="bg-danger/5 border border-danger/20 rounded-xl p-4 mb-4">
+          <div class="font-bold text-sm text-danger mb-2">الصفوف الفاشلة</div>
+          <ul class="space-y-1">
+            <template x-for="err in importReport.failed.slice(0,5)" :key="err.row">
+              <li class="text-xs text-danger font-latin">صف <span x-text="err.row"></span>: <span x-text="err.reason"></span></li>
+            </template>
+          </ul>
+        </div>
+      </template>
+      <div class="flex justify-center gap-3">
+        <button class="adm-btn adm-btn-ghost" @click="downloadReport()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+          تحميل تقرير CSV
+        </button>
+        <button class="adm-btn adm-btn-primary" @click="importStep=0; importFile=null; importEntity=''; fieldMapping={}">
+          استيراد آخر
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== TAB 5: JOBS LOG =================== -->
+  <div x-show="tab==='jobs'">
+    <div class="adm-card">
+      <div class="adm-card-head">
+        <div class="adm-card-title">سجل عمليات التصدير والاستيراد</div>
+        <button class="adm-btn adm-btn-ghost adm-btn-sm">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8a5 5 0 0110 0M13 8l-1.5-2.5M13 8l1.5-2.5"/></svg>
+          تحديث
+        </button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="adm-table">
+          <thead><tr>
+            <th>الكيان</th><th>النوع</th><th>الصيغة / الملف</th><th>الحالة</th><th>التاريخ</th><th>الحجم</th><th></th>
+          </tr></thead>
+          <tbody>
+            <template x-for="j in jobs" :key="j.id">
+              <tr>
+                <td><span class="adm-badge b-neutral" x-text="entityLabel(j.entityType)"></span></td>
+                <td>
+                  <span class="adm-badge" :class="j.jobType==='export'?'b-info':'b-accent'" x-text="j.jobType==='export'?'تصدير':'استيراد'"></span>
+                </td>
+                <td>
+                  <span class="font-bold text-xs px-2 py-1 rounded-md text-white" :style="'background:'+formatColor(j.format)" x-text="(j.format||'—').toUpperCase()"></span>
+                  <div class="text-xs text-neutral-400 mt-0.5 font-latin" x-text="j.fileName||'—'"></div>
+                </td>
+                <td>
+                  <span class="adm-badge" :class="jobStatusCls(j.status)" x-text="jobStatusLabel(j.status)"></span>
+                  <div x-show="j.status==='processing'" class="adm-progress mt-1.5" style="width:80px">
+                    <span :style="'width:'+j.progress+'%'"></span>
+                  </div>
+                </td>
+                <td class="text-xs text-neutral-500" x-text="fmtDateTime(j.createdAt)"></td>
+                <td class="font-latin text-xs text-neutral-500" x-text="j.fileSize ? formatFileSize(j.fileSize) : '—'"></td>
+                <td>
+                  <button x-show="j.status==='completed' && j.jobType==='export'"
+                          class="adm-btn adm-btn-ghost adm-btn-sm" @click="showDownload(j)">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+                    تحميل
+                  </button>
+                  <button x-show="j.status==='completed' && j.jobType==='import'"
+                          class="adm-btn adm-btn-ghost adm-btn-sm" @click="showJobReport(j)">
+                    تقرير
+                  </button>
+                  <span x-show="j.status==='failed'" class="text-xs text-danger" x-text="j.error||'خطأ'"></span>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <template x-if="!jobs.length"><div class="adm-empty">لا عمليات مسجّلة</div></template>
+      <div class="adm-pagination" x-show="jobs.length">
+        <span class="text-xs text-neutral-500">إجمالي <span x-text="fmtNum(jobs.length)"></span> عملية</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== MODALS =================== -->
+
+  <!-- Save Template Modal -->
+  <template x-if="tplModal">
+    <div class="adm-overlay" @click.self="tplModal=null">
+      <div class="adm-modal" style="max-width:480px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800" x-text="tplModal.id ? 'تعديل القالب' : 'قالب جديد'"></div>
+          <button @click="tplModal=null" class="adm-icon-btn"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 gap-3.5">
+          <div><label class="ec-label">اسم القالب <span class="text-danger">*</span></label><input type="text" x-model="tplModal.name" class="ec-input" placeholder="مثال: تصدير العملاء الشهري" /></div>
+          <div><label class="ec-label">الوصف</label><input type="text" x-model="tplModal.description" class="ec-input" /></div>
+          <div><label class="ec-label">الكيان <span class="text-danger">*</span></label>
+            <select x-model="tplModal.entityType" class="ec-input">
+              <template x-for="e in entities" :key="e.id"><option :value="e.id" x-text="e.label"></option></template>
+            </select>
+          </div>
+          <div><label class="ec-label">الصيغة <span class="text-danger">*</span></label>
+            <select x-model="tplModal.format" class="ec-input">
+              <template x-for="f in formats" :key="f.id"><option :value="f.id" x-text="f.label"></option></template>
+            </select>
+          </div>
+          <div>
+            <label class="ec-label">الأعمدة <span class="text-danger">*</span> (حد أدنى ١)</label>
+            <div class="grid grid-cols-2 gap-1.5 mt-1">
+              <template x-for="col in (tplModal.entityType ? colsFor(tplModal.entityType) : [])" :key="col.key">
+                <label class="flex items-center gap-2 text-sm p-2 rounded-lg border cursor-pointer"
+                       :class="tplModal.columns.includes(col.key)?'border-primary-700 bg-primary-50':'border-neutral-200'">
+                  <input type="checkbox" :value="col.key" x-model="tplModal.columns" />
+                  <span x-text="col.label"></span>
+                </label>
+              </template>
+            </div>
+          </div>
+          <label class="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
+            <div class="adm-switch" :class="tplModal.isShared&&'on'" @click="tplModal.isShared=!tplModal.isShared"></div>
+            مشاركة هذا القالب مع الفريق
+          </label>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="saveTpl()" :disabled="!tplModal.name || !tplModal.entityType || !tplModal.format || !tplModal.columns.length" class="adm-btn adm-btn-primary" x-text="tplModal.id?'حفظ التغييرات':'إنشاء القالب'"></button>
+          <button @click="tplModal=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Schedule Modal -->
+  <template x-if="schedModal">
+    <div class="adm-overlay" @click.self="schedModal=null">
+      <div class="adm-modal" style="max-width:520px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800" x-text="schedModal.id ? 'تعديل الجدولة' : 'جدولة تصدير جديدة'"></div>
+          <button @click="schedModal=null" class="adm-icon-btn"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div class="sm:col-span-2">
+            <label class="ec-label">قالب (اختياري)</label>
+            <select x-model="schedModal.templateId" class="ec-input" @change="onSchedTemplate()">
+              <option value="">— بدون قالب —</option>
+              <template x-for="t in templates" :key="t.id"><option :value="t.id" x-text="t.name"></option></template>
+            </select>
+          </div>
+          <div>
+            <label class="ec-label">الكيان <span class="text-danger">*</span></label>
+            <select x-model="schedModal.entityType" class="ec-input">
+              <template x-for="e in entities" :key="e.id"><option :value="e.id" x-text="e.label"></option></template>
+            </select>
+          </div>
+          <div>
+            <label class="ec-label">الصيغة <span class="text-danger">*</span></label>
+            <select x-model="schedModal.format" class="ec-input">
+              <template x-for="f in formats" :key="f.id"><option :value="f.id" x-text="f.label"></option></template>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="ec-label">التكرار</label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1">
+              <button @click="schedModal.cronPattern='0 8 * * *'" class="adm-btn adm-btn-ghost adm-btn-sm" :class="schedModal.cronPattern==='0 8 * * *'&&'border-primary-700 text-primary-800 bg-primary-50'">يومياً ٨ص</button>
+              <button @click="schedModal.cronPattern='0 8 * * 0'" class="adm-btn adm-btn-ghost adm-btn-sm" :class="schedModal.cronPattern==='0 8 * * 0'&&'border-primary-700 text-primary-800 bg-primary-50'">أسبوعياً</button>
+              <button @click="schedModal.cronPattern='0 8 1 * *'" class="adm-btn adm-btn-ghost adm-btn-sm" :class="schedModal.cronPattern==='0 8 1 * *'&&'border-primary-700 text-primary-800 bg-primary-50'">شهرياً</button>
+              <button @click="schedModal.cronPattern='0 8 * * 0,3'" class="adm-btn adm-btn-ghost adm-btn-sm" :class="schedModal.cronPattern==='0 8 * * 0,3'&&'border-primary-700 text-primary-800 bg-primary-50'">مرتين/أسبوع</button>
+            </div>
+            <div class="mt-2">
+              <label class="ec-label">أو أدخل cron مخصص (٥ أجزاء)</label>
+              <input type="text" x-model="schedModal.cronPattern" dir="ltr" class="ec-input font-latin" placeholder="0 8 * * *" />
+              <p class="text-xs text-neutral-400 mt-1" x-text="cronDesc(schedModal.cronPattern)"></p>
+            </div>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="ec-label">المستلمون <span class="text-danger">*</span> (١ — ٢٠)</label>
+            <div class="grid grid-cols-2 gap-1.5 mt-1">
+              <template x-for="u in allUsers" :key="u.id">
+                <label class="flex items-center gap-2 text-sm p-2 rounded-lg border cursor-pointer"
+                       :class="schedModal.recipients.some(r=>r.userId===u.id)?'border-primary-700 bg-primary-50':'border-neutral-200'">
+                  <input type="checkbox" :value="u.id" :checked="schedModal.recipients.some(r=>r.userId===u.id)"
+                         @change="toggleSchedRecipient(u, $event)" />
+                  <span class="adm-avatar w-5 h-5 text-[.55rem] bg-primary-100 text-primary-700 shrink-0" x-text="u.initials"></span>
+                  <span class="truncate" x-text="u.name"></span>
+                </label>
+              </template>
+            </div>
+            <p class="text-xs text-neutral-400 mt-1" x-text="schedModal.recipients.length + ' مستلم محدد'"></p>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
+              <div class="adm-switch" :class="schedModal.isActive&&'on'" @click="schedModal.isActive=!schedModal.isActive"></div>
+              تفعيل الجدولة فوراً
+            </label>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="saveSched()" :disabled="!schedModal.entityType || !schedModal.format || !schedModal.cronPattern || !schedModal.recipients.length" class="adm-btn adm-btn-primary" x-text="schedModal.id?'حفظ':'إنشاء'"></button>
+          <button @click="schedModal=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Download Link Modal -->
+  <template x-if="downloadModal">
+    <div class="adm-overlay" @click.self="downloadModal=null">
+      <div class="adm-modal" style="max-width:420px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800">رابط التحميل</div>
+          <button @click="downloadModal=null" class="adm-icon-btn"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        <div class="adm-modal-body">
+          <div class="rounded-xl bg-success/5 border border-success/20 p-4 flex items-start gap-3 mb-4">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="#1A8C4E" stroke-width="1.6" class="shrink-0 mt-0.5"><path d="M3 8l4 4 6-7"/></svg>
+            <div>
+              <div class="font-bold text-sm text-success">الملف جاهز للتحميل</div>
+              <div class="text-xs text-neutral-500 mt-1">الرابط صالح لمدة ٢٤ ساعة</div>
+            </div>
+          </div>
+          <div x-show="downloadModal">
+            <div class="text-xs font-bold text-neutral-500 mb-1">اسم الملف</div>
+            <div class="font-mono text-sm bg-neutral-100 px-3 py-2 rounded-lg text-neutral-700 font-latin mb-3" x-text="downloadModal && downloadModal.fileName"></div>
+            <div class="flex items-center gap-2 text-xs text-neutral-400">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v5M8 11v1"/><circle cx="8" cy="8" r="6.5"/></svg>
+              <span x-text="downloadModal && downloadModal.fileSize ? formatFileSize(downloadModal.fileSize) : '—'"></span>
+              <span>·</span>
+              <span x-text="downloadModal && downloadModal.downloadCount !== undefined ? fmtNum(downloadModal.downloadCount) + ' تحميل' : '—'"></span>
+            </div>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <a class="adm-btn adm-btn-gold" href="#" @click.prevent="downloadModal=null">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+            تحميل الآن
+          </a>
+          <button @click="downloadModal=null" class="adm-btn adm-btn-ghost">إغلاق</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</div>
+
+<script>
+function dataIO() {
+  const D = (days) => new Date(Date.now() - days * 864e5).toISOString();
+
+  return {
+    // ---- Tab ----
+    tab: 'export',
+
+    // ---- Quota ----
+    quotaUsed: 23,
+    quotaLimit: 100,
+    get quotaPercent() { return Math.round((this.quotaUsed / this.quotaLimit) * 100); },
+
+    // ---- Toast ----
+    toast: false,
+    toastMsg: '',
+    showToast(msg) {
+      this.toastMsg = msg;
+      this.toast = true;
+      setTimeout(() => { this.toast = false; }, 3500);
+    },
+
+    // ---- Reference data ----
+    formats: [
+      { id: 'csv', label: 'CSV', ext: 'CSV', color: '#1A8C4E' },
+      { id: 'xlsx', label: 'Excel', ext: 'XLS', color: '#1565C0' },
+      { id: 'json', label: 'JSON', ext: 'JSON', color: '#B5730A' },
+      { id: 'pdf', label: 'PDF', ext: 'PDF', color: '#C0392B' },
+    ],
+
+    entities: [
+      { id: 'leads', label: 'العملاء المحتملون', count: 342, icon: '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>' },
+      { id: 'contacts', label: 'جهات الاتصال', count: 218, icon: '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>' },
+      { id: 'properties', label: 'العقارات', count: 156, icon: '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>' },
+      { id: 'deals', label: 'الصفقات', count: 89, icon: '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l2.4 5 5.6.5-4.2 3.7 1.3 5.3L10 14.5 4.9 16.5l1.3-5.3L2 7.5 7.6 7z"/></svg>' },
+    ],
+
+    importEntities: [
+      { id: 'leads', label: 'العملاء المحتملون', icon: '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><circle cx="8" cy="6" r="3"/><path d="M15 7l2 2 0-4"/></svg>' },
+      { id: 'contacts', label: 'جهات الاتصال', icon: '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="6.5" r="3"/><path d="M4 17c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>' },
+      { id: 'properties', label: 'العقارات', icon: '<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l7-5 7 5v8H3z"/><path d="M8 17v-5h4v5"/></svg>' },
+    ],
+
+    // ---- Columns per entity (exact API allowlist) ----
+    colDefs: {
+      leads: [
+        { key: 'id', label: 'المعرّف' }, { key: 'firstName', label: 'الاسم الأول' }, { key: 'lastName', label: 'الاسم الأخير' },
+        { key: 'email', label: 'البريد' }, { key: 'phone', label: 'الجوال' }, { key: 'status', label: 'الحالة' },
+        { key: 'createdAt', label: 'تاريخ الإنشاء' }, { key: 'updatedAt', label: 'آخر تحديث' },
+      ],
+      contacts: [
+        { key: 'id', label: 'المعرّف' }, { key: 'firstName', label: 'الاسم الأول' }, { key: 'lastName', label: 'الاسم الأخير' },
+        { key: 'companyName', label: 'الشركة' }, { key: 'nationality', label: 'الجنسية' }, { key: 'profession', label: 'المهنة' },
+        { key: 'createdAt', label: 'تاريخ الإنشاء' }, { key: 'updatedAt', label: 'آخر تحديث' },
+      ],
+      properties: [
+        { key: 'id', label: 'المعرّف' }, { key: 'title', label: 'العنوان' }, { key: 'purpose', label: 'الغرض' },
+        { key: 'status', label: 'الحالة' }, { key: 'price', label: 'السعر' }, { key: 'currency', label: 'العملة' },
+        { key: 'country', label: 'الدولة' }, { key: 'city', label: 'المدينة' }, { key: 'createdAt', label: 'تاريخ الإنشاء' }, { key: 'updatedAt', label: 'آخر تحديث' },
+      ],
+      deals: [
+        { key: 'id', label: 'المعرّف' }, { key: 'dealNumber', label: 'رقم الصفقة' }, { key: 'status', label: 'الحالة' },
+        { key: 'stage', label: 'المرحلة' }, { key: 'askingPrice', label: 'سعر الطلب' }, { key: 'offerPrice', label: 'سعر العرض' },
+        { key: 'finalPrice', label: 'السعر النهائي' }, { key: 'currency', label: 'العملة' }, { key: 'commissionType', label: 'نوع العمولة' },
+        { key: 'commissionRate', label: 'نسبة العمولة' }, { key: 'commissionAmount', label: 'مبلغ العمولة' },
+        { key: 'agencyCommission', label: 'عمولة الوكالة' }, { key: 'agentCommission', label: 'عمولة الوكيل' },
+        { key: 'coBrokeCommission', label: 'عمولة المشارك' }, { key: 'createdAt', label: 'تاريخ الإنشاء' }, { key: 'updatedAt', label: 'آخر تحديث' },
+      ],
+    },
+
+    // ---- Filters per entity (exact API allowlist) ----
+    filterDefs: {
+      leads: [
+        { key: 'status', label: 'الحالة', options: [{ value: 'new', label: 'جديد' }, { value: 'active', label: 'نشط' }, { value: 'won', label: 'مكسوب' }, { value: 'lost', label: 'خاسر' }] },
+        { key: 'branchId', label: 'الفرع', options: [{ value: 'b1', label: 'فرع الرياض' }, { value: 'b2', label: 'فرع جدة' }] },
+        { key: 'country', label: 'الدولة', options: [{ value: 'SA', label: 'السعودية' }, { value: 'AE', label: 'الإمارات' }, { value: 'EG', label: 'مصر' }] },
+        { key: 'city', label: 'المدينة', options: [{ value: 'riyadh', label: 'الرياض' }, { value: 'jeddah', label: 'جدة' }, { value: 'dammam', label: 'الدمام' }] },
+      ],
+      contacts: [
+        { key: 'priority', label: 'الأولوية', options: [{ value: 'normal', label: 'عادي' }, { value: 'important', label: 'مهم' }, { value: 'vip', label: 'VIP' }] },
+        { key: 'nationality', label: 'الجنسية', options: [{ value: 'SA', label: 'سعودي' }, { value: 'EG', label: 'مصري' }, { value: 'AE', label: 'إماراتي' }] },
+        { key: 'branchId', label: 'الفرع', options: [{ value: 'b1', label: 'فرع الرياض' }, { value: 'b2', label: 'فرع جدة' }] },
+      ],
+      properties: [
+        { key: 'status', label: 'الحالة', options: [{ value: 'available', label: 'متاح' }, { value: 'reserved', label: 'محجوز' }, { value: 'sold', label: 'مباع' }] },
+        { key: 'purpose', label: 'الغرض', options: [{ value: 'sale', label: 'للبيع' }, { value: 'rent', label: 'للإيجار' }] },
+        { key: 'branchId', label: 'الفرع', options: [{ value: 'b1', label: 'فرع الرياض' }, { value: 'b2', label: 'فرع جدة' }] },
+        { key: 'country', label: 'الدولة', options: [{ value: 'SA', label: 'السعودية' }, { value: 'AE', label: 'الإمارات' }] },
+        { key: 'city', label: 'المدينة', options: [{ value: 'riyadh', label: 'الرياض' }, { value: 'jeddah', label: 'جدة' }] },
+      ],
+      deals: [
+        { key: 'status', label: 'الحالة', options: [{ value: 'active', label: 'نشطة' }, { value: 'closed_won', label: 'مغلقة مكسوبة' }, { value: 'closed_lost', label: 'مغلقة خاسرة' }] },
+        { key: 'stage', label: 'المرحلة', options: [{ value: 'negotiation', label: 'تفاوض' }, { value: 'due_diligence', label: 'عناية واجبة' }, { value: 'signing', label: 'توقيع' }] },
+        { key: 'branchId', label: 'الفرع', options: [{ value: 'b1', label: 'فرع الرياض' }, { value: 'b2', label: 'فرع جدة' }] },
+        { key: 'currency', label: 'العملة', options: [{ value: 'SAR', label: 'ريال' }, { value: 'AED', label: 'درهم' }, { value: 'USD', label: 'دولار' }] },
+      ],
+    },
+
+    // ---- Import fields per entity ----
+    importFields: {
+      leads: [
+        { key: 'firstName', label: 'الاسم الأول', required: false },
+        { key: 'lastName', label: 'الاسم الأخير', required: false },
+        { key: 'email', label: 'البريد الإلكتروني', required: false },
+        { key: 'phone', label: 'الجوال', required: false },
+        { key: 'branchId', label: 'الفرع', required: false },
+        { key: 'stageId', label: 'المرحلة', required: false },
+        { key: 'sourceId', label: 'المصدر', required: false },
+        { key: 'budget', label: 'الميزانية', required: false },
+        { key: 'currency', label: 'العملة', required: false },
+        { key: 'country', label: 'الدولة', required: false },
+        { key: 'city', label: 'المدينة', required: false },
+        { key: 'area', label: 'المنطقة', required: false },
+        { key: 'notes', label: 'الملاحظات', required: false },
+      ],
+      contacts: [
+        { key: 'firstName', label: 'الاسم الأول', required: true },
+        { key: 'lastName', label: 'الاسم الأخير', required: false },
+        { key: 'companyName', label: 'الشركة', required: false },
+        { key: 'email', label: 'البريد الإلكتروني', required: false },
+        { key: 'phone', label: 'الجوال', required: false },
+        { key: 'branchId', label: 'الفرع', required: false },
+        { key: 'notes', label: 'الملاحظات', required: false },
+        { key: 'priority', label: 'الأولوية (normal/important/vip)', required: false },
+        { key: 'type', label: 'النوع', required: false },
+        { key: 'nationality', label: 'الجنسية', required: false },
+        { key: 'profession', label: 'المهنة', required: false },
+      ],
+      properties: [
+        { key: 'title', label: 'العنوان', required: true },
+        { key: 'purpose', label: 'الغرض (sale/rent)', required: true },
+        { key: 'price', label: 'السعر', required: true },
+        { key: 'city', label: 'المدينة', required: true },
+        { key: 'typeId', label: 'نوع العقار', required: false },
+        { key: 'branchId', label: 'الفرع', required: false },
+        { key: 'description', label: 'الوصف', required: false },
+        { key: 'discount', label: 'الخصم', required: false },
+        { key: 'commission', label: 'العمولة', required: false },
+        { key: 'currency', label: 'العملة', required: false },
+        { key: 'country', label: 'الدولة', required: false },
+        { key: 'area', label: 'المنطقة', required: false },
+        { key: 'address', label: 'العنوان التفصيلي', required: false },
+        { key: 'bedrooms', label: 'الغرف', required: false },
+        { key: 'bathrooms', label: 'دورات المياه', required: false },
+        { key: 'size', label: 'المساحة', required: false },
+        { key: 'finishing', label: 'التشطيب', required: false },
+        { key: 'furnished', label: 'مفروش', required: false },
+      ],
+    },
+
+    // ---- Export builder state ----
+    exportSteps: ['الكيان', 'الأعمدة', 'الفلاتر', 'معاينة', 'التصدير'],
+    exportStep: 0,
+    exportEntity: '',
+    selectedCols: [],
+    exportFilters: {},
+    exportDateFrom: '',
+    exportDateTo: '',
+    exportFormat: 'csv',
+    previewRows: [],
+    previewCols: [],
+
+    get currentCols() { return this.colDefs[this.exportEntity] || []; },
+    get currentFilters() { return this.filterDefs[this.exportEntity] || []; },
+
+    selectEntity(e) {
+      this.exportEntity = e.id;
+      this.selectedCols = this.colDefs[e.id].map(c => c.key);
+      this.exportFilters = {};
+    },
+
+    toggleAllCols() {
+      if (this.selectedCols.length === this.currentCols.length) {
+        this.selectedCols = [];
+      } else {
+        this.selectedCols = this.currentCols.map(c => c.key);
+      }
+    },
+
+    colLabel(key) {
+      const all = this.colDefs[this.exportEntity] || [];
+      return (all.find(c => c.key === key) || {}).label || key;
+    },
+
+    colsFor(entityId) { return this.colDefs[entityId] || []; },
+
+    loadPreview() {
+      this.previewCols = this.selectedCols.slice(0, 6);
+      // Mock preview rows aligned to selected entity
+      const samples = {
+        leads: [
+          { id: 'ld-001', firstName: 'عبدالله', lastName: 'المطيري', email: 'a@mail.com', phone: '+966551234567', status: 'active', createdAt: '2026-05-01', updatedAt: '2026-06-15' },
+          { id: 'ld-002', firstName: 'منى', lastName: 'السبيعي', email: '', phone: '+966552345678', status: 'new', createdAt: '2026-05-12', updatedAt: '2026-06-10' },
+        ],
+        contacts: [
+          { id: 'ct-001', firstName: 'أحمد', lastName: 'الغامدي', companyName: 'دار الاستثمار', nationality: 'SA', profession: 'مستثمر', createdAt: '2026-04-20', updatedAt: '2026-06-01' },
+        ],
+        properties: [
+          { id: 'pr-001', title: 'فيلا حي الياسمين', purpose: 'sale', status: 'available', price: '2500000', currency: 'SAR', country: 'SA', city: 'الرياض', createdAt: '2026-03-10', updatedAt: '2026-06-20' },
+        ],
+        deals: [
+          { id: 'dl-001', dealNumber: 'DL-2026-001', status: 'active', stage: 'negotiation', askingPrice: '2500000', offerPrice: '2350000', finalPrice: '', currency: 'SAR', commissionType: 'percentage', commissionRate: '2.5', commissionAmount: '62500', agencyCommission: '37500', agentCommission: '25000', coBrokeCommission: '0', createdAt: '2026-06-01', updatedAt: '2026-06-25' },
+        ],
+      };
+      const rows = (samples[this.exportEntity] || []).slice(0, 10);
+      this.previewRows = rows.map(r => {
+        const out = {};
+        this.previewCols.forEach(k => { out[k] = r[k] !== undefined ? r[k] : '—'; });
+        return out;
+      });
+      this.exportStep = 3;
+    },
+
+    doExport() {
+      if (this.quotaUsed >= this.quotaLimit) return;
+      const newJob = {
+        id: 'j' + Date.now(),
+        entityType: this.exportEntity,
+        jobType: 'export',
+        format: this.exportFormat,
+        status: 'queued',
+        progress: 0,
+        fileName: this.exportEntity + '-export-' + new Date().toISOString().slice(0, 10) + '.' + this.exportFormat,
+        fileSize: null,
+        downloadCount: 0,
+        error: null,
+        createdAt: new Date().toISOString(),
+      };
+      this.jobs.unshift(newJob);
+      this.quotaUsed++;
+      this.showToast('جاري الإعداد — سيظهر الملف في السجل قريباً');
+      // Simulate progress
+      setTimeout(() => { const j = this.jobs.find(x => x.id === newJob.id); if (j) { j.status = 'processing'; j.progress = 40; } }, 800);
+      setTimeout(() => { const j = this.jobs.find(x => x.id === newJob.id); if (j) { j.progress = 80; } }, 1600);
+      setTimeout(() => { const j = this.jobs.find(x => x.id === newJob.id); if (j) { j.status = 'completed'; j.progress = 100; j.fileSize = Math.floor(Math.random() * 2e6 + 50000); } }, 2400);
+    },
+
+    openSaveTemplate() {
+      this.tplModal = { id: null, name: '', description: '', entityType: this.exportEntity, format: this.exportFormat, columns: JSON.parse(JSON.stringify(this.selectedCols)), isShared: false };
+    },
+
+    // ---- Templates ----
+    tplModal: null,
+    templates: [
+      { id: 't1', name: 'تقرير العملاء الشهري', description: 'كل العملاء النشطين مع بيانات التواصل', entityType: 'leads', format: 'xlsx', columns: ['id', 'firstName', 'lastName', 'email', 'phone', 'status'], isShared: true, usageCount: 47, lastUsedAt: D(3) },
+      { id: 't2', name: 'صفحة العقارات للبيع', description: 'عقارات للبيع مع الأسعار', entityType: 'properties', format: 'csv', columns: ['id', 'title', 'purpose', 'price', 'currency', 'city'], isShared: false, usageCount: 12, lastUsedAt: D(12) },
+      { id: 't3', name: 'تقرير الصفقات المالي', description: 'جميع الصفقات مع تفاصيل العمولة', entityType: 'deals', format: 'xlsx', columns: ['id', 'dealNumber', 'status', 'finalPrice', 'commissionAmount', 'agentCommission'], isShared: true, usageCount: 31, lastUsedAt: D(1) },
+    ],
+
+    openTplCreate() { this.tplModal = { id: null, name: '', description: '', entityType: 'leads', format: 'csv', columns: [], isShared: false }; },
+    openTplEdit(t) { this.tplModal = JSON.parse(JSON.stringify(t)); },
+
+    saveTpl() {
+      if (!this.tplModal.name || !this.tplModal.columns.length) return;
+      if (this.tplModal.id) {
+        const i = this.templates.findIndex(x => x.id === this.tplModal.id);
+        if (i > -1) this.templates[i] = JSON.parse(JSON.stringify(this.tplModal));
+      } else {
+        this.templates.unshift({ ...JSON.parse(JSON.stringify(this.tplModal)), id: 't' + Date.now(), usageCount: 0, lastUsedAt: null });
+      }
+      this.tplModal = null;
+      this.showToast('تم حفظ القالب');
+    },
+
+    deleteTemplate(t) {
+      if (confirm('حذف القالب "' + t.name + '"؟')) {
+        this.templates = this.templates.filter(x => x.id !== t.id);
+      }
+    },
+
+    useTemplate(t) {
+      this.exportEntity = t.entityType;
+      this.selectedCols = JSON.parse(JSON.stringify(t.columns));
+      this.exportFormat = t.format;
+      this.exportFilters = {};
+      this.exportStep = 0;
+      this.tab = 'export';
+      t.usageCount++;
+      t.lastUsedAt = new Date().toISOString();
+      this.showToast('تم تحميل القالب في منشئ التصدير');
+    },
+
+    // ---- Schedules ----
+    schedModal: null,
+    allUsers: [
+      { id: 'u1', name: 'سارة القحطاني', initials: 'سق' },
+      { id: 'u2', name: 'خالد العمري', initials: 'خع' },
+      { id: 'u3', name: 'نورة الدوسري', initials: 'ند' },
+      { id: 'u4', name: 'فهد الشمري', initials: 'فش' },
+      { id: 'u5', name: 'محمد العتيبي', initials: 'مع' },
+    ],
+    schedules: [
+      { id: 'sc1', templateId: 't1', templateName: 'تقرير العملاء الشهري', entityType: 'leads', format: 'xlsx', cronPattern: '0 8 1 * *', recipients: [{ userId: 'u1', initials: 'سق' }, { userId: 'u5', initials: 'مع' }], isActive: true, nextRun: D(-30) },
+      { id: 'sc2', templateId: null, templateName: null, entityType: 'deals', format: 'csv', cronPattern: '0 8 * * 0', recipients: [{ userId: 'u5', initials: 'مع' }], isActive: true, nextRun: D(-7) },
+    ],
+
+    openSchedCreate() { this.schedModal = { id: null, templateId: '', entityType: 'leads', format: 'csv', cronPattern: '0 8 * * *', recipients: [], isActive: true }; },
+    openSchedEdit(s) { this.schedModal = JSON.parse(JSON.stringify(s)); },
+
+    toggleSchedRecipient(u, e) {
+      if (e.target.checked) {
+        if (this.schedModal.recipients.length < 20) this.schedModal.recipients.push({ userId: u.id, initials: u.initials });
+      } else {
+        this.schedModal.recipients = this.schedModal.recipients.filter(r => r.userId !== u.id);
+      }
+    },
+
+    onSchedTemplate() {
+      if (!this.schedModal.templateId) return;
+      const t = this.templates.find(x => x.id === this.schedModal.templateId);
+      if (t) { this.schedModal.entityType = t.entityType; this.schedModal.format = t.format; }
+    },
+
+    saveSched() {
+      if (!this.schedModal.entityType || !this.schedModal.format || !this.schedModal.cronPattern || !this.schedModal.recipients.length) return;
+      const tpl = this.schedModal.templateId ? this.templates.find(t => t.id === this.schedModal.templateId) : null;
+      const data = { ...JSON.parse(JSON.stringify(this.schedModal)), templateName: tpl ? tpl.name : null, nextRun: D(-7) };
+      if (data.id) {
+        const i = this.schedules.findIndex(x => x.id === data.id);
+        if (i > -1) this.schedules[i] = data;
+      } else {
+        this.schedules.unshift({ ...data, id: 'sc' + Date.now() });
+      }
+      this.schedModal = null;
+      this.showToast('تم حفظ الجدولة');
+    },
+
+    cronDesc(pat) {
+      if (!pat) return '';
+      const p = (pat || '').trim().split(/\s+/);
+      if (p.length !== 5) return 'تنسيق غير صحيح — مثال: 0 8 * * *';
+      const [min, hr, dom, mon, dow] = p;
+      if (dom !== '*' && mon === '*' && dow === '*') return 'شهرياً في اليوم ' + dom + ' الساعة ' + hr + ':' + (min === '0' ? '00' : min);
+      if (dow !== '*' && dom === '*') return 'أسبوعياً (يوم ' + dow + ') الساعة ' + hr + ':' + (min === '0' ? '00' : min);
+      if (dom === '*' && dow === '*') return 'يومياً الساعة ' + hr + ':' + (min === '0' ? '00' : min);
+      return 'مخصص';
+    },
+
+    // ---- Import wizard ----
+    importSteps: ['الكيان والملف', 'ربط الأعمدة', 'المراجعة', 'التقرير'],
+    importStep: 0,
+    importEntity: '',
+    importFile: null,
+    fieldMapping: {},
+    rowActions: {},
+    importRows: [],
+    importPreviewCols: [],
+    importReport: { total: 0, created: 0, deduped: 0, failed: [] },
+
+    mockCsvCols: [
+      { key: 'الاسم الأول', sample: 'عبدالله' },
+      { key: 'الاسم الأخير', sample: 'المطيري' },
+      { key: 'رقم الجوال', sample: '+966551234567' },
+      { key: 'البريد', sample: 'a@mail.com' },
+      { key: 'المدينة', sample: 'الرياض' },
+      { key: 'الميزانية', sample: '1200000' },
+    ],
+
+    importFieldsFor(entityId) { return this.importFields[entityId] || []; },
+    importFieldRequired(entityId, fieldKey) {
+      const f = (this.importFields[entityId] || []).find(x => x.key === fieldKey);
+      return f ? f.required : false;
+    },
+
+    handleFileSelect(e) {
+      const f = e.target.files[0];
+      if (f && f.size <= 2 * 1024 * 1024) this.importFile = f;
+      else if (f) alert('حجم الملف يتجاوز ٢ ميجابايت');
+    },
+
+    handleDrop(e) {
+      const f = e.dataTransfer.files[0];
+      if (f && /\.(csv|xlsx|xls)$/i.test(f.name)) {
+        if (f.size <= 2 * 1024 * 1024) this.importFile = f;
+        else alert('حجم الملف يتجاوز ٢ ميجابايت');
+      }
+    },
+
+    formatFileSize(bytes) {
+      if (!bytes) return '—';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+      return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    },
+
+    startMapping() { this.importStep = 1; },
+
+    mappingValid() {
+      const required = (this.importFields[this.importEntity] || []).filter(f => f.required).map(f => f.key);
+      const mapped = Object.values(this.fieldMapping).filter(Boolean);
+      return required.every(r => mapped.includes(r));
+    },
+
+    loadImportPreview() {
+      // Mock preview rows with status classification
+      this.importPreviewCols = Object.values(this.fieldMapping).filter(Boolean).slice(0, 4);
+      this.importRows = [
+        { firstName: 'عبدالله', lastName: 'المطيري', phone: '+966551234567', email: 'a@mail.com', _status: 'new', _matchId: null, _error: null },
+        { firstName: 'منى', lastName: 'السبيعي', phone: '+966552345678', email: '', _status: 'duplicate', _matchId: 'LD-042', _error: null },
+        { firstName: 'تركي', lastName: 'الحربي', phone: '', email: '', _status: 'error', _matchId: null, _error: 'الجوال مطلوب' },
+        { firstName: 'ريم', lastName: 'الزهراني', phone: '+966554567890', email: '', _status: 'new', _matchId: null, _error: null },
+        { firstName: 'سعود', lastName: 'القرني', phone: '+966555678901', email: 'saud@mail.com', _status: 'new', _matchId: null, _error: null },
+        { firstName: 'لمياء', lastName: 'الدوسري', phone: '+966556789012', email: '', _status: 'duplicate', _matchId: 'LD-018', _error: null },
+      ];
+      this.rowActions = {};
+      this.importRows.forEach((r, i) => {
+        this.rowActions[i] = r._status === 'error' ? 'skip' : 'import';
+      });
+      this.importStep = 2;
+    },
+
+    applyAllAction(action) {
+      this.importRows.forEach((r, i) => {
+        if (r._status !== 'error') this.rowActions[i] = action;
+      });
+    },
+
+    executeImport() {
+      const toImport = this.importRows.filter((r, i) => this.rowActions[i] === 'import' && r._status !== 'error');
+      const toSkip = this.importRows.filter((r, i) => this.rowActions[i] === 'skip');
+      const errors = this.importRows.filter(r => r._status === 'error');
+      this.importReport = {
+        total: this.importRows.length,
+        created: toImport.length,
+        deduped: toSkip.length,
+        failed: errors.map((r, i) => ({ row: i + 1, reason: r._error || 'خطأ غير محدد' })),
+      };
+      const newJob = {
+        id: 'j' + Date.now(),
+        entityType: this.importEntity,
+        jobType: 'import',
+        format: 'csv',
+        status: 'completed',
+        progress: 100,
+        fileName: this.importFile ? this.importFile.name : 'import.csv',
+        fileSize: this.importFile ? this.importFile.size : null,
+        downloadCount: 0,
+        error: null,
+        createdAt: new Date().toISOString(),
+      };
+      this.jobs.unshift(newJob);
+      this.importStep = 3;
+    },
+
+    downloadReport() {
+      this.showToast('جاري تحضير تقرير CSV');
+    },
+
+    // ---- Jobs log ----
+    jobs: [
+      { id: 'j1', entityType: 'leads', jobType: 'export', format: 'xlsx', status: 'completed', progress: 100, fileName: 'leads-export-2026-06-24.xlsx', fileSize: 284320, downloadCount: 3, error: null, createdAt: D(1) },
+      { id: 'j2', entityType: 'contacts', jobType: 'import', format: 'csv', status: 'completed', progress: 100, fileName: 'contacts-import.csv', fileSize: 45120, downloadCount: 0, error: null, createdAt: D(3) },
+      { id: 'j3', entityType: 'deals', jobType: 'export', format: 'pdf', status: 'failed', progress: 0, fileName: null, fileSize: null, downloadCount: 0, error: 'انتهت مهلة المعالجة', createdAt: D(5) },
+      { id: 'j4', entityType: 'properties', jobType: 'export', format: 'csv', status: 'completed', progress: 100, fileName: 'properties-export-2026-06-20.csv', fileSize: 128440, downloadCount: 1, error: null, createdAt: D(5) },
+      { id: 'j5', entityType: 'leads', jobType: 'export', format: 'json', status: 'processing', progress: 62, fileName: null, fileSize: null, downloadCount: 0, error: null, createdAt: D(0) },
+    ],
+
+    downloadModal: null,
+    showDownload(j) { this.downloadModal = j; },
+
+    showJobReport(j) {
+      this.importReport = { total: 120, created: 98, deduped: 15, failed: [{ row: 7, reason: 'بريد إلكتروني غير صحيح' }, { row: 23, reason: 'الاسم الأول مطلوب' }] };
+      this.importStep = 3;
+      this.tab = 'import';
+    },
+
+    jobStatusCls(s) {
+      return { pending: 'b-neutral', queued: 'b-neutral', processing: 'b-info', completed: 'b-success', failed: 'b-danger' }[s] || 'b-neutral';
+    },
+
+    jobStatusLabel(s) {
+      return { pending: 'في الانتظار', queued: 'مجدول', processing: 'يعالج', completed: 'مكتمل', failed: 'فشل' }[s] || s;
+    },
+
+    entityLabel(id) {
+      return { leads: 'عملاء', contacts: 'جهات اتصال', properties: 'عقارات', deals: 'صفقات' }[id] || id;
+    },
+
+    formatColor(fmt) {
+      return { csv: '#1A8C4E', xlsx: '#1565C0', json: '#B5730A', pdf: '#C0392B' }[fmt] || '#6E7F9C';
+    },
+
+    // ---- URL param routing ----
+    init() {
+      const p = new URLSearchParams(window.location.search);
+      const view = p.get('view');
+      const entity = p.get('entity');
+      if (view && ['export', 'import', 'templates', 'scheduled', 'jobs'].includes(view)) this.tab = view;
+      const validEntities = ['leads', 'contacts', 'properties', 'deals'];
+      if (entity && validEntities.includes(entity)) {
+        // اختيار الكيان مسبقاً وتحميل الأعمدة الافتراضية
+        const entityObj = this.entities.find(e => e.id === entity);
+        if (entityObj) {
+          this.selectEntity(entityObj);
+          // الانتقال مباشرةً إلى خطوة الأعمدة (step 2)
+          this.exportStep = 1;
+        }
+      }
+    },
+  };
+}
+</script>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== Detail windows — draggable · resizable · multi-window · dedup ===== -->
+<template x-for="w in windows" :key="w.id">
+  <div class="crm-win appear" :class="{ max:w.max, busy:dragId===w.id, anim:animId===w.id }" x-show="!w.min"
+       :style="w.max ? ('z-index:'+(66+w.z)) : ('left:'+w.x+'px;top:'+w.y+'px;width:'+w.w+'px;height:'+w.h+'px;z-index:'+(66+w.z))"
+       @mousedown="focusWin(w.id)" x-cloak>
+    <div class="crm-win-head" @mousedown="winDrag(w,$event)" @dblclick="toggleMax(w)">
+      <span class="crm-win-dot"></span>
+      <span class="font-bold text-primary-800 text-sm truncate flex-1 ps-1" x-text="w.title"></span>
+      <a :href="w.full" class="crm-win-btn" title="فتح كصفحة كاملة" @mousedown.stop @click.stop><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 2H2v12h12v-4M9.5 6.5l5-5M10.5 2h4v4"/></svg></a>
+      <button @mousedown.stop @click.stop="minWin(w.id)" class="crm-win-btn" title="تصغير"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h10"/></svg></button>
+      <button @mousedown.stop @click.stop="toggleMax(w)" class="crm-win-btn" :title="w.max?'استعادة':'تكبير'">
+        <svg x-show="!w.max" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5"/></svg>
+        <svg x-show="w.max" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4.5" y="2.5" width="9" height="9" rx="1.5"/><path d="M2.5 5.5v8h8"/></svg>
+      </button>
+      <button @mousedown.stop @click.stop="closeWin(w.id)" class="crm-win-btn close" title="إغلاق"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <iframe class="crm-win-frame" :src="w.src" :title="w.title"></iframe>
+    <div class="crm-win-grip" @mousedown.stop="winResize(w,$event,'br')"></div>
+    <div class="crm-win-grip bl" @mousedown.stop="winResize(w,$event,'bl')"></div>
+  </div>
+</template>
+<!-- drag/resize mask: captures the pointer while moving over iframes -->
+<div class="crm-dragmask" x-show="dragId" :style="dragMode==='resize' ? 'cursor:nwse-resize' : 'cursor:grabbing'"
+     @mousemove="winMove($event)" @mouseup="winEnd()" @mouseleave="winEnd()" x-cloak></div>
+<!-- taskbar: overlapping window pills (fan out + reveal titles on hover) -->
+<div class="crm-taskbar" x-show="windows.length" x-transition.opacity x-cloak>
+  <template x-for="w in windows" :key="'t'+w.id">
+    <div class="crm-task" :class="{ active:!w.min && w.z===topZ, min:w.min }" @click="dockClick(w)" :title="w.title">
+      <span class="crm-task-av" x-text="winInitials(w.title)"></span>
+      <span class="crm-task-label" x-text="w.title"></span>
+      <button class="crm-task-x" @click.stop="closeWin(w.id)"><svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+  </template>
+  <div class="crm-taskbar-min" @click="windows.forEach(w=>w.min=true)" title="تصغير الكل"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12h10"/></svg></div>
+</div>
+
+<script>
+  // ===== Shared tenant CRM shell component (sidebar + topbar + tenant/role context) =====
+  function crmShell() {
+    const ICO = {
+      lead:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><path d="M12 6l2 2 0-4"/></svg>',
+      activity:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3" width="11" height="10" rx="2"/><path d="M2.5 6h11M6 1.5v3M10 1.5v3"/></svg>',
+      deal:'<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5l1.9 4 4.1.4-3.1 2.7 1 4L8 10.5 4.1 12.6l1-4L2 5.9 6.1 5.5z"/></svg>',
+    };
+    return {
+      navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      // ===== Window manager: draggable · resizable · multi-window · dedup (one window per entity) =====
+      windows:[], winSeq:0, topZ:0, dragId:null, dragMode:null, animId:null, _drag:null,
+      openWindow(d){
+        const key = d.key || d.title || d.src;
+        const ex = this.windows.find(w => w.key === key);
+        if (ex){ ex.min=false; ex.z=++this.topZ; return; }          // dedup → focus existing instead of duplicating          // dedup → focus existing instead of duplicating
+        // Tile new windows in alternating left/right columns within the content area (left of the sidebar),
+        // so a 2nd window appears clearly BESIDE the 1st (not stacked on top → "looks like one window").
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const sb = document.querySelector('.crm-sidebar, .adm-sidebar');
+        const rightEdge = sb ? Math.round(sb.getBoundingClientRect().left) : vw;
+        const leftEdge = 16, gutter = 16;
+        const avail = rightEdge - leftEdge;
+        const W = Math.min(560, Math.max(360, Math.round(avail/2) - gutter));
+        const H = Math.min(640, Math.round(vh*0.82));
+        const i = this.windows.length, col = i % 2, step = Math.floor(i/2) % 4;
+        const x = col === 0 ? (leftEdge + step*26) : Math.max(leftEdge, rightEdge - W - gutter - step*26);
+        const y = 54 + step*26;
+        this.windows.push({ id:++this.winSeq, key, src:d.src, title:d.title, full:d.full,
+          min:false, max:false, z:++this.topZ, x, y, w:W, h:H });
+      },
+      focusWin(id){ const w=this.windows.find(x=>x.id===id); if(w && w.z!==this.topZ) w.z=++this.topZ; },
+      minWin(id){ const w=this.windows.find(x=>x.id===id); if(w) w.min=true; },
+      restoreWin(id){ const w=this.windows.find(x=>x.id===id); if(w){ w.min=false; w.z=++this.topZ; } },
+      closeWin(id){ this.windows=this.windows.filter(x=>x.id!==id); },
+      toggleMax(w){ this.animId=w.id; w.max=!w.max; this.focusWin(w.id); setTimeout(()=>{ this.animId=null; }, 240); },
+      dockClick(w){ if(w.min) this.restoreWin(w.id); else if(w.z===this.topZ) this.minWin(w.id); else this.focusWin(w.id); },
+      winInitials(t){ const p=(t||'').trim().split(/\s+/); return ((p[0]||'')[0]||'') + ((p[1]||'')[0]||''); },
+      winDrag(w,e){ if(w.max || e.target.closest('.crm-win-btn') || e.target.closest('a')) return; this.focusWin(w.id); this.dragId=w.id; this.dragMode='move'; this._drag={ sx:e.clientX, sy:e.clientY, ox:w.x, oy:w.y }; },
+      winResize(w,e,dir){ if(w.max) return; this.focusWin(w.id); this.dragId=w.id; this.dragMode='resize'; this._drag={ sx:e.clientX, sy:e.clientY, ox:w.x, ow:w.w, oh:w.h, dir }; },
+      winMove(e){ const w=this.windows.find(x=>x.id===this.dragId); if(!w||!this._drag) return; const dx=e.clientX-this._drag.sx, dy=e.clientY-this._drag.sy;
+        if(this.dragMode==='move'){ w.x=Math.max(0, Math.min(window.innerWidth-90, this._drag.ox+dx)); w.y=Math.max(0, Math.min(window.innerHeight-46, this._drag.oy+dy)); }
+        else { if(this._drag.dir==='bl'){ const nw=this._drag.ow-dx; if(nw>=360){ w.w=nw; w.x=this._drag.ox+dx; } } else { w.w=Math.max(360, this._drag.ow+dx); } w.h=Math.max(240, this._drag.oh+dy); }
+      },
+      winEnd(){ this.dragId=null; this.dragMode=null; this._drag=null; },
+      // tenant + identity context (from GET /tenant + JWT claims)
+      tenant:{ name:'دار العقارية', plan:'Professional', type:'brokerage_company' },
+      me:{ name:'محمد العتيبي', initials:'مع', role:'owner', roleLabel:'مالك', branch:'فرع الرياض' },
+      get isBrokerage(){ return this.tenant.type === 'brokerage_company'; },
+      // Operational alerts (derived from real endpoints: overdue follow-ups, today's activities, deals closing)
+      alerts:[
+        { id:1, tone:'warning', icon:ICO.lead,     title:'٥ عملاء محتملون بلا متابعة منذ ٣ أيام', time:'منذ ساعة', href:'leads.html' },
+        { id:2, tone:'info',    icon:ICO.activity, title:'٣ معاينات مجدولة اليوم', time:'اليوم', href:'activities.html' },
+        { id:3, tone:'info',    icon:ICO.deal,     title:'صفقة "برج المروج" في مرحلة التوقيع', time:'منذ ٣ ساعات', href:'deals.html' },
+      ],
+      get alertCount(){ return this.alerts.length; },
+    };
+  }
+  // ===== Deterministic active-nav (set per build) =====
+  window.NAV_ACTIVE = 'data-io';
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.crm-nav-item').forEach(a => {
+      if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
+    });
+  });
+  // ===== Shared formatting helpers (reused across screens) =====
+  function fmtNum(n){ return (n??0).toLocaleString('en-US'); }
+  function fmtMoney(n,cur){ return new Intl.NumberFormat('en-US',{style:'currency',currency:cur||'SAR',maximumFractionDigits:0}).format(n||0); }
+  function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}); }
+  function fmtDateTime(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  function timeAgo(iso){ if(!iso) return '—'; const s=Math.floor((Date.now()-new Date(iso))/1000); if(s<60)return 'الآن'; const m=Math.floor(s/60); if(m<60)return `منذ ${m} دقيقة`; const h=Math.floor(m/60); if(h<24)return `منذ ${h} ساعة`; const d=Math.floor(h/24); return `منذ ${d} يوم`; }
+  // ===== Reusable floating row-action menu mixin (spread: {...floatMenu()}) =====
+  function floatMenu(){
+    return {
+      fmId:null, fmTop:0, fmRight:0, _fmGuard:false,
+      // Guard: opening row A's menu fires EVERY OTHER row's @click.outside in the same click → they'd
+      // call fmClose() and shut the menu instantly. Ignore those same-event closes via a 1-tick guard.
+      fmOpen(id, e){ if(this.fmId===id){ this.fmId=null; return; } const r=e.currentTarget.getBoundingClientRect(); this.fmTop=Math.round(r.bottom+4); this.fmRight=Math.round(Math.max(8, window.innerWidth - r.right)); this.fmId=id; this._fmGuard=true; queueMicrotask(()=>{ this._fmGuard=false; }); },
+      fmClose(){ if(this._fmGuard) return; this.fmId=null; },
+      // Return an OBJECT (not a string): a string :style overwrites the whole style attr and wipes
+      // x-show's display:none → all row menus stay visible & stacked. An object merges, so x-show works.
+      fmStyle(){ return { top: this.fmTop+'px', right: this.fmRight+'px' }; },
+    };
+  }
+</script>
+</body>
+</html>

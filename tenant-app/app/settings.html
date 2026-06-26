@@ -241,6 +241,10 @@
         <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V3M3 17h14M7 14V9M11 14V6M15 14v-3"/></svg>
         التقارير
       </a>
+      <a href="data-io.html" class="crm-nav-item" data-nav="data-io">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3v9M7 9l3 3 3-3M4 16h12"/></svg>
+        التصدير والاستيراد
+      </a>
 
       <div class="crm-nav-label">المنظومة</div>
       <a href="team.html" class="crm-nav-item" data-nav="team" x-show="isBrokerage">
@@ -1221,6 +1225,11 @@
            format: csv | xlsx | json | pdf
       ════════════════════════════════════════════════════ -->
       <div x-show="active==='export'" x-cloak>
+        <!-- بانر التصدير المتقدّم -->
+        <div class="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl border border-primary-200 bg-primary-50 text-sm text-primary-800">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="shrink-0 text-primary-600"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5h.01"/></svg>
+          <span>للتصدير المتقدّم (أعمدة · فلاتر · قوالب · جدولة) استخدم شاشة <a href="data-io.html" class="font-bold underline underline-offset-2 hover:text-primary-600">التصدير والاستيراد</a>.</span>
+        </div>
         <div class="adm-card">
           <div class="adm-card-head">
             <div>
