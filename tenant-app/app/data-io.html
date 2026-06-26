@@ -860,7 +860,7 @@
               <!-- Column picker -->
               <div class="flex-1 min-w-0">
                 <label class="text-xs text-neutral-500 font-semibold mb-1 block">العمود</label>
-                <select x-model="f.col" @change="f.op=advOpsForCol(f.col)[0]||''; f.val=''; advTested=false; advTestResult=null" class="ec-input text-sm">
+                <select x-model="f.col" @change="advOnFilterColChange(f)" class="ec-input text-sm">
                   <option value="">— اختر عموداً —</option>
                   <template x-for="grp in advColumnGroups()" :key="grp.relId||grp.entity">
                     <optgroup :label="grp.label">
@@ -874,25 +874,95 @@
               <!-- Operator -->
               <div style="width:120px; shrink:0">
                 <label class="text-xs text-neutral-500 font-semibold mb-1 block">العملية</label>
-                <select x-model="f.op" @change="f.val=''; f.val2=''; advTested=false; advTestResult=null" class="ec-input text-sm">
+                <select x-model="f.op" @change="advOnFilterOpChange(f)" class="ec-input text-sm">
                   <template x-for="op in advOpsForCol(f.col)" :key="op">
                     <option :value="op" x-text="advOpLabel(op)"></option>
                   </template>
                 </select>
               </div>
-              <!-- Value -->
+              <!-- Value — smart input based on column type + operator -->
               <div class="flex-1 min-w-0">
                 <label class="text-xs text-neutral-500 font-semibold mb-1 block">القيمة</label>
-                <div class="flex gap-1">
-                  <input x-show="f.op!=='isNull' && f.op!=='notNull'"
-                         type="text" x-model="f.val"
+
+                <!-- isNull / notNull: no value needed -->
+                <span x-show="f.op==='isNull' || f.op==='notNull'" class="text-xs text-neutral-400 py-2 block">لا قيمة</span>
+
+                <!-- in: multi-select from options -->
+                <template x-if="f.op==='in' && f.col && advFilterHasOptions(f.col)">
+                  <select multiple x-model="f.val"
+                          @change="advTested=false; advTestResult=null"
+                          class="ec-input text-sm"
+                          style="min-height:80px">
+                    <template x-for="opt in advFilterOptions(f.col)" :key="opt.value">
+                      <option :value="opt.value" x-text="opt.label"></option>
+                    </template>
+                  </select>
+                </template>
+                <!-- in: text fallback (no options defined) -->
+                <template x-if="f.op==='in' && !(f.col && advFilterHasOptions(f.col))">
+                  <input type="text" x-model="f.val"
                          @input="advTested=false; advTestResult=null"
-                         class="ec-input text-sm flex-1" placeholder="القيمة" />
-                  <input x-show="f.op==='between'" type="text" x-model="f.val2"
+                         class="ec-input text-sm" placeholder="قيم مفصولة بفاصلة" />
+                </template>
+
+                <!-- between: two inputs by column type -->
+                <template x-if="f.op==='between' && f.op!=='isNull' && f.op!=='notNull' && f.op!=='in'">
+                  <div class="flex gap-1">
+                    <input :type="advFilterInputType(f.col)"
+                           :value="Array.isArray(f.val) ? f.val[0] : ''"
+                           @input="advSetBetweenVal(f, 0, $event.target.value)"
+                           class="ec-input text-sm flex-1" dir="ltr" placeholder="من" />
+                    <input :type="advFilterInputType(f.col)"
+                           :value="Array.isArray(f.val) ? f.val[1] : ''"
+                           @input="advSetBetweenVal(f, 1, $event.target.value)"
+                           class="ec-input text-sm flex-1" dir="ltr" placeholder="إلى" />
+                  </div>
+                </template>
+
+                <!-- enum/uuid single: select -->
+                <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advFilterHasOptions(f.col)">
+                  <select x-model="f.val"
+                          @change="advTested=false; advTestResult=null"
+                          class="ec-input text-sm">
+                    <option value="">— اختر —</option>
+                    <template x-for="opt in advFilterOptions(f.col)" :key="opt.value">
+                      <option :value="opt.value" x-text="opt.label"></option>
+                    </template>
+                  </select>
+                </template>
+
+                <!-- boolean: yes/no select -->
+                <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advColType(f.col)==='boolean'">
+                  <select x-model="f.val"
+                          @change="advTested=false; advTestResult=null"
+                          class="ec-input text-sm">
+                    <option value="">— اختر —</option>
+                    <option value="true">نعم</option>
+                    <option value="false">لا</option>
+                  </select>
+                </template>
+
+                <!-- date: date input -->
+                <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advColType(f.col)==='date'">
+                  <input type="date" x-model="f.val" dir="ltr"
+                         @change="advTested=false; advTestResult=null"
+                         class="ec-input text-sm font-latin" />
+                </template>
+
+                <!-- number: number input -->
+                <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advColType(f.col)==='number'">
+                  <input type="number" x-model="f.val" dir="ltr"
                          @input="advTested=false; advTestResult=null"
-                         class="ec-input text-sm flex-1" placeholder="إلى" />
-                  <span x-show="f.op==='isNull'||f.op==='notNull'" class="text-xs text-neutral-400 py-2">لا قيمة</span>
-                </div>
+                         class="ec-input text-sm font-latin" placeholder="أدخل رقماً" />
+                </template>
+
+                <!-- text / uuid without options: text input -->
+                <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && !(f.col && advFilterHasOptions(f.col)) && f.col && advColType(f.col)!=='boolean' && advColType(f.col)!=='date' && advColType(f.col)!=='number'">
+                  <input type="text" x-model="f.val"
+                         @input="advTested=false; advTestResult=null"
+                         class="ec-input text-sm" placeholder="القيمة" />
+                </template>
+
               </div>
               <!-- Remove -->
               <button @click="advFilters.splice(fi,1); advTested=false; advTestResult=null" class="adm-icon-btn w-7 h-7 text-danger mt-5 shrink-0">
@@ -2400,6 +2470,185 @@ function dataIO() {
       contains: 'يحتوي على', isNull: 'فارغ', notNull: 'غير فارغ',
     },
 
+    // ─ Enum options catalog (keyed by entity.colKey) ─
+    advEnumOptions: {
+      'leads.status': [
+        { value: 'new',    label: 'جديد' },
+        { value: 'active', label: 'نشط' },
+        { value: 'won',    label: 'مكسوب' },
+        { value: 'lost',   label: 'خاسر' },
+      ],
+      'leads.currency': [
+        { value: 'SAR', label: 'ريال سعودي (SAR)' },
+        { value: 'AED', label: 'درهم إماراتي (AED)' },
+        { value: 'USD', label: 'دولار أمريكي (USD)' },
+        { value: 'EUR', label: 'يورو (EUR)' },
+        { value: 'KWD', label: 'دينار كويتي (KWD)' },
+        { value: 'QAR', label: 'ريال قطري (QAR)' },
+        { value: 'BHD', label: 'دينار بحريني (BHD)' },
+      ],
+      'contacts.priority': [
+        { value: 'normal',    label: 'عادي' },
+        { value: 'important', label: 'مهم' },
+        { value: 'vip',       label: 'VIP' },
+      ],
+      'contacts.type': [
+        { value: 'buyer',    label: 'مشترٍ' },
+        { value: 'seller',   label: 'بائع' },
+        { value: 'landlord', label: 'مالك' },
+        { value: 'tenant',   label: 'مستأجر' },
+        { value: 'investor', label: 'مستثمر' },
+        { value: 'other',    label: 'آخر' },
+      ],
+      'properties.purpose': [
+        { value: 'sale', label: 'بيع' },
+        { value: 'rent', label: 'إيجار' },
+      ],
+      'properties.status': [
+        { value: 'available',          label: 'متاح' },
+        { value: 'reserved',           label: 'محجوز' },
+        { value: 'sold',               label: 'مباع' },
+        { value: 'rented',             label: 'مؤجَّر' },
+        { value: 'under_negotiation',  label: 'تحت التفاوض' },
+      ],
+      'properties.currency': [
+        { value: 'SAR', label: 'ريال سعودي (SAR)' },
+        { value: 'AED', label: 'درهم إماراتي (AED)' },
+        { value: 'USD', label: 'دولار أمريكي (USD)' },
+        { value: 'EUR', label: 'يورو (EUR)' },
+        { value: 'KWD', label: 'دينار كويتي (KWD)' },
+        { value: 'QAR', label: 'ريال قطري (QAR)' },
+        { value: 'BHD', label: 'دينار بحريني (BHD)' },
+      ],
+      'properties.finishing': [
+        { value: 'unfinished',    label: 'بدون تشطيب' },
+        { value: 'semi_finished', label: 'نصف تشطيب' },
+        { value: 'finished',      label: 'تشطيب كامل' },
+        { value: 'luxury',        label: 'فاخر' },
+      ],
+      'deals.status': [
+        { value: 'active',       label: 'نشطة' },
+        { value: 'pending',      label: 'معلّقة' },
+        { value: 'closed_won',   label: 'مغلقة (مكسوبة)' },
+        { value: 'closed_lost',  label: 'مغلقة (خاسرة)' },
+        { value: 'on_hold',      label: 'متوقّفة' },
+      ],
+      'deals.stage': [
+        { value: 'initial_contact',    label: 'تواصل أوّلي' },
+        { value: 'property_viewing',   label: 'معاينة العقار' },
+        { value: 'negotiation',        label: 'تفاوض' },
+        { value: 'offer_made',         label: 'عرض مُقدَّم' },
+        { value: 'offer_accepted',     label: 'عرض مقبول' },
+        { value: 'documentation',      label: 'توثيق' },
+        { value: 'payment',            label: 'دفع' },
+        { value: 'handover',           label: 'تسليم' },
+        { value: 'completed',          label: 'مكتملة' },
+      ],
+      'deals.currency': [
+        { value: 'SAR', label: 'ريال سعودي (SAR)' },
+        { value: 'AED', label: 'درهم إماراتي (AED)' },
+        { value: 'USD', label: 'دولار أمريكي (USD)' },
+        { value: 'EUR', label: 'يورو (EUR)' },
+        { value: 'KWD', label: 'دينار كويتي (KWD)' },
+        { value: 'QAR', label: 'ريال قطري (QAR)' },
+        { value: 'BHD', label: 'دينار بحريني (BHD)' },
+      ],
+      'deals.commission_type': [
+        { value: 'percentage', label: 'نسبة مئوية' },
+        { value: 'fixed',      label: 'مبلغ ثابت' },
+      ],
+      'users.role': [
+        { value: 'owner',          label: 'مالك' },
+        { value: 'branch_manager', label: 'مدير فرع' },
+        { value: 'team_leader',    label: 'قائد فريق' },
+        { value: 'sales_agent',    label: 'وكيل مبيعات' },
+      ],
+    },
+
+    // ─ Reference options catalog (keyed by colKey, shared across entities) ─
+    advRefOptions: {
+      'source_id': [
+        { value: 'src-001', label: 'إعلان جوجل' },
+        { value: 'src-002', label: 'إعلان سناب شات' },
+        { value: 'src-003', label: 'إعلان إنستغرام' },
+        { value: 'src-004', label: 'توصية من عميل' },
+        { value: 'src-005', label: 'موقع الويب' },
+        { value: 'src-006', label: 'بوّابة بيّوت' },
+        { value: 'src-007', label: 'عرض مباشر' },
+      ],
+      'branch_id': [
+        { value: 'br-001', label: 'فرع الرياض الرئيسي' },
+        { value: 'br-002', label: 'فرع جدة' },
+        { value: 'br-003', label: 'فرع الدمام' },
+      ],
+      'stage_id': [
+        { value: 'stg-001', label: 'تواصل أوّلي' },
+        { value: 'stg-002', label: 'معاينة' },
+        { value: 'stg-003', label: 'تفاوض' },
+        { value: 'stg-004', label: 'توثيق' },
+        { value: 'stg-005', label: 'إغلاق' },
+      ],
+    },
+
+    // ─ Smart filter helpers ─
+
+    // Returns options array for a column (enum catalog or ref catalog); empty array if none
+    advFilterOptions(fullKey) {
+      // Try enum catalog first (exact entity.col match)
+      const enumOpts = this.advEnumOptions[fullKey];
+      if (enumOpts) return enumOpts;
+      // Try ref catalog by column key only
+      const colKey = fullKey.split('.')[1] || '';
+      const refOpts = this.advRefOptions[colKey];
+      if (refOpts) return refOpts;
+      return [];
+    },
+
+    // Returns true if the column has predefined options (enum or ref)
+    advFilterHasOptions(fullKey) {
+      if (this.advEnumOptions[fullKey]) return true;
+      const colKey = fullKey.split('.')[1] || '';
+      return !!this.advRefOptions[colKey];
+    },
+
+    // Returns HTML input type string for a column (used for between fields)
+    advFilterInputType(fullKey) {
+      const t = this.advColType(fullKey);
+      if (t === 'date') return 'date';
+      if (t === 'number') return 'number';
+      return 'text';
+    },
+
+    // Called when column changes: reset op to first available, reset val
+    advOnFilterColChange(f) {
+      f.op = this.advOpsForCol(f.col)[0] || 'eq';
+      f.val = '';
+      this.advTested = false;
+      this.advTestResult = null;
+    },
+
+    // Called when operation changes: reshape val based on op
+    advOnFilterOpChange(f) {
+      if (f.op === 'in') {
+        f.val = Array.isArray(f.val) ? f.val : [];
+      } else if (f.op === 'between') {
+        f.val = Array.isArray(f.val) ? [f.val[0] || '', f.val[1] || ''] : ['', ''];
+      } else {
+        f.val = typeof f.val === 'string' ? f.val : '';
+      }
+      this.advTested = false;
+      this.advTestResult = null;
+    },
+
+    // Helper to update between value at index without mutation issues
+    advSetBetweenVal(f, idx, newVal) {
+      const arr = Array.isArray(f.val) ? [f.val[0] || '', f.val[1] || ''] : ['', ''];
+      arr[idx] = newVal;
+      f.val = arr;
+      this.advTested = false;
+      this.advTestResult = null;
+    },
+
     // ─ Advanced Builder State ─
     advSteps: ['الكيان الأساسي', 'البيانات والأعمدة', 'الفلاتر والمدى', 'الاختبار والتصدير'],
     advStep: 0,
@@ -2537,7 +2786,7 @@ function dataIO() {
     },
 
     advAddFilter() {
-      this.advFilters = [...this.advFilters, { col: '', op: 'eq', val: '', val2: '' }];
+      this.advFilters = [...this.advFilters, { col: '', op: 'eq', val: '' }];
     },
 
     advWarnLabel(code) {
