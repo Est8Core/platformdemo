@@ -400,7 +400,7 @@
       <button class="adm-tab" :class="tab==='scheduled'&&'on'" @click="tab='scheduled'">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 7h12M5 1.5v3M11 1.5v3"/></svg>
         المجدول
-        <span class="cnt" x-text="schedules.length"></span>
+        <span class="cnt" x-text="schedules.length + reportSchedules.length"></span>
       </button>
       <button class="adm-tab" :class="tab==='import'&&'on'" @click="tab='import'">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6V3h10v3M8 14V6M5 9l3-3 3 3"/></svg>
@@ -1810,62 +1810,124 @@
 
   <!-- =================== TAB 3: SCHEDULES =================== -->
   <div x-show="tab==='scheduled'">
-    <div class="flex justify-between items-center mb-4">
-      <div></div>
-      <button class="adm-btn adm-btn-gold" @click="openSchedCreate()">
-        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
-        جدولة جديدة
-      </button>
-    </div>
-    <div class="adm-card">
-      <div class="overflow-x-auto">
-        <table class="adm-table">
-          <thead><tr>
-            <th>الكيان / القالب</th><th>الجدول الزمني</th><th>الصيغة</th><th>المستلمون</th><th>التشغيل القادم</th><th>نشط</th><th></th>
-          </tr></thead>
-          <tbody>
-            <template x-for="s in schedules" :key="s.id">
-              <tr>
-                <td>
-                  <div class="font-semibold text-primary-800 text-sm" x-text="s.templateName || entityLabel(s.entityType)"></div>
-                  <div class="text-xs text-neutral-400" x-text="s.templateName ? entityLabel(s.entityType) : ''"></div>
-                </td>
-                <td>
-                  <div class="font-mono text-xs text-neutral-500 font-latin" dir="ltr" x-text="s.cronPattern"></div>
-                  <div class="text-xs text-neutral-400 mt-0.5" x-text="cronDesc(s.cronPattern)"></div>
-                </td>
-                <td>
-                  <span class="font-bold text-xs px-2 py-1 rounded-md text-white" :style="'background:'+formatColor(s.format)" x-text="s.format.toUpperCase()"></span>
-                </td>
-                <td>
-                  <div class="flex -space-i-2">
-                    <template x-for="r in s.recipients.slice(0,4)" :key="r.userId">
-                      <span class="adm-avatar w-6 h-6 text-[.6rem] ring-2 ring-white bg-primary-100 text-primary-700" x-text="r.initials"></span>
-                    </template>
-                    <span x-show="s.recipients.length>4" class="adm-avatar w-6 h-6 text-[.6rem] ring-2 ring-white bg-neutral-200 text-neutral-600" x-text="'+'+(s.recipients.length-4)"></span>
-                  </div>
-                </td>
-                <td class="text-xs text-neutral-500" x-text="fmtDate(s.nextRun)"></td>
-                <td>
-                  <div class="adm-switch" :class="s.isActive&&'on'" @click="s.isActive=!s.isActive"></div>
-                </td>
-                <td>
-                  <div class="flex items-center gap-1">
-                    <button class="adm-icon-btn w-7 h-7" @click="openSchedEdit(s)" title="تعديل">
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
-                    </button>
-                    <button class="adm-icon-btn w-7 h-7 text-danger" @click="schedules=schedules.filter(x=>x.id!==s.id)" title="حذف">
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
+
+    <!-- Segmented control: export schedules vs report schedules -->
+    <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+      <div class="flex gap-1 p-1 rounded-lg bg-neutral-100">
+        <button class="adm-pill" :class="schedKind==='export'&&'on'" @click="schedKind='export'">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+          التصدير المجدول
+          <span class="cnt" x-text="schedules.length"></span>
+        </button>
+        <button class="adm-pill" :class="schedKind==='report'&&'on'" @click="schedKind='report'">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3h10v10H3zM3 7h10M7 3v10"/></svg>
+          التقارير المجدولة
+          <span class="cnt" x-text="reportSchedules.length"></span>
+        </button>
       </div>
-      <template x-if="!schedules.length"><div class="adm-empty">لا جداول مُعدَّة — أنشئ أول جدولة تلقائية</div></template>
+      <div>
+        <button x-show="schedKind==='export'" class="adm-btn adm-btn-gold" @click="openSchedCreate()">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
+          جدولة جديدة
+        </button>
+        <button x-show="schedKind==='report'" class="adm-btn adm-btn-gold" @click="openReportSchedCreate(null)">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
+          جدولة تقرير
+        </button>
+      </div>
     </div>
+
+    <!-- Export schedules list (unchanged) -->
+    <div x-show="schedKind==='export'">
+      <div class="adm-card">
+        <div class="overflow-x-auto">
+          <table class="adm-table">
+            <thead><tr>
+              <th>الكيان / القالب</th><th>الجدول الزمني</th><th>الصيغة</th><th>المستلمون</th><th>التشغيل القادم</th><th>نشط</th><th></th>
+            </tr></thead>
+            <tbody>
+              <template x-for="s in schedules" :key="s.id">
+                <tr>
+                  <td>
+                    <div class="font-semibold text-primary-800 text-sm" x-text="s.templateName || entityLabel(s.entityType)"></div>
+                    <div class="text-xs text-neutral-400" x-text="s.templateName ? entityLabel(s.entityType) : ''"></div>
+                  </td>
+                  <td>
+                    <div class="font-mono text-xs text-neutral-500 font-latin" dir="ltr" x-text="s.cronPattern"></div>
+                    <div class="text-xs text-neutral-400 mt-0.5" x-text="cronDesc(s.cronPattern)"></div>
+                  </td>
+                  <td>
+                    <span class="font-bold text-xs px-2 py-1 rounded-md text-white" :style="'background:'+formatColor(s.format)" x-text="s.format.toUpperCase()"></span>
+                  </td>
+                  <td>
+                    <div class="flex -space-i-2">
+                      <template x-for="r in s.recipients.slice(0,4)" :key="r.userId">
+                        <span class="adm-avatar w-6 h-6 text-[.6rem] ring-2 ring-white bg-primary-100 text-primary-700" x-text="r.initials"></span>
+                      </template>
+                      <span x-show="s.recipients.length>4" class="adm-avatar w-6 h-6 text-[.6rem] ring-2 ring-white bg-neutral-200 text-neutral-600" x-text="'+'+(s.recipients.length-4)"></span>
+                    </div>
+                  </td>
+                  <td class="text-xs text-neutral-500" x-text="fmtDate(s.nextRun)"></td>
+                  <td>
+                    <div class="adm-switch" :class="s.isActive&&'on'" @click="s.isActive=!s.isActive"></div>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-1">
+                      <button class="adm-icon-btn w-7 h-7" @click="openSchedEdit(s)" title="تعديل">
+                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                      </button>
+                      <button class="adm-icon-btn w-7 h-7 text-danger" @click="schedules=schedules.filter(x=>x.id!==s.id)" title="حذف">
+                        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+        <template x-if="!schedules.length"><div class="adm-empty">لا جداول مُعدَّة — أنشئ أول جدولة تلقائية</div></template>
+      </div>
+    </div>
+
+    <!-- Report schedules list -->
+    <div x-show="schedKind==='report'">
+      <div class="adm-card p-4">
+        <template x-if="!reportSchedules.length">
+          <div class="adm-empty">لا تقارير مجدولة — اضغط «جدولة تقرير» لإنشاء أول جدولة</div>
+        </template>
+        <template x-if="reportSchedules.length">
+          <div class="flex flex-col gap-3">
+            <template x-for="s in reportSchedules" :key="s.id">
+              <div class="flex items-start justify-between gap-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                <div class="flex flex-col gap-1 min-w-0 flex-1">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-semibold text-primary-800 text-sm" x-text="reportTypeLabel(s.reportType)"></span>
+                    <span class="adm-badge" :class="s.frequency==='daily'?'b-info':s.frequency==='weekly'?'b-warning':'b-success'" x-text="s.frequency==='daily'?'يومي':s.frequency==='weekly'?'أسبوعي':'شهري'"></span>
+                  </div>
+                  <div class="flex flex-wrap gap-1 mt-1">
+                    <template x-for="email in s.recipients" :key="email">
+                      <span class="inline-flex items-center gap-1 text-xs rounded-full bg-primary-50 text-primary-700 border border-primary-200 px-2 py-0.5" x-text="email"></span>
+                    </template>
+                  </div>
+                  <div class="text-xs text-neutral-400 mt-1">التشغيل القادم: <span x-text="fmtDate(s.nextRunAt)"></span></div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <div class="adm-switch" :class="s.isActive&&'on'" @click="s.isActive=!s.isActive"></div>
+                  <button class="adm-icon-btn w-7 h-7" @click="openReportSchedEdit(s)" title="تعديل">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
+                  </button>
+                  <button class="adm-icon-btn w-7 h-7 text-danger" @click="reportSchedules=reportSchedules.filter(x=>x.id!==s.id)" title="حذف">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4.5h10M6.5 4.5V3h3v1.5M5 4.5l.5 8h5l.5-8"/></svg>
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+    </div>
+
   </div>
 
   <!-- =================== TAB 4: IMPORT WIZARD =================== -->
@@ -2868,6 +2930,160 @@
     </div>
   </template>
 
+  <!-- Report Schedule Modal -->
+  <template x-if="reportSchedModal">
+    <div class="adm-overlay" @click.self="reportSchedModal=null">
+      <div class="adm-modal" style="max-width:520px">
+        <div class="adm-modal-head">
+          <div class="font-bold text-primary-800" x-text="reportSchedModal.id ? 'تعديل جدولة التقرير' : 'جدولة تقرير دوري'"></div>
+          <button @click="reportSchedModal=null" class="adm-icon-btn">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+        <div class="adm-modal-body grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- نوع التقرير -->
+          <div class="sm:col-span-2">
+            <label class="ec-label">نوع التقرير <span class="text-danger">*</span></label>
+            <div class="ec-input p-0 overflow-visible"
+                 x-data="{ ...smartSelect({ optionsFn: () => reportTypes.map(t => ({ value: t.id, label: t.label })), multi: false, searchable: false, selectAll: false, grouped: false, placeholder: '— اختر نوع التقرير —', onChange: v => { reportSchedModal.reportType = v } }) }"
+                 x-effect="ssValue = reportSchedModal.reportType || ''"
+                 @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                 @keydown.escape.window="ssForceClose()">
+              <!-- Smart Select trigger -->
+                <button type="button"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        @click.stop="ssTriggerClick($event)">
+                  <template x-if="ssMulti && ssHasValue()">
+                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
+                      <template x-for="chip in ssValue" :key="chip">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
+                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                        </span>
+                      </template>
+                    </span>
+                  </template>
+                  <template x-if="!ssMulti && ssHasValue()">
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                  </template>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
+                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Smart Select panel (fixed → escapes overflow) -->
+                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                  </div>
+                  <div class="overflow-y-auto flex-1">
+                    <template x-if="ssGrouped">
+                      <div>
+                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                          <div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <template x-for="opt in grp.items" :key="opt.value">
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                                   @click="ssSelect(opt.value)">
+                                <template x-if="ssMulti">
+                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                                </template>
+                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                                </template>
+                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                                  <span class="w-3.5 shrink-0"></span>
+                                </template>
+                                <span x-text="opt.label"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="!ssGrouped">
+                      <div>
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                               @click="ssSelect(opt.value)">
+                            <template x-if="ssMulti">
+                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            </template>
+                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                              <span class="w-3.5 shrink-0"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                    </template>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <!-- التكرار -->
+          <div class="sm:col-span-2">
+            <label class="ec-label">التكرار <span class="text-danger">*</span></label>
+            <div class="flex gap-2 mt-1">
+              <button @click="reportSchedModal.frequency='daily'" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.frequency==='daily'&&'border-primary-700 text-primary-800 bg-primary-50'">يومي</button>
+              <button @click="reportSchedModal.frequency='weekly'" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.frequency==='weekly'&&'border-primary-700 text-primary-800 bg-primary-50'">أسبوعي</button>
+              <button @click="reportSchedModal.frequency='monthly'" class="adm-btn adm-btn-ghost adm-btn-sm flex-1" :class="reportSchedModal.frequency==='monthly'&&'border-primary-700 text-primary-800 bg-primary-50'">شهري</button>
+            </div>
+          </div>
+          <!-- المستلمون (email chips) -->
+          <div class="sm:col-span-2">
+            <label class="ec-label">المستلمون بالبريد الإلكتروني <span class="text-danger">*</span></label>
+            <div class="flex flex-wrap gap-1 p-2 rounded-lg border border-neutral-300 bg-white min-h-[40px] mt-1">
+              <template x-for="email in reportSchedModal.recipients" :key="email">
+                <span class="inline-flex items-center gap-1 text-xs rounded-full bg-primary-50 text-primary-700 border border-primary-200 px-2 py-0.5">
+                  <span x-text="email"></span>
+                  <button type="button" @click="reportSchedModal.recipients = reportSchedModal.recipients.filter(e => e !== email)" class="text-primary-400 hover:text-danger leading-none ml-1">
+                    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </button>
+                </span>
+              </template>
+              <input type="email" class="border-none outline-none text-sm bg-transparent min-w-[180px] flex-1 px-1 py-0.5" placeholder="أدخل البريد واضغط Enter"
+                     @keydown.enter.prevent="
+                       const v = $event.target.value.trim();
+                       if (v && v.includes('@') && !reportSchedModal.recipients.includes(v)) {
+                         reportSchedModal.recipients = [...reportSchedModal.recipients, v];
+                       }
+                       $event.target.value = '';
+                     " />
+            </div>
+            <p class="text-xs text-neutral-400 mt-1" x-text="reportSchedModal.recipients.length + ' مستلم'"></p>
+          </div>
+          <!-- تفعيل -->
+          <div class="sm:col-span-2">
+            <label class="flex items-center gap-3 text-sm text-neutral-700 cursor-pointer">
+              <div class="adm-switch" :class="reportSchedModal.isActive&&'on'" @click="reportSchedModal.isActive=!reportSchedModal.isActive"></div>
+              تفعيل الجدولة فوراً
+            </label>
+          </div>
+        </div>
+        <div class="adm-modal-foot">
+          <button @click="saveReportSched()" :disabled="!reportSchedModal.reportType || !reportSchedModal.frequency || !reportSchedModal.recipients.length" class="adm-btn adm-btn-primary" x-text="reportSchedModal.id ? 'حفظ' : 'إنشاء'"></button>
+          <button @click="reportSchedModal=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
   <!-- Advanced Builder Save Template Modal -->
   <template x-if="advSaveModal">
     <div class="adm-overlay" @click.self="advSaveModal=null">
@@ -3275,6 +3491,57 @@ function dataIO() {
       { id: 'sc1', templateId: 't1', templateName: 'تقرير العملاء الشهري', entityType: 'leads', format: 'xlsx', cronPattern: '0 8 1 * *', recipients: [{ userId: 'u1', initials: 'سق' }, { userId: 'u5', initials: 'مع' }], isActive: true, nextRun: D(-30) },
       { id: 'sc2', templateId: null, templateName: null, entityType: 'deals', format: 'csv', cronPattern: '0 8 * * 0', recipients: [{ userId: 'u5', initials: 'مع' }], isActive: true, nextRun: D(-7) },
     ],
+
+    // ---- Report Schedules ----
+    schedKind: 'export',
+    reportSchedModal: null,
+    reportTypes: [
+      { id: 'summary',            label: 'ملخّص KPI عام' },
+      { id: 'leads-summary',      label: 'ملخّص العملاء المحتملين' },
+      { id: 'deals-summary',      label: 'ملخّص الصفقات' },
+      { id: 'activities-summary', label: 'ملخّص الأنشطة' },
+      { id: 'targets-vs-achieved',label: 'الهدف مقابل المحقّق' },
+      { id: 'lost-leads',         label: 'العملاء الخاسرون' },
+      { id: 'geo',                label: 'التوزيع الجغرافي' },
+      { id: 'executive-dashboard',label: 'اللوحة التنفيذية' },
+    ],
+    reportSchedules: [
+      { id: 'rs1', reportType: 'summary',        frequency: 'monthly',  recipients: ['owner@est8.sa', 'gm@est8.sa'],       isActive: true,  nextRunAt: D(-30) },
+      { id: 'rs2', reportType: 'leads-summary',  frequency: 'weekly',   recipients: ['sales@est8.sa'],                     isActive: true,  nextRunAt: D(-7)  },
+      { id: 'rs3', reportType: 'deals-summary',  frequency: 'daily',    recipients: ['manager@est8.sa', 'cfo@est8.sa'],    isActive: false, nextRunAt: D(-1)  },
+    ],
+
+    reportTypeLabel(type) {
+      const t = this.reportTypes.find(x => x.id === type);
+      return t ? t.label : type;
+    },
+
+    openReportSchedCreate(presetType) {
+      this.reportSchedModal = {
+        id: null,
+        reportType: presetType || '',
+        frequency: 'weekly',
+        recipients: [],
+        isActive: true,
+      };
+    },
+
+    openReportSchedEdit(s) {
+      this.reportSchedModal = { ...JSON.parse(JSON.stringify({ id: s.id, reportType: s.reportType, frequency: s.frequency, isActive: s.isActive })), recipients: s.recipients.slice() };
+    },
+
+    saveReportSched() {
+      if (!this.reportSchedModal.reportType || !this.reportSchedModal.frequency || !this.reportSchedModal.recipients.length) return;
+      const data = { ...JSON.parse(JSON.stringify({ id: this.reportSchedModal.id, reportType: this.reportSchedModal.reportType, frequency: this.reportSchedModal.frequency, isActive: this.reportSchedModal.isActive })), recipients: this.reportSchedModal.recipients.slice(), nextRunAt: D(-7) };
+      if (data.id) {
+        const i = this.reportSchedules.findIndex(x => x.id === data.id);
+        if (i > -1) this.reportSchedules[i] = data;
+      } else {
+        this.reportSchedules.unshift({ ...data, id: 'rs' + Date.now() });
+      }
+      this.reportSchedModal = null;
+      this.showToast('تم حفظ جدولة التقرير');
+    },
 
     openSchedCreate() { this.schedModal = { id: null, templateId: '', entityType: 'leads', format: 'csv', cronPattern: '0 8 * * *', recipients: [], isActive: true }; },
     openSchedEdit(s) { this.schedModal = JSON.parse(JSON.stringify(s)); },
@@ -4071,6 +4338,7 @@ function dataIO() {
       const p = new URLSearchParams(window.location.search);
       const view = p.get('view');
       const entity = p.get('entity');
+      const report = p.get('report');
       if (view && ['export', 'import', 'templates', 'scheduled', 'jobs'].includes(view)) this.tab = view;
       const validEntities = ['leads', 'contacts', 'properties', 'deals'];
       if (entity && validEntities.includes(entity)) {
@@ -4081,6 +4349,14 @@ function dataIO() {
           this.selectEntity(entityObj);
           this.exportStep = 1;
         }
+      }
+      // Deep-link: go straight to report schedules with optional pre-selected report type
+      if (view === 'scheduled' && report) {
+        this.schedKind = 'report';
+        const validReport = this.reportTypes.find(t => t.id === report);
+        this.$nextTick(() => {
+          this.openReportSchedCreate(validReport ? report : null);
+        });
       }
     },
   };

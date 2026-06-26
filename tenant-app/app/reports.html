@@ -382,6 +382,10 @@
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 2h6l4 4v8H4z"/><path d="M10 2v4h4"/><path d="M6 9h4M6 11h2"/></svg>
         تصدير PDF
       </button>
+      <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="$dispatch('open-drawer', { src:'data-io.html?embed=1&view=scheduled&report=summary', title:'جدولة تقرير دوري', full:'data-io.html?view=scheduled' })">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5l2.5 1.5"/></svg>
+        جدول هذا التقرير
+      </button>
     </div>
   </div>
 
