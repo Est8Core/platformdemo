@@ -444,17 +444,14 @@
           <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-faint" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
         </div>
         <div class="flex flex-wrap gap-1.5">
-          <button class="adm-pill adm-btn-sm" :class="fStatus===''&&'on'"         @click="fStatus='';page=1">الكل</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='open'&&'on'"     @click="fStatus='open';page=1">مفتوحة</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='answered'&&'on'" @click="fStatus='answered';page=1">بانتظار الدعم</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='pending'&&'on'"  @click="fStatus='pending';page=1">بانتظار العميل</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='resolved'&&'on'" @click="fStatus='resolved';page=1">محلولة</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='closed'&&'on'"   @click="fStatus='closed';page=1">مغلقة</button>
+          <button class="adm-pill adm-btn-sm" :class="fStatus===''&&'on'"       @click="fStatus='';page=1">الكل</button>
+          <button class="adm-pill adm-btn-sm" :class="fStatus==='active'&&'on'" @click="fStatus='active';page=1">نشطة</button>
+          <button class="adm-pill adm-btn-sm" :class="fStatus==='closed'&&'on'" @click="fStatus='closed';page=1">مغلقة</button>
         </div>
       </div>
 
       <!-- Ticket list -->
-      <div class="adm-card flex flex-col divide-y divide-neutral-100">
+      <div class="adm-card flex flex-col divide-y divide-line">
         <template x-for="t in pageRows" :key="t.id">
           <button
             @click="select(t)"
@@ -468,7 +465,7 @@
             </div>
             <!-- Row 2: badges -->
             <div class="flex flex-wrap items-center gap-1.5">
-              <span class="adm-badge" :class="statusCls(t.status)" x-text="statusLabel(t.status)"></span>
+              <span class="adm-badge" :class="custStatusCls(t.status)" x-text="custStatusLabel(t.status)"></span>
               <span class="adm-badge b-neutral" x-text="categoryLabel(t.category)"></span>
               <span class="adm-badge" :class="priorityCls(t.priority)" x-text="priorityLabel(t.priority)" x-show="t.priority!=='normal'"></span>
             </div>
@@ -510,7 +507,7 @@
             </div>
             <h2 class="text-base font-bold text-ink leading-snug" x-text="selected?.subject"></h2>
             <div class="flex flex-wrap items-center gap-2 mt-2">
-              <span class="adm-badge" :class="selected && statusCls(selected.status)" x-text="selected && statusLabel(selected.status)"></span>
+              <span class="adm-badge" :class="selected && custStatusCls(selected.status)" x-text="selected && custStatusLabel(selected.status)"></span>
               <span class="adm-badge" :class="selected && priorityCls(selected.priority)" x-text="selected && priorityLabel(selected.priority)"></span>
               <span class="adm-badge b-neutral" x-text="selected && categoryLabel(selected.category)"></span>
               <span class="text-xs text-faint flex items-center gap-1">
@@ -629,7 +626,7 @@
     <!-- Empty detail state (no ticket selected) -->
     <div class="flex-1 hidden xl:flex items-center justify-center" x-show="!selected">
       <div class="adm-empty max-w-xs">
-        <svg class="mx-auto mb-3 text-neutral-200" width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 8h32v28H20l-12 8z"/><path d="M15 20h18M15 27h12"/></svg>
+        <svg class="mx-auto mb-3 text-faint" width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 8h32v28H20l-12 8z"/><path d="M15 20h18M15 27h12"/></svg>
         <p class="text-sm">اختر تذكرة من القائمة لعرض المحادثة.</p>
       </div>
     </div>
@@ -637,26 +634,52 @@
   </div>
 
 
-  <!-- ===== MODAL: تذكرة جديدة ===== -->
-  <template x-if="newForm">
-    <div class="adm-overlay" @click.self="newForm=null">
-      <div class="adm-modal" style="max-width:540px">
-        <div class="adm-modal-head">
-          <div class="font-bold text-ink">تذكرة دعم جديدة</div>
-          <button @click="newForm=null" class="adm-icon-btn"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
-        </div>
-        <div class="adm-modal-body flex flex-col gap-4">
-          <!-- Subject -->
-          <div>
-            <label class="ec-label"><span class="text-danger">*</span> الموضوع</label>
-            <input type="text" x-model="newForm.subject" class="ec-input" placeholder="وصف مختصر للمشكلة أو الطلب" maxlength="200" />
-            <div class="text-[.7rem] text-faint text-end mt-1" x-text="newForm.subject.length+'/200'"></div>
-          </div>
-          <!-- Category + Priority -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="ec-label">الفئة</label>
-              <div x-data="{ ...smartSelect({ optionsFn:()=>[{value:'technical',label:'تقني'},{value:'billing',label:'الفواتير والدفع'},{value:'account',label:'الحساب'},{value:'other',label:'أخرى'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ newForm.category = v } }) }" x-effect="ssValue = newForm.category || ''" @ss-open.window="if($event.detail!==ssId) ssForceClose()" @keydown.escape.window="ssForceClose()"><!-- Smart Select trigger -->
+  <!-- ===== SLIDE-OVER: تذكرة جديدة ===== -->
+  <!-- Backdrop -->
+  <div
+    x-show="newForm !== null"
+    x-transition:enter="transition-opacity ease-out duration-200"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition-opacity ease-in duration-150"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="fixed inset-0 bg-ink/30 z-[69]"
+    @click="newForm=null"
+    x-cloak
+  ></div>
+  <!-- Panel -->
+  <div
+    x-show="newForm !== null"
+    x-transition:enter="transition-transform ease-out duration-250"
+    x-transition:enter-start="-translate-x-full"
+    x-transition:enter-end="translate-x-0"
+    x-transition:leave="transition-transform ease-in duration-200"
+    x-transition:leave-start="translate-x-0"
+    x-transition:leave-end="-translate-x-full"
+    class="fixed inset-y-0 start-0 w-full max-w-[440px] z-[70] bg-card flex flex-col shadow-xl"
+    x-cloak
+  >
+    <!-- Head -->
+    <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-line shrink-0">
+      <div class="font-bold text-ink">تذكرة دعم جديدة</div>
+      <button @click="newForm=null" class="adm-icon-btn"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    </div>
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
+      <!-- Subject -->
+      <div>
+        <label class="ec-label"><span class="text-danger">*</span> الموضوع</label>
+        <input type="text"
+          :value="newForm ? newForm.subject : ''"
+          @input="if(newForm) newForm.subject = $event.target.value"
+          class="ec-input" placeholder="وصف مختصر للمشكلة أو الطلب" maxlength="200" />
+        <div class="text-[.7rem] text-faint text-end mt-1" x-text="(newForm ? newForm.subject.length : 0)+'/200'"></div>
+      </div>
+      <!-- Category — full width (no priority field) -->
+      <div>
+        <label class="ec-label">الفئة</label>
+        <div x-data="{ ...smartSelect({ optionsFn:()=>[{value:'technical',label:'تقني'},{value:'billing',label:'الفواتير والدفع'},{value:'account',label:'الحساب'},{value:'other',label:'أخرى'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ if(newForm) newForm.category = v } }) }" x-effect="ssValue = (newForm ? newForm.category : '') || ''" @ss-open.window="if($event.detail!==ssId) ssForceClose()" @keydown.escape.window="ssForceClose()"><!-- Smart Select trigger -->
                 <button type="button"
                         class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
                         :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
@@ -741,130 +764,43 @@
                     </template>
                   </div>
                 </div></div>
-            </div>
-            <div>
-              <label class="ec-label">الأولوية</label>
-              <div x-data="{ ...smartSelect({ optionsFn:()=>[{value:'low',label:'منخفضة'},{value:'normal',label:'عادية'},{value:'high',label:'عالية'},{value:'urgent',label:'عاجلة'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ newForm.priority = v } }) }" x-effect="ssValue = newForm.priority || ''" @ss-open.window="if($event.detail!==ssId) ssForceClose()" @keydown.escape.window="ssForceClose()"><!-- Smart Select trigger -->
-                <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
-                        @click.stop="ssTriggerClick($event)">
-                  <template x-if="ssMulti && ssHasValue()">
-                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
-                      <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
-                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-                        </span>
-                      </template>
-                    </span>
-                  </template>
-                  <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
-                  </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
-                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
-                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-                  </span>
-                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
-                </button>
-                <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
-                  </div>
-                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
-                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
-                  </div>
-                  <div class="overflow-y-auto flex-1">
-                    <template x-if="ssGrouped">
-                      <div>
-                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
-                          <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
-                            <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
-                                   @click="ssSelect(opt.value)">
-                                <template x-if="ssMulti">
-                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
-                                </template>
-                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
-                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
-                                </template>
-                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
-                                  <span class="w-3.5 shrink-0"></span>
-                                </template>
-                                <span x-text="opt.label"></span>
-                              </div>
-                            </template>
-                          </div>
-                        </template>
-                      </div>
-                    </template>
-                    <template x-if="!ssGrouped">
-                      <div>
-                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
-                               @click="ssSelect(opt.value)">
-                            <template x-if="ssMulti">
-                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
-                            </template>
-                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
-                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
-                            </template>
-                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
-                              <span class="w-3.5 shrink-0"></span>
-                            </template>
-                            <span x-text="opt.label"></span>
-                          </div>
-                        </template>
-                      </div>
-                    </template>
-                    <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
-                    </template>
-                  </div>
-                </div></div>
-            </div>
-          </div>
-          <!-- Body -->
-          <div>
-            <label class="ec-label"><span class="text-danger">*</span> وصف المشكلة</label>
-            <textarea x-model="newForm.body" rows="5" class="ec-input resize-none" placeholder="اشرح المشكلة بالتفصيل — كلما كان الوصف أدق، كان الدعم أسرع…"></textarea>
-          </div>
-          <!-- Attachments -->
-          <div>
-            <label class="ec-label">المرفقات (اختياري)</label>
-            <div class="flex flex-wrap gap-2 mb-2">
-              <template x-for="att in newForm.attachments" :key="att.uploadId">
-                <span class="flex items-center gap-1 text-xs bg-elev text-muted px-2.5 py-1.5 rounded-full">
-                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13V4l4-3h5v12H3z"/><path d="M7 1v4H3"/></svg>
-                  <span x-text="att.name"></span>
-                  <button @click="newForm.attachments=newForm.attachments.filter(a=>a.uploadId!==att.uploadId)" class="ms-0.5 text-faint hover:text-danger">&times;</button>
-                </span>
-              </template>
-            </div>
-            <label class="adm-btn adm-btn-ghost adm-btn-sm cursor-pointer inline-flex">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12V6l3.5-4H12l2 2v8H2z"/><path d="M5.5 2v4H2"/></svg>
-              اختر ملفات
-              <input type="file" class="hidden" multiple @change="attachNew($event)" />
-            </label>
-          </div>
+      </div>
+      <!-- Body -->
+      <div>
+        <label class="ec-label"><span class="text-danger">*</span> وصف المشكلة</label>
+        <textarea
+          :value="newForm ? newForm.body : ''"
+          @input="if(newForm) newForm.body = $event.target.value"
+          rows="5" class="ec-input resize-none" placeholder="اشرح المشكلة بالتفصيل — كلما كان الوصف أدق، كان الدعم أسرع…"></textarea>
+      </div>
+      <!-- Attachments -->
+      <div>
+        <label class="ec-label">المرفقات (اختياري)</label>
+        <div class="flex flex-wrap gap-2 mb-2">
+          <template x-for="att in (newForm ? newForm.attachments : [])" :key="att.uploadId">
+            <span class="flex items-center gap-1 text-xs bg-elev text-muted px-2.5 py-1.5 rounded-full">
+              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13V4l4-3h5v12H3z"/><path d="M7 1v4H3"/></svg>
+              <span x-text="att.name"></span>
+              <button @click="newForm && (newForm.attachments=newForm.attachments.filter(a=>a.uploadId!==att.uploadId))" class="ms-0.5 text-faint hover:text-danger">&times;</button>
+            </span>
+          </template>
         </div>
-        <div class="adm-modal-foot">
-          <button @click="submitNew()" :disabled="!newForm.subject.trim()||!newForm.body.trim()" class="adm-btn adm-btn-primary">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l12 6-12 6V9l8-1-8-1V2z"/></svg>
-            إرسال التذكرة
-          </button>
-          <button @click="newForm=null" class="adm-btn adm-btn-ghost">إلغاء</button>
-        </div>
+        <label class="adm-btn adm-btn-ghost adm-btn-sm cursor-pointer inline-flex">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12V6l3.5-4H12l2 2v8H2z"/><path d="M5.5 2v4H2"/></svg>
+          اختر ملفات
+          <input type="file" class="hidden" multiple @change="attachNew($event)" />
+        </label>
       </div>
     </div>
-  </template>
+    <!-- Foot -->
+    <div class="flex items-center gap-2 px-5 py-4 border-t border-line shrink-0">
+      <button @click="submitNew()" :disabled="!newForm || !newForm.subject.trim()||!newForm.body.trim()" class="adm-btn adm-btn-primary flex-1">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l12 6-12 6V9l8-1-8-1V2z"/></svg>
+        إرسال التذكرة
+      </button>
+      <button @click="newForm=null" class="adm-btn adm-btn-ghost">إلغاء</button>
+    </div>
+  </div>
 
   <!-- ===== MODAL: تأكيد إغلاق التذكرة ===== -->
   <template x-if="closeConfirm">
@@ -998,16 +934,35 @@ function support(){
     // ── Helpers ──
     get filtered(){
       const q = this.search.trim().toLowerCase();
-      return this.list.filter(t =>
-        (!this.fStatus || t.status === this.fStatus) &&
-        (!q || t.subject.toLowerCase().includes(q) || t.number.includes(q))
-      );
+      const ACTIVE = ['open','answered','pending'];
+      const CLOSED = ['resolved','closed'];
+      return this.list.filter(t => {
+        const matchStatus =
+          !this.fStatus ||
+          (this.fStatus === 'active' && ACTIVE.includes(t.status)) ||
+          (this.fStatus === 'closed' && CLOSED.includes(t.status));
+        const matchQ = !q || t.subject.toLowerCase().includes(q) || t.number.includes(q);
+        return matchStatus && matchQ;
+      });
     },
     get totalPages(){ return Math.max(1, Math.ceil(this.filtered.length / this.limit)); },
     get pageRows(){ return this.filtered.slice((this.page-1)*this.limit, this.page*this.limit); },
 
     select(t){ this.selected = t; this.replyBody = ''; this.replyAttachments = []; },
 
+    // حالات مبسّطة لمنطق العميل (3 حالات مشتقّة من 5 داخلية)
+    custStatusLabel(s){
+      if(s === 'pending') return 'بانتظار ردّك';
+      if(s === 'resolved' || s === 'closed') return 'مغلقة';
+      return 'قيد المعالجة'; // open | answered
+    },
+    custStatusCls(s){
+      if(s === 'pending') return 'b-warning';
+      if(s === 'resolved' || s === 'closed') return 'b-neutral';
+      return 'b-info'; // open | answered
+    },
+
+    // حالات خام (تُستخدم في المنطق السلوكي: إظهار زر الإغلاق/صندوق الرد) + dead-code للأرشيف
     statusLabel(s){
       return { open:'مفتوحة', answered:'بانتظار الدعم', pending:'بانتظار العميل', resolved:'محلولة', closed:'مغلقة' }[s] || s;
     },
@@ -1062,9 +1017,10 @@ function support(){
       this.closeConfirm = false;
     },
 
-    // ── New ticket: POST /api/v1/support/tickets → {subject, category, priority, body, attachmentUploadIds?}
+    // ── New ticket: POST /api/v1/support/tickets → {subject, category, body, attachmentUploadIds?}
+    // لا priority — الـbackend يضبطها default `normal`؛ الدعم يصنّفها لاحقاً
     openNew(){
-      this.newForm = { subject:'', category:'technical', priority:'normal', body:'', attachments:[] };
+      this.newForm = { subject:'', category:'technical', body:'', attachments:[] };
     },
     attachNew(e){
       const files = Array.from(e.target.files||[]);
@@ -1074,13 +1030,13 @@ function support(){
       e.target.value = '';
     },
     submitNew(){
-      if(!this.newForm.subject.trim() || !this.newForm.body.trim()) return;
+      if(!this.newForm || !this.newForm.subject.trim() || !this.newForm.body.trim()) return;
       const ticket = {
         id: 'tk'+Date.now(),
         number: String(1041 + this.list.length),
         subject: this.newForm.subject.trim(),
         category: this.newForm.category,
-        priority: this.newForm.priority,
+        priority: 'normal', // الـbackend default — لا يُرسَل من الواجهة
         status: 'open',
         createdAt: new Date().toISOString(),
         lastReplyAt: new Date().toISOString(),

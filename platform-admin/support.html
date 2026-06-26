@@ -435,112 +435,110 @@
 
     <main class="adm-content">
 
-<!-- S-066 · صندوق الدعم الفني (Platform Admin)
+<!-- S-066 · صندوق الدعم الفني (Platform Admin) — Inbox ثلاثي الأعمدة بلا modal
      Endpoints (spec: .Pm/40-Support-Tickets-Module-Plan.md §4 — جانب المنصة):
        GET    /api/v1/admin/support/tickets?status&priority&tenantId&assigneeId&q&page&limit
        GET    /api/v1/admin/support/tickets/:id
        POST   /api/v1/admin/support/tickets/:id/assign        { adminId }  ("self" جائز)
        PATCH  /api/v1/admin/support/tickets/:id               { status?, priority?, category? }
        POST   /api/v1/admin/support/tickets/:id/messages      { body, isInternal?, attachmentUploadIds? }
-       GET    /api/v1/admin/support/stats                     → counts: مفتوحة / غير مُسندة / متأخرة
-     الحالات:  open · answered (بانتظار الدعم) · pending (بانتظار العميل) · resolved · closed
+       GET    /api/v1/admin/support/stats                     → counts: مفتوحة / غير مُسندة / بانتظار ردّنا / متأخرة
+     الحالات:  open · answered (بانتظار ردّنا) · pending (بانتظار العميل) · resolved · closed
      الأولوية: low · normal · high · urgent
      الفئة:   billing · technical · account · other
      الأدوار: support / admin / super_admin
      Middleware: AdminAuthMiddleware + RequireFull2FA
 -->
-<div x-data="support()">
 
-  <!-- ===== Page head ===== -->
-  <div class="adm-page-head">
-    <div>
-      <h1 class="adm-page-title">صندوق الدعم الفني</h1>
-      <p class="adm-page-sub">تذاكر كل المنشآت — إسناد، رد، ومتابعة</p>
-    </div>
-    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="refreshStats()">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 8a6 6 0 10-1.8 4.2M14 8V4M14 8h-3"/></svg>
-      تحديث
-    </button>
-  </div>
+<!--
+  تخطيط Inbox: يمتد على كامل الـ main (بدون padding adm-content).
+  نلغي padding الـ adm-content بالكتابة فوقه بـ -m ثم نبني الـ 3 أعمدة.
+  البنية: شريط علوي (header-bar) + صف أعمدة (columns row) ممتد لكامل ارتفاع ما تبقى.
+-->
+<div x-data="support()" class="-mx-[1.75rem] -mt-[1.6rem] -mb-[3rem] flex flex-col" style="height:calc(100vh - 64px)">
 
-  <!-- ===== KPIs ===== -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-5">
+  <!-- ===== شريط رأس الـ Inbox (عدّادات-فلاتر + بحث + فلاتر متقدمة) ===== -->
+  <div class="bg-card border-b border-line flex-shrink-0">
 
-    <!-- مفتوحة -->
-    <div class="adm-kpi cursor-pointer" @click="setStatusFilter('open')" :class="statusFilter==='open' && 'ring-2 ring-info/40'">
-      <div class="adm-kpi-label">
-        <span class="adm-kpi-ico" style="background:rgba(21,101,192,.1);color:#1565C0">
-          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3.5 4h13v9H7l-3.5 3.5z"/><path d="M7 7.5h6M7 10h4"/></svg>
-        </span>
-        مفتوحة
+    <!-- صف 1: عنوان + عدّادات-فلاتر سريعة -->
+    <div class="flex items-center gap-3 flex-wrap px-5 pt-3.5 pb-2.5 border-b border-line">
+      <div class="me-1">
+        <h1 class="font-display text-[1.15rem] font-bold text-ink leading-tight">صندوق الدعم</h1>
+        <p class="text-[.72rem] text-muted">تذاكر كل المنشآت — إسناد، رد، ومتابعة</p>
       </div>
-      <div class="adm-kpi-val font-latin" x-text="fmtNum(stats.open)"></div>
-      <div class="adm-trend flat">تذاكر نشطة</div>
-    </div>
 
-    <!-- غير مُسنَدة -->
-    <div class="adm-kpi cursor-pointer" @click="setStatusFilter(''); setAssignedFilter('unassigned')" :class="assignedFilter==='unassigned' && 'ring-2 ring-warning/40'">
-      <div class="adm-kpi-label">
-        <span class="adm-kpi-ico" style="background:rgba(212,134,10,.12);color:#D4860A">
-          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="7" r="3"/><path d="M4 17c0-2.8 2.2-5 5-5"/><path d="M14 12v6M11 15h6"/></svg>
-        </span>
-        غير مُسنَدة
+      <!-- عدّادات كـchips فلترة -->
+      <div class="flex items-center gap-1.5 flex-wrap ms-2">
+
+        <!-- مفتوحة -->
+        <button class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full border-[1.5px] text-[.75rem] font-semibold transition-all duration-150 whitespace-nowrap"
+                :class="statusFilter==='open' && !overdueOnly && assignedFilter!=='unassigned'
+                  ? 'bg-info/10 border-info/40 text-info'
+                  : 'bg-card border-lineStrong text-muted hover:border-lineStrong hover:text-ink'"
+                @click="setStatusFilter('open')">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3.5h10v7H6.5L3 14z"/><path d="M5.5 6.5h5M5.5 8.5h3.5"/></svg>
+          مفتوحة
+          <span class="font-latin font-bold text-[.7rem]" x-text="stats.open"></span>
+        </button>
+
+        <!-- غير مُسنَدة -->
+        <button class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full border-[1.5px] text-[.75rem] font-semibold transition-all duration-150 whitespace-nowrap"
+                :class="assignedFilter==='unassigned' && !overdueOnly
+                  ? 'bg-warning/10 border-warning/40 text-warning'
+                  : 'bg-card border-lineStrong text-muted hover:border-lineStrong hover:text-ink'"
+                @click="setStatusFilter(''); setAssignedFilter('unassigned')">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="5.5" r="2.5"/><path d="M3 14c0-2.5 1.8-4.5 4-4.5M11 9v6M8.5 12h5"/></svg>
+          غير مُسنَدة
+          <span class="font-latin font-bold text-[.7rem]" x-text="stats.unassigned"></span>
+        </button>
+
+        <!-- بانتظار ردّنا (الحالة: answered) -->
+        <button class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full border-[1.5px] text-[.75rem] font-semibold transition-all duration-150 whitespace-nowrap"
+                :class="statusFilter==='answered' && !overdueOnly && assignedFilter!=='unassigned'
+                  ? 'bg-warning/10 border-warning/40 text-warning'
+                  : 'bg-card border-lineStrong text-muted hover:border-lineStrong hover:text-ink'"
+                @click="setStatusFilter('answered')">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l1.5 1.5"/></svg>
+          بانتظار ردّنا
+          <span class="font-latin font-bold text-[.7rem]" x-text="stats.awaitingAdmin"></span>
+        </button>
+
+        <!-- متأخرة -->
+        <button class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full border-[1.5px] text-[.75rem] font-semibold transition-all duration-150 whitespace-nowrap"
+                :class="overdueOnly
+                  ? 'bg-danger/10 border-danger/40 text-danger'
+                  : 'bg-card border-lineStrong text-muted hover:border-lineStrong hover:text-ink'"
+                @click="setOverdueFilter()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6"/><path d="M8 4.5v3.5M8 11h.01"/></svg>
+          متأخرة
+          <span class="font-latin font-bold text-[.7rem]" x-text="stats.overdue"></span>
+        </button>
+
+        <!-- الكل (إعادة تعيين) -->
+        <button class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full border-[1.5px] text-[.75rem] font-semibold transition-all duration-150 whitespace-nowrap"
+                :class="statusFilter==='' && !overdueOnly && assignedFilter===''
+                  ? 'bg-primary-800 border-primary-800 text-white'
+                  : 'bg-card border-lineStrong text-muted hover:border-lineStrong hover:text-ink'"
+                @click="setStatusFilter('')">
+          الكل
+        </button>
       </div>
-      <div class="adm-kpi-val font-latin" x-text="fmtNum(stats.unassigned)"></div>
-      <div class="adm-trend down" x-show="stats.unassigned > 0">تحتاج إسناداً</div>
-      <div class="adm-trend up" x-show="stats.unassigned === 0">كل التذاكر مُسنَدة</div>
-    </div>
 
-    <!-- بانتظار ردّنا -->
-    <div class="adm-kpi cursor-pointer" @click="setStatusFilter('answered')" :class="statusFilter==='answered' && 'ring-2 ring-warning/40'">
-      <div class="adm-kpi-label">
-        <span class="adm-kpi-ico" style="background:rgba(212,134,10,.12);color:#B5730A">
-          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.5 2"/></svg>
-        </span>
-        بانتظار ردّنا
-      </div>
-      <div class="adm-kpi-val font-latin" x-text="fmtNum(stats.awaitingAdmin)"></div>
-      <div class="adm-trend flat">ردّ العميل انتظرنا</div>
-    </div>
-
-    <!-- متأخرة -->
-    <div class="adm-kpi cursor-pointer" @click="setStatusFilter(''); setOverdueFilter()" :class="overdueOnly && 'ring-2 ring-danger/40'">
-      <div class="adm-kpi-label">
-        <span class="adm-kpi-ico" style="background:rgba(192,57,43,.1);color:#C0392B">
-          <svg width="17" height="17" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3.5v7M10 14.5v1"/><circle cx="10" cy="10" r="8"/></svg>
-        </span>
-        متأخرة
-      </div>
-      <div class="adm-kpi-val font-latin" x-text="fmtNum(stats.overdue)"></div>
-      <div class="adm-trend down" x-show="stats.overdue > 0">تجاوزت 48 ساعة بلا رد</div>
-      <div class="adm-trend up" x-show="stats.overdue === 0">لا تأخير</div>
-    </div>
-
-  </div>
-
-  <!-- ===== Main card: filters + table ===== -->
-  <div class="adm-card mb-4">
-
-    <!-- Status pills -->
-    <div class="flex flex-wrap items-center gap-2 px-5 pt-4 pb-3 border-b border-line">
-      <template x-for="f in statusPills" :key="f.val">
-        <button class="adm-pill" :class="statusFilter===f.val && !overdueOnly && assignedFilter!=='unassigned' && 'on'"
-                @click="setStatusFilter(f.val)" x-text="f.label"></button>
-      </template>
-      <button class="adm-pill ms-auto" :class="overdueOnly && 'on'" @click="setOverdueFilter()">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" class="inline -mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 4v4l2 1.5"/></svg>
-        متأخرة فقط
+      <button class="adm-btn adm-btn-ghost adm-btn-sm ms-auto" @click="refreshStats()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13.5 7.5a6 6 0 10-1.7 4M13.5 7.5V4M13.5 7.5h-3"/></svg>
+        تحديث
       </button>
     </div>
 
-    <!-- Search + advanced filters -->
-    <div class="flex flex-wrap items-center gap-2.5 px-5 py-3 border-b border-line">
-      <div class="relative flex-1 min-w-[200px]">
+    <!-- صف 2: بحث + فلاتر متقدمة -->
+    <div class="flex flex-wrap items-center gap-2 px-5 py-2.5">
+      <div class="relative flex-1 min-w-[180px] max-w-[280px]">
         <input type="search" placeholder="بحث في الموضوع أو رقم التذكرة…" class="ec-input ps-9 text-sm"
                x-model="searchQ" @input.debounce.300ms="page=1" />
-        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-faint pointer-events-none" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-faint pointer-events-none" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
       </div>
-      <div class="ec-input text-sm p-0 overflow-visible border-0" style="width:160px"
+
+      <div class="ec-input text-sm p-0 overflow-visible border-0" style="width:140px"
            x-data="{ ...smartSelect({ optionsFn:()=>[{value:'urgent',label:'عاجلة'},{value:'high',label:'عالية'},{value:'normal',label:'عادية'},{value:'low',label:'منخفضة'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'كل الأولويات', onChange:v=>{ priorityFilter=v; page=1 } }) }"
            x-effect="ssValue = priorityFilter || ''"
            @ss-open.window="if($event.detail!==ssId) ssForceClose()"
@@ -631,7 +629,8 @@
                   </div>
                 </div>
       </div>
-      <div class="ec-input text-sm p-0 overflow-visible border-0" style="width:160px"
+
+      <div class="ec-input text-sm p-0 overflow-visible border-0" style="width:150px"
            x-data="{ ...smartSelect({ optionsFn:()=>tenantOptions.map(t=>({value:t.id,label:t.name})), multi:false, searchable:true, selectAll:false, grouped:false, placeholder:'كل المنشآت', onChange:v=>{ tenantFilter=v; page=1 } }) }"
            x-effect="ssValue = tenantFilter || ''"
            @ss-open.window="if($event.detail!==ssId) ssForceClose()"
@@ -722,7 +721,8 @@
                   </div>
                 </div>
       </div>
-      <div class="ec-input text-sm p-0 overflow-visible border-0" style="width:160px"
+
+      <div class="ec-input text-sm p-0 overflow-visible border-0" style="width:150px"
            x-data="{ ...smartSelect({ optionsFn:()=>[{value:'unassigned',label:'غير مُسنَدة'},...adminOptions.map(a=>({value:a.id,label:a.name}))], multi:false, searchable:true, selectAll:false, grouped:false, placeholder:'كل المُسنَدين', onChange:v=>{ assignedFilter=v; page=1 } }) }"
            x-effect="ssValue = assignedFilter || ''"
            @ss-open.window="if($event.detail!==ssId) ssForceClose()"
@@ -813,205 +813,172 @@
                   </div>
                 </div>
       </div>
-    </div>
 
-    <!-- Table -->
-    <div class="overflow-x-auto">
-      <table class="adm-table">
-        <thead>
-          <tr>
-            <th>رقم التذكرة</th>
-            <th>المنشأة</th>
-            <th>الموضوع</th>
-            <th>الفئة</th>
-            <th>الأولوية</th>
-            <th>الحالة</th>
-            <th>المُسنَد إليه</th>
-            <th>آخر رد</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          <template x-for="tk in pagedTickets" :key="tk.id">
-            <tr class="cursor-pointer" @click="openDetail(tk)" :class="selectedTicket?.id===tk.id && 'bg-accentSoft/60'">
-              <td>
-                <span class="font-latin text-xs font-bold text-ink" x-text="'#'+tk.ref"></span>
-              </td>
-              <td>
-                <span class="text-sm font-semibold" x-text="tk.tenantName"></span>
-              </td>
-              <td>
-                <span class="text-sm text-ink block max-w-[220px] truncate" x-text="tk.subject"></span>
-              </td>
-              <td>
-                <span class="adm-badge" :class="categoryClass(tk.category)" x-text="categoryLabel(tk.category)"></span>
-              </td>
-              <td>
-                <span class="adm-badge" :class="priorityClass(tk.priority)" x-text="priorityLabel(tk.priority)"></span>
-              </td>
-              <td>
-                <span class="adm-badge" :class="statusClass(tk.status)" x-text="statusLabel(tk.status)"></span>
-              </td>
-              <td>
-                <template x-if="tk.assignedAdmin">
-                  <div class="flex items-center gap-1.5">
-                    <span class="adm-avatar w-7 h-7 rounded-full bg-primary-800 text-white text-xs font-bold flex items-center justify-center flex-shrink-0"
-                          x-text="tk.assignedAdmin.slice(0,2)"></span>
-                    <span class="text-xs text-muted" x-text="tk.assignedAdmin"></span>
-                  </div>
-                </template>
-                <template x-if="!tk.assignedAdmin">
-                  <span class="text-xs text-faint italic">غير مُسنَد</span>
-                </template>
-              </td>
-              <td class="text-xs text-muted whitespace-nowrap" x-text="timeAgo(tk.lastReplyAt)"></td>
-              <td @click.stop>
-                <button class="adm-icon-btn"
-                        @click.stop="openRowMenu($event, tk)"
-                        aria-label="إجراءات">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="8" cy="13" r="1"/></svg>
+      <span class="text-xs text-faint ms-auto">
+        <strong x-text="filteredTickets.length" class="text-ink"></strong> تذكرة
+      </span>
+    </div>
+  </div>
+
+  <!-- ===== 3 أعمدة: قائمة + محادثة + خصائص ===== -->
+  <div class="flex flex-1 min-h-0 overflow-hidden">
+
+    <!-- ────────────────────────────────────────────
+         العمود 1: القائمة (rail ~340px)
+         مخفي على الموبايل حين تذكرة مختارة
+    ──────────────────────────────────────────── -->
+    <div class="w-[340px] shrink-0 border-e border-line flex flex-col bg-card overflow-hidden"
+         :class="selectedTicket ? 'hidden lg:flex' : 'flex'">
+
+      <!-- صفوف التذاكر -->
+      <div class="flex-1 overflow-y-auto">
+        <template x-for="tk in pagedTickets" :key="tk.id">
+          <div class="border-b border-line cursor-pointer transition-all duration-150 px-3.5 py-3 hover:bg-elev"
+               :class="selectedTicket?.id===tk.id ? 'bg-accentSoft/70 border-e-2 border-e-primary-600' : ''"
+               @click="openDetail(tk)">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <!-- نقطة حالة -->
+                <span class="w-2 h-2 rounded-full flex-shrink-0 mt-0.5"
+                      :class="{'bg-info': tk.status==='open', 'bg-warning': tk.status==='answered', 'bg-muted': tk.status==='pending', 'bg-success': tk.status==='resolved', 'bg-faint': tk.status==='closed'}"></span>
+                <span class="font-latin text-[.68rem] font-bold text-primary-500" x-text="'#'+tk.ref"></span>
+                <span class="text-[.7rem] font-semibold text-ink truncate" x-text="tk.tenantName"></span>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <!-- أولوية -->
+                <span class="adm-badge" :class="priorityClass(tk.priority)" x-text="priorityLabel(tk.priority)" style="font-size:.62rem;padding:.1rem .35rem;"></span>
+                <!-- زر القائمة السريعة -->
+                <button class="adm-icon-btn w-6 h-6 rounded" @click.stop="openRowMenu($event, tk)" aria-label="إجراءات">
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="3" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="8" cy="13" r="1"/></svg>
                 </button>
-              </td>
-            </tr>
-          </template>
-          <tr x-show="filteredTickets.length === 0">
-            <td colspan="9">
-              <div class="adm-empty">
-                <svg class="mx-auto mb-3 text-faint" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                <div class="text-sm font-semibold">لا توجد تذاكر مطابقة</div>
-                <div class="text-xs mt-1">جرّب تغيير الفلاتر أو مصطلح البحث</div>
               </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Pagination -->
-    <div class="adm-pagination">
-      <span class="text-xs text-muted">إجمالي <strong x-text="filteredTickets.length"></strong> تذكرة</span>
-      <div class="flex items-center gap-1">
-        <button class="adm-page-btn" :disabled="page<=1" @click="page--">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 4l-4 4 4 4"/></svg>
-        </button>
-        <template x-for="p in totalPages" :key="p">
-          <button class="adm-page-btn" :class="page===p && 'on'" @click="page=p" x-text="p"></button>
+            </div>
+            <p class="text-[.8rem] text-ink leading-snug truncate mb-1.5" x-text="tk.subject"></p>
+            <div class="flex items-center gap-2">
+              <!-- أفاتار المُسند -->
+              <template x-if="tk.assignedAdmin">
+                <div class="flex items-center gap-1">
+                  <span class="w-5 h-5 rounded-full bg-primary-800 text-white text-[.6rem] font-bold flex items-center justify-center flex-shrink-0"
+                        x-text="tk.assignedAdmin.slice(0,2)"></span>
+                  <span class="text-[.68rem] text-muted" x-text="tk.assignedAdmin"></span>
+                </div>
+              </template>
+              <template x-if="!tk.assignedAdmin">
+                <span class="text-[.68rem] text-faint italic">غير مُسنَد</span>
+              </template>
+              <span class="text-[.65rem] text-faint ms-auto" x-text="timeAgo(tk.lastReplyAt)"></span>
+            </div>
+          </div>
         </template>
-        <button class="adm-page-btn" :disabled="page>=totalPages" @click="page++">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4l4 4-4 4"/></svg>
-        </button>
+
+        <!-- حالة فارغة في القائمة -->
+        <div x-show="filteredTickets.length === 0" class="adm-empty py-16">
+          <svg class="mx-auto mb-3 text-faint" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <div class="text-sm font-semibold">لا توجد تذاكر مطابقة</div>
+          <div class="text-xs mt-1">جرّب تغيير الفلاتر أو مصطلح البحث</div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="adm-pagination border-t border-line flex-shrink-0 py-2 px-3">
+        <div class="flex items-center gap-1 mx-auto">
+          <button class="adm-page-btn" :disabled="page<=1" @click="page--">
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 4l-4 4 4 4"/></svg>
+          </button>
+          <template x-for="p in totalPages" :key="p">
+            <button class="adm-page-btn" :class="page===p && 'on'" @click="page=p" x-text="p"></button>
+          </template>
+          <button class="adm-page-btn" :disabled="page>=totalPages" @click="page++">
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 4l4 4-4 4"/></svg>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- ===== Floating row-action menu ===== -->
-  <div class="adm-rowmenu" x-show="menu.open" x-cloak
-       :style="`top:${menu.y}px;inset-inline-end:0px;`"
-       @click.outside="menu.open=false"
-       x-transition.origin.top.end>
-    <button @click="openDetail(menu.tk); menu.open=false">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5h.01"/></svg>
-      فتح التذكرة
-    </button>
-    <button @click="assignToSelf(menu.tk); menu.open=false">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6.5" cy="5.5" r="2.5"/><path d="M2 14c0-2.8 2-5 4.5-5M11 9v6M8.5 12h5"/></svg>
-      إسناد لي
-    </button>
-    <button @click="quickPatch(menu.tk, 'status', 'pending'); menu.open=false">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2 1.5"/></svg>
-      بانتظار العميل
-    </button>
-    <button @click="quickPatch(menu.tk, 'status', 'resolved'); menu.open=false" class="mi-ok">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>
-      تحديد كمحلول
-    </button>
-    <div class="mi-sep"></div>
-    <button @click="quickPatch(menu.tk, 'status', 'closed'); menu.open=false" class="mi-danger">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-      إغلاق التذكرة
-    </button>
-  </div>
+    <!-- ────────────────────────────────────────────
+         العمود 2: المحادثة (مرن، الأوسع)
+         على الموبايل: يملأ كامل الشاشة + زر رجوع
+    ──────────────────────────────────────────── -->
+    <div class="flex-1 min-w-0 flex flex-col bg-surface overflow-hidden"
+         :class="selectedTicket ? 'flex' : 'hidden lg:flex'">
 
-  <!-- ===== Modal: تفاصيل التذكرة ===== -->
-  <div class="adm-overlay" x-show="detailOpen" x-cloak x-transition.opacity @click.self="detailOpen=false">
-    <div class="bg-card rounded-xl shadow-[0_24px_60px_rgba(6,15,30,.35)] w-full flex flex-col"
-         style="max-width:780px;max-height:90vh;"
-         x-show="detailOpen" x-transition>
-
-      <!-- Modal head -->
-      <div class="flex items-start justify-between gap-3 p-4 border-b border-line flex-shrink-0">
-        <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="font-latin text-xs font-bold text-primary-500 bg-accentSoft px-2 py-0.5 rounded" x-text="selectedTicket ? '#'+selectedTicket.ref : ''"></span>
-            <span class="adm-badge" :class="statusClass(selectedTicket?.status)" x-text="statusLabel(selectedTicket?.status)"></span>
-            <span class="adm-badge" :class="priorityClass(selectedTicket?.priority)" x-text="priorityLabel(selectedTicket?.priority)"></span>
-            <span class="adm-badge" :class="categoryClass(selectedTicket?.category)" x-text="categoryLabel(selectedTicket?.category)"></span>
-          </div>
-          <h2 class="font-bold text-ink text-base mt-1 leading-snug" x-text="selectedTicket?.subject"></h2>
+      <!-- حالة فارغة: لا تذكرة مختارة -->
+      <template x-if="!selectedTicket">
+        <div class="flex-1 flex flex-col items-center justify-center text-center px-8 text-faint">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="mb-4 opacity-40"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <div class="text-base font-semibold text-muted mb-1">اختر تذكرة من القائمة</div>
+          <div class="text-sm text-faint">انقر على أي تذكرة لعرض المحادثة والإجراءات</div>
         </div>
-        <button class="adm-icon-btn flex-shrink-0" @click="detailOpen=false">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-        </button>
-      </div>
+      </template>
 
-      <div class="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden">
+      <!-- المحادثة النشطة -->
+      <template x-if="selectedTicket">
+        <div class="flex flex-col h-full overflow-hidden">
 
-        <!-- ── Thread (main column) ── -->
-        <div class="flex-1 min-h-0 flex flex-col">
+          <!-- زر رجوع للموبايل + شريط معلومات التذكرة -->
+          <div class="bg-card border-b border-line flex-shrink-0">
+            <!-- رجوع موبايل -->
+            <div class="flex items-center gap-2 px-3.5 py-2 border-b border-line lg:hidden">
+              <button class="adm-icon-btn" @click="selectedTicket=null" aria-label="رجوع">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 4l-4 4 4 4"/></svg>
+              </button>
+              <span class="text-sm font-bold text-ink truncate" x-text="selectedTicket.subject"></span>
+            </div>
 
-          <!-- Ticket info bar -->
-          <div class="bg-elev px-4 py-3 border-b border-line flex-shrink-0">
-            <dl class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2 text-xs">
-              <div>
-                <dt class="text-faint font-semibold mb-0.5">المنشأة</dt>
-                <dd class="font-semibold text-ink" x-text="selectedTicket?.tenantName"></dd>
+            <!-- معلومات التذكرة -->
+            <div class="px-4 py-3">
+              <div class="flex items-start gap-2 flex-wrap mb-2">
+                <span class="font-latin text-xs font-bold text-primary-500 bg-accentSoft px-2 py-0.5 rounded" x-text="'#'+selectedTicket.ref"></span>
+                <span class="adm-badge" :class="statusClass(selectedTicket.status)" x-text="statusLabel(selectedTicket.status)"></span>
+                <span class="adm-badge" :class="priorityClass(selectedTicket.priority)" x-text="priorityLabel(selectedTicket.priority)"></span>
+                <span class="adm-badge" :class="categoryClass(selectedTicket.category)" x-text="categoryLabel(selectedTicket.category)"></span>
               </div>
-              <div>
-                <dt class="text-faint font-semibold mb-0.5">المفتوح بواسطة</dt>
-                <dd class="text-ink" x-text="selectedTicket?.openedBy"></dd>
-              </div>
-              <div>
-                <dt class="text-faint font-semibold mb-0.5">تاريخ الفتح</dt>
-                <dd class="font-latin text-muted" x-text="selectedTicket ? fmtDateTime(selectedTicket.createdAt) : ''"></dd>
-              </div>
-              <div>
-                <dt class="text-faint font-semibold mb-0.5">المُسنَد إليه</dt>
-                <dd>
-                  <span x-text="selectedTicket?.assignedAdmin || 'غير مُسنَد'"
-                        :class="selectedTicket?.assignedAdmin ? 'text-ink font-semibold' : 'text-faint italic'"></span>
-                </dd>
-              </div>
-              <div>
-                <dt class="text-faint font-semibold mb-0.5">آخر رد</dt>
-                <dd class="text-muted" x-text="selectedTicket ? timeAgo(selectedTicket.lastReplyAt) : ''"></dd>
-              </div>
-            </dl>
+              <h2 class="font-bold text-ink text-sm leading-snug mb-2" x-text="selectedTicket.subject"></h2>
+              <dl class="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1.5 text-xs">
+                <div>
+                  <dt class="text-faint font-semibold mb-0.5">المنشأة</dt>
+                  <dd class="font-semibold text-ink" x-text="selectedTicket.tenantName"></dd>
+                </div>
+                <div>
+                  <dt class="text-faint font-semibold mb-0.5">المفتوح بواسطة</dt>
+                  <dd class="text-ink" x-text="selectedTicket.openedBy"></dd>
+                </div>
+                <div>
+                  <dt class="text-faint font-semibold mb-0.5">تاريخ الفتح</dt>
+                  <dd class="font-latin text-muted" x-text="fmtDateTime(selectedTicket.createdAt)"></dd>
+                </div>
+                <div>
+                  <dt class="text-faint font-semibold mb-0.5">آخر رد</dt>
+                  <dd class="text-muted" x-text="timeAgo(selectedTicket.lastReplyAt)"></dd>
+                </div>
+              </dl>
+            </div>
           </div>
 
-          <!-- Message thread -->
+          <!-- Thread: سلسلة الرسائل -->
           <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3" id="threadScroll">
             <template x-for="msg in selectedMessages" :key="msg.id">
               <div>
-                <!-- Internal note -->
+                <!-- ملاحظة داخلية -->
                 <template x-if="msg.isInternal">
-                  <div class="relative border border-dashed border-accent-300 bg-accentSoft/60 rounded-xl p-3">
+                  <div class="relative border border-dashed border-warning/40 bg-warning/5 rounded-xl p-3">
                     <div class="flex items-center gap-1.5 mb-1.5">
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" class="text-accent-600"><path d="M2 2h12v10l-3-2.5H2z"/><path d="M5 6h6M5 8.5h4"/></svg>
-                      <span class="text-[.7rem] font-bold text-accent-700">ملاحظة داخلية</span>
-                      <span class="text-[.68rem] text-faint ms-auto" x-text="timeAgo(msg.createdAt)"></span>
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" class="text-warning"><path d="M2 2h12v10l-3-2.5H2z"/><path d="M5 6h6M5 8.5h4"/></svg>
+                      <span class="text-[.68rem] font-bold text-warning">ملاحظة داخلية</span>
+                      <span class="text-[.65rem] text-faint ms-auto" x-text="timeAgo(msg.createdAt)"></span>
                     </div>
                     <div class="flex items-start gap-2">
-                      <span class="w-7 h-7 rounded-full bg-accent-200 text-accent-800 text-xs font-bold flex items-center justify-center flex-shrink-0"
+                      <span class="w-7 h-7 rounded-full bg-warning/20 text-warning text-xs font-bold flex items-center justify-center flex-shrink-0"
                             x-text="msg.authorName.slice(0,2)"></span>
                       <div class="flex-1 min-w-0">
-                        <span class="text-xs font-semibold text-accent-700 block mb-0.5" x-text="msg.authorName"></span>
+                        <span class="text-xs font-semibold text-ink block mb-0.5" x-text="msg.authorName"></span>
                         <p class="text-sm text-ink leading-relaxed" x-text="msg.body"></p>
                       </div>
                     </div>
                   </div>
                 </template>
 
-                <!-- Admin message -->
+                <!-- رسالة الدعم (admin) -->
                 <template x-if="!msg.isInternal && msg.authorType==='admin'">
                   <div class="flex items-start gap-2.5 flex-row-reverse">
                     <span class="w-8 h-8 rounded-full bg-primary-800 text-accent-300 text-xs font-bold flex items-center justify-center flex-shrink-0"
@@ -1027,7 +994,7 @@
                   </div>
                 </template>
 
-                <!-- Tenant/client message -->
+                <!-- رسالة العميل (tenant) -->
                 <template x-if="!msg.isInternal && msg.authorType==='tenant'">
                   <div class="flex items-start gap-2.5">
                     <span class="w-8 h-8 rounded-full bg-lineStrong text-muted text-xs font-bold flex items-center justify-center flex-shrink-0"
@@ -1035,7 +1002,7 @@
                     <div class="max-w-[78%]">
                       <div class="flex items-center gap-1.5 mb-1">
                         <span class="text-xs font-semibold text-ink" x-text="msg.authorName"></span>
-                        <span class="adm-badge b-neutral" style="font-size:.65rem;padding:.1rem .4rem;">عميل</span>
+                        <span class="adm-badge b-neutral" style="font-size:.62rem;padding:.1rem .35rem;">عميل</span>
                         <span class="text-xs text-faint" x-text="timeAgo(msg.createdAt)"></span>
                       </div>
                       <div class="bg-elev rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm leading-relaxed text-ink" x-text="msg.body"></div>
@@ -1044,49 +1011,69 @@
                 </template>
               </div>
             </template>
+
+            <!-- حالة فارغة (لا رسائل بعد) -->
+            <div x-show="selectedMessages.length === 0" class="flex flex-col items-center justify-center py-12 text-faint text-center">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="mb-2 opacity-50"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              <div class="text-sm">لا رسائل بعد — ابدأ المحادثة</div>
+            </div>
           </div>
 
-          <!-- Reply box -->
-          <div class="border-t border-line p-4 flex-shrink-0">
-            <!-- Internal toggle -->
+          <!-- Reply box مثبّت في الأسفل -->
+          <div class="border-t border-line p-3.5 flex-shrink-0 bg-card">
+            <!-- Toggle داخلي/عام -->
             <div class="flex items-center gap-2 mb-2">
-              <button class="adm-switch" :class="replyForm.isInternal && 'on'" @click="replyForm.isInternal=!replyForm.isInternal" role="switch" :aria-checked="replyForm.isInternal"></button>
-              <span class="text-xs font-semibold" :class="replyForm.isInternal ? 'text-accent-700' : 'text-muted'">
-                <template x-if="replyForm.isInternal">
-                  <span>ملاحظة داخلية — لن يراها العميل</span>
-                </template>
-                <template x-if="!replyForm.isInternal">
-                  <span>رد عام — يصل للعميل</span>
-                </template>
+              <button class="adm-switch" :class="replyForm.isInternal && 'on'"
+                      @click="replyForm.isInternal=!replyForm.isInternal"
+                      role="switch" :aria-checked="replyForm.isInternal"></button>
+              <span class="text-xs font-semibold" :class="replyForm.isInternal ? 'text-warning' : 'text-muted'">
+                <template x-if="replyForm.isInternal"><span>ملاحظة داخلية — لن يراها العميل</span></template>
+                <template x-if="!replyForm.isInternal"><span>رد عام — يصل للعميل</span></template>
               </span>
             </div>
             <textarea class="ec-input resize-none text-sm mb-2"
                       rows="3"
                       :placeholder="replyForm.isInternal ? 'ملاحظة داخلية لفريق الدعم…' : 'اكتب ردّك للعميل…'"
-                      :class="replyForm.isInternal && 'border-accent-300 bg-accentSoft/40 focus:border-accent-500'"
+                      :class="replyForm.isInternal && 'border-warning/40 bg-warning/5 focus:border-warning/60'"
                       x-model="replyForm.body"></textarea>
             <div class="flex items-center gap-2">
               <button class="adm-btn adm-btn-sm"
-                      :class="replyForm.isInternal ? 'adm-btn-ghost border-accent-300 text-accent-700' : 'adm-btn-primary'"
+                      :class="replyForm.isInternal ? 'adm-btn-ghost border-warning/40 text-warning' : 'adm-btn-primary'"
                       :disabled="!replyForm.body.trim()"
                       @click="submitReply()">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" width="14" height="14"><path d="M2 8l11-5-5 11v-5.5L2 8z"/></svg>
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" width="13" height="13"><path d="M2 8l11-5-5 11v-5.5L2 8z"/></svg>
                 <span x-text="replyForm.isInternal ? 'حفظ الملاحظة' : 'إرسال الرد'"></span>
               </button>
-              <span class="text-xs text-faint me-auto" x-show="replyForm.isInternal">
-                <svg class="inline -mt-0.5" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM8 5v3.5l2 1.5"/></svg>
+              <span class="text-xs text-faint" x-show="replyForm.isInternal">
                 مرئية للفريق الداخلي فقط
               </span>
             </div>
           </div>
         </div>
+      </template>
+    </div>
 
-        <!-- ── Side panel: actions ── -->
-        <div class="lg:w-60 flex-shrink-0 border-t lg:border-t-0 lg:border-s border-line flex flex-col gap-0 overflow-y-auto">
+    <!-- ────────────────────────────────────────────
+         العمود 3: الخصائص / الإجراءات (rail ~240px)
+         مخفي على الموبايل + مخفي حين لا تذكرة
+    ──────────────────────────────────────────── -->
+    <div class="hidden lg:flex w-[240px] shrink-0 border-s border-line flex-col bg-card overflow-y-auto">
 
-          <!-- Assign -->
+      <!-- حالة فارغة (لا تذكرة مختارة) -->
+      <template x-if="!selectedTicket">
+        <div class="flex-1 flex flex-col items-center justify-center text-center px-4 py-8 text-faint">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="mb-2 opacity-40"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2 2"/></svg>
+          <div class="text-xs text-muted">اختر تذكرة لعرض الإجراءات</div>
+        </div>
+      </template>
+
+      <!-- إجراءات التذكرة المختارة -->
+      <template x-if="selectedTicket">
+        <div class="flex flex-col flex-1">
+
+          <!-- الإسناد -->
           <div class="p-4 border-b border-line">
-            <div class="text-xs font-bold text-muted uppercase tracking-wide mb-2">الإسناد</div>
+            <div class="text-[.7rem] font-bold text-muted uppercase tracking-wide mb-2">الإسناد</div>
             <div class="ec-input text-sm p-0 overflow-visible border-0 mb-2"
                  x-data="{ ...smartSelect({ optionsFn:()=>[{value:'',label:'غير مُسنَد'},...adminOptions.map(a=>({value:a.id,label:a.name}))], multi:false, searchable:true, selectAll:false, grouped:false, placeholder:'غير مُسنَد', onChange:v=>{ if(v!==undefined){ detailAssignee=v; submitAssign() } } }) }"
                  x-effect="ssValue = detailAssignee || ''"
@@ -1179,18 +1166,18 @@
                 </div>
             </div>
             <button class="adm-btn adm-btn-ghost adm-btn-sm w-full" @click="assignToSelf(selectedTicket)">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13"><circle cx="6" cy="5" r="2.5"/><path d="M2 13c0-2.5 1.8-4.5 4-4.5M11 9v6M8.5 12h5"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="12" height="12"><circle cx="6" cy="5" r="2.5"/><path d="M2 13c0-2.5 1.8-4.5 4-4.5M11 9v6M8.5 12h5"/></svg>
               إسناد لي
             </button>
           </div>
 
-          <!-- Status -->
+          <!-- الحالة -->
           <div class="p-4 border-b border-line">
-            <div class="text-xs font-bold text-muted uppercase tracking-wide mb-2">الحالة</div>
+            <div class="text-[.7rem] font-bold text-muted uppercase tracking-wide mb-2">الحالة</div>
             <div class="flex flex-col gap-1.5">
               <template x-for="s in statusOptions" :key="s.val">
                 <button class="text-start text-xs px-2.5 py-1.5 rounded-lg border transition-all"
-                        :class="selectedTicket?.status===s.val
+                        :class="selectedTicket.status===s.val
                           ? 'border-primary-300 bg-accentSoft text-ink font-bold'
                           : 'border-lineStrong text-muted hover:border-lineStrong hover:bg-elev'"
                         @click="quickPatch(selectedTicket, 'status', s.val)">
@@ -1201,9 +1188,9 @@
             </div>
           </div>
 
-          <!-- Priority -->
+          <!-- الأولوية -->
           <div class="p-4 border-b border-line">
-            <div class="text-xs font-bold text-muted uppercase tracking-wide mb-2">الأولوية</div>
+            <div class="text-[.7rem] font-bold text-muted uppercase tracking-wide mb-2">الأولوية</div>
             <div class="ec-input text-sm p-0 overflow-visible border-0"
                  x-data="{ ...smartSelect({ optionsFn:()=>[{value:'low',label:'منخفضة'},{value:'normal',label:'عادية'},{value:'high',label:'عالية'},{value:'urgent',label:'عاجلة'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ if(v) { detailPriority=v; quickPatch(selectedTicket,'priority',v) } } }) }"
                  x-effect="ssValue = detailPriority || ''"
@@ -1297,21 +1284,49 @@
             </div>
           </div>
 
-          <!-- Close -->
-          <div class="p-4">
+          <!-- إغلاق التذكرة -->
+          <div class="p-4 mt-auto">
             <button class="adm-btn adm-btn-danger adm-btn-sm w-full"
-                    x-show="selectedTicket?.status !== 'closed'"
+                    x-show="selectedTicket.status !== 'closed'"
                     @click="quickPatch(selectedTicket,'status','closed')">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="13" height="13"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" width="12" height="12"><path d="M4 4l8 8M12 4l-8 8"/></svg>
               إغلاق التذكرة
             </button>
-            <div x-show="selectedTicket?.status === 'closed'" class="text-center text-xs text-faint italic py-1">التذكرة مغلقة</div>
+            <div x-show="selectedTicket.status === 'closed'" class="text-center text-xs text-faint italic py-1">التذكرة مغلقة</div>
           </div>
 
         </div>
-      </div>
+      </template>
     </div>
   </div>
+
+  <!-- ===== Floating row-action menu ===== -->
+<div class="adm-rowmenu" x-show="menu.open" x-cloak
+     :style="`top:${menu.y}px;inset-inline-end:0px;`"
+     @click.outside="menu.open=false"
+     x-transition.origin.top.end>
+  <button @click="openDetail(menu.tk); menu.open=false">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5h.01"/></svg>
+    فتح التذكرة
+  </button>
+  <button @click="assignToSelf(menu.tk); menu.open=false">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6.5" cy="5.5" r="2.5"/><path d="M2 14c0-2.8 2-5 4.5-5M11 9v6M8.5 12h5"/></svg>
+    إسناد لي
+  </button>
+  <button @click="quickPatch(menu.tk, 'status', 'pending'); menu.open=false">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 4.5V8l2 1.5"/></svg>
+    بانتظار العميل
+  </button>
+  <button @click="quickPatch(menu.tk, 'status', 'resolved'); menu.open=false" class="mi-ok">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 8.5l3.5 3.5 7-7"/></svg>
+    تحديد كمحلول
+  </button>
+  <div class="mi-sep"></div>
+  <button @click="quickPatch(menu.tk, 'status', 'closed'); menu.open=false" class="mi-danger">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+    إغلاق التذكرة
+  </button>
+</div>
 
 </div>
 
@@ -1359,10 +1374,10 @@ function support() {
     overdueOnly: false,
     searchQ: '',
     page: 1,
-    pageSize: 8,
+    pageSize: 15,
 
-    /* detail modal */
-    detailOpen: false,
+    /* detail state (no modal — columns only) */
+    detailOpen: false,          /* مرادف لـ !!selectedTicket — محتفظ به للتوافق */
     selectedTicket: null,
     replyForm: { body:'', isInternal:false },
     detailAssignee: '',
@@ -1394,20 +1409,13 @@ function support() {
       { id:'adm-02', name:'سارة المنصور' },
       { id:'adm-03', name:'يوسف الغامدي' },
     ],
+    /* statusOptions — «بانتظار ردّنا» هي التسمية الموحّدة للحالة answered */
     statusOptions: [
       { val:'open',     label:'مفتوحة' },
-      { val:'answered', label:'بانتظار الدعم' },
+      { val:'answered', label:'بانتظار ردّنا' },
       { val:'pending',  label:'بانتظار العميل' },
       { val:'resolved', label:'محلولة' },
       { val:'closed',   label:'مغلقة' },
-    ],
-    statusPills: [
-      { val:'', label:'الكل' },
-      { val:'open', label:'مفتوحة' },
-      { val:'answered', label:'بانتظار الدعم' },
-      { val:'pending', label:'بانتظار العميل' },
-      { val:'resolved', label:'محلولة' },
-      { val:'closed', label:'مغلقة' },
     ],
 
     /* ── helpers ── */
@@ -1417,7 +1425,8 @@ function support() {
 
     /* ── label / class helpers ── */
     statusLabel(s) {
-      return { open:'مفتوحة', answered:'بانتظار الدعم', pending:'بانتظار العميل', resolved:'محلولة', closed:'مغلقة' }[s] || s || '—';
+      /* «بانتظار ردّنا» موحّدة لجميع مواضع عرض الحالة answered */
+      return { open:'مفتوحة', answered:'بانتظار ردّنا', pending:'بانتظار العميل', resolved:'محلولة', closed:'مغلقة' }[s] || s || '—';
     },
     statusClass(s) {
       return { open:'b-info', answered:'b-warning', pending:'b-neutral', resolved:'b-success', closed:'b-neutral' }[s] || 'b-neutral';
@@ -1505,7 +1514,7 @@ function support() {
       this.replyForm = { body:'', isInternal:false };
       this.detailAssignee = tk.assignedAdminId || '';
       this.detailPriority = tk.priority;
-      this.detailOpen = true;
+      this.detailOpen = true;   /* مرادف لـ !!selectedTicket */
       this.$nextTick(() => {
         const el = document.getElementById('threadScroll');
         if (el) el.scrollTop = el.scrollHeight;
