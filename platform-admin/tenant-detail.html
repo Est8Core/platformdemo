@@ -18,220 +18,242 @@
       },
       fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
       boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+      keyframes: { winIn: { '0%': { opacity: '0', transform: 'translateY(10px) scale(.97)' }, '100%': { opacity: '1', transform: 'none' } } },
+      animation: { winIn: 'winIn .2s cubic-bezier(.34,1.2,.5,1)' },
     } } };
   </script>
   <script>if (location.search.indexOf('embed') > -1) document.documentElement.classList.add('crm-embed');</script>
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <style>
-    body { font-family:'IBM Plex Sans Arabic',system-ui,sans-serif; background:#F4F6FA; }
-    .font-display { font-family:'Amiri',Georgia,serif; }
-    .font-latin { font-family:'Inter',system-ui,sans-serif; }
-    [x-cloak] { display:none !important; }
-    ::-webkit-scrollbar { width:9px; height:9px; }
-    ::-webkit-scrollbar-thumb { background:#C4CBDA; border-radius:8px; }
-    ::-webkit-scrollbar-track { background:transparent; }
+  <style type="text/tailwindcss">
+    body { @apply font-body bg-surface-bg; }
+    [x-cloak] { @apply !hidden; }
+    ::-webkit-scrollbar { @apply w-[9px] h-[9px]; }
+    ::-webkit-scrollbar-thumb { @apply bg-neutral-300 rounded-[8px]; }
+    ::-webkit-scrollbar-track { @apply bg-transparent; }
 
     /* ===== Layout (navy-dominant platform shell) ===== */
-    .adm-shell { display:flex; min-height:100vh; }
-    .adm-sidebar { width:264px; flex-shrink:0; background:linear-gradient(180deg,#060F1E 0%,#0B1F3A 100%); color:#C5D5E9; display:flex; flex-direction:column; position:fixed; inset-block:0; inset-inline-start:0; z-index:40; transition:transform .25s; }
-    .adm-main { flex:1; min-width:0; margin-inline-start:264px; display:flex; flex-direction:column; }
-    @media (max-width:1024px){ .adm-sidebar{ transform:translateX(100%); box-shadow:-12px 0 40px rgba(0,0,0,.3);} .adm-sidebar.open{ transform:translateX(0);} .adm-main{ margin-inline-start:0; } }
-    .adm-backdrop { position:fixed; inset:0; background:rgba(6,15,30,.5); z-index:35; }
+    .adm-shell { @apply flex min-h-screen; }
+    .adm-sidebar { @apply w-[264px] shrink-0 bg-[linear-gradient(180deg,#060F1E_0%,#0B1F3A_100%)] text-primary-100 flex flex-col fixed inset-y-0 start-0 z-40 transition-transform duration-[250ms]; }
+    .adm-main { @apply flex-1 min-w-0 ms-[264px] flex flex-col; }
+    @media (max-width:1024px) {
+      .adm-sidebar { @apply translate-x-full shadow-[-12px_0_40px_rgba(0,0,0,.3)]; }
+      .adm-sidebar.open { @apply translate-x-0; }
+      .adm-main { @apply ms-0; }
+    }
+    .adm-backdrop { @apply fixed inset-0 bg-[rgba(6,15,30,.5)] z-[35]; }
 
     /* ===== Sidebar nav ===== */
-    .adm-brand { display:flex; align-items:center; gap:.65rem; padding:1.15rem 1.25rem; border-bottom:1px solid rgba(200,162,75,.15); }
-    .adm-nav { flex:1; overflow-y:auto; padding:1rem .75rem 1.5rem; }
-    .adm-nav-label { font-size:.7rem; font-weight:700; letter-spacing:.04em; color:#4D5F7A; padding:1rem .75rem .4rem; text-transform:uppercase; }
-    .adm-nav-item { display:flex; align-items:center; gap:.7rem; padding:.6rem .8rem; border-radius:.6rem; font-size:.875rem; font-weight:500; color:#9BB5D7; transition:all .15s; cursor:pointer; position:relative; }
-    .adm-nav-item:hover { background:rgba(255,255,255,.05); color:#EAF0F8; }
-    .adm-nav-item.on { background:rgba(200,162,75,.13); color:#fff; font-weight:600; }
-    .adm-nav-item.on::before { content:''; position:absolute; inset-inline-start:-.75rem; top:50%; transform:translateY(-50%); width:3.5px; height:60%; background:#C8A24B; border-radius:0 4px 4px 0; }
-    .adm-nav-item svg { width:18px; height:18px; flex-shrink:0; }
-    .adm-nav-item .soon { margin-inline-start:auto; font-size:.62rem; background:rgba(200,162,75,.18); color:#E3BA66; padding:.05rem .4rem; border-radius:5px; font-weight:600; }
+    .adm-brand { @apply flex items-center gap-[.65rem] py-[1.15rem] px-[1.25rem] border-b border-[rgba(200,162,75,.15)]; }
+    .adm-nav { @apply flex-1 overflow-y-auto pt-[1rem] px-[.75rem] pb-[1.5rem]; }
+    .adm-nav-label { @apply text-[.7rem] font-bold tracking-[.04em] text-neutral-600 pt-[1rem] px-[.75rem] pb-[.4rem] uppercase; }
+    .adm-nav-item { @apply flex items-center gap-[.7rem] py-[.6rem] px-[.8rem] rounded-[.6rem] text-[.875rem] font-medium text-primary-200 transition-all duration-150 cursor-pointer relative; }
+    .adm-nav-item:hover { @apply bg-[rgba(255,255,255,.05)] text-primary-50; }
+    .adm-nav-item.on { @apply bg-[rgba(200,162,75,.13)] text-white font-semibold; }
+    .adm-nav-item.on::before { @apply content-[''] absolute start-[-.75rem] top-1/2 -translate-y-1/2 w-[3.5px] h-[60%] bg-accent-500 rounded-[0_4px_4px_0]; }
+    .adm-nav-item svg { @apply w-[18px] h-[18px] shrink-0; }
+    .adm-nav-item .soon { @apply ms-auto text-[.62rem] bg-[rgba(200,162,75,.18)] text-accent-300 py-[.05rem] px-[.4rem] rounded-[5px] font-semibold; }
 
     /* ===== Topbar ===== */
-    .adm-topbar { height:64px; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:1rem; padding:0 1.5rem; position:sticky; top:0; z-index:30; }
-    .adm-env { display:inline-flex; align-items:center; gap:.4rem; font-size:.72rem; font-weight:700; color:#1A8C4E; background:rgba(26,140,78,.1); padding:.28rem .65rem; border-radius:999px; }
-    .adm-icon-btn { position:relative; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:.6rem; color:#4D5F7A; transition:all .15s; }
-    .adm-icon-btn:hover { background:#F4F6FA; color:#102A4C; }
-    .adm-dot { position:absolute; top:7px; inset-inline-end:8px; width:8px; height:8px; background:#C0392B; border:2px solid #fff; border-radius:50%; }
+    .adm-topbar { @apply h-[64px] bg-white border-b border-neutral-100 flex items-center gap-[1rem] px-[1.5rem] sticky top-0 z-30; }
+    .adm-env { @apply inline-flex items-center gap-[.4rem] text-[.72rem] font-bold text-success bg-[rgba(26,140,78,.1)] py-[.28rem] px-[.65rem] rounded-full; }
+    .adm-icon-btn { @apply relative w-[38px] h-[38px] inline-flex items-center justify-center rounded-[.6rem] text-neutral-600 transition-all duration-150; }
+    .adm-icon-btn:hover { @apply bg-surface-bg text-primary-700; }
+    .adm-dot { @apply absolute top-[7px] end-[8px] w-[8px] h-[8px] bg-danger border-2 border-white rounded-full; }
 
     /* ===== Content ===== */
-    .adm-content { padding:1.6rem 1.75rem 3rem; max-width:1400px; width:100%; margin:0 auto; }
-    .adm-page-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
-    .adm-page-title { font-family:'Amiri',serif; font-size:1.6rem; font-weight:700; color:#0B1F3A; line-height:1.2; }
-    .adm-page-sub { font-size:.85rem; color:#6E7F9C; margin-top:.2rem; }
-    .adm-breadcrumb { display:flex; align-items:center; gap:.4rem; font-size:.78rem; color:#9BA6BB; margin-bottom:.6rem; }
-    .adm-breadcrumb a:hover { color:#102A4C; }
+    .adm-content { @apply pt-[1.6rem] px-[1.75rem] pb-[3rem] max-w-[1400px] w-full mx-auto; }
+    .adm-page-head { @apply flex items-start justify-between gap-4 flex-wrap mb-[1.5rem]; }
+    .adm-page-title { @apply font-display text-[1.6rem] font-bold text-primary-800 leading-[1.2]; }
+    .adm-page-sub { @apply text-[.85rem] text-neutral-500 mt-[.2rem]; }
+    .adm-breadcrumb { @apply flex items-center gap-[.4rem] text-[.78rem] text-neutral-400 mb-[.6rem]; }
+    .adm-breadcrumb a:hover { @apply text-primary-700; }
 
     /* ===== Cards / KPI ===== */
-    .adm-card { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; box-shadow:0 2px 6px rgba(11,31,58,.05); }
-    .adm-card-head { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:1.05rem 1.25rem; border-bottom:1px solid #F1F3F5; }
-    .adm-card-title { font-size:.95rem; font-weight:700; color:#1E2A45; }
-    .adm-kpi { background:#fff; border:1px solid #EEF0F5; border-radius:.9rem; padding:1.15rem 1.25rem; box-shadow:0 2px 6px rgba(11,31,58,.05); position:relative; overflow:hidden; }
-    .adm-kpi::after { content:''; position:absolute; top:0; inset-inline-start:0; width:100%; height:3px; background:linear-gradient(90deg,#C8A24B,transparent); opacity:.0; transition:.2s; }
-    .adm-kpi:hover::after { opacity:1; }
-    .adm-kpi-label { font-size:.78rem; color:#6E7F9C; font-weight:500; display:flex; align-items:center; gap:.45rem; }
-    .adm-kpi-ico { width:34px; height:34px; border-radius:.6rem; display:inline-flex; align-items:center; justify-content:center; background:#EAF0F8; color:#102A4C; }
-    .adm-kpi-val { font-family:'Inter',sans-serif; font-size:1.85rem; font-weight:700; color:#0B1F3A; margin-top:.55rem; letter-spacing:-.02em; }
-    .adm-trend { font-size:.74rem; font-weight:600; display:inline-flex; align-items:center; gap:.2rem; margin-top:.3rem; }
-    .adm-trend.up { color:#1A8C4E; } .adm-trend.down { color:#C0392B; } .adm-trend.flat { color:#9BA6BB; }
+    .adm-card { @apply bg-white border border-neutral-100 rounded-[.9rem] shadow-[0_2px_6px_rgba(11,31,58,.05)]; }
+    .adm-card-head { @apply flex items-center justify-between gap-[.75rem] py-[1.05rem] px-[1.25rem] border-b border-[#F1F3F5]; }
+    .adm-card-title { @apply text-[.95rem] font-bold text-neutral-800; }
+    .adm-kpi { @apply bg-white border border-neutral-100 rounded-[.9rem] py-[1.15rem] px-[1.25rem] shadow-[0_2px_6px_rgba(11,31,58,.05)] relative overflow-hidden; }
+    .adm-kpi::after { @apply content-[''] absolute top-0 start-0 w-full h-[3px] bg-[linear-gradient(90deg,#C8A24B,transparent)] opacity-0 transition-opacity duration-200; }
+    .adm-kpi:hover::after { @apply opacity-100; }
+    .adm-kpi-label { @apply text-[.78rem] text-neutral-500 font-medium flex items-center gap-[.45rem]; }
+    .adm-kpi-ico { @apply w-[34px] h-[34px] rounded-[.6rem] inline-flex items-center justify-center bg-primary-50 text-primary-700; }
+    .adm-kpi-val { @apply font-latin text-[1.85rem] font-bold text-primary-800 mt-[.55rem] tracking-[-0.02em]; }
+    .adm-trend { @apply text-[.74rem] font-semibold inline-flex items-center gap-[.2rem] mt-[.3rem]; }
+    .adm-trend.up { @apply text-success; }
+    .adm-trend.down { @apply text-danger; }
+    .adm-trend.flat { @apply text-neutral-400; }
 
     /* ===== Table ===== */
-    .adm-table { width:100%; border-collapse:collapse; font-size:.85rem; }
-    .adm-table thead th { text-align:start; font-size:.72rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6E7F9C; padding:.7rem 1rem; border-bottom:1px solid #EEF0F5; white-space:nowrap; background:#FBFCFE; }
-    .adm-table tbody td { padding:.85rem 1rem; border-bottom:1px solid #F4F6FA; color:#344260; vertical-align:middle; }
-    .adm-table tbody tr:hover { background:#FBFCFE; }
-    .adm-table tbody tr:last-child td { border-bottom:0; }
+    .adm-table { @apply w-full border-collapse text-[.85rem]; }
+    .adm-table thead th { @apply text-start text-[.72rem] font-bold tracking-[.02em] uppercase text-neutral-500 py-[.7rem] px-[1rem] border-b border-neutral-100 whitespace-nowrap bg-[#FBFCFE]; }
+    .adm-table tbody td { @apply py-[.85rem] px-[1rem] border-b border-surface-bg text-neutral-700 align-middle; }
+    .adm-table tbody tr:hover { @apply bg-[#FBFCFE]; }
+    .adm-table tbody tr:last-child td { @apply border-b-0; }
 
     /* ===== Badges / status ===== */
-    .adm-badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.73rem; font-weight:600; padding:.22rem .6rem; border-radius:999px; white-space:nowrap; line-height:1.4; }
-    .adm-badge::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
-    .b-success { color:#1A8C4E; background:rgba(26,140,78,.1); }
-    .b-warning { color:#B5730A; background:rgba(212,134,10,.12); }
-    .b-danger  { color:#C0392B; background:rgba(192,57,43,.1); }
-    .b-info    { color:#1565C0; background:rgba(21,101,192,.1); }
-    .b-neutral { color:#4D5F7A; background:#EEF0F5; }
-    .b-accent  { color:#8C6E27; background:rgba(200,162,75,.16); }
-    .adm-role { font-size:.7rem; font-weight:700; padding:.18rem .5rem; border-radius:6px; background:#EAF0F8; color:#102A4C; }
+    .adm-badge { @apply inline-flex items-center gap-[.35rem] text-[.73rem] font-semibold py-[.22rem] px-[.6rem] rounded-full whitespace-nowrap leading-[1.4]; }
+    .adm-badge::before { @apply content-[''] w-[6px] h-[6px] rounded-full bg-current; }
+    .b-success { @apply text-success bg-[rgba(26,140,78,.1)]; }
+    .b-warning { @apply text-[#B5730A] bg-[rgba(212,134,10,.12)]; }
+    .b-danger  { @apply text-danger bg-[rgba(192,57,43,.1)]; }
+    .b-info    { @apply text-info bg-[rgba(21,101,192,.1)]; }
+    .b-neutral { @apply text-neutral-600 bg-neutral-100; }
+    .b-accent  { @apply text-accent-700 bg-[rgba(200,162,75,.16)]; }
+    .adm-role { @apply text-[.7rem] font-bold py-[.18rem] px-[.5rem] rounded-[6px] bg-primary-50 text-primary-700; }
 
     /* ===== Buttons ===== */
-    .adm-btn { display:inline-flex; align-items:center; justify-content:center; gap:.45rem; font-size:.84rem; font-weight:600; padding:.55rem 1rem; border-radius:.6rem; transition:all .15s; cursor:pointer; white-space:nowrap; border:1px solid transparent; }
-    .adm-btn:disabled { opacity:.45; cursor:not-allowed; }
-    .adm-btn svg { width:16px; height:16px; }
-    .adm-btn-primary { background:#0B1F3A; color:#fff; } .adm-btn-primary:hover:not(:disabled){ background:#102A4C; }
-    .adm-btn-gold { background:#C8A24B; color:#0B1F3A; } .adm-btn-gold:hover:not(:disabled){ background:#B08B35; }
-    .adm-btn-ghost { background:#fff; color:#344260; border-color:#DDE1EA; } .adm-btn-ghost:hover:not(:disabled){ background:#F4F6FA; border-color:#C4CBDA; }
-    .adm-btn-danger { background:#fff; color:#C0392B; border-color:rgba(192,57,43,.35); } .adm-btn-danger:hover:not(:disabled){ background:rgba(192,57,43,.06); }
-    .adm-btn-danger-solid { background:#C0392B; color:#fff; } .adm-btn-danger-solid:hover:not(:disabled){ background:#a5301f; }
-    .adm-btn-sm { padding:.35rem .7rem; font-size:.78rem; }
+    .adm-btn { @apply inline-flex items-center justify-center gap-[.45rem] text-[.84rem] font-semibold py-[.55rem] px-[1rem] rounded-[.6rem] transition-all duration-150 cursor-pointer whitespace-nowrap border border-transparent; }
+    .adm-btn:disabled { @apply opacity-[.45] cursor-not-allowed; }
+    .adm-btn svg { @apply w-[16px] h-[16px]; }
+    .adm-btn-primary { @apply bg-primary-800 text-white; }
+    .adm-btn-primary:hover:not(:disabled) { @apply bg-primary-700; }
+    .adm-btn-gold { @apply bg-accent-500 text-primary-800; }
+    .adm-btn-gold:hover:not(:disabled) { @apply bg-accent-600; }
+    .adm-btn-ghost { @apply bg-white text-neutral-700 border-neutral-200; }
+    .adm-btn-ghost:hover:not(:disabled) { @apply bg-surface-bg border-neutral-300; }
+    .adm-btn-danger { @apply bg-white text-danger border-[rgba(192,57,43,.35)]; }
+    .adm-btn-danger:hover:not(:disabled) { @apply bg-[rgba(192,57,43,.06)]; }
+    .adm-btn-danger-solid { @apply bg-danger text-white; }
+    .adm-btn-danger-solid:hover:not(:disabled) { @apply bg-[#a5301f]; }
+    .adm-btn-sm { @apply py-[.35rem] px-[.7rem] text-[.78rem]; }
 
     /* ===== Inputs ===== */
-    .ec-input { width:100%; padding:.55rem .8rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; outline:none; transition:all .15s; }
-    .ec-input::placeholder { color:#9BA6BB; }
-    .ec-input:hover { border-color:#C4CBDA; }
-    .ec-input:focus { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
-    .ec-label { display:block; font-size:.8rem; font-weight:600; color:#344260; margin-bottom:.35rem; }
+    .ec-input { @apply w-full py-[.55rem] px-[.8rem] border-[1.5px] border-neutral-200 rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 outline-none transition-all duration-150; }
+    .ec-input::placeholder { @apply text-neutral-400; }
+    .ec-input:hover { @apply border-neutral-300; }
+    .ec-input:focus { @apply border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]; }
+    .ec-label { @apply block text-[.8rem] font-semibold text-neutral-700 mb-[.35rem]; }
 
     /* ===== Tabs ===== */
-    .adm-tabs { display:flex; gap:.25rem; border-bottom:1px solid #EEF0F5; }
-    .adm-tab { padding:.6rem 1rem; font-size:.85rem; font-weight:600; color:#6E7F9C; border-bottom:2px solid transparent; margin-bottom:-1px; cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:.4rem; }
-    .adm-tab:hover { color:#102A4C; }
-    .adm-tab.on { color:#0B1F3A; border-bottom-color:#C8A24B; }
-    .adm-tab .cnt { font-size:.7rem; background:#EEF0F5; color:#4D5F7A; padding:.05rem .4rem; border-radius:6px; }
+    .adm-tabs { @apply flex gap-[.25rem] border-b border-neutral-100; }
+    .adm-tab { @apply py-[.6rem] px-[1rem] text-[.85rem] font-semibold text-neutral-500 border-b-2 border-transparent -mb-px cursor-pointer transition-all duration-150 inline-flex items-center gap-[.4rem]; }
+    .adm-tab:hover { @apply text-primary-700; }
+    .adm-tab.on { @apply text-primary-800 border-b-accent-500; }
+    .adm-tab .cnt { @apply text-[.7rem] bg-neutral-100 text-neutral-600 py-[.05rem] px-[.4rem] rounded-[6px]; }
 
     /* ===== Pills (filters) ===== */
-    .adm-pill { padding:.4rem .85rem; font-size:.8rem; font-weight:600; border-radius:999px; border:1.5px solid #DDE1EA; color:#4D5F7A; background:#fff; cursor:pointer; transition:.15s; white-space:nowrap; }
-    .adm-pill:hover { border-color:#C4CBDA; }
-    .adm-pill.on { background:#0B1F3A; border-color:#0B1F3A; color:#fff; }
+    .adm-pill { @apply py-[.4rem] px-[.85rem] text-[.8rem] font-semibold rounded-full border-[1.5px] border-neutral-200 text-neutral-600 bg-white cursor-pointer transition-all duration-150 whitespace-nowrap; }
+    .adm-pill:hover { @apply border-neutral-300; }
+    .adm-pill.on { @apply bg-primary-800 border-primary-800 text-white; }
 
     /* ===== Modal ===== */
-    .adm-overlay { position:fixed; inset:0; background:rgba(6,15,30,.55); backdrop-filter:blur(2px); z-index:60; display:flex; align-items:flex-start; justify-content:center; padding:5vh 1rem; overflow-y:auto; }
-    .adm-modal { background:#fff; border-radius:1rem; box-shadow:0 24px 60px rgba(6,15,30,.35); width:100%; max-width:560px; }
-    .adm-modal-head { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid #F1F3F5; }
-    .adm-modal-body { padding:1.4rem; }
-    .adm-modal-foot { display:flex; gap:.6rem; justify-content:flex-start; padding:1.1rem 1.4rem; border-top:1px solid #F1F3F5; }
+    .adm-overlay { @apply fixed inset-0 bg-[rgba(6,15,30,.55)] backdrop-blur-sm z-[60] flex items-start justify-center pt-[5vh] px-[1rem] overflow-y-auto; }
+    .adm-modal { @apply bg-white rounded-[1rem] shadow-[0_24px_60px_rgba(6,15,30,.35)] w-full max-w-[560px]; }
+    .adm-modal-head { @apply flex items-center justify-between py-[1.1rem] px-[1.4rem] border-b border-[#F1F3F5]; }
+    .adm-modal-body { @apply p-[1.4rem]; }
+    .adm-modal-foot { @apply flex gap-[.6rem] justify-start py-[1.1rem] px-[1.4rem] border-t border-[#F1F3F5]; }
 
     /* ===== Toggle switch ===== */
-    .adm-switch { position:relative; width:42px; height:24px; background:#C4CBDA; border-radius:999px; cursor:pointer; transition:.2s; flex-shrink:0; }
-    .adm-switch.on { background:#1A8C4E; }
-    .adm-switch::after { content:''; position:absolute; top:3px; inset-inline-end:3px; width:18px; height:18px; background:#fff; border-radius:50%; transition:.2s; box-shadow:0 1px 3px rgba(0,0,0,.2); }
-    .adm-switch.on::after { inset-inline-end:21px; }
+    .adm-switch { @apply relative w-[42px] h-[24px] bg-neutral-300 rounded-full cursor-pointer transition-all duration-200 shrink-0; }
+    .adm-switch.on { @apply bg-success; }
+    .adm-switch::after { @apply content-[''] absolute top-[3px] end-[3px] w-[18px] h-[18px] bg-white rounded-full transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,.2)]; }
+    .adm-switch.on::after { @apply end-[21px]; }
 
     /* ===== Progress (usage) ===== */
-    .adm-progress { height:7px; background:#EEF0F5; border-radius:999px; overflow:hidden; }
-    .adm-progress > span { display:block; height:100%; border-radius:999px; background:#1A4590; transition:width .4s; }
-    .adm-progress.warn > span { background:#D4860A; } .adm-progress.danger > span { background:#C0392B; }
+    .adm-progress { @apply h-[7px] bg-neutral-100 rounded-full overflow-hidden; }
+    .adm-progress > span { @apply block h-full rounded-full bg-primary-600 transition-[width] duration-[400ms]; }
+    .adm-progress.warn > span { @apply bg-warning; }
+    .adm-progress.danger > span { @apply bg-danger; }
 
     /* ===== Info grid ===== */
-    .adm-info { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem 1.5rem; }
-    .adm-info dt { font-size:.74rem; color:#9BA6BB; font-weight:600; margin-bottom:.15rem; }
-    .adm-info dd { font-size:.9rem; color:#1E2A45; font-weight:500; }
+    .adm-info { @apply grid gap-[1rem_1.5rem] [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]; }
+    .adm-info dt { @apply text-[.74rem] text-neutral-400 font-semibold mb-[.15rem]; }
+    .adm-info dd { @apply text-[.9rem] text-neutral-800 font-medium; }
 
     /* ===== Empty / pagination ===== */
-    .adm-empty { text-align:center; padding:3rem 1rem; color:#9BA6BB; }
-    .adm-pagination { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem 1.25rem; border-top:1px solid #F1F3F5; flex-wrap:wrap; }
-    .adm-page-btn { width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; border:1px solid #DDE1EA; font-size:.8rem; color:#4D5F7A; cursor:pointer; }
-    .adm-page-btn:hover:not(:disabled){ background:#F4F6FA; } .adm-page-btn:disabled{ opacity:.4; cursor:not-allowed; }
-    .adm-page-btn.on { background:#0B1F3A; color:#fff; border-color:#0B1F3A; }
+    .adm-empty { @apply text-center py-[3rem] px-[1rem] text-neutral-400; }
+    .adm-pagination { @apply flex items-center justify-between gap-[1rem] py-[1rem] px-[1.25rem] border-t border-[#F1F3F5] flex-wrap; }
+    .adm-page-btn { @apply w-[32px] h-[32px] inline-flex items-center justify-center rounded-[.5rem] border border-neutral-200 text-[.8rem] text-neutral-600 cursor-pointer; }
+    .adm-page-btn:hover:not(:disabled) { @apply bg-surface-bg; }
+    .adm-page-btn:disabled { @apply opacity-[.4] cursor-not-allowed; }
+    .adm-page-btn.on { @apply bg-primary-800 text-white border-primary-800; }
 
     /* ===== Audit diff ===== */
-    .adm-diff { font-family:'Inter',monospace; font-size:.78rem; border-radius:.5rem; padding:.7rem .9rem; white-space:pre-wrap; word-break:break-word; }
-    .adm-diff.before { background:rgba(192,57,43,.05); border:1px solid rgba(192,57,43,.15); color:#7a2018; }
-    .adm-diff.after { background:rgba(26,140,78,.05); border:1px solid rgba(26,140,78,.15); color:#0f5a31; }
+    .adm-diff { @apply font-[Inter,monospace] text-[.78rem] rounded-[.5rem] py-[.7rem] px-[.9rem] whitespace-pre-wrap break-words; }
+    .adm-diff.before { @apply bg-[rgba(192,57,43,.05)] border border-[rgba(192,57,43,.15)] text-[#7a2018]; }
+    .adm-diff.after { @apply bg-[rgba(26,140,78,.05)] border border-[rgba(26,140,78,.15)] text-[#0f5a31]; }
 
     /* ===== JSON viewer (collapsible tree · syntax-highlighted · VSCode-like) ===== */
-    .jv-root { font-family:'Inter',ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.74rem; line-height:1.75; color:#344260; direction:ltr; text-align:left; }
-    .jv-row { white-space:pre-wrap; word-break:break-word; }
-    .jv-children { padding-inline-start:1.1rem; margin-inline-start:.35rem; border-inline-start:1px dashed #DDE1EA; }
-    details.jv-node > summary { list-style:none; cursor:pointer; display:block; border-radius:4px; }
-    details.jv-node > summary:hover { background:#EEF0F5; }
-    details.jv-node > summary::-webkit-details-marker { display:none; }
-    details.jv-node > summary::before { content:'▾'; display:inline-block; width:1em; margin-inline-end:.1rem; color:#9BA6BB; font-size:.8em; }
-    details.jv-node:not([open]) > summary::before { content:'▸'; }
-    details.jv-node[open] > summary > .jv-count, details.jv-node[open] > summary > .jv-ellipsis { display:none; }
-    .jv-key { color:#1565C0; } .jv-idx { color:#9BA6BB; } .jv-str { color:#1A8C4E; }
-    .jv-num { color:#B5730A; } .jv-bool { color:#8C1AAE; } .jv-null { color:#9BA6BB; font-style:italic; }
-    .jv-punc { color:#6E7F9C; } .jv-count { color:#9BA6BB; margin-inline-start:.4rem; } .jv-ellipsis { color:#9BA6BB; }
+    .jv-root { @apply font-[Inter,ui-monospace,SFMono-Regular,Menlo,monospace] text-[.74rem] leading-[1.75] text-neutral-700 [direction:ltr] text-left; }
+    .jv-row { @apply whitespace-pre-wrap break-words; }
+    .jv-children { @apply ps-[1.1rem] ms-[.35rem] border-s border-dashed border-neutral-200; }
+    details.jv-node > summary { @apply list-none cursor-pointer block rounded-[4px]; }
+    details.jv-node > summary:hover { @apply bg-neutral-100; }
+    details.jv-node > summary::-webkit-details-marker { @apply hidden; }
+    details.jv-node > summary::before { @apply content-['▾'] inline-block w-[1em] me-[.1rem] text-neutral-400 text-[.8em]; }
+    details.jv-node:not([open]) > summary::before { @apply content-['▸']; }
+    details.jv-node[open] > summary > .jv-count,
+    details.jv-node[open] > summary > .jv-ellipsis { @apply hidden; }
+    .jv-key { @apply text-info; }
+    .jv-idx { @apply text-neutral-400; }
+    .jv-str { @apply text-success; }
+    .jv-num { @apply text-[#B5730A]; }
+    .jv-bool { @apply text-[#8C1AAE]; }
+    .jv-null { @apply text-neutral-400 italic; }
+    .jv-punc { @apply text-neutral-500; }
+    .jv-count { @apply text-neutral-400 ms-[.4rem]; }
+    .jv-ellipsis { @apply text-neutral-400; }
 
     /* ===== Floating row-action menu (position:fixed → escapes table/card overflow clipping) ===== */
-    .adm-rowmenu { position:fixed; z-index:80; width:13rem; max-width:calc(100vw - 1rem); background:#fff; border-radius:.75rem; box-shadow:0 16px 48px rgba(11,31,58,.18),0 8px 16px rgba(11,31,58,.10); border:1px solid #EEF0F5; padding:.35rem 0; }
-    .adm-rowmenu button, .adm-rowmenu a { display:flex; align-items:center; gap:.6rem; width:100%; text-align:start; padding:.5rem 1rem; font-size:.82rem; color:#344260; background:none; border:0; cursor:pointer; transition:.12s; }
-    .adm-rowmenu button:hover, .adm-rowmenu a:hover { background:#F4F6FA; }
-    .adm-rowmenu button:disabled { opacity:.4; cursor:not-allowed; }
-    .adm-rowmenu button:disabled:hover { background:none; }
-    .adm-rowmenu .mi-danger { color:#C0392B; } .adm-rowmenu .mi-danger:hover { background:rgba(192,57,43,.06); }
-    .adm-rowmenu .mi-warn { color:#B5730A; } .adm-rowmenu .mi-warn:hover { background:rgba(212,134,10,.08); }
-    .adm-rowmenu .mi-ok { color:#1A8C4E; } .adm-rowmenu .mi-ok:hover { background:rgba(26,140,78,.07); }
-    .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
-    .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
+    .adm-rowmenu { @apply fixed z-[80] w-[13rem] max-w-[calc(100vw_-_1rem)] bg-white rounded-[.75rem] shadow-xl2 border border-neutral-100 py-[.35rem] px-0; }
+    .adm-rowmenu button, .adm-rowmenu a { @apply flex items-center gap-[.6rem] w-full text-start py-[.5rem] px-[1rem] text-[.82rem] text-neutral-700 bg-transparent border-0 cursor-pointer transition-all duration-[120ms]; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { @apply bg-surface-bg; }
+    .adm-rowmenu button:disabled { @apply opacity-[.4] cursor-not-allowed; }
+    .adm-rowmenu button:disabled:hover { @apply bg-transparent; }
+    .adm-rowmenu .mi-danger { @apply text-danger; }
+    .adm-rowmenu .mi-danger:hover { @apply bg-[rgba(192,57,43,.06)]; }
+    .adm-rowmenu .mi-warn { @apply text-[#B5730A]; }
+    .adm-rowmenu .mi-warn:hover { @apply bg-[rgba(212,134,10,.08)]; }
+    .adm-rowmenu .mi-ok { @apply text-success; }
+    .adm-rowmenu .mi-ok:hover { @apply bg-[rgba(26,140,78,.07)]; }
+    .adm-rowmenu .mi-sep { @apply h-px bg-neutral-100 my-[.3rem]; }
+    .adm-rowmenu svg { @apply w-[14px] h-[14px] shrink-0; }
 
     /* ===== Embed mode (detail shown inside a window iframe → hide chrome) ===== */
-    .crm-embed .adm-sidebar, .crm-embed .adm-topbar { display:none !important; }
-    .crm-embed .adm-main { margin-inline-start:0 !important; }
-    .crm-embed .adm-content { padding:1.1rem 1.4rem 2rem; max-width:none; }
+    .crm-embed .adm-sidebar, .crm-embed .adm-topbar { @apply !hidden; }
+    .crm-embed .adm-main { @apply !ms-0; }
+    .crm-embed .adm-content { @apply pt-[1.1rem] px-[1.4rem] pb-[2rem] max-w-none; }
 
     /* ===== Detail WINDOWS — draggable · resizable · multi-window · dedup · vertical dock ===== */
-    .crm-win { position:fixed; z-index:66; background:#fff; border:1px solid #E2E7F0; border-radius:14px; box-shadow:0 18px 60px rgba(6,15,30,.34); display:flex; flex-direction:column; overflow:hidden; }
-    .crm-win.appear { animation:winIn .2s cubic-bezier(.34,1.2,.5,1); }
-    @keyframes winIn { from { opacity:0; transform:translateY(10px) scale(.97); } to { opacity:1; transform:none; } }
-    .crm-win.busy { transition:none !important; will-change:left,top,width,height; }
-    .crm-win.anim { transition:left .22s ease, top .22s ease, width .22s ease, height .22s ease, border-radius .22s ease; }
-    .crm-win.max { inset:0 !important; width:auto !important; height:auto !important; border-radius:0; border:0; }
-    .crm-win-head { height:44px; flex-shrink:0; background:#fff; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; gap:.25rem; padding:0 .45rem 0 .8rem; cursor:grab; user-select:none; }
-    .crm-win-head:active { cursor:grabbing; }
-    .crm-win.max .crm-win-head { cursor:default; }
-    .crm-win-dot { width:9px; height:9px; border-radius:50%; background:#C8A24B; flex-shrink:0; }
-    .crm-win-frame { flex:1; border:0; width:100%; background:#F4F6FA; }
-    .crm-win-btn { width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; border-radius:.5rem; color:#4D5F7A; cursor:pointer; transition:.12s; }
-    .crm-win-btn:hover { background:#F2F5FA; color:#102A4C; }
-    .crm-win-btn.close:hover { background:rgba(192,57,43,.1); color:#C0392B; }
-    .crm-win-grip { position:absolute; width:20px; height:20px; bottom:0; right:0; cursor:nwse-resize; z-index:4; }
-    .crm-win-grip::after { content:""; position:absolute; right:4px; bottom:4px; width:9px; height:9px; border-right:2px solid #C0C8D8; border-bottom:2px solid #C0C8D8; border-radius:0 0 4px 0; }
-    .crm-win-grip.bl { left:0; right:auto; cursor:nesw-resize; }
-    .crm-win-grip.bl::after { left:4px; right:auto; border-right:0; border-left:2px solid #C0C8D8; border-radius:0 0 0 4px; }
-    .crm-win.max .crm-win-grip { display:none; }
-    .crm-dragmask { position:fixed; inset:0; z-index:300; }
+    .crm-win { @apply fixed z-[66] bg-white border border-[#E2E7F0] rounded-[14px] shadow-[0_18px_60px_rgba(6,15,30,.34)] flex flex-col overflow-hidden; }
+    .crm-win.appear { @apply animate-winIn; }
+    .crm-win.busy { @apply !transition-none [will-change:left,top,width,height]; }
+    .crm-win.anim { @apply transition-[left,top,width,height,border-radius] duration-[220ms] ease-[cubic-bezier(.25,.1,.25,1)]; }
+    .crm-win.max { @apply !inset-0 !w-auto !h-auto rounded-none border-0; }
+    .crm-win-head { @apply h-[44px] shrink-0 bg-white border-b border-neutral-100 flex items-center gap-[.25rem] pe-[.45rem] ps-[.8rem] cursor-grab select-none; }
+    .crm-win-head:active { @apply cursor-grabbing; }
+    .crm-win.max .crm-win-head { @apply cursor-default; }
+    .crm-win-dot { @apply w-[9px] h-[9px] rounded-full bg-accent-500 shrink-0; }
+    .crm-win-frame { @apply flex-1 border-0 w-full bg-surface-bg; }
+    .crm-win-btn { @apply w-[30px] h-[30px] inline-flex items-center justify-center rounded-[.5rem] text-neutral-600 cursor-pointer transition-all duration-[120ms]; }
+    .crm-win-btn:hover { @apply bg-[#F2F5FA] text-primary-700; }
+    .crm-win-btn.close:hover { @apply bg-[rgba(192,57,43,.1)] text-danger; }
+    .crm-win-grip { @apply absolute w-[20px] h-[20px] bottom-0 right-0 cursor-nwse-resize z-[4]; }
+    .crm-win-grip::after { @apply content-[''] absolute right-[4px] bottom-[4px] w-[9px] h-[9px] border-r-2 border-b-2 border-[#C0C8D8] rounded-[0_0_4px_0]; }
+    .crm-win-grip.bl { @apply left-0 right-auto cursor-nesw-resize; }
+    .crm-win-grip.bl::after { @apply left-[4px] right-auto border-r-0 border-l-2 border-[#C0C8D8] rounded-[0_0_0_4px]; }
+    .crm-win.max .crm-win-grip { @apply hidden; }
+    .crm-dragmask { @apply fixed inset-0 z-[300]; }
     /* Taskbar (bottom-center) — overlapping window pills that fan out + reveal titles on hover */
-    .crm-taskbar { position:fixed; left:50%; transform:translateX(-50%); bottom:1.1rem; z-index:90; display:flex; align-items:center; background:#0B1F3A; padding:.45rem .55rem; border-radius:16px; box-shadow:0 16px 46px rgba(6,15,30,.42); border:1px solid rgba(255,255,255,.08); max-width:92vw; }
-    .crm-taskbar::before { content:""; position:absolute; inset-inline-start:.9rem; top:-7px; width:24px; height:3px; border-radius:3px; background:rgba(255,255,255,.18); }
-    .crm-task { display:flex; align-items:center; gap:.5rem; height:44px; padding:0 .35rem; margin-inline-start:-18px; background:#15294b; border:1.5px solid #0B1F3A; border-radius:12px; cursor:pointer; flex-shrink:0; max-width:46px; overflow:hidden; transition:margin .22s cubic-bezier(.4,0,.2,1), max-width .26s cubic-bezier(.4,0,.2,1), background .15s, border-color .15s; }
-    .crm-task:first-child { margin-inline-start:0; }
-    .crm-taskbar:hover .crm-task { margin-inline-start:.35rem; max-width:230px; }
-    .crm-taskbar:hover .crm-task:first-child { margin-inline-start:0; }
-    .crm-task:hover { background:#1d3a64; }
-    .crm-task.active { max-width:230px; margin-inline-start:.35rem; background:#17325c; border-color:#C8A24B; }
-    .crm-task.active:first-child { margin-inline-start:0; }
-    .crm-task.min { opacity:.55; }
-    .crm-task-av { width:34px; height:34px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.74rem; background:rgba(200,162,75,.16); color:#E6CF9C; }
-    .crm-task.active .crm-task-av { background:#C8A24B; color:#0B1F3A; }
-    .crm-task-label { color:#fff; font-size:.78rem; font-weight:600; white-space:nowrap; opacity:0; transition:opacity .2s .04s; }
-    .crm-taskbar:hover .crm-task-label, .crm-task.active .crm-task-label { opacity:1; }
-    .crm-task-x { width:24px; height:24px; border-radius:7px; flex-shrink:0; color:rgba(255,255,255,.55); display:flex; align-items:center; justify-content:center; transition:.12s; }
-    .crm-task-x:hover { background:rgba(192,57,43,.9); color:#fff; }
-    .crm-taskbar-min { width:30px; height:36px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.5); cursor:pointer; border-radius:8px; margin-inline-start:.3rem; }
-    .crm-taskbar-min:hover { background:rgba(255,255,255,.1); color:#fff; }
+    .crm-taskbar { @apply fixed left-1/2 -translate-x-1/2 bottom-[1.1rem] z-[90] flex items-center bg-primary-800 py-[.45rem] px-[.55rem] rounded-[16px] shadow-[0_16px_46px_rgba(6,15,30,.42)] border border-[rgba(255,255,255,.08)] max-w-[92vw]; }
+    .crm-taskbar::before { @apply content-[''] absolute start-[.9rem] top-[-7px] w-[24px] h-[3px] rounded-[3px] bg-[rgba(255,255,255,.18)]; }
+    .crm-task { @apply flex items-center gap-[.5rem] h-[44px] py-0 px-[.35rem] -ms-[18px] bg-[#15294b] border-[1.5px] border-primary-800 rounded-[12px] cursor-pointer shrink-0 max-w-[46px] overflow-hidden [transition:margin_.22s_cubic-bezier(.4,0,.2,1),max-width_.26s_cubic-bezier(.4,0,.2,1),background_.15s,border-color_.15s]; }
+    .crm-task:first-child { @apply ms-0; }
+    .crm-taskbar:hover .crm-task { @apply ms-[.35rem] max-w-[230px]; }
+    .crm-taskbar:hover .crm-task:first-child { @apply ms-0; }
+    .crm-task:hover { @apply bg-[#1d3a64]; }
+    .crm-task.active { @apply max-w-[230px] ms-[.35rem] bg-[#17325c] border-accent-500; }
+    .crm-task.active:first-child { @apply ms-0; }
+    .crm-task.min { @apply opacity-[.55]; }
+    .crm-task-av { @apply w-[34px] h-[34px] rounded-[9px] shrink-0 flex items-center justify-center font-extrabold text-[.74rem] bg-[rgba(200,162,75,.16)] text-[#E6CF9C]; }
+    .crm-task.active .crm-task-av { @apply bg-accent-500 text-primary-800; }
+    .crm-task-label { @apply text-white text-[.78rem] font-semibold whitespace-nowrap opacity-0 transition-opacity duration-200 delay-[40ms]; }
+    .crm-taskbar:hover .crm-task-label, .crm-task.active .crm-task-label { @apply opacity-100; }
+    .crm-task-x { @apply w-[24px] h-[24px] rounded-[7px] shrink-0 text-[rgba(255,255,255,.55)] flex items-center justify-center transition-all duration-[120ms]; }
+    .crm-task-x:hover { @apply bg-[rgba(192,57,43,.9)] text-white; }
+    .crm-taskbar-min { @apply w-[30px] h-[36px] shrink-0 flex items-center justify-center text-[rgba(255,255,255,.5)] cursor-pointer rounded-[8px] ms-[.3rem]; }
+    .crm-taskbar-min:hover { @apply bg-[rgba(255,255,255,.1)] text-white; }
   </style>
 </head>
 
@@ -785,29 +807,268 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="ec-label">اللغة</label>
-            <select class="ec-input" x-model="editForm.language">
-              <option value="ar">العربية</option>
-              <option value="en">الإنجليزية</option>
-            </select>
+            <div x-data="{ ...smartSelect({ optionsFn:()=>[{value:'ar',label:'العربية'},{value:'en',label:'الإنجليزية'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ editForm.language = v } }) }" x-effect="ssValue = editForm.language || ''" @ss-open.window="if($event.detail!==ssId) ssForceClose()" @keydown.escape.window="ssForceClose()"><!-- Smart Select trigger -->
+                <button type="button"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        @click.stop="ssTriggerClick($event)">
+                  <template x-if="ssMulti && ssHasValue()">
+                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
+                      <template x-for="chip in ssValue" :key="chip">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
+                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                        </span>
+                      </template>
+                    </span>
+                  </template>
+                  <template x-if="!ssMulti && ssHasValue()">
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                  </template>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
+                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Smart Select panel (fixed → escapes overflow) -->
+                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                  </div>
+                  <div class="overflow-y-auto flex-1">
+                    <template x-if="ssGrouped">
+                      <div>
+                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                          <div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <template x-for="opt in grp.items" :key="opt.value">
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                                   @click="ssSelect(opt.value)">
+                                <template x-if="ssMulti">
+                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                                </template>
+                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                                </template>
+                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                                  <span class="w-3.5 shrink-0"></span>
+                                </template>
+                                <span x-text="opt.label"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="!ssGrouped">
+                      <div>
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                               @click="ssSelect(opt.value)">
+                            <template x-if="ssMulti">
+                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            </template>
+                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                              <span class="w-3.5 shrink-0"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                    </template>
+                  </div>
+                </div></div>
           </div>
           <div>
             <label class="ec-label">العملة</label>
-            <select class="ec-input" x-model="editForm.currency">
-              <option value="SAR">ريال سعودي (SAR)</option>
-              <option value="AED">درهم إماراتي (AED)</option>
-              <option value="KWD">دينار كويتي (KWD)</option>
-              <option value="USD">دولار أمريكي (USD)</option>
-            </select>
+            <div x-data="{ ...smartSelect({ optionsFn:()=>[{value:'SAR',label:'ريال سعودي (SAR)'},{value:'AED',label:'درهم إماراتي (AED)'},{value:'KWD',label:'دينار كويتي (KWD)'},{value:'USD',label:'دولار أمريكي (USD)'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ editForm.currency = v } }) }" x-effect="ssValue = editForm.currency || ''" @ss-open.window="if($event.detail!==ssId) ssForceClose()" @keydown.escape.window="ssForceClose()"><!-- Smart Select trigger -->
+                <button type="button"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        @click.stop="ssTriggerClick($event)">
+                  <template x-if="ssMulti && ssHasValue()">
+                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
+                      <template x-for="chip in ssValue" :key="chip">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
+                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                        </span>
+                      </template>
+                    </span>
+                  </template>
+                  <template x-if="!ssMulti && ssHasValue()">
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                  </template>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
+                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Smart Select panel (fixed → escapes overflow) -->
+                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                  </div>
+                  <div class="overflow-y-auto flex-1">
+                    <template x-if="ssGrouped">
+                      <div>
+                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                          <div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <template x-for="opt in grp.items" :key="opt.value">
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                                   @click="ssSelect(opt.value)">
+                                <template x-if="ssMulti">
+                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                                </template>
+                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                                </template>
+                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                                  <span class="w-3.5 shrink-0"></span>
+                                </template>
+                                <span x-text="opt.label"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="!ssGrouped">
+                      <div>
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                               @click="ssSelect(opt.value)">
+                            <template x-if="ssMulti">
+                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            </template>
+                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                              <span class="w-3.5 shrink-0"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                    </template>
+                  </div>
+                </div></div>
           </div>
         </div>
         <div>
           <label class="ec-label">المنطقة الزمنية</label>
-          <select class="ec-input" x-model="editForm.timezone">
-            <option value="Asia/Riyadh">الرياض (GMT+3)</option>
-            <option value="Asia/Dubai">دبي (GMT+4)</option>
-            <option value="Africa/Cairo">القاهرة (GMT+2)</option>
-            <option value="Asia/Kuwait">الكويت (GMT+3)</option>
-          </select>
+          <div x-data="{ ...smartSelect({ optionsFn:()=>[{value:'Asia/Riyadh',label:'الرياض (GMT+3)'},{value:'Asia/Dubai',label:'دبي (GMT+4)'},{value:'Africa/Cairo',label:'القاهرة (GMT+2)'},{value:'Asia/Kuwait',label:'الكويت (GMT+3)'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ editForm.timezone = v } }) }" x-effect="ssValue = editForm.timezone || ''" @ss-open.window="if($event.detail!==ssId) ssForceClose()" @keydown.escape.window="ssForceClose()"><!-- Smart Select trigger -->
+                <button type="button"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        @click.stop="ssTriggerClick($event)">
+                  <template x-if="ssMulti && ssHasValue()">
+                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
+                      <template x-for="chip in ssValue" :key="chip">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
+                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                        </span>
+                      </template>
+                    </span>
+                  </template>
+                  <template x-if="!ssMulti && ssHasValue()">
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                  </template>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
+                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Smart Select panel (fixed → escapes overflow) -->
+                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                  </div>
+                  <div class="overflow-y-auto flex-1">
+                    <template x-if="ssGrouped">
+                      <div>
+                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                          <div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <template x-for="opt in grp.items" :key="opt.value">
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                                   @click="ssSelect(opt.value)">
+                                <template x-if="ssMulti">
+                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                                </template>
+                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                                </template>
+                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                                  <span class="w-3.5 shrink-0"></span>
+                                </template>
+                                <span x-text="opt.label"></span>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="!ssGrouped">
+                      <div>
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                               @click="ssSelect(opt.value)">
+                            <template x-if="ssMulti">
+                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            </template>
+                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
+                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
+                              <span class="w-3.5 shrink-0"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                    </template>
+                  </div>
+                </div></div>
         </div>
       </div>
       <div class="adm-modal-foot">
@@ -1345,6 +1606,105 @@ function tenantDetail() {
       // Return an OBJECT (not a string): a string :style overwrites the whole style attr and wipes
       // x-show's display:none → all row menus stay visible & stacked. An object merges, so x-show works.
       fmStyle(){ return { top: this.fmTop+'px', right: this.fmRight+'px' }; },
+    };
+  }
+
+  // ===== Smart Select mixin (spread: {...smartSelect({optionsFn, multi, searchable, selectAll, grouped, placeholder, onChange})})
+  // Universal <x-select-ui> markup (assembler macro) branches on the exposed flags. Panel is fixed (escapes overflow).
+  // .stop on the trigger prevents the panel's @click.outside from firing on the same open-click. Broadcasts 'ss-open' to close peers.
+  function smartSelect({ id, optionsFn, grouped=false, multi=false, searchable=true, selectAll=false, placeholder='— اختر —', onChange=null }={}){
+    return {
+      ssId: id || ('ss-'+ Math.random().toString(36).slice(2,7)),
+      ssOpen: false,
+      ssSearch: '',
+      ssTop: 0, ssRight: 0, ssWidth: 200,
+      _ssGuard: false,
+      ssValue: multi ? [] : '',
+      ssMulti: multi, ssSearchable: searchable, ssSelectAll: selectAll, ssGrouped: grouped, ssPlaceholder: placeholder,
+      ssFilteredOpts(){
+        const raw = (typeof optionsFn === 'function') ? optionsFn() : [];
+        if(!grouped){
+          if(!searchable || !this.ssSearch.trim()) return raw;
+          const q = this.ssSearch.trim().toLowerCase();
+          return raw.filter(o=> (o.label||'').toLowerCase().includes(q));
+        }
+        if(!searchable || !this.ssSearch.trim()) return raw;
+        const q = this.ssSearch.trim().toLowerCase();
+        return raw.map(g=>({ ...g, items: g.items.filter(o=>(o.label||'').toLowerCase().includes(q)) }))
+                  .filter(g=> g.items.length > 0);
+      },
+      ssAllFlat(){
+        if(!grouped) return (typeof optionsFn==='function') ? optionsFn() : [];
+        const raw = (typeof optionsFn==='function') ? optionsFn() : [];
+        return raw.flatMap(g=> g.items||[]);
+      },
+      ssLabelFor(val){
+        const found = this.ssAllFlat().find(o=> o.value===val);
+        return found ? found.label : val;
+      },
+      ssIsSelected(val){
+        if(multi) return Array.isArray(this.ssValue) && this.ssValue.includes(val);
+        return this.ssValue === val;
+      },
+      ssAllSelected(){
+        const all = this.ssAllFlat();
+        if(!all.length) return false;
+        return all.every(o=> this.ssIsSelected(o.value));
+      },
+      ssTriggerClick(e){
+        if(this.ssOpen){ this.ssClose(); return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.ssTop    = Math.round(r.bottom + 4);
+        this.ssRight  = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.ssWidth  = Math.round(r.width);
+        this.ssOpen   = true;
+        this._ssGuard = true;
+        queueMicrotask(()=>{ this._ssGuard = false; });
+        window.dispatchEvent(new CustomEvent('ss-open', { detail: this.ssId }));
+      },
+      ssClose(){
+        if(this._ssGuard) return;
+        this.ssOpen = false;
+        this.ssSearch = '';
+      },
+      ssForceClose(){ this.ssOpen = false; this.ssSearch = ''; },
+      ssPanelStyle(){
+        return { top: this.ssTop+'px', right: this.ssRight+'px', width: Math.max(this.ssWidth, 200)+'px' };
+      },
+      ssSelect(val){
+        if(multi){
+          const arr = Array.isArray(this.ssValue) ? [...this.ssValue] : [];
+          const idx = arr.indexOf(val);
+          if(idx===-1) arr.push(val); else arr.splice(idx,1);
+          this.ssValue = arr;
+        } else {
+          this.ssValue = val;
+          this.ssForceClose();
+        }
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssRemoveChip(val){
+        if(!multi) return;
+        const arr = Array.isArray(this.ssValue) ? [...this.ssValue] : [];
+        this.ssValue = arr.filter(v=> v !== val);
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssSelectAll(){
+        this.ssValue = this.ssAllFlat().map(o=> o.value);
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssClearAll(){
+        this.ssValue = multi ? [] : '';
+        if(typeof onChange === 'function') onChange(this.ssValue);
+        if(!multi) this.ssForceClose();
+      },
+      ssToggleAll(){
+        if(this.ssAllSelected()) this.ssClearAll(); else this.ssSelectAll();
+      },
+      ssHasValue(){
+        if(multi) return Array.isArray(this.ssValue) && this.ssValue.length > 0;
+        return this.ssValue !== '' && this.ssValue !== null && this.ssValue !== undefined;
+      },
     };
   }
 </script>

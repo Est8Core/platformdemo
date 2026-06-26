@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Est8Core CRM · الدعم الفني</title>
+  <title>Est8Core CRM · مرجع API</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -349,257 +349,357 @@
 
     <main class="crm-content">
 
-<!-- S-040 · الدعم الفني (Tenant) — مواصفة: .Pm/40-Support-Tickets-Module-Plan.md
-  POST   /api/v1/support/tickets           → {subject, category?, priority?, body, attachmentUploadIds?}  → ينشئ تذكرة + أول رسالة، status=open
-  GET    /api/v1/support/tickets?status&page&limit                                                         → تذاكر الـ tenant فقط (scoped بـ tid)
-  GET    /api/v1/support/tickets/:id       → تذكرة + رسائلها (يستثني is_internal)
-  POST   /api/v1/support/tickets/:id/messages  → {body, attachmentUploadIds?}  → رد العميل؛ status=answered, last_reply_by=tenant
-  POST   /api/v1/support/tickets/:id/close     → العميل يقفل تذكرته
-  Uploads: مرفقات بنمط upload_id الموجود (GET /uploads/files/:id)
-  Statuses: open | answered(بانتظار الدعم) | pending(بانتظار العميل) | resolved | closed
-  Priority: urgent | high | normal | low
-  Category: billing | technical | account | other
--->
-<div x-data="support()">
+<script>
+function apiRef() {
+  return {
+    search: '',
+    groupFilter: '',
+
+    endpoints: [
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Create Export Job",
+        method: "POST",
+        path: "/api/v1/exports",
+        desc: "ينشئ مهمة تصدير غير متزامنة لكيان محدّد. POST /api/v1/exports — الحقول: entityType (leads|contacts|properties|deals)، format (csv/xlsx/json/pdf، اختياري)، columns (أعمدة، اختياري)، filters (فلاتر JSON، اختياري)، templateId (UUID قالب، اختياري — يُدمَج كإعدادات افتراضية). يرجّع jobId؛ تابع الحالة عبر GET /exports/:jobId. يتطلّب صلاحية export.run · حد: 5 طلبات/دقيقة."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "List Export Jobs",
+        method: "GET",
+        path: "/api/v1/exports",
+        desc: "يسرد مهام التصدير المُنشأة بواسطة المستخدم الحالي (أو جميع المهام للـ owner/manager). GET /api/v1/exports — query params: page، limit (max 50)، status (pending|queued|processing|completed|failed اختياري). يرجّع قائمة مُصفَّحة. يتطلّب صلاحية export.view."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Preview Export",
+        method: "GET",
+        path: "/api/v1/exports/preview",
+        desc: "يُرجع أول 10 صفوف من بيانات الكيان المطلوب قبل إنشاء مهمة تصدير فعلية (معاينة). GET /api/v1/exports/preview — query params: entityType (مطلوب)، format (اختياري)، filters (JSON string، اختياري)، columns (أسماء مفصولة بفواصل، اختياري). يتطلّب صلاحية export.run · حد: 20 طلبات/دقيقة (قراءة DB مكثّفة)."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Get Export Job",
+        method: "GET",
+        path: "/api/v1/exports/{{jobId}}",
+        desc: "يجلب تفاصيل مهمة تصدير واحدة بـ jobId. GET /api/v1/exports/:jobId — يشمل الحالة (status)، تقدّم المعالجة (rowsTotal/rowsProcessed)، ورابط التحميل عند الاكتمال. يتطلّب صلاحية export.view؛ المستخدم يرى مهامه فقط (owner/manager يريان الجميع)."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Download Export File",
+        method: "GET",
+        path: "/api/v1/exports/{{jobId}}/download",
+        desc: "يرجّع رابط تحميل مؤقّت (signed URL) للملف المُنتَج بعد اكتمال المهمة. GET /api/v1/exports/:jobId/download — يفشل بـ 409 إن لم تكتمل المهمة بعد. يتطلّب صلاحية export.run."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "List Export Templates",
+        method: "GET",
+        path: "/api/v1/exports/templates",
+        desc: "يسرد قوالب التصدير المرئية للمستخدم (قوالبه الخاصة + القوالب المشتركة isShared=true). GET /api/v1/exports/templates — يتطلّب صلاحية export.view."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Create Export Template",
+        method: "POST",
+        path: "/api/v1/exports/templates",
+        desc: "ينشئ قالب تصدير قابل لإعادة الاستخدام (اسم، entityType، format، columns مطلوبة كحد أدنى). POST /api/v1/exports/templates — الحقول: name، entityType، format، columns (مطلوبة)، filters (اختياري)، description (اختياري)، isShared (مشاركة مع جميع المستخدمين، افتراضي false). يتطلّب صلاحية export.create."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Get Export Template",
+        method: "GET",
+        path: "/api/v1/exports/templates/{{templateId}}",
+        desc: "يجلب تفاصيل قالب تصدير واحد بـ templateId. GET /api/v1/exports/templates/:templateId — متاح للمستخدم إذا كان مالكه أو كان مشتركاً (isShared=true). يتطلّب صلاحية export.view."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Update Export Template",
+        method: "PUT",
+        path: "/api/v1/exports/templates/{{templateId}}",
+        desc: "يُحدّث حقول قالب تصدير موجود (name، columns، filters، format، description، isShared). PUT /api/v1/exports/templates/:templateId — الأدوار غير owner تعدّل قوالبها فقط؛ owner يعدّل أي قالب. يتطلّب صلاحية export.update."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Delete Export Template",
+        method: "DELETE",
+        path: "/api/v1/exports/templates/{{templateId}}",
+        desc: "يحذف قالب تصدير بـ templateId (حذف ناعم). DELETE /api/v1/exports/templates/:templateId — الأدوار غير owner تحذف قوالبها فقط. يتطلّب صلاحية export.delete."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Create Scheduled Export",
+        method: "POST",
+        path: "/api/v1/exports/schedules",
+        desc: "ينشئ جدولة دورية لتصدير تلقائي بتعبير cron (5 أجزاء). POST /api/v1/exports/schedules — الحقول: cronPattern (مطلوب)، recipients (قائمة userId، 1-20)، entityType (أو templateId بديلاً)، format (افتراضي xlsx)، isActive (افتراضي true). يتطلّب صلاحية export.run."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "List Scheduled Exports",
+        method: "GET",
+        path: "/api/v1/exports/schedules",
+        desc: "يسرد الجداول الزمنية للتصدير الدوري مع دعم الصفح. GET /api/v1/exports/schedules — query params: page، limit (max 50)، isActive (true|false اختياري). يتطلّب صلاحية export.view."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Get Scheduled Export",
+        method: "GET",
+        path: "/api/v1/exports/schedules/{{scheduleId}}",
+        desc: "يجلب تفاصيل جدولة تصدير واحدة بـ scheduleId. GET /api/v1/exports/schedules/:scheduleId — يشمل cronPattern والمستلمين وتاريخ التشغيل التالي. يتطلّب صلاحية export.view."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Update Scheduled Export",
+        method: "PUT",
+        path: "/api/v1/exports/schedules/{{scheduleId}}",
+        desc: "يُحدّث جدولة تصدير دورية (cronPattern، recipients، isActive، format). PUT /api/v1/exports/schedules/:scheduleId — جميع الحقول اختيارية (PATCH semantics). يتطلّب صلاحية export.update."
+      },
+      {
+        group: "التصدير (محرّك /exports)",
+        name: "Delete Scheduled Export",
+        method: "DELETE",
+        path: "/api/v1/exports/schedules/{{scheduleId}}",
+        desc: "يحذف جدولة تصدير دورية بـ scheduleId (حذف ناعم). DELETE /api/v1/exports/schedules/:scheduleId — يتطلّب صلاحية export.delete."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Import Leads (Sync CSV)",
+        method: "POST",
+        path: "/api/v1/imports/leads",
+        desc: "يستورد قائدات (leads) من ملف CSV متزامن (معالجة فورية لا job). POST /api/v1/imports/leads — الجسم: نص CSV خام (Content-Type: text/csv|text/plain). أعمدة مدعومة: name، phone، email، source، stageId، branchId، … حجم: max 2 MB · حد: 5 طلبات/دقيقة · يتطلّب صلاحية leads.create."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Import Contacts (Sync CSV)",
+        method: "POST",
+        path: "/api/v1/imports/contacts",
+        desc: "يستورد جهات اتصال (contacts) من ملف CSV متزامن. POST /api/v1/imports/contacts — الجسم: نص CSV خام (Content-Type: text/csv|text/plain). حجم: max 2 MB · حد: 5 طلبات/دقيقة · يتطلّب صلاحية contacts.create."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Import Properties (Sync CSV)",
+        method: "POST",
+        path: "/api/v1/imports/properties",
+        desc: "يستورد عقارات (properties) من ملف CSV متزامن. POST /api/v1/imports/properties — الجسم: نص CSV خام (Content-Type: text/csv|text/plain). أعمدة مطلوبة: title، purpose (sale|rent)، price، city. أعمدة اختيارية: typeId، branchId، description، discount، commission، currency، country، area، address، bedrooms، bathrooms، size، finishing، furnished. حجم: max 2 MB · حد: 5 طلبات/دقيقة · يتطلّب صلاحية properties.create."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Create Import Job",
+        method: "POST",
+        path: "/api/v1/imports/jobs",
+        desc: "ينشئ مهمة استيراد غير متزامنة (IMP-09) لملف CSV سبق رفعه. POST /api/v1/imports/jobs — الحقول: entityType (leads|contacts|properties)، fileUploadId (UUID). الصلاحية تُفحص داخل الكنترولر بحسب entityType. حد: 10 طلبات/دقيقة. يرجّع jobId للمتابعة."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "List Import Jobs",
+        method: "GET",
+        path: "/api/v1/imports/jobs",
+        desc: "يسرد مهام الاستيراد الخاصة بالمستخدم مع دعم الصفح. GET /api/v1/imports/jobs — متاح لأي مستخدم مُصادَق عليه. حد: 30 طلبات/دقيقة."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Get Import Job",
+        method: "GET",
+        path: "/api/v1/imports/jobs/{{id}}",
+        desc: "يجلب حالة مهمة استيراد واحدة بـ id (IMP-10). GET /api/v1/imports/jobs/:id — يشمل الحالة (pending|processing|completed|failed)، عدد الصفوف المعالجة، وتفاصيل الأخطاء. حد: 30 طلبات/دقيقة."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Set Import Field Mapping",
+        method: "POST",
+        path: "/api/v1/imports/jobs/{{id}}/mapping",
+        desc: "يربط أعمدة ملف CSV بحقول الكيان الهدف (IMP-11). POST /api/v1/imports/jobs/:id/mapping — يجب تنفيذه قبل Preview وExecute. الحقول: mapping (كائن {csvColumn: entityField}). حد: 10 طلبات/دقيقة."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Preview Import Job",
+        method: "GET",
+        path: "/api/v1/imports/jobs/{{id}}/preview",
+        desc: "يُصنّف ويعرض أول 50 صف من الملف بعد تطبيق الـ mapping (IMP-12). GET /api/v1/imports/jobs/:id/preview — يُظهر الصفوف الصالحة والأخطاء المتوقعة. حد: 5 طلبات/دقيقة (قراءة ملف من التخزين)."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Execute Import Job",
+        method: "POST",
+        path: "/api/v1/imports/jobs/{{id}}/execute",
+        desc: "يُدرج مهمة الاستيراد في قائمة المعالجة غير المتزامنة (IMP-13). POST /api/v1/imports/jobs/:id/execute — يتطلّب وجود mapping وحالة pending. الصلاحية تُفحص بحسب entityType الوظيفة. حد: 5 طلبات/دقيقة."
+      },
+      {
+        group: "الاستيراد (/imports)",
+        name: "Get Import Report",
+        method: "GET",
+        path: "/api/v1/imports/jobs/{{id}}/report",
+        desc: "يُرجع رابط تحميل مؤقّت (signed URL) لملف تقرير CSV يوضّح نتائج الاستيراد — صفوف ناجحة، مرفوضة، وأسباب الرفض (IMP-16). GET /api/v1/imports/jobs/:id/report — متاح فقط بعد اكتمال المهمة. حد: 30 طلبات/دقيقة."
+      },
+      {
+        group: "تصدير تقرير تحليلي (/reports/export)",
+        name: "Async Export (RPT-C)",
+        method: "POST",
+        path: "/api/v1/reports/export",
+        desc: "يُشغّل تصدير غير متزامن لمخرجات تقرير تحليلي (RPT-C). POST /api/v1/reports/export — يرجّع jobId يمكن تتبّعه عبر GET /api/v1/exports/:jobId. يختلف عن POST /exports (محرّك التصدير العام): هذا يُصدّر بيانات التقارير التحليلية تحديداً. يتطلّب صلاحية reports.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Get Builder Catalog (Meta)",
+        method: "GET",
+        path: "/api/v1/reports/builder/meta",
+        desc: "يجلب فهرس الكيانات والحقول والمقاييس والفلاتر والتجميعات المتاحة في منشئ التقارير (R1b). GET /api/v1/reports/builder/meta — نقطة بداية لبناء أي تقرير مخصّص. يتطلّب صلاحية reports.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Dry Run Report",
+        method: "POST",
+        path: "/api/v1/reports/builder/dry-run",
+        desc: "يُصرّف تعريف التقرير ويُشغّل معاينة على عيّنة من البيانات دون إنشاء مهمة رسمية (R1b). POST /api/v1/reports/builder/dry-run — مفيد للتحقّق من صحة التعريف قبل التشغيل الفعلي. حد: 20 طلبات/دقيقة · يتطلّب صلاحية export.run."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Run Report (Create Job)",
+        method: "POST",
+        path: "/api/v1/reports/builder/run",
+        desc: "يُنشئ مهمة تقرير مُخصَّص كاملة وغير متزامنة استناداً لتعريف منشئ التقارير (R1b). POST /api/v1/reports/builder/run — يرجّع jobId لمتابعة الحالة عبر GET /builder/jobs/:id. حد: 10 طلبات/دقيقة · يتطلّب صلاحية export.run."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "List Report Jobs",
+        method: "GET",
+        path: "/api/v1/reports/builder/jobs",
+        desc: "يسرد مهام التقارير المُنشأة من منشئ التقارير مع دعم الصفح. GET /api/v1/reports/builder/jobs — يتطلّب صلاحية export.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Get Report Job",
+        method: "GET",
+        path: "/api/v1/reports/builder/jobs/{{reportJobId}}",
+        desc: "يجلب حالة مهمة تقرير واحدة من منشئ التقارير بـ id. GET /api/v1/reports/builder/jobs/:id — يشمل الحالة، عدد الصفوف، ووقت الاكتمال. يتطلّب صلاحية export.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Download Report Job File",
+        method: "GET",
+        path: "/api/v1/reports/builder/jobs/{{reportJobId}}/download",
+        desc: "يرجّع رابط تحميل مؤقّت (signed URL) لملف التقرير المُنتَج من منشئ التقارير. GET /api/v1/reports/builder/jobs/:id/download — متاح فقط بعد اكتمال المهمة. يتطلّب صلاحية export.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Create Report Template",
+        method: "POST",
+        path: "/api/v1/reports/builder/templates",
+        desc: "يحفظ تعريف تقرير مُخصَّص كقالب قابل لإعادة الاستخدام في منشئ التقارير (R1b). POST /api/v1/reports/builder/templates — الحقول: name، definition (تعريف التقرير). يتطلّب صلاحية reports.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "List Report Templates",
+        method: "GET",
+        path: "/api/v1/reports/builder/templates",
+        desc: "يسرد قوالب التقارير المحفوظة في منشئ التقارير الخاصة بالمستخدم الحالي. GET /api/v1/reports/builder/templates — يتطلّب صلاحية reports.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Get Report Template",
+        method: "GET",
+        path: "/api/v1/reports/builder/templates/{{reportTemplateId}}",
+        desc: "يجلب تفاصيل قالب تقرير واحد بـ id من منشئ التقارير. GET /api/v1/reports/builder/templates/:id — يتطلّب صلاحية reports.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Update Report Template",
+        method: "PUT",
+        path: "/api/v1/reports/builder/templates/{{reportTemplateId}}",
+        desc: "يُحدّث قالب تقرير محفوظ في منشئ التقارير (name أو definition أو كليهما). PUT /api/v1/reports/builder/templates/:id — يتطلّب صلاحية reports.view."
+      },
+      {
+        group: "منشئ التقارير (/reports/builder)",
+        name: "Delete Report Template",
+        method: "DELETE",
+        path: "/api/v1/reports/builder/templates/{{reportTemplateId}}",
+        desc: "يحذف قالب تقرير محفوظ من منشئ التقارير بـ id. DELETE /api/v1/reports/builder/templates/:id — يتطلّب صلاحية reports.view."
+      },
+      {
+        group: "تصدير بيانات الحساب (/settings/export)",
+        name: "Trigger Settings Export (SET-15)",
+        method: "POST",
+        path: "/api/v1/settings/export",
+        desc: "يُطلق تصدير بيانات إعدادات الحساب والـ tenant بشكل غير متزامن (SET-15). POST /api/v1/settings/export — يرجّع {jobId, status}؛ تابع الحالة عبر GET /api/v1/exports/:jobId. يُصدّر بيانات الإعدادات (company profile، stages، custom fields، …) لا بيانات CRM. يتطلّب صلاحية settings.manage (owner-level فقط) · قيد: وظيفة تصدير نشطة واحدة في وقت واحد."
+      }
+    ],
+
+    get groups() {
+      const seen = new Set();
+      const result = [];
+      for (const e of this.endpoints) {
+        if (!seen.has(e.group)) { seen.add(e.group); result.push(e.group); }
+      }
+      return result;
+    },
+
+    filtered() {
+      const q = this.search.trim().toLowerCase();
+      const g = this.groupFilter;
+      return this.endpoints.filter(e => {
+        const matchGroup = !g || e.group === g;
+        const matchSearch = !q ||
+          e.name.toLowerCase().includes(q) ||
+          e.path.toLowerCase().includes(q) ||
+          e.desc.toLowerCase().includes(q);
+        return matchGroup && matchSearch;
+      });
+    },
+
+    methodClass(method) {
+      if (method === 'GET')    return 'bg-info/10 text-info';
+      if (method === 'POST')   return 'bg-success/10 text-success';
+      if (method === 'DELETE') return 'bg-danger/10 text-danger';
+      return 'bg-warning/10 text-[#B5730A]';
+    },
+
+    openCards: {},
+    toggleCard(idx) { this.openCards[idx] = !this.openCards[idx]; },
+  };
+}
+</script>
+
+<div x-data="apiRef()">
 
   <!-- Page head -->
   <div class="adm-page-head">
     <div>
-      <h1 class="adm-page-title">الدعم الفني</h1>
-      <p class="adm-page-sub">تذاكر الدعم — تواصل مع فريق المنصة ومتابعة طلباتك</p>
+      <h1 class="adm-page-title">مرجع الـ API</h1>
+      <p class="adm-page-sub">توثيق endpoints التصدير والاستيراد والتقارير</p>
     </div>
-    <button class="adm-btn adm-btn-gold" @click="openNew()">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
-      تذكرة جديدة
-    </button>
+    <a href="../../../../../Server/docs/Postman/Est8Core.postman_collection.json"
+       target="_blank"
+       download
+       class="adm-btn adm-btn-gold flex items-center gap-2">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M10 3v10M6 9l4 4 4-4"/>
+        <path d="M3 16h14"/>
+      </svg>
+      مجموعة Postman
+    </a>
   </div>
 
-  <!-- ===== MASTER-DETAIL LAYOUT ===== -->
-  <div class="flex gap-4" style="min-height:600px">
-
-    <!-- ===== RIGHT PANEL: قائمة التذاكر ===== -->
-    <div class="flex flex-col gap-3" :class="selected ? 'hidden xl:flex xl:w-80 shrink-0' : 'flex-1'">
-
-      <!-- Search + filter pills -->
-      <div class="adm-card p-3 flex flex-col gap-2.5">
-        <div class="relative">
-          <input type="search" x-model="search" placeholder="بحث في التذاكر…" class="ec-input ps-9" />
-          <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
-        </div>
-        <div class="flex flex-wrap gap-1.5">
-          <button class="adm-pill adm-btn-sm" :class="fStatus===''&&'on'"         @click="fStatus='';page=1">الكل</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='open'&&'on'"     @click="fStatus='open';page=1">مفتوحة</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='answered'&&'on'" @click="fStatus='answered';page=1">بانتظار الدعم</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='pending'&&'on'"  @click="fStatus='pending';page=1">بانتظار العميل</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='resolved'&&'on'" @click="fStatus='resolved';page=1">محلولة</button>
-          <button class="adm-pill adm-btn-sm" :class="fStatus==='closed'&&'on'"   @click="fStatus='closed';page=1">مغلقة</button>
-        </div>
-      </div>
-
-      <!-- Ticket list -->
-      <div class="adm-card flex flex-col divide-y divide-neutral-100">
-        <template x-for="t in pageRows" :key="t.id">
-          <button
-            @click="select(t)"
-            class="flex flex-col gap-1.5 p-3.5 text-start hover:bg-neutral-50 transition w-full"
-            :class="selected?.id===t.id && 'bg-primary-50 border-e-2 border-primary-700'"
-          >
-            <!-- Row 1: number + subject -->
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="text-[.68rem] font-bold text-neutral-400 font-latin shrink-0" x-text="'#'+t.number"></span>
-              <span class="font-semibold text-primary-800 text-sm truncate" x-text="t.subject"></span>
-            </div>
-            <!-- Row 2: badges -->
-            <div class="flex flex-wrap items-center gap-1.5">
-              <span class="adm-badge" :class="statusCls(t.status)" x-text="statusLabel(t.status)"></span>
-              <span class="adm-badge b-neutral" x-text="categoryLabel(t.category)"></span>
-              <span class="adm-badge" :class="priorityCls(t.priority)" x-text="priorityLabel(t.priority)" x-show="t.priority!=='normal'"></span>
-            </div>
-            <!-- Row 3: last reply -->
-            <div class="text-xs text-neutral-400 flex items-center gap-1">
-              <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 1.5"/></svg>
-              آخر رد: <span x-text="timeAgo(t.lastReplyAt)"></span>
-            </div>
-          </button>
-        </template>
-        <template x-if="!filtered.length">
-          <div class="adm-empty">لا توجد تذاكر مطابقة.</div>
-        </template>
-      </div>
-
-      <!-- Pagination -->
-      <div class="flex items-center justify-between text-xs text-neutral-400 px-1" x-show="totalPages > 1">
-        <span>عرض <span x-text="pageRows.length"></span> من <span x-text="filtered.length"></span></span>
-        <div class="flex items-center gap-1">
-          <button class="adm-btn adm-btn-ghost adm-btn-sm px-2" :disabled="page===1" @click="page--"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 3l-5 5 5 5"/></svg></button>
-          <span class="px-2" x-text="page+' / '+totalPages"></span>
-          <button class="adm-btn adm-btn-ghost adm-btn-sm px-2" :disabled="page===totalPages" @click="page++"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3l5 5-5 5"/></svg></button>
-        </div>
-      </div>
+  <!-- Toolbar -->
+  <div class="flex flex-wrap items-center gap-3 mb-4">
+    <div class="ec-input flex items-center gap-2 flex-1 min-w-[200px]">
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" class="shrink-0 opacity-50">
+        <circle cx="8.5" cy="8.5" r="5.5"/>
+        <path d="M17 17l-3.5-3.5"/>
+      </svg>
+      <input
+        type="text"
+        x-model="search"
+        placeholder="ابحث في الاسم أو المسار أو الوصف…"
+        class="bg-transparent outline-none w-full text-sm placeholder:text-neutral-400"
+      />
     </div>
 
-    <!-- ===== LEFT PANEL: تفاصيل التذكرة ===== -->
-    <div class="flex-1 min-w-0 flex flex-col gap-3" x-show="selected" x-cloak>
-
-      <!-- Ticket header card -->
-      <div class="adm-card p-4">
-        <div class="flex items-start justify-between gap-3 flex-wrap">
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1.5">
-              <button @click="selected=null" class="adm-icon-btn w-7 h-7 xl:hidden text-neutral-400">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 4l4 4-4 4M6 4l-4 4 4 4"/></svg>
-              </button>
-              <span class="text-[.72rem] font-bold text-neutral-400 font-latin" x-text="selected && '#'+selected.number"></span>
-            </div>
-            <h2 class="text-base font-bold text-primary-800 leading-snug" x-text="selected?.subject"></h2>
-            <div class="flex flex-wrap items-center gap-2 mt-2">
-              <span class="adm-badge" :class="selected && statusCls(selected.status)" x-text="selected && statusLabel(selected.status)"></span>
-              <span class="adm-badge" :class="selected && priorityCls(selected.priority)" x-text="selected && priorityLabel(selected.priority)"></span>
-              <span class="adm-badge b-neutral" x-text="selected && categoryLabel(selected.category)"></span>
-              <span class="text-xs text-neutral-400 flex items-center gap-1">
-                <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 7h12M5 1v3M11 1v3"/></svg>
-                <span x-text="selected && fmtDate(selected.createdAt)"></span>
-              </span>
-            </div>
-          </div>
-          <!-- Close ticket button — only when ticket is open/answered/pending -->
-          <button
-            x-show="selected && ['open','answered','pending'].includes(selected.status)"
-            @click="closeTicket()"
-            class="adm-btn adm-btn-danger adm-btn-sm shrink-0"
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-            إغلاق التذكرة
-          </button>
-        </div>
-      </div>
-
-      <!-- Message thread -->
-      <div class="adm-card flex-1 flex flex-col">
-        <div class="adm-card-head">
-          <span class="adm-card-title">المحادثة</span>
-          <span class="adm-badge b-neutral text-xs" x-text="(selected?.messages?.length||0)+' رسائل'"></span>
-        </div>
-
-        <!-- Bubbles -->
-        <div class="flex flex-col gap-3 p-4 overflow-y-auto" style="max-height:420px">
-          <template x-if="selected">
-            <template x-for="m in selected.messages" :key="m.id">
-              <!-- tenant العميل → يمين (items-start في RTL) | admin الدعم → يسار (items-end في RTL) -->
-              <div class="flex flex-col gap-1" :class="m.authorType==='tenant' ? 'items-start' : 'items-end'">
-                <!-- Author + time -->
-                <div class="flex items-center gap-1.5 text-[.7rem] text-neutral-400"
-                     :class="m.authorType==='tenant' ? '' : 'flex-row-reverse'">
-                  <span class="adm-avatar w-5 h-5 text-[.55rem] font-bold"
-                        :class="m.authorType==='tenant'?'bg-primary-800 text-accent-400':'bg-accent-500 text-primary-900'"
-                        x-text="m.authorType==='tenant'?'أنت':'د'"></span>
-                  <span x-text="m.authorType==='tenant'?'أنت':'فريق الدعم'"></span>
-                  <span x-text="fmtDateTime(m.createdAt)"></span>
-                </div>
-                <!-- Bubble -->
-                <div class="max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed"
-                     :class="m.authorType==='tenant'
-                       ? 'bg-primary-800 text-white rounded-ss-sm'
-                       : 'bg-neutral-100 text-primary-800 rounded-se-sm'">
-                  <p x-text="m.body"></p>
-                  <!-- Attachments -->
-                  <template x-if="m.attachments && m.attachments.length">
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                      <template x-for="att in m.attachments" :key="att.uploadId">
-                        <a :href="'/uploads/files/'+att.uploadId" target="_blank"
-                           class="flex items-center gap-1 text-xs px-2 py-1 rounded-lg"
-                           :class="m.authorType==='tenant'?'bg-white/20 text-white hover:bg-white/30':'bg-white text-primary-700 hover:bg-neutral-50 border border-neutral-200'">
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13V4l4-3h5v12H3z"/><path d="M7 1v4H3"/></svg>
-                          <span x-text="att.name"></span>
-                        </a>
-                      </template>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </template>
-          </template>
-          <template x-if="!selected?.messages?.length">
-            <div class="adm-empty">لا رسائل بعد.</div>
-          </template>
-        </div>
-
-        <!-- Reply box — hidden when closed/resolved -->
-        <div class="border-t border-neutral-100 p-4 flex flex-col gap-2.5"
-             x-show="selected && !['closed','resolved'].includes(selected.status)">
-          <textarea
-            x-model="replyBody"
-            rows="3"
-            class="ec-input resize-none"
-            placeholder="اكتب ردّك هنا…"
-          ></textarea>
-          <!-- Attachment chip area -->
-          <div class="flex items-center gap-2 flex-wrap">
-            <template x-for="att in replyAttachments" :key="att.uploadId">
-              <span class="flex items-center gap-1 text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">
-                <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13V4l4-3h5v12H3z"/><path d="M7 1v4H3"/></svg>
-                <span x-text="att.name"></span>
-                <button @click="removeAtt(att.uploadId)" class="ms-0.5 text-neutral-400 hover:text-danger leading-none">&times;</button>
-              </span>
-            </template>
-            <label class="adm-btn adm-btn-ghost adm-btn-sm cursor-pointer">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3v10M3 8h10"/></svg>
-              إرفاق ملف
-              <input type="file" class="hidden" multiple @change="attachFiles($event)" />
-            </label>
-          </div>
-          <div class="flex justify-end">
-            <button
-              @click="sendReply()"
-              :disabled="!replyBody.trim()"
-              class="adm-btn adm-btn-primary"
-            >
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l12 6-12 6V9l8-1-8-1V2z"/></svg>
-              إرسال الرد
-            </button>
-          </div>
-        </div>
-
-        <!-- Closed/resolved note -->
-        <div class="border-t border-neutral-100 p-4 text-sm text-neutral-400 flex items-center gap-2"
-             x-show="selected && ['closed','resolved'].includes(selected.status)">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M5.5 8l2 2L11 6"/></svg>
-          <span>هذه التذكرة <strong x-text="selected?.status==='resolved'?'محلولة':'مغلقة'"></strong> — لا يمكن إرسال ردود جديدة.</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Empty detail state (no ticket selected) -->
-    <div class="flex-1 hidden xl:flex items-center justify-center" x-show="!selected">
-      <div class="adm-empty max-w-xs">
-        <svg class="mx-auto mb-3 text-neutral-200" width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 8h32v28H20l-12 8z"/><path d="M15 20h18M15 27h12"/></svg>
-        <p class="text-sm">اختر تذكرة من القائمة لعرض المحادثة.</p>
-      </div>
-    </div>
-
-  </div>
-
-
-  <!-- ===== MODAL: تذكرة جديدة ===== -->
-  <template x-if="newForm">
-    <div class="adm-overlay" @click.self="newForm=null">
-      <div class="adm-modal" style="max-width:540px">
-        <div class="adm-modal-head">
-          <div class="font-bold text-primary-800">تذكرة دعم جديدة</div>
-          <button @click="newForm=null" class="adm-icon-btn"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
-        </div>
-        <div class="adm-modal-body flex flex-col gap-4">
-          <!-- Subject -->
-          <div>
-            <label class="ec-label"><span class="text-danger">*</span> الموضوع</label>
-            <input type="text" x-model="newForm.subject" class="ec-input" placeholder="وصف مختصر للمشكلة أو الطلب" maxlength="200" />
-            <div class="text-[.7rem] text-neutral-400 text-end mt-1" x-text="newForm.subject.length+'/200'"></div>
-          </div>
-          <!-- Category + Priority -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="ec-label">الفئة</label>
-              <div x-data="{ ...smartSelect({ optionsFn:()=>[{value:'technical',label:'تقني'},{value:'billing',label:'الفواتير والدفع'},{value:'account',label:'الحساب'},{value:'other',label:'أخرى'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ newForm.category = v } }) }" x-effect="ssValue = newForm.category || ''" @ss-open.window="if($event.detail!==ssId) ssForceClose()" @keydown.escape.window="ssForceClose()"><!-- Smart Select trigger -->
+    <div class="w-[260px]"
+         x-data="{ ...smartSelect({ optionsFn:()=>[{value:'',label:'كل المجموعات'},...groups.map(g=>({value:g,label:g}))], placeholder:'كل المجموعات', searchable:true, onChange:v=>{ groupFilter=v } }) }"
+         x-effect="ssValue = groupFilter || ''"
+         @ss-open.window="if($event.detail!==ssId) ssForceClose()"
+         @keydown.escape.window="ssForceClose()">
+      <!-- Smart Select trigger -->
                 <button type="button"
                         class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
                         :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
@@ -683,368 +783,102 @@
                       <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
                     </template>
                   </div>
-                </div></div>
-            </div>
-            <div>
-              <label class="ec-label">الأولوية</label>
-              <div x-data="{ ...smartSelect({ optionsFn:()=>[{value:'low',label:'منخفضة'},{value:'normal',label:'عادية'},{value:'high',label:'عالية'},{value:'urgent',label:'عاجلة'}], multi:false, searchable:false, selectAll:false, grouped:false, placeholder:'— اختر —', onChange:v=>{ newForm.priority = v } }) }" x-effect="ssValue = newForm.priority || ''" @ss-open.window="if($event.detail!==ssId) ssForceClose()" @keydown.escape.window="ssForceClose()"><!-- Smart Select trigger -->
-                <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
-                        @click.stop="ssTriggerClick($event)">
-                  <template x-if="ssMulti && ssHasValue()">
-                    <span class="flex flex-wrap gap-1 flex-1 min-w-0">
-                      <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
-                          <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-                        </span>
-                      </template>
-                    </span>
-                  </template>
-                  <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
-                  </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
-                  <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
-                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-                  </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
-                </button>
-                <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
-                  </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
-                    <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
-                  </div>
-                  <div class="overflow-y-auto flex-1">
-                    <template x-if="ssGrouped">
-                      <div>
-                        <template x-for="grp in ssFilteredOpts()" :key="grp.label">
-                          <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
-                            <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
-                                   @click="ssSelect(opt.value)">
-                                <template x-if="ssMulti">
-                                  <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
-                                </template>
-                                <template x-if="!ssMulti && ssIsSelected(opt.value)">
-                                  <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
-                                </template>
-                                <template x-if="!ssMulti && !ssIsSelected(opt.value)">
-                                  <span class="w-3.5 shrink-0"></span>
-                                </template>
-                                <span x-text="opt.label"></span>
-                              </div>
-                            </template>
-                          </div>
-                        </template>
-                      </div>
-                    </template>
-                    <template x-if="!ssGrouped">
-                      <div>
-                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
-                               @click="ssSelect(opt.value)">
-                            <template x-if="ssMulti">
-                              <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
-                            </template>
-                            <template x-if="!ssMulti && ssIsSelected(opt.value)">
-                              <svg class="w-3.5 h-3.5 shrink-0 text-primary-600" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
-                            </template>
-                            <template x-if="!ssMulti && !ssIsSelected(opt.value)">
-                              <span class="w-3.5 shrink-0"></span>
-                            </template>
-                            <span x-text="opt.label"></span>
-                          </div>
-                        </template>
-                      </div>
-                    </template>
-                    <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
-                    </template>
-                  </div>
-                </div></div>
-            </div>
-          </div>
-          <!-- Body -->
-          <div>
-            <label class="ec-label"><span class="text-danger">*</span> وصف المشكلة</label>
-            <textarea x-model="newForm.body" rows="5" class="ec-input resize-none" placeholder="اشرح المشكلة بالتفصيل — كلما كان الوصف أدق، كان الدعم أسرع…"></textarea>
-          </div>
-          <!-- Attachments -->
-          <div>
-            <label class="ec-label">المرفقات (اختياري)</label>
-            <div class="flex flex-wrap gap-2 mb-2">
-              <template x-for="att in newForm.attachments" :key="att.uploadId">
-                <span class="flex items-center gap-1 text-xs bg-neutral-100 text-neutral-600 px-2.5 py-1.5 rounded-full">
-                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 13V4l4-3h5v12H3z"/><path d="M7 1v4H3"/></svg>
-                  <span x-text="att.name"></span>
-                  <button @click="newForm.attachments=newForm.attachments.filter(a=>a.uploadId!==att.uploadId)" class="ms-0.5 text-neutral-400 hover:text-danger">&times;</button>
-                </span>
-              </template>
-            </div>
-            <label class="adm-btn adm-btn-ghost adm-btn-sm cursor-pointer inline-flex">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12V6l3.5-4H12l2 2v8H2z"/><path d="M5.5 2v4H2"/></svg>
-              اختر ملفات
-              <input type="file" class="hidden" multiple @change="attachNew($event)" />
-            </label>
-          </div>
-        </div>
-        <div class="adm-modal-foot">
-          <button @click="submitNew()" :disabled="!newForm.subject.trim()||!newForm.body.trim()" class="adm-btn adm-btn-primary">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2l12 6-12 6V9l8-1-8-1V2z"/></svg>
-            إرسال التذكرة
-          </button>
-          <button @click="newForm=null" class="adm-btn adm-btn-ghost">إلغاء</button>
-        </div>
-      </div>
+                </div>
+    </div>
+  </div>
+
+  <!-- Counter -->
+  <div class="flex items-center gap-2 mb-4">
+    <span class="text-sm text-neutral-500">
+      عرض
+      <span class="font-semibold text-primary" x-text="filtered().length"></span>
+      من
+      <span class="font-semibold text-primary" x-text="endpoints.length"></span>
+      endpoint
+    </span>
+    <template x-if="search || groupFilter">
+      <button
+        class="adm-btn adm-btn-ghost text-xs py-0.5 px-2"
+        @click="search=''; groupFilter=''">
+        مسح الفلاتر
+      </button>
+    </template>
+  </div>
+
+  <!-- Empty state -->
+  <template x-if="filtered().length === 0">
+    <div class="adm-card flex flex-col items-center justify-center py-16 gap-3">
+      <svg width="40" height="40" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" class="opacity-25">
+        <circle cx="8.5" cy="8.5" r="5.5"/>
+        <path d="M17 17l-3.5-3.5"/>
+      </svg>
+      <p class="text-neutral-400 text-sm">لا نتائج مطابقة للبحث</p>
     </div>
   </template>
 
-  <!-- ===== MODAL: تأكيد إغلاق التذكرة ===== -->
-  <template x-if="closeConfirm">
-    <div class="adm-overlay" @click.self="closeConfirm=false">
-      <div class="adm-modal" style="max-width:420px">
-        <div class="adm-modal-head">
-          <div class="font-bold text-primary-800">إغلاق التذكرة</div>
-          <button @click="closeConfirm=false" class="adm-icon-btn"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+  <!-- Grouped endpoint list -->
+  <template x-if="filtered().length > 0">
+    <div class="flex flex-col gap-6">
+      <template x-for="grp in groups" :key="grp">
+        <div x-show="!groupFilter || groupFilter === grp">
+          <template x-if="filtered().filter(e => e.group === grp).length > 0">
+            <div>
+              <!-- Group heading -->
+              <div class="flex items-center gap-3 mb-3">
+                <h2 class="font-semibold text-primary text-sm" x-text="grp"></h2>
+                <span class="adm-pill" x-text="filtered().filter(e => e.group === grp).length + ' endpoint'"></span>
+                <div class="flex-1 h-px bg-neutral-200"></div>
+              </div>
+
+              <!-- Endpoints in group -->
+              <div class="flex flex-col gap-2">
+                <template x-for="(ep, idx) in filtered().filter(e => e.group === grp)" :key="ep.path + ep.method">
+                  <div class="adm-card p-0 overflow-hidden">
+                    <!-- Card header (clickable) -->
+                    <button
+                      class="w-full flex items-start gap-3 px-4 py-3 text-right hover:bg-neutral-50 transition"
+                      @click="openCards[ep.path + ep.method] = !openCards[ep.path + ep.method]">
+                      <!-- Method badge -->
+                      <span
+                        class="rounded font-bold text-xs px-2 py-0.5 font-latin shrink-0 mt-0.5"
+                        :class="methodClass(ep.method)"
+                        x-text="ep.method">
+                      </span>
+                      <!-- Path + name -->
+                      <div class="flex-1 min-w-0">
+                        <div
+                          class="font-latin text-sm text-neutral-700 text-left truncate"
+                          dir="ltr"
+                          x-text="ep.path">
+                        </div>
+                        <div class="text-xs font-medium text-primary mt-0.5" x-text="ep.name"></div>
+                      </div>
+                      <!-- Expand chevron -->
+                      <svg
+                        width="14" height="14" viewBox="0 0 20 20" fill="none"
+                        stroke="currentColor" stroke-width="1.8"
+                        class="shrink-0 mt-1 transition-transform duration-200 opacity-40"
+                        :class="openCards[ep.path + ep.method] ? 'rotate-180' : ''">
+                        <path d="M5 8l5 5 5-5"/>
+                      </svg>
+                    </button>
+                    <!-- Description (collapsible) -->
+                    <div x-show="openCards[ep.path + ep.method]" x-collapse>
+                      <div class="px-4 pb-4 pt-1 border-t border-neutral-100">
+                        <p class="text-sm text-neutral-600 leading-relaxed" x-text="ep.desc"></p>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
         </div>
-        <div class="adm-modal-body">
-          <p class="text-sm text-neutral-600">هل أنت متأكد من إغلاق هذه التذكرة؟ لن تتمكن من إرسال ردود جديدة بعد الإغلاق.</p>
-        </div>
-        <div class="adm-modal-foot">
-          <button @click="confirmClose()" class="adm-btn adm-btn-danger-solid">تأكيد الإغلاق</button>
-          <button @click="closeConfirm=false" class="adm-btn adm-btn-ghost">إلغاء</button>
-        </div>
-      </div>
+      </template>
     </div>
   </template>
 
 </div>
-
-<script>
-function support(){
-  const D = (days) => new Date(Date.now() - days * 864e5).toISOString();
-
-  // Mock messages for ticket #1024
-  const t1024msgs = [
-    {
-      id:'m1', authorType:'tenant', authorId:'usr1',
-      body:'مرحباً، واجهنا مشكلة في عملية الدفع؛ تم خصم المبلغ من البطاقة ولكن لم يتم تجديد الاشتراك. الرجاء المساعدة.',
-      createdAt: D(5),
-      attachments:[ { uploadId:'upl-001', name:'لقطة-شاشة-بنك.png' } ]
-    },
-    {
-      id:'m2', authorType:'admin', authorId:'adm1',
-      body:'مرحباً، شكراً للتواصل. تلقّينا الطلب وبدأنا بالتحقيق في المعاملة. هل يمكنك مشاركتنا آخر 4 أرقام من البطاقة المستخدمة؟',
-      createdAt: D(4.8),
-      attachments:[]
-    },
-    {
-      id:'m3', authorType:'tenant', authorId:'usr1',
-      body:'أرقام البطاقة تنتهي بـ 7821. وهذا رقم المعاملة: TXN-20260619-88421.',
-      createdAt: D(4.5),
-      attachments:[]
-    },
-    {
-      id:'m4', authorType:'admin', authorId:'adm1',
-      body:'تم التحقق من المعاملة وتأكيد الخصم. جاري رفع الأمر لفريق المالية لتفعيل الاشتراك يدوياً. سنعاود التواصل خلال ساعتين.',
-      createdAt: D(4),
-      attachments:[]
-    },
-    {
-      id:'m5', authorType:'admin', authorId:'adm1',
-      body:'تم تفعيل اشتراكك بنجاح. نعتذر عن الإزعاج وسنحرص على عدم تكرار هذا الأمر. تذكّر بإمكانك تحميل الفاتورة من لوحة الإعدادات.',
-      createdAt: D(3.9),
-      attachments:[ { uploadId:'upl-002', name:'فاتورة-يونيو-2026.pdf' } ]
-    },
-  ];
-
-  return {
-    search: '', fStatus: '', page: 1, limit: 8,
-    selected: null,
-    replyBody: '',
-    replyAttachments: [],
-    newForm: null,
-    closeConfirm: false,
-
-    // ── Tickets (GET /api/v1/support/tickets?status&page&limit) ──
-    list: [
-      {
-        id:'tk1', number:'1024', subject:'مشكلة في تجديد الاشتراك — خصم بدون تفعيل',
-        category:'billing', priority:'high', status:'resolved',
-        createdAt: D(5), lastReplyAt: D(3.9),
-        messages: t1024msgs,
-      },
-      {
-        id:'tk2', number:'1031', subject:'خطأ عند رفع مستندات الصفقة (500)',
-        category:'technical', priority:'urgent', status:'open',
-        createdAt: D(2), lastReplyAt: D(2),
-        messages:[
-          { id:'m6', authorType:'tenant', authorId:'usr1', body:'عند محاولة رفع عقد الصفقة رقم D-0082 يظهر خطأ 500. حجم الملف 4.2 MB (PDF). جرّبت ثلاث مرات ونفس المشكلة.', createdAt: D(2), attachments:[] },
-        ],
-      },
-      {
-        id:'tk3', number:'1028', subject:'استفسار عن إضافة فرع جديد في خطة الاشتراك',
-        category:'account', priority:'normal', status:'answered',
-        createdAt: D(3), lastReplyAt: D(1.5),
-        messages:[
-          { id:'m7', authorType:'tenant', authorId:'usr1', body:'هل خطتنا الحالية تتيح إضافة فرع ثالث؟ وما هي التكلفة الإضافية؟', createdAt: D(3), attachments:[] },
-          { id:'m8', authorType:'admin', authorId:'adm1', body:'خطتك الحالية (Pro) تدعم حتى فرعين. لإضافة فرع ثالث يمكنك الترقية لخطة Business بـ 299 ريال شهرياً إضافية. هل تودّ الترقية؟', createdAt: D(1.5), attachments:[] },
-        ],
-      },
-      {
-        id:'tk4', number:'1019', subject:'طلب تصدير بيانات العملاء المحتملين كاملاً',
-        category:'technical', priority:'normal', status:'closed',
-        createdAt: D(10), lastReplyAt: D(7),
-        messages:[
-          { id:'m9',  authorType:'tenant', authorId:'usr1', body:'نحتاج تصدير كل بيانات الـ leads بصيغة Excel مع الأنشطة.', createdAt: D(10), attachments:[] },
-          { id:'m10', authorType:'admin',  authorId:'adm1', body:'يمكنك تصدير الـ leads من صفحة "العملاء المحتملون" ← زر "تصدير". للأنشطة المرفقة تواصل معنا مباشرة.', createdAt: D(9), attachments:[] },
-          { id:'m11', authorType:'tenant', authorId:'usr1', body:'شكراً، تم الحل.', createdAt: D(7), attachments:[] },
-        ],
-      },
-      {
-        id:'tk5', number:'1035', subject:'بطء شديد في تحميل صفحة العقارات',
-        category:'technical', priority:'high', status:'pending',
-        createdAt: D(1), lastReplyAt: D(0.5),
-        messages:[
-          { id:'m12', authorType:'tenant', authorId:'usr1', body:'صفحة العقارات تستغرق أكثر من 12 ثانية للتحميل عند وجود أكثر من 200 عقار. هل هذا طبيعي؟', createdAt: D(1), attachments:[] },
-          { id:'m13', authorType:'admin',  authorId:'adm1', body:'تم رصد المشكلة. هل يمكنك إخبارنا بنوع الجهاز والمتصفح المستخدم؟ وما سرعة الإنترنت تقريباً؟', createdAt: D(0.5), attachments:[] },
-        ],
-      },
-      {
-        id:'tk6', number:'1038', subject:'تغيير البريد الإلكتروني للحساب الرئيسي',
-        category:'account', priority:'normal', status:'open',
-        createdAt: D(0.3), lastReplyAt: D(0.3),
-        messages:[
-          { id:'m14', authorType:'tenant', authorId:'usr1', body:'أريد تغيير البريد الإلكتروني المرتبط بالحساب الرئيسي من القديم إلى البريد الجديد. كيف أفعل ذلك؟', createdAt: D(0.3), attachments:[] },
-        ],
-      },
-      {
-        id:'tk7', number:'1040', subject:'استفسار عن دعم الدفع بالتحويل البنكي',
-        category:'billing', priority:'low', status:'open',
-        createdAt: D(0.1), lastReplyAt: D(0.1),
-        messages:[
-          { id:'m15', authorType:'tenant', authorId:'usr1', body:'هل منصتكم تدعم الدفع بالتحويل البنكي المباشر بدلاً من بطاقة الائتمان؟', createdAt: D(0.1), attachments:[] },
-        ],
-      },
-    ],
-
-    // ── Helpers ──
-    get filtered(){
-      const q = this.search.trim().toLowerCase();
-      return this.list.filter(t =>
-        (!this.fStatus || t.status === this.fStatus) &&
-        (!q || t.subject.toLowerCase().includes(q) || t.number.includes(q))
-      );
-    },
-    get totalPages(){ return Math.max(1, Math.ceil(this.filtered.length / this.limit)); },
-    get pageRows(){ return this.filtered.slice((this.page-1)*this.limit, this.page*this.limit); },
-
-    select(t){ this.selected = t; this.replyBody = ''; this.replyAttachments = []; },
-
-    statusLabel(s){
-      return { open:'مفتوحة', answered:'بانتظار الدعم', pending:'بانتظار العميل', resolved:'محلولة', closed:'مغلقة' }[s] || s;
-    },
-    statusCls(s){
-      return { open:'b-info', answered:'b-warning', pending:'b-neutral', resolved:'b-success', closed:'b-neutral' }[s] || 'b-neutral';
-    },
-    priorityLabel(p){
-      return { urgent:'عاجلة', high:'عالية', normal:'عادية', low:'منخفضة' }[p] || p;
-    },
-    priorityCls(p){
-      return { urgent:'b-danger', high:'b-warning', normal:'b-neutral', low:'b-neutral' }[p] || 'b-neutral';
-    },
-    categoryLabel(c){
-      return { billing:'الفواتير', technical:'تقني', account:'الحساب', other:'أخرى' }[c] || c;
-    },
-
-    // ── Reply: POST /api/v1/support/tickets/:id/messages → {body, attachmentUploadIds?}
-    // Side-effect: status=answered, last_reply_by=tenant
-    sendReply(){
-      if(!this.replyBody.trim() || !this.selected) return;
-      const msg = {
-        id: 'm'+Date.now(),
-        authorType: 'tenant',
-        authorId: 'usr1',
-        body: this.replyBody.trim(),
-        createdAt: new Date().toISOString(),
-        attachments: [...this.replyAttachments],
-      };
-      this.selected.messages.push(msg);
-      this.selected.lastReplyAt = msg.createdAt;
-      this.selected.status = 'answered';
-      this.replyBody = '';
-      this.replyAttachments = [];
-    },
-
-    attachFiles(e){
-      const files = Array.from(e.target.files||[]);
-      files.forEach(f => {
-        this.replyAttachments.push({ uploadId:'upl-'+Date.now()+'-'+Math.random().toString(36).slice(2,6), name:f.name });
-      });
-      e.target.value = '';
-    },
-    removeAtt(id){ this.replyAttachments = this.replyAttachments.filter(a=>a.uploadId!==id); },
-
-    // ── Close: POST /api/v1/support/tickets/:id/close
-    closeTicket(){ this.closeConfirm = true; },
-    confirmClose(){
-      if(this.selected){
-        this.selected.status = 'closed';
-        this.selected.lastReplyAt = new Date().toISOString();
-      }
-      this.closeConfirm = false;
-    },
-
-    // ── New ticket: POST /api/v1/support/tickets → {subject, category, priority, body, attachmentUploadIds?}
-    openNew(){
-      this.newForm = { subject:'', category:'technical', priority:'normal', body:'', attachments:[] };
-    },
-    attachNew(e){
-      const files = Array.from(e.target.files||[]);
-      files.forEach(f => {
-        this.newForm.attachments.push({ uploadId:'upl-'+Date.now()+'-'+Math.random().toString(36).slice(2,6), name:f.name });
-      });
-      e.target.value = '';
-    },
-    submitNew(){
-      if(!this.newForm.subject.trim() || !this.newForm.body.trim()) return;
-      const ticket = {
-        id: 'tk'+Date.now(),
-        number: String(1041 + this.list.length),
-        subject: this.newForm.subject.trim(),
-        category: this.newForm.category,
-        priority: this.newForm.priority,
-        status: 'open',
-        createdAt: new Date().toISOString(),
-        lastReplyAt: new Date().toISOString(),
-        messages:[{
-          id: 'm'+Date.now(),
-          authorType:'tenant',
-          authorId:'usr1',
-          body: this.newForm.body.trim(),
-          createdAt: new Date().toISOString(),
-          attachments: [...this.newForm.attachments],
-        }],
-      };
-      this.list.unshift(ticket);
-      this.selected = ticket;
-      this.newForm = null;
-      this.replyBody = '';
-      this.replyAttachments = [];
-    },
-  };
-}
-</script>
 
     </main>
   </div>
@@ -1145,7 +979,7 @@ function support(){
     };
   }
   // ===== Deterministic active-nav (set per build) =====
-  window.NAV_ACTIVE = 'support';
+  window.NAV_ACTIVE = 'api-reference';
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.crm-nav-item').forEach(a => {
       if (a.dataset.nav === window.NAV_ACTIVE) a.classList.add('on');
