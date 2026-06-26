@@ -1424,14 +1424,14 @@ function reports(){
   };
 
   const dealsData = {
-    pipelineValue: '₪ ٤٫٢م',
+    pipelineValue: 'ر.س ٤٫٢م',
     closeRate: 34,
     avgDaysToClose: 22,
     byStage: [
-      { stage:'تفاوض',        count:8,  pct:100, value:'₪ ١٫٨م', color:'#C8A24B' },
-      { stage:'عقد أولي',     count:5,  pct:63,  value:'₪ ١٫١م', color:'#4A75B4' },
-      { stage:'فحص العقار',   count:4,  pct:50,  value:'₪ ٧٥٠ك', color:'#2458A5' },
-      { stage:'التوقيع النهائي',count:3,pct:38,  value:'₪ ٥٦٠ك', color:'#1A8C4E' },
+      { stage:'تفاوض',        count:8,  pct:100, value:'ر.س ١٫٨م', color:'#C8A24B' },
+      { stage:'عقد أولي',     count:5,  pct:63,  value:'ر.س ١٫١م', color:'#4A75B4' },
+      { stage:'فحص العقار',   count:4,  pct:50,  value:'ر.س ٧٥٠ك', color:'#2458A5' },
+      { stage:'التوقيع النهائي',count:3,pct:38,  value:'ر.س ٥٦٠ك', color:'#1A8C4E' },
     ],
     byType: [
       { type:'sale',  label:'بيع',   count:21, pct:72, color:'#1A4590' },
@@ -1476,20 +1476,20 @@ function reports(){
 
   const commissionsData = {
     rows: [
-      { id:'1', dealTitle:'فيلا الياسمين — بيع',      dealValue:'₪ ٢٬٤٠٠٬٠٠٠', agentCommission:'₪ ٣٦٬٠٠٠', agentPct:1.5, officeCommission:'₪ ٢٤٬٠٠٠', officePct:1,  total:'₪ ٦٠٬٠٠٠', agent:'سارة القحطاني',  date:'٢٠٢٦-٠٦-١٥', status:'paid',    statusLabel:'مدفوع' },
-      { id:'2', dealTitle:'برج المروج — شقة ٢٠٤',     dealValue:'₪ ٨٥٠٬٠٠٠',   agentCommission:'₪ ١٢٬٧٥٠', agentPct:1.5, officeCommission:'₪ ٨٬٥٠٠',   officePct:1,  total:'₪ ٢١٬٢٥٠', agent:'خالد العمري',    date:'٢٠٢٦-٠٦-١٢', status:'paid',    statusLabel:'مدفوع' },
-      { id:'3', dealTitle:'مكتب العليا التجاري',        dealValue:'₪ ١٬١٠٠٬٠٠٠', agentCommission:'₪ ١٦٬٥٠٠', agentPct:1.5, officeCommission:'₪ ١١٬٠٠٠', officePct:1,  total:'₪ ٢٧٬٥٠٠', agent:'نورة الدوسري',   date:'٢٠٢٦-٠٦-٠٩', status:'partial', statusLabel:'جزئي' },
-      { id:'4', dealTitle:'أرض حي العليا — بيع',       dealValue:'₪ ٣٬٢٠٠٬٠٠٠', agentCommission:'₪ ٤٨٬٠٠٠', agentPct:1.5, officeCommission:'₪ ٣٢٬٠٠٠', officePct:1,  total:'₪ ٨٠٬٠٠٠', agent:'فهد الشمري',     date:'٢٠٢٦-٠٦-٠٣', status:'paid',    statusLabel:'مدفوع' },
-      { id:'5', dealTitle:'شقة الملقا — إيجار سنوي',   dealValue:'₪ ١٢٠٬٠٠٠',   agentCommission:'₪ ٣٬٠٠٠',  agentPct:2.5, officeCommission:'₪ ٢٬٤٠٠',  officePct:2,  total:'₪ ٥٬٤٠٠',  agent:'ريم العتيبي',    date:'٢٠٢٦-٠٦-٠١', status:'pending', statusLabel:'انتظار' },
+      { id:'1', dealTitle:'فيلا الياسمين — بيع',      dealValue:'ر.س ٢٬٤٠٠٬٠٠٠', agentCommission:'ر.س ٣٦٬٠٠٠', agentPct:1.5, officeCommission:'ر.س ٢٤٬٠٠٠', officePct:1,  total:'ر.س ٦٠٬٠٠٠', agent:'سارة القحطاني',  date:'٢٠٢٦-٠٦-١٥', status:'paid',    statusLabel:'مدفوع' },
+      { id:'2', dealTitle:'برج المروج — شقة ٢٠٤',     dealValue:'ر.س ٨٥٠٬٠٠٠',   agentCommission:'ر.س ١٢٬٧٥٠', agentPct:1.5, officeCommission:'ر.س ٨٬٥٠٠',   officePct:1,  total:'ر.س ٢١٬٢٥٠', agent:'خالد العمري',    date:'٢٠٢٦-٠٦-١٢', status:'paid',    statusLabel:'مدفوع' },
+      { id:'3', dealTitle:'مكتب العليا التجاري',        dealValue:'ر.س ١٬١٠٠٬٠٠٠', agentCommission:'ر.س ١٦٬٥٠٠', agentPct:1.5, officeCommission:'ر.س ١١٬٠٠٠', officePct:1,  total:'ر.س ٢٧٬٥٠٠', agent:'نورة الدوسري',   date:'٢٠٢٦-٠٦-٠٩', status:'partial', statusLabel:'جزئي' },
+      { id:'4', dealTitle:'أرض حي العليا — بيع',       dealValue:'ر.س ٣٬٢٠٠٬٠٠٠', agentCommission:'ر.س ٤٨٬٠٠٠', agentPct:1.5, officeCommission:'ر.س ٣٢٬٠٠٠', officePct:1,  total:'ر.س ٨٠٬٠٠٠', agent:'فهد الشمري',     date:'٢٠٢٦-٠٦-٠٣', status:'paid',    statusLabel:'مدفوع' },
+      { id:'5', dealTitle:'شقة الملقا — إيجار سنوي',   dealValue:'ر.س ١٢٠٬٠٠٠',   agentCommission:'ر.س ٣٬٠٠٠',  agentPct:2.5, officeCommission:'ر.س ٢٬٤٠٠',  officePct:2,  total:'ر.س ٥٬٤٠٠',  agent:'ريم العتيبي',    date:'٢٠٢٦-٠٦-٠١', status:'pending', statusLabel:'انتظار' },
     ],
-    totalDealValue:       '₪ ٧٬٦٧٠٬٠٠٠',
-    totalAgent:           '₪ ١١٦٬٢٥٠',
-    totalOffice:          '₪ ٧٧٬٩٠٠',
-    totalAll:             '₪ ١٩٤٬١٥٠',
+    totalDealValue:       'ر.س ٧٬٦٧٠٬٠٠٠',
+    totalAgent:           'ر.س ١١٦٬٢٥٠',
+    totalOffice:          'ر.س ٧٧٬٩٠٠',
+    totalAll:             'ر.س ١٩٤٬١٥٠',
     byPayStatus: [
-      { status:'paid',    label:'مدفوع',      amount:'₪ ١٦٢٬٧٥٠', pct:84, color:'#1A8C4E' },
-      { status:'partial', label:'دفع جزئي',   amount:'₪ ٢٧٬٥٠٠',  pct:14, color:'#D4860A' },
-      { status:'pending', label:'في الانتظار', amount:'₪ ٥٬٤٠٠',   pct:3,  color:'#9BA6BB' },
+      { status:'paid',    label:'مدفوع',      amount:'ر.س ١٦٢٬٧٥٠', pct:84, color:'#1A8C4E' },
+      { status:'partial', label:'دفع جزئي',   amount:'ر.س ٢٧٬٥٠٠',  pct:14, color:'#D4860A' },
+      { status:'pending', label:'في الانتظار', amount:'ر.س ٥٬٤٠٠',   pct:3,  color:'#9BA6BB' },
     ],
     trend: [
       {label:'يناير', amount:120},
@@ -1503,17 +1503,17 @@ function reports(){
 
   const performanceData = {
     leaderboard: [
-      { id:'1', name:'سارة القحطاني',  initials:'سق', dealsClosed:'١٢',commission:'₪ ٦٠٬٠٠٠', closeRate:38 },
-      { id:'2', name:'خالد العمري',    initials:'خع', dealsClosed:'٩', commission:'₪ ٤٤٬٢٥٠', closeRate:32 },
-      { id:'3', name:'نورة الدوسري',   initials:'ند', dealsClosed:'٧', commission:'₪ ٣١٬٠٠٠', closeRate:28 },
-      { id:'4', name:'فهد الشمري',     initials:'فش', dealsClosed:'٥', commission:'₪ ٢٢٬٥٠٠', closeRate:22 },
+      { id:'1', name:'سارة القحطاني',  initials:'سق', dealsClosed:'١٢',commission:'ر.س ٦٠٬٠٠٠', closeRate:38 },
+      { id:'2', name:'خالد العمري',    initials:'خع', dealsClosed:'٩', commission:'ر.س ٤٤٬٢٥٠', closeRate:32 },
+      { id:'3', name:'نورة الدوسري',   initials:'ند', dealsClosed:'٧', commission:'ر.س ٣١٬٠٠٠', closeRate:28 },
+      { id:'4', name:'فهد الشمري',     initials:'فش', dealsClosed:'٥', commission:'ر.س ٢٢٬٥٠٠', closeRate:22 },
     ],
     agents: [
-      { id:'1', name:'سارة القحطاني',  initials:'سق', branch:'الرياض — فرع النخيل',  leads:32, deals:12, closeRate:38, commission:'₪ ٦٠٬٠٠٠', stars:5 },
-      { id:'2', name:'خالد العمري',    initials:'خع', branch:'الرياض — فرع النخيل',  leads:28, deals:9,  closeRate:32, commission:'₪ ٤٤٬٢٥٠', stars:4 },
-      { id:'3', name:'نورة الدوسري',   initials:'ند', branch:'جدة — فرع الروضة',      leads:25, deals:7,  closeRate:28, commission:'₪ ٣١٬٠٠٠', stars:4 },
-      { id:'4', name:'فهد الشمري',     initials:'فش', branch:'الدمام — فرع الشاطئ',  leads:23, deals:5,  closeRate:22, commission:'₪ ٢٢٬٥٠٠', stars:3 },
-      { id:'5', name:'ريم العتيبي',    initials:'رع', branch:'جدة — فرع الروضة',      leads:18, deals:3,  closeRate:17, commission:'₪ ١٢٬٠٠٠', stars:2 },
+      { id:'1', name:'سارة القحطاني',  initials:'سق', branch:'الرياض — فرع النخيل',  leads:32, deals:12, closeRate:38, commission:'ر.س ٦٠٬٠٠٠', stars:5 },
+      { id:'2', name:'خالد العمري',    initials:'خع', branch:'الرياض — فرع النخيل',  leads:28, deals:9,  closeRate:32, commission:'ر.س ٤٤٬٢٥٠', stars:4 },
+      { id:'3', name:'نورة الدوسري',   initials:'ند', branch:'جدة — فرع الروضة',      leads:25, deals:7,  closeRate:28, commission:'ر.س ٣١٬٠٠٠', stars:4 },
+      { id:'4', name:'فهد الشمري',     initials:'فش', branch:'الدمام — فرع الشاطئ',  leads:23, deals:5,  closeRate:22, commission:'ر.س ٢٢٬٥٠٠', stars:3 },
+      { id:'5', name:'ريم العتيبي',    initials:'رع', branch:'جدة — فرع الروضة',      leads:18, deals:3,  closeRate:17, commission:'ر.س ١٢٬٠٠٠', stars:2 },
     ],
   };
 
@@ -1588,8 +1588,8 @@ function reports(){
     ]; },
     get dealsKpis(){ return [
       { label:'صفقات نشطة',          val:'٢٩',              icon:ico.deal,  trend:'+٥',    trendType:'up' },
-      { label:'إجمالي الإيرادات',    val:'₪ ٧٫٦٧م',         icon:ico.money, trend:'+٢٢٪', trendType:'up' },
-      { label:'متوسط قيمة الصفقة',   val:'₪ ٢٦٤٬٤٨٣',      icon:ico.money, trend:'+٧٪',  trendType:'up' },
+      { label:'إجمالي الإيرادات',    val:'ر.س ٧٫٦٧م',         icon:ico.money, trend:'+٢٢٪', trendType:'up' },
+      { label:'متوسط قيمة الصفقة',   val:'ر.س ٢٦٤٬٤٨٣',      icon:ico.money, trend:'+٧٪',  trendType:'up' },
       { label:'صفقات مُغلقة',         val:'٢٩',              icon:ico.check, trend:'+٦',   trendType:'up' },
     ]; },
     get activitiesKpis(){ return [
@@ -1599,16 +1599,16 @@ function reports(){
       { label:'معاينات منجزة',       val:'٥٤',    icon:ico.conv,  trend:'+٨',   trendType:'up' },
     ]; },
     get commissionsKpis(){ return [
-      { label:'إجمالي العمولات',     val:'₪ ١٩٤٬١٥٠', icon:ico.money,  trend:'+٢٦٪', trendType:'up' },
-      { label:'عمولات الوكلاء',      val:'₪ ١١٦٬٢٥٠', icon:ico.agent,  trend:'+٢٤٪', trendType:'up' },
-      { label:'عمولات المكتب',       val:'₪ ٧٧٬٩٠٠',  icon:ico.office, trend:'+٢٩٪', trendType:'up' },
+      { label:'إجمالي العمولات',     val:'ر.س ١٩٤٬١٥٠', icon:ico.money,  trend:'+٢٦٪', trendType:'up' },
+      { label:'عمولات الوكلاء',      val:'ر.س ١١٦٬٢٥٠', icon:ico.agent,  trend:'+٢٤٪', trendType:'up' },
+      { label:'عمولات المكتب',       val:'ر.س ٧٧٬٩٠٠',  icon:ico.office, trend:'+٢٩٪', trendType:'up' },
       { label:'مدفوع / إجمالي',     val:'٨٤٪',         icon:ico.check,  trend:'+٣٪',  trendType:'up' },
     ]; },
     get performanceKpis(){ return [
       { label:'أفضل وكيل',         val:'سارة القحطاني', icon:ico.agent,  trend:'٣٨٪ إغلاق', trendType:'up' },
       { label:'متوسط الإغلاق — الفريق', val:'٢٧٪',     icon:ico.conv,   trend:'+٤٪',        trendType:'up' },
       { label:'إجمالي الصفقات',    val:'٢٩',            icon:ico.deal,   trend:'+٦',         trendType:'up' },
-      { label:'إجمالي العمولات',   val:'₪ ١٩٤٬١٥٠',    icon:ico.money,  trend:'+٢٦٪',       trendType:'up' },
+      { label:'إجمالي العمولات',   val:'ر.س ١٩٤٬١٥٠',    icon:ico.money,  trend:'+٢٦٪',       trendType:'up' },
     ]; },
 
     // ── Methods ──────────────────────────────────────────────────────────
