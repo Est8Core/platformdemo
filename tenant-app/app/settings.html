@@ -8,13 +8,33 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FOUC Guard: apply dark class before first paint -->
   <script>
-    tailwind.config = { theme: { extend: {
+    (function(){
+      var t = localStorage.getItem('theme') || 'light';
+      if (t === 'dark') document.documentElement.classList.add('dark');
+    })();
+  </script>
+  <script>
+    tailwind.config = { darkMode: 'class', theme: { extend: {
       colors: {
         primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
         accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
         neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
-        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0', surface:{ bg:'#F4F6FA', card:'#FFFFFF' },
+        surface:    'rgb(var(--c-bg) / <alpha-value>)',
+        card:       'rgb(var(--c-card) / <alpha-value>)',
+        elev:       'rgb(var(--c-elev) / <alpha-value>)',
+        ink:        'rgb(var(--c-ink) / <alpha-value>)',
+        muted:      'rgb(var(--c-muted) / <alpha-value>)',
+        faint:      'rgb(var(--c-faint) / <alpha-value>)',
+        line:       'rgb(var(--c-line) / <alpha-value>)',
+        lineStrong: 'rgb(var(--c-line-strong) / <alpha-value>)',
+        accentSoft: 'rgb(var(--c-accent-soft) / <alpha-value>)',
+        brand:      'rgb(var(--c-brand) / <alpha-value>)',
+        success:    'rgb(var(--c-success) / <alpha-value>)',
+        warning:    'rgb(var(--c-warning) / <alpha-value>)',
+        danger:     'rgb(var(--c-danger) / <alpha-value>)',
+        info:       'rgb(var(--c-info) / <alpha-value>)',
       },
       fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
       boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
@@ -26,7 +46,39 @@
   <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style type="text/tailwindcss">
-    body { @apply font-body bg-surface-bg; }
+    :root{
+      --c-bg:244 246 250;
+      --c-card:255 255 255;
+      --c-elev:251 252 254;
+      --c-ink:30 42 69;
+      --c-muted:110 127 156;
+      --c-faint:155 166 187;
+      --c-line:238 240 245;
+      --c-line-strong:221 225 234;
+      --c-accent-soft:234 240 248;
+      --c-brand:11 31 58;
+      --c-success:26 140 78;
+      --c-warning:212 134 10;
+      --c-danger:192 57 43;
+      --c-info:21 101 192;
+    }
+    .dark{
+      --c-bg:8 16 30;
+      --c-card:18 28 48;
+      --c-elev:24 36 60;
+      --c-ink:233 238 246;
+      --c-muted:158 172 196;
+      --c-faint:132 146 170;
+      --c-line:34 47 74;
+      --c-line-strong:45 60 92;
+      --c-accent-soft:30 41 63;
+      --c-brand:46 96 168;
+      --c-success:46 168 95;
+      --c-warning:230 158 50;
+      --c-danger:224 96 84;
+      --c-info:74 144 226;
+    }
+    body { @apply font-body bg-surface text-ink; }
     [x-cloak] { @apply !hidden; }
     ::-webkit-scrollbar { @apply w-[9px] h-[9px]; }
     ::-webkit-scrollbar-thumb { @apply bg-neutral-300 rounded-[8px]; }
@@ -43,7 +95,7 @@
     }
     .crm-backdrop { @apply fixed inset-0 bg-[rgba(6,15,30,.5)] z-[35]; }
 
-    /* ===== Sidebar nav (navy) ===== */
+    /* ===== Sidebar nav (navy — unchanged in both themes) ===== */
     .crm-brand { @apply flex items-center gap-[.65rem] py-[1.1rem] px-[1.2rem] border-b border-[rgba(200,162,75,.15)]; }
     .crm-nav { @apply flex-1 overflow-y-auto pt-[.85rem] px-[.7rem] pb-[1.5rem]; }
     .crm-nav-label { @apply text-[.68rem] font-bold tracking-[.04em] text-neutral-600 pt-[.9rem] px-[.75rem] pb-[.35rem] uppercase; }
@@ -57,107 +109,107 @@
     .crm-nav-item .soon { @apply ms-auto text-[.6rem] bg-[rgba(200,162,75,.18)] text-accent-300 py-[.05rem] px-[.4rem] rounded-[5px] font-bold; }
 
     /* ===== Topbar ===== */
-    .crm-topbar { @apply h-[62px] bg-white border-b border-neutral-100 flex items-center gap-[.9rem] px-[1.4rem] sticky top-0 z-30; }
-    .crm-ctx { @apply inline-flex items-center gap-[.4rem] text-[.74rem] font-semibold text-neutral-600 bg-surface-bg border border-neutral-100 py-[.3rem] px-[.7rem] rounded-full; }
-    .adm-icon-btn { @apply relative w-[38px] h-[38px] inline-flex items-center justify-center rounded-[.6rem] text-neutral-600 transition-all duration-150; }
-    .adm-icon-btn:hover { @apply bg-surface-bg text-primary-700; }
-    .adm-dot { @apply absolute top-[7px] end-[8px] w-[8px] h-[8px] bg-danger border-2 border-white rounded-full; }
+    .crm-topbar { @apply h-[62px] bg-card border-b border-line flex items-center gap-[.9rem] px-[1.4rem] sticky top-0 z-30; }
+    .crm-ctx { @apply inline-flex items-center gap-[.4rem] text-[.74rem] font-semibold text-muted bg-surface border border-line py-[.3rem] px-[.7rem] rounded-full; }
+    .adm-icon-btn { @apply relative w-[38px] h-[38px] inline-flex items-center justify-center rounded-[.6rem] text-muted transition-all duration-150; }
+    .adm-icon-btn:hover { @apply bg-surface text-ink; }
+    .adm-dot { @apply absolute top-[7px] end-[8px] w-[8px] h-[8px] bg-danger border-2 border-card rounded-full; }
 
     /* ===== Content ===== */
     .crm-content { @apply pt-[1.5rem] px-[1.7rem] pb-[3rem] max-w-[1440px] w-full mx-auto; }
     .adm-page-head { @apply flex items-start justify-between gap-4 flex-wrap mb-[1.4rem]; }
-    .adm-page-title { @apply font-display text-[1.55rem] font-bold text-primary-800 leading-[1.2]; }
-    .adm-page-sub { @apply text-[.85rem] text-neutral-500 mt-[.2rem]; }
-    .adm-breadcrumb { @apply flex items-center gap-[.4rem] text-[.78rem] text-neutral-400 mb-[.6rem]; }
-    .adm-breadcrumb a:hover { @apply text-primary-700; }
+    .adm-page-title { @apply font-display text-[1.55rem] font-bold text-ink leading-[1.2]; }
+    .adm-page-sub { @apply text-[.85rem] text-muted mt-[.2rem]; }
+    .adm-breadcrumb { @apply flex items-center gap-[.4rem] text-[.78rem] text-faint mb-[.6rem]; }
+    .adm-breadcrumb a:hover { @apply text-ink; }
 
     /* ===== Shared components (design-system · identical to platform) ===== */
-    .adm-card { @apply bg-white border border-neutral-100 rounded-[.9rem] shadow-[0_2px_6px_rgba(11,31,58,.05)]; }
-    .adm-card-head { @apply flex items-center justify-between gap-[.75rem] py-[1.05rem] px-[1.25rem] border-b border-[#F1F3F5]; }
-    .adm-card-title { @apply text-[.95rem] font-bold text-neutral-800; }
-    .adm-kpi { @apply bg-white border border-neutral-100 rounded-[.9rem] py-[1.15rem] px-[1.25rem] shadow-[0_2px_6px_rgba(11,31,58,.05)] relative overflow-hidden; }
+    .adm-card { @apply bg-card border border-line rounded-[.9rem] shadow-[0_2px_6px_rgba(11,31,58,.05)]; }
+    .adm-card-head { @apply flex items-center justify-between gap-[.75rem] py-[1.05rem] px-[1.25rem] border-b border-line; }
+    .adm-card-title { @apply text-[.95rem] font-bold text-ink; }
+    .adm-kpi { @apply bg-card border border-line rounded-[.9rem] py-[1.15rem] px-[1.25rem] shadow-[0_2px_6px_rgba(11,31,58,.05)] relative overflow-hidden; }
     .adm-kpi::after { @apply content-[''] absolute top-0 start-0 w-full h-[3px] bg-[linear-gradient(90deg,#C8A24B,transparent)] opacity-0 transition-opacity duration-200; }
     .adm-kpi:hover::after { @apply opacity-100; }
-    .adm-kpi-label { @apply text-[.78rem] text-neutral-500 font-medium flex items-center gap-[.45rem]; }
-    .adm-kpi-ico { @apply w-[34px] h-[34px] rounded-[.6rem] inline-flex items-center justify-center bg-primary-50 text-primary-700; }
-    .adm-kpi-val { @apply font-latin text-[1.8rem] font-bold text-primary-800 mt-[.55rem] tracking-[-0.02em]; }
+    .adm-kpi-label { @apply text-[.78rem] text-muted font-medium flex items-center gap-[.45rem]; }
+    .adm-kpi-ico { @apply w-[34px] h-[34px] rounded-[.6rem] inline-flex items-center justify-center bg-accentSoft text-ink; }
+    .adm-kpi-val { @apply font-latin text-[1.8rem] font-bold text-ink mt-[.55rem] tracking-[-0.02em]; }
     .adm-trend { @apply text-[.74rem] font-semibold inline-flex items-center gap-[.2rem] mt-[.3rem]; }
     .adm-trend.up { @apply text-success; }
     .adm-trend.down { @apply text-danger; }
-    .adm-trend.flat { @apply text-neutral-400; }
+    .adm-trend.flat { @apply text-faint; }
     .adm-table { @apply w-full border-collapse text-[.85rem]; }
-    .adm-table thead th { @apply text-start text-[.72rem] font-bold tracking-[.02em] uppercase text-neutral-500 py-[.7rem] px-[1rem] border-b border-neutral-100 whitespace-nowrap bg-[#FBFCFE]; }
-    .adm-table tbody td { @apply py-[.8rem] px-[1rem] border-b border-surface-bg text-neutral-700 align-middle; }
-    .adm-table tbody tr:hover { @apply bg-[#FBFCFE]; }
+    .adm-table thead th { @apply text-start text-[.72rem] font-bold tracking-[.02em] uppercase text-muted py-[.7rem] px-[1rem] border-b border-line whitespace-nowrap bg-elev; }
+    .adm-table tbody td { @apply py-[.8rem] px-[1rem] border-b border-surface text-ink align-middle; }
+    .adm-table tbody tr:hover { @apply bg-elev; }
     .adm-table tbody tr:last-child td { @apply border-b-0; }
     .adm-badge { @apply inline-flex items-center gap-[.35rem] text-[.73rem] font-semibold py-[.22rem] px-[.6rem] rounded-full whitespace-nowrap leading-[1.4]; }
     .adm-badge::before { @apply content-[''] w-[6px] h-[6px] rounded-full bg-current; }
-    .b-success { @apply text-success bg-[rgba(26,140,78,.1)]; }
-    .b-warning { @apply text-[#B5730A] bg-[rgba(212,134,10,.12)]; }
-    .b-danger  { @apply text-danger bg-[rgba(192,57,43,.1)]; }
-    .b-info    { @apply text-info bg-[rgba(21,101,192,.1)]; }
-    .b-neutral { @apply text-neutral-600 bg-neutral-100; }
+    .b-success { @apply text-success bg-success/10; }
+    .b-warning { @apply text-warning bg-warning/10; }
+    .b-danger  { @apply text-danger bg-danger/10; }
+    .b-info    { @apply text-info bg-info/10; }
+    .b-neutral { @apply text-muted bg-elev; }
     .b-accent  { @apply text-accent-700 bg-[rgba(200,162,75,.16)]; }
-    .adm-role { @apply text-[.7rem] font-bold py-[.18rem] px-[.5rem] rounded-[6px] bg-primary-50 text-primary-700; }
+    .adm-role { @apply text-[.7rem] font-bold py-[.18rem] px-[.5rem] rounded-[6px] bg-accentSoft text-ink; }
     .adm-btn { @apply inline-flex items-center justify-center gap-[.45rem] text-[.84rem] font-semibold py-[.55rem] px-[1rem] rounded-[.6rem] transition-all duration-150 cursor-pointer whitespace-nowrap border border-transparent; }
     .adm-btn:disabled { @apply opacity-[.45] cursor-not-allowed; }
     .adm-btn svg { @apply w-[16px] h-[16px]; }
-    .adm-btn-primary { @apply bg-primary-800 text-white; }
-    .adm-btn-primary:hover:not(:disabled) { @apply bg-primary-700; }
+    .adm-btn-primary { @apply bg-brand text-white; }
+    .adm-btn-primary:hover:not(:disabled) { @apply bg-brand brightness-110; }
     .adm-btn-gold { @apply bg-accent-500 text-primary-800; }
     .adm-btn-gold:hover:not(:disabled) { @apply bg-accent-600; }
-    .adm-btn-ghost { @apply bg-white text-neutral-700 border-neutral-200; }
-    .adm-btn-ghost:hover:not(:disabled) { @apply bg-surface-bg border-neutral-300; }
-    .adm-btn-danger { @apply bg-white text-danger border-[rgba(192,57,43,.35)]; }
-    .adm-btn-danger:hover:not(:disabled) { @apply bg-[rgba(192,57,43,.06)]; }
+    .adm-btn-ghost { @apply bg-card text-ink border-lineStrong; }
+    .adm-btn-ghost:hover:not(:disabled) { @apply bg-elev border-lineStrong; }
+    .adm-btn-danger { @apply bg-card text-danger border-danger/35; }
+    .adm-btn-danger:hover:not(:disabled) { @apply bg-danger/5; }
     .adm-btn-danger-solid { @apply bg-danger text-white; }
     .adm-btn-danger-solid:hover:not(:disabled) { @apply bg-[#a5301f]; }
     .adm-btn-sm { @apply py-[.35rem] px-[.7rem] text-[.78rem]; }
-    .ec-input { @apply w-full py-[.55rem] px-[.8rem] border-[1.5px] border-neutral-200 rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 outline-none transition-all duration-150; }
-    .ec-input::placeholder { @apply text-neutral-400; }
-    .ec-input:hover { @apply border-neutral-300; }
+    .ec-input { @apply w-full py-[.55rem] px-[.8rem] border-[1.5px] border-lineStrong rounded-[.55rem] text-[.85rem] bg-card text-ink outline-none transition-all duration-150; }
+    .ec-input::placeholder { @apply text-faint; }
+    .ec-input:hover { @apply border-lineStrong; }
     .ec-input:focus { @apply border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]; }
-    .ec-label { @apply block text-[.8rem] font-semibold text-neutral-700 mb-[.35rem]; }
-    .adm-tabs { @apply flex gap-[.25rem] border-b border-neutral-100; }
-    .adm-tab { @apply py-[.6rem] px-[1rem] text-[.85rem] font-semibold text-neutral-500 border-b-2 border-transparent -mb-px cursor-pointer transition-all duration-150 inline-flex items-center gap-[.4rem]; }
-    .adm-tab:hover { @apply text-primary-700; }
-    .adm-tab.on { @apply text-primary-800 border-b-accent-500; }
-    .adm-tab .cnt { @apply text-[.7rem] bg-neutral-100 text-neutral-600 py-[.05rem] px-[.4rem] rounded-[6px]; }
-    .adm-pill { @apply py-[.4rem] px-[.85rem] text-[.8rem] font-semibold rounded-full border-[1.5px] border-neutral-200 text-neutral-600 bg-white cursor-pointer transition-all duration-150 whitespace-nowrap; }
-    .adm-pill:hover { @apply border-neutral-300; }
+    .ec-label { @apply block text-[.8rem] font-semibold text-ink mb-[.35rem]; }
+    .adm-tabs { @apply flex gap-[.25rem] border-b border-line; }
+    .adm-tab { @apply py-[.6rem] px-[1rem] text-[.85rem] font-semibold text-muted border-b-2 border-transparent -mb-px cursor-pointer transition-all duration-150 inline-flex items-center gap-[.4rem]; }
+    .adm-tab:hover { @apply text-ink; }
+    .adm-tab.on { @apply text-ink border-b-accent-500; }
+    .adm-tab .cnt { @apply text-[.7rem] bg-elev text-muted py-[.05rem] px-[.4rem] rounded-[6px]; }
+    .adm-pill { @apply py-[.4rem] px-[.85rem] text-[.8rem] font-semibold rounded-full border-[1.5px] border-lineStrong text-muted bg-card cursor-pointer transition-all duration-150 whitespace-nowrap; }
+    .adm-pill:hover { @apply border-lineStrong; }
     .adm-pill.on { @apply bg-primary-800 border-primary-800 text-white; }
     .adm-overlay { @apply fixed inset-0 bg-[rgba(6,15,30,.55)] backdrop-blur-sm z-[60] flex items-start justify-center pt-[5vh] px-[1rem] overflow-y-auto; }
-    .adm-modal { @apply bg-white rounded-[1rem] shadow-[0_24px_60px_rgba(6,15,30,.35)] w-full max-w-[560px]; }
-    .adm-modal-head { @apply flex items-center justify-between py-[1.1rem] px-[1.4rem] border-b border-[#F1F3F5]; }
+    .adm-modal { @apply bg-card rounded-[1rem] shadow-[0_24px_60px_rgba(6,15,30,.35)] w-full max-w-[560px]; }
+    .adm-modal-head { @apply flex items-center justify-between py-[1.1rem] px-[1.4rem] border-b border-line; }
     .adm-modal-body { @apply p-[1.4rem]; }
-    .adm-modal-foot { @apply flex gap-[.6rem] justify-start py-[1.1rem] px-[1.4rem] border-t border-[#F1F3F5]; }
+    .adm-modal-foot { @apply flex gap-[.6rem] justify-start py-[1.1rem] px-[1.4rem] border-t border-line; }
     .adm-switch { @apply relative w-[42px] h-[24px] bg-neutral-300 rounded-full cursor-pointer transition-all duration-200 shrink-0; }
     .adm-switch.on { @apply bg-success; }
     .adm-switch::after { @apply content-[''] absolute top-[3px] end-[3px] w-[18px] h-[18px] bg-white rounded-full transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,.2)]; }
     .adm-switch.on::after { @apply end-[21px]; }
-    .adm-progress { @apply h-[7px] bg-neutral-100 rounded-full overflow-hidden; }
+    .adm-progress { @apply h-[7px] bg-line rounded-full overflow-hidden; }
     .adm-progress > span { @apply block h-full rounded-full bg-primary-600 transition-[width] duration-[400ms]; }
     .adm-progress.warn > span { @apply bg-warning; }
     .adm-progress.danger > span { @apply bg-danger; }
     .adm-info { @apply grid gap-[1rem_1.5rem] [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]; }
-    .adm-info dt { @apply text-[.74rem] text-neutral-400 font-semibold mb-[.15rem]; }
-    .adm-info dd { @apply text-[.9rem] text-neutral-800 font-medium; }
-    .adm-empty { @apply text-center py-[3rem] px-[1rem] text-neutral-400; }
+    .adm-info dt { @apply text-[.74rem] text-faint font-semibold mb-[.15rem]; }
+    .adm-info dd { @apply text-[.9rem] text-ink font-medium; }
+    .adm-empty { @apply text-center py-[3rem] px-[1rem] text-faint; }
     .adm-avatar { @apply rounded-full inline-flex items-center justify-center font-bold shrink-0; }
 
     /* ===== Floating row-action menu (fixed → escapes table/card overflow clipping) ===== */
-    .adm-rowmenu { @apply fixed z-[80] w-[13rem] max-w-[calc(100vw_-_1rem)] bg-white rounded-[.75rem] shadow-xl2 border border-neutral-100 py-[.35rem] px-0; }
-    .adm-rowmenu button, .adm-rowmenu a { @apply flex items-center gap-[.6rem] w-full text-start py-[.5rem] px-[1rem] text-[.82rem] text-neutral-700 bg-transparent border-0 cursor-pointer transition-all duration-[120ms]; }
-    .adm-rowmenu button:hover, .adm-rowmenu a:hover { @apply bg-surface-bg; }
+    .adm-rowmenu { @apply fixed z-[80] w-[13rem] max-w-[calc(100vw_-_1rem)] bg-card rounded-[.75rem] shadow-xl2 border border-line py-[.35rem] px-0; }
+    .adm-rowmenu button, .adm-rowmenu a { @apply flex items-center gap-[.6rem] w-full text-start py-[.5rem] px-[1rem] text-[.82rem] text-ink bg-transparent border-0 cursor-pointer transition-all duration-[120ms]; }
+    .adm-rowmenu button:hover, .adm-rowmenu a:hover { @apply bg-surface; }
     .adm-rowmenu button:disabled { @apply opacity-40 cursor-not-allowed; }
     .adm-rowmenu button:disabled:hover { @apply bg-transparent; }
     .adm-rowmenu .mi-danger { @apply text-danger; }
-    .adm-rowmenu .mi-danger:hover { @apply bg-[rgba(192,57,43,.06)]; }
-    .adm-rowmenu .mi-warn { @apply text-[#B5730A]; }
-    .adm-rowmenu .mi-warn:hover { @apply bg-[rgba(212,134,10,.08)]; }
+    .adm-rowmenu .mi-danger:hover { @apply bg-danger/5; }
+    .adm-rowmenu .mi-warn { @apply text-warning; }
+    .adm-rowmenu .mi-warn:hover { @apply bg-warning/10; }
     .adm-rowmenu .mi-ok { @apply text-success; }
-    .adm-rowmenu .mi-ok:hover { @apply bg-[rgba(26,140,78,.07)]; }
-    .adm-rowmenu .mi-sep { @apply h-px bg-neutral-100 my-[.3rem]; }
+    .adm-rowmenu .mi-ok:hover { @apply bg-success/5; }
+    .adm-rowmenu .mi-sep { @apply h-px bg-line my-[.3rem]; }
     .adm-rowmenu svg { @apply w-[14px] h-[14px] shrink-0; }
 
     /* ===== Embed mode (detail shown inside a quick-view drawer iframe → hide chrome) ===== */
@@ -166,23 +218,23 @@
     .crm-embed .crm-content { @apply pt-[1.1rem] px-[1.4rem] pb-[2rem] max-w-none; }
 
     /* ===== Detail WINDOWS — draggable · resizable · multi-window · dedup · vertical dock ===== */
-    .crm-win { @apply fixed z-[66] bg-white border border-[#E2E7F0] rounded-[14px] shadow-[0_18px_60px_rgba(6,15,30,.34)] flex flex-col overflow-hidden; }
+    .crm-win { @apply fixed z-[66] bg-card border border-line rounded-[14px] shadow-[0_18px_60px_rgba(6,15,30,.34)] flex flex-col overflow-hidden; }
     .crm-win.appear { @apply animate-winIn; }
     .crm-win.busy { @apply !transition-none [will-change:left,top,width,height]; }
     .crm-win.anim { @apply transition-[left,top,width,height,border-radius] duration-[220ms] ease-[cubic-bezier(.25,.1,.25,1)]; }
     .crm-win.max { @apply !inset-0 !w-auto !h-auto rounded-none border-0; }
-    .crm-win-head { @apply h-[44px] shrink-0 bg-white border-b border-neutral-100 flex items-center gap-[.25rem] pe-[.45rem] ps-[.8rem] cursor-grab select-none; }
+    .crm-win-head { @apply h-[44px] shrink-0 bg-card border-b border-line flex items-center gap-[.25rem] pe-[.45rem] ps-[.8rem] cursor-grab select-none; }
     .crm-win-head:active { @apply cursor-grabbing; }
     .crm-win.max .crm-win-head { @apply cursor-default; }
     .crm-win-dot { @apply w-[9px] h-[9px] rounded-full bg-accent-500 shrink-0; }
-    .crm-win-frame { @apply flex-1 border-0 w-full bg-surface-bg; }
-    .crm-win-btn { @apply w-[30px] h-[30px] inline-flex items-center justify-center rounded-[.5rem] text-neutral-600 cursor-pointer transition-all duration-[120ms]; }
-    .crm-win-btn:hover { @apply bg-[#F2F5FA] text-primary-700; }
-    .crm-win-btn.close:hover { @apply bg-[rgba(192,57,43,.1)] text-danger; }
+    .crm-win-frame { @apply flex-1 border-0 w-full bg-surface; }
+    .crm-win-btn { @apply w-[30px] h-[30px] inline-flex items-center justify-center rounded-[.5rem] text-muted cursor-pointer transition-all duration-[120ms]; }
+    .crm-win-btn:hover { @apply bg-elev text-ink; }
+    .crm-win-btn.close:hover { @apply bg-danger/10 text-danger; }
     .crm-win-grip { @apply absolute w-[20px] h-[20px] bottom-0 right-0 cursor-nwse-resize z-[4]; }
-    .crm-win-grip::after { @apply content-[''] absolute right-[4px] bottom-[4px] w-[9px] h-[9px] border-r-2 border-b-2 border-[#C0C8D8] rounded-[0_0_4px_0]; }
+    .crm-win-grip::after { @apply content-[''] absolute right-[4px] bottom-[4px] w-[9px] h-[9px] border-r-2 border-b-2 border-lineStrong rounded-[0_0_4px_0]; }
     .crm-win-grip.bl { @apply left-0 right-auto cursor-nesw-resize; }
-    .crm-win-grip.bl::after { @apply left-[4px] right-auto border-r-0 border-l-2 border-[#C0C8D8] rounded-[0_0_0_4px]; }
+    .crm-win-grip.bl::after { @apply left-[4px] right-auto border-r-0 border-l-2 border-lineStrong rounded-[0_0_0_4px]; }
     .crm-win.max .crm-win-grip { @apply hidden; }
     .crm-dragmask { @apply fixed inset-0 z-[300]; }
     /* Taskbar (bottom-center) — overlapping window pills that fan out + reveal titles on hover */
@@ -207,7 +259,7 @@
   </style>
 </head>
 
-<body class="text-neutral-800" x-data="crmShell()" @open-drawer.window="openWindow($event.detail)" x-cloak>
+<body class="text-ink" x-data="crmShell()" @open-drawer.window="openWindow($event.detail)" x-cloak>
 <div class="crm-shell">
 
   <div class="crm-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
@@ -292,7 +344,7 @@
       </button>
       <div class="relative hidden sm:block w-72 max-w-full">
         <input type="search" placeholder="بحث عن عميل · عقار · صفقة…" class="ec-input ps-9" />
-        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-faint" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
       </div>
       <div class="flex items-center gap-2 ms-auto">
         <span class="crm-ctx" x-show="isBrokerage"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 14V6l5-3 5 3v8M11 7l3 1.5V14"/></svg> <span x-text="me.branch"></span></span>
@@ -301,11 +353,11 @@
           <button @click="createMenu=!createMenu" class="adm-btn adm-btn-gold adm-btn-sm">
             <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> إنشاء
           </button>
-          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
-            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عميل محتمل جديد</a>
-            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">عقار جديد</a>
-            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">صفقة جديدة</a>
-            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50">نشاط جديد</a>
+          <div x-show="createMenu" x-transition class="absolute mt-2 w-48 bg-card rounded-xl shadow-xl2 ring-1 ring-line py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="leads.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-ink hover:bg-surface">عميل محتمل جديد</a>
+            <a href="properties.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-ink hover:bg-surface">عقار جديد</a>
+            <a href="deals.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-ink hover:bg-surface">صفقة جديدة</a>
+            <a href="activities.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-ink hover:bg-surface">نشاط جديد</a>
           </div>
         </div>
         <!-- Bell -->
@@ -314,33 +366,38 @@
             <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
             <span class="adm-dot" x-show="alerts.length>0"></span>
           </button>
-          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 z-50 overflow-hidden" style="inset-inline-end:0;">
-            <div class="px-4 py-3 border-b border-neutral-100 text-sm font-bold text-primary-800">الإشعارات</div>
+          <div x-show="bellOpen" x-transition class="absolute mt-2 w-80 max-w-[92vw] bg-card rounded-xl shadow-xl2 ring-1 ring-line z-50 overflow-hidden" style="inset-inline-end:0;">
+            <div class="px-4 py-3 border-b border-line text-sm font-bold text-ink">الإشعارات</div>
             <div class="max-h-80 overflow-y-auto">
               <template x-for="a in alerts" :key="a.id">
-                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50">
+                <a :href="a.href" class="flex items-start gap-3 px-4 py-3 hover:bg-surface border-b border-line">
                   <span class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :class="a.tone==='danger'?'bg-danger/10 text-danger':(a.tone==='warning'?'bg-warning/10 text-warning':'bg-info/10 text-info')" x-html="a.icon"></span>
-                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-neutral-800 leading-snug" x-text="a.title"></div><div class="text-xs text-neutral-400 mt-0.5" x-text="a.time"></div></div>
+                  <div class="min-w-0 flex-1"><div class="text-sm font-semibold text-ink leading-snug" x-text="a.title"></div><div class="text-xs text-faint mt-0.5" x-text="a.time"></div></div>
                 </a>
               </template>
             </div>
-            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-700 hover:bg-neutral-50 border-t border-neutral-100">عرض الكل</a>
+            <a href="dashboard.html" class="block text-center px-4 py-2.5 text-sm font-semibold text-primary-500 hover:bg-surface border-t border-line">عرض الكل</a>
           </div>
         </div>
+        <!-- Theme toggle -->
+        <button @click="toggleTheme()" class="adm-icon-btn" :aria-label="theme==='dark' ? 'الوضع الفاتح' : 'الوضع الداكن'">
+          <svg x-show="theme==='light'" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="4"/><path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.93 4.93l1.41 1.41M13.66 13.66l1.41 1.41M4.93 15.07l1.41-1.41M13.66 6.34l1.41-1.41"/></svg>
+          <svg x-show="theme==='dark'" width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17.5 12.5A7.5 7.5 0 017.5 2.5a7.5 7.5 0 1010 10z"/></svg>
+        </button>
         <!-- User menu -->
         <div class="relative" @click.outside="userMenu=false">
-          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-neutral-50 transition">
+          <button @click="userMenu=!userMenu" class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg hover:bg-surface transition">
             <span class="adm-avatar w-8 h-8 bg-primary-800 text-accent-400 text-xs" x-text="me.initials"></span>
             <div class="text-start hidden md:block">
-              <div class="text-xs font-bold text-primary-800 leading-none" x-text="me.name"></div>
-              <div class="text-[.65rem] text-neutral-500 mt-0.5" x-text="me.roleLabel"></div>
+              <div class="text-xs font-bold text-ink leading-none" x-text="me.name"></div>
+              <div class="text-[.65rem] text-muted mt-0.5" x-text="me.roleLabel"></div>
             </div>
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-neutral-400"><path d="M4 6l4 4 4-4"/></svg>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="text-faint"><path d="M4 6l4 4 4-4"/></svg>
           </button>
-          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-white rounded-xl shadow-xl2 ring-1 ring-neutral-100 py-1.5 z-50" style="inset-inline-end:0;">
-            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
-            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
-            <div class="h-px bg-neutral-100 my-1"></div>
+          <div x-show="userMenu" x-transition class="absolute inset-inline-end-0 mt-2 w-52 bg-card rounded-xl shadow-xl2 ring-1 ring-line py-1.5 z-50" style="inset-inline-end:0;">
+            <a href="profile.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-ink hover:bg-surface"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="2.5"/><path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/></svg> ملفي الشخصي</a>
+            <a href="settings.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-ink hover:bg-surface"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M15 8h-2M3 8H1"/></svg> الإعدادات</a>
+            <div class="h-px bg-line my-1"></div>
             <a href="../auth/login.html" class="flex items-center gap-2.5 px-4 py-2 text-sm text-danger hover:bg-danger/5"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 14H3V2h3M10 11l3-3-3-3M13 8H6"/></svg> تسجيل الخروج</a>
           </div>
         </div>
@@ -413,12 +470,12 @@
           <button
             @click="active=g.id"
             class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-start"
-            :class="active===g.id ? 'bg-primary-800 text-white font-semibold' : 'text-neutral-600 hover:bg-neutral-50 hover:text-primary-800'">
+            :class="active===g.id ? 'bg-primary-800 text-white font-semibold' : 'text-muted hover:bg-elev hover:text-ink'">
             <span x-html="g.icon"
                   class="shrink-0 w-[18px] h-[18px] flex items-center justify-center"
-                  :class="active===g.id ? 'text-accent-300' : 'text-neutral-400'"></span>
+                  :class="active===g.id ? 'text-accent-300' : 'text-faint'"></span>
             <span x-text="g.label" class="flex-1 truncate"></span>
-            <span x-show="g.ro" class="text-[.62rem] bg-neutral-100 text-neutral-500 px-1.5 py-px rounded font-bold shrink-0">عرض</span>
+            <span x-show="g.ro" class="text-[.62rem] bg-elev text-muted px-1.5 py-px rounded font-bold shrink-0">عرض</span>
           </button>
         </template>
       </div>
@@ -440,7 +497,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
               <div class="sm:col-span-2 flex items-start gap-5">
                 <div class="relative group cursor-pointer shrink-0">
-                  <div class="w-20 h-20 rounded-xl bg-primary-50 border-2 border-dashed border-primary-200 flex items-center justify-center overflow-hidden">
+                  <div class="w-20 h-20 rounded-xl bg-accentSoft border-2 border-dashed border-primary-200 flex items-center justify-center overflow-hidden">
                     <img x-show="s.company.logoUrl" :src="s.company.logoUrl" class="w-full h-full object-contain" />
                     <svg x-show="!s.company.logoUrl" class="text-primary-300" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                   </div>
@@ -451,7 +508,7 @@
                 <div class="min-w-0">
                   <label class="ec-label">اسم الشركة</label>
                   <input type="text" class="ec-input" x-model="s.company.name" placeholder="شركة مسكن للوساطة العقارية" />
-                  <p class="text-xs text-neutral-400 mt-1">يظهر في الفواتير والتقارير وواجهة النظام</p>
+                  <p class="text-xs text-faint mt-1">يظهر في الفواتير والتقارير وواجهة النظام</p>
                 </div>
               </div>
               <div class="sm:col-span-2">
@@ -470,47 +527,47 @@
                 <label class="ec-label">المنطقة الزمنية</label>
                 <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -531,8 +588,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -549,7 +606,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -562,47 +619,47 @@
                 <label class="ec-label">العملة الافتراضية</label>
                 <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -623,8 +680,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -641,7 +698,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -654,47 +711,47 @@
                 <label class="ec-label">لغة النظام الافتراضية</label>
                 <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -715,8 +772,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -733,7 +790,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -763,47 +820,47 @@
                 <label class="ec-label">بداية السنة المالية (شهر)</label>
                 <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -824,8 +881,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -842,7 +899,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -867,7 +924,7 @@
           <div class="adm-card-head">
             <div>
               <div class="adm-card-title">مراحل خط الأنابيب</div>
-              <p class="text-xs text-neutral-500 mt-0.5">اسحب لإعادة الترتيب — يُرسَل عبر PUT /settings/stages/reorder</p>
+              <p class="text-xs text-muted mt-0.5">اسحب لإعادة الترتيب — يُرسَل عبر PUT /settings/stages/reorder</p>
             </div>
             <button class="adm-btn adm-btn-gold adm-btn-sm" @click="stageModal=true; editStage=null">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> مرحلة جديدة
@@ -876,15 +933,15 @@
           <div class="p-4">
             <div class="flex flex-col gap-2" id="stages-list">
               <template x-for="(st, i) in s.stages" :key="st.id">
-                <div class="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl border border-neutral-100 group">
+                <div class="flex items-center gap-3 p-3 bg-elev rounded-xl border border-line group">
                   <!-- drag handle -->
-                  <div class="cursor-grab text-neutral-300 hover:text-neutral-500 shrink-0">
+                  <div class="cursor-grab text-faint hover:text-muted shrink-0">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="5.5" cy="4" r="1.2"/><circle cx="10.5" cy="4" r="1.2"/><circle cx="5.5" cy="8" r="1.2"/><circle cx="10.5" cy="8" r="1.2"/><circle cx="5.5" cy="12" r="1.2"/><circle cx="10.5" cy="12" r="1.2"/></svg>
                   </div>
                   <!-- color dot + name -->
                   <div class="flex items-center gap-2.5 flex-1 min-w-0">
                     <div class="w-4 h-4 rounded-full shrink-0 border-2 border-white shadow-sm" :style="'background:'+st.color"></div>
-                    <span class="font-semibold text-sm text-primary-800 truncate" x-text="st.name"></span>
+                    <span class="font-semibold text-sm text-ink truncate" x-text="st.name"></span>
                     <span x-show="st.isWon"  class="adm-badge b-success text-[.65rem]">إغلاق (مكسوب)</span>
                     <span x-show="st.isLost" class="adm-badge b-danger text-[.65rem]">إغلاق (خاسر)</span>
                   </div>
@@ -909,7 +966,7 @@
         <div x-show="stageModal" x-transition class="adm-overlay" @click.self="stageModal=false">
           <div class="adm-modal">
             <div class="adm-modal-head">
-              <span class="font-bold text-primary-800" x-text="editStage ? 'تعديل المرحلة' : 'مرحلة جديدة'"></span>
+              <span class="font-bold text-ink" x-text="editStage ? 'تعديل المرحلة' : 'مرحلة جديدة'"></span>
               <button @click="stageModal=false" class="adm-icon-btn w-8 h-8">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg>
               </button>
@@ -930,17 +987,17 @@
                       :class="stageForm.color===c ? 'scale-110 shadow-md' : 'border-transparent'">
                     </button>
                   </template>
-                  <input type="color" class="w-8 h-8 rounded-full cursor-pointer border border-neutral-200" x-model="stageForm.color" title="لون مخصص" />
+                  <input type="color" class="w-8 h-8 rounded-full cursor-pointer border border-lineStrong" x-model="stageForm.color" title="لون مخصص" />
                 </div>
               </div>
               <div class="flex flex-col gap-3">
                 <label class="flex items-center gap-3 cursor-pointer">
                   <div class="adm-switch" :class="stageForm.isWon&&'on'" @click="stageForm.isWon=!stageForm.isWon; if(stageForm.isWon) stageForm.isLost=false"></div>
-                  <div><p class="text-sm font-semibold text-neutral-800">مرحلة إغلاق (مكسوب)</p><p class="text-xs text-neutral-500">تُسجَّل الصفقة كمكسوبة عند الوصول لهذه المرحلة</p></div>
+                  <div><p class="text-sm font-semibold text-ink">مرحلة إغلاق (مكسوب)</p><p class="text-xs text-muted">تُسجَّل الصفقة كمكسوبة عند الوصول لهذه المرحلة</p></div>
                 </label>
                 <label class="flex items-center gap-3 cursor-pointer">
                   <div class="adm-switch" :class="stageForm.isLost&&'on'" @click="stageForm.isLost=!stageForm.isLost; if(stageForm.isLost) stageForm.isWon=false"></div>
-                  <div><p class="text-sm font-semibold text-neutral-800">مرحلة إغلاق (خاسر)</p><p class="text-xs text-neutral-500">تُصنَّف الصفقة كخاسرة عند الوصول لهذه المرحلة</p></div>
+                  <div><p class="text-sm font-semibold text-ink">مرحلة إغلاق (خاسر)</p><p class="text-xs text-muted">تُصنَّف الصفقة كخاسرة عند الوصول لهذه المرحلة</p></div>
                 </label>
               </div>
             </div>
@@ -975,15 +1032,15 @@
           <div class="p-4">
             <div class="flex items-center gap-2 mb-3">
               <input type="text" class="ec-input flex-1" x-model="newLookupName" :placeholder="'اسم '+(lookupTypes.find(l=>l.key===activeLookup)?.singular||'العنصر')+' الجديد'" @keydown.enter="addLookup()" />
-              <input type="color" class="w-9 h-9 rounded-lg cursor-pointer border border-neutral-200 p-0.5" x-model="newLookupColor" title="لون" />
+              <input type="color" class="w-9 h-9 rounded-lg cursor-pointer border border-lineStrong p-0.5" x-model="newLookupColor" title="لون" />
               <button class="adm-btn adm-btn-gold adm-btn-sm" @click="addLookup()">إضافة</button>
             </div>
             <div class="flex flex-col gap-1.5">
               <template x-for="item in activeLookupItems" :key="item.id">
-                <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-neutral-50 group border border-transparent hover:border-neutral-100">
+                <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-elev group border border-transparent hover:border-line">
                   <div x-show="item.color" class="w-3 h-3 rounded-full shrink-0" :style="'background:'+(item.color||'#ccc')"></div>
-                  <span class="flex-1 text-sm text-neutral-800 font-medium" x-text="item.name"></span>
-                  <span x-show="item.slug" class="text-xs text-neutral-400 font-latin" x-text="item.slug"></span>
+                  <span class="flex-1 text-sm text-ink font-medium" x-text="item.name"></span>
+                  <span x-show="item.slug" class="text-xs text-faint font-latin" x-text="item.slug"></span>
                   <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                     <button class="adm-icon-btn w-7 h-7" @click="editLookupItem=item; editLookupModal=true" title="تعديل">
                       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
@@ -1005,7 +1062,7 @@
         <div x-show="editLookupModal" x-transition class="adm-overlay" @click.self="editLookupModal=false">
           <div class="adm-modal">
             <div class="adm-modal-head">
-              <span class="font-bold text-primary-800">تعديل العنصر</span>
+              <span class="font-bold text-ink">تعديل العنصر</span>
               <button @click="editLookupModal=false" class="adm-icon-btn w-8 h-8"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
             </div>
             <div class="adm-modal-body flex flex-col gap-3">
@@ -1015,7 +1072,7 @@
               </div>
               <div>
                 <label class="ec-label">اللون</label>
-                <input type="color" class="w-10 h-10 rounded-lg cursor-pointer border border-neutral-200 p-0.5" x-model="editLookupItem.color" />
+                <input type="color" class="w-10 h-10 rounded-lg cursor-pointer border border-lineStrong p-0.5" x-model="editLookupItem.color" />
               </div>
             </div>
             <div class="adm-modal-foot">
@@ -1038,7 +1095,7 @@
           <div class="adm-card-head">
             <div>
               <div class="adm-card-title">الحقول المخصصة</div>
-              <p class="text-xs text-neutral-500 mt-0.5">تظهر تلقائياً في نماذج الإنشاء والتعديل والفلاتر</p>
+              <p class="text-xs text-muted mt-0.5">تظهر تلقائياً في نماذج الإنشاء والتعديل والفلاتر</p>
             </div>
             <button class="adm-btn adm-btn-gold adm-btn-sm" @click="cfModal=true; editCf=null; cfForm={entityType:'lead',name:'',type:'text',isRequired:false,options:[]}">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg> حقل جديد
@@ -1055,17 +1112,17 @@
           </div>
           <div class="p-4">
             <template x-for="cf in cfByEntity" :key="cf.id">
-              <div class="flex items-center gap-3 p-3 rounded-xl border border-neutral-100 bg-neutral-50 mb-2 group">
-                <div class="cursor-grab text-neutral-300 shrink-0">
+              <div class="flex items-center gap-3 p-3 rounded-xl border border-line bg-elev mb-2 group">
+                <div class="cursor-grab text-faint shrink-0">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="5.5" cy="4" r="1.2"/><circle cx="10.5" cy="4" r="1.2"/><circle cx="5.5" cy="8" r="1.2"/><circle cx="10.5" cy="8" r="1.2"/><circle cx="5.5" cy="12" r="1.2"/><circle cx="10.5" cy="12" r="1.2"/></svg>
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-semibold text-sm text-primary-800" x-text="cf.name"></span>
+                    <span class="font-semibold text-sm text-ink" x-text="cf.name"></span>
                     <span class="adm-badge b-info text-[.65rem]" x-text="cfTypeLabel(cf.type)"></span>
                     <span x-show="cf.isRequired" class="adm-badge b-warning text-[.65rem]">مطلوب</span>
                   </div>
-                  <span class="text-xs text-neutral-400 font-latin" x-text="cf.key"></span>
+                  <span class="text-xs text-faint font-latin" x-text="cf.key"></span>
                 </div>
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                   <button class="adm-icon-btn w-7 h-7" @click="openEditCf(cf)">
@@ -1087,7 +1144,7 @@
         <div x-show="cfModal" x-transition class="adm-overlay" @click.self="cfModal=false">
           <div class="adm-modal">
             <div class="adm-modal-head">
-              <span class="font-bold text-primary-800" x-text="editCf ? 'تعديل الحقل' : 'حقل مخصص جديد'"></span>
+              <span class="font-bold text-ink" x-text="editCf ? 'تعديل الحقل' : 'حقل مخصص جديد'"></span>
               <button @click="cfModal=false" class="adm-icon-btn w-8 h-8"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
             </div>
             <div class="adm-modal-body flex flex-col gap-4">
@@ -1101,47 +1158,47 @@
                   <label class="ec-label">الكيان</label>
                   <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1162,8 +1219,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1180,7 +1237,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -1193,47 +1250,47 @@
                   <label class="ec-label">نوع الحقل</label>
                   <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1254,8 +1311,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1272,7 +1329,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -1299,7 +1356,7 @@
               </div>
               <label class="flex items-center gap-3 cursor-pointer">
                 <div class="adm-switch" :class="cfForm.isRequired&&'on'" @click="cfForm.isRequired=!cfForm.isRequired"></div>
-                <span class="text-sm font-semibold text-neutral-800">حقل مطلوب</span>
+                <span class="text-sm font-semibold text-ink">حقل مطلوب</span>
               </label>
             </div>
             <div class="adm-modal-foot">
@@ -1324,7 +1381,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-xl">
               <div class="sm:col-span-2">
                 <label class="ec-label">نسبة العمولة الافتراضية (%)</label>
-                <p class="text-xs text-neutral-500 mb-2">تُطبَّق تلقائياً عند إنشاء صفقة جديدة — يمكن تعديلها per-صفقة</p>
+                <p class="text-xs text-muted mb-2">تُطبَّق تلقائياً عند إنشاء صفقة جديدة — يمكن تعديلها per-صفقة</p>
                 <input type="number" min="0" max="100" step="0.1" class="ec-input" x-model.number="s.commission.defaultCommissionPct" placeholder="2.5" />
               </div>
               <div>
@@ -1342,12 +1399,12 @@
                        placeholder="70" />
               </div>
               <div class="sm:col-span-2">
-                <div class="h-2.5 bg-neutral-100 rounded-full overflow-hidden flex">
+                <div class="h-2.5 bg-elev rounded-full overflow-hidden flex">
                   <div class="h-full bg-primary-700 transition-all" :style="'width:'+Math.min(s.commission.companyCommissionSplit,100)+'%'"></div>
                   <div class="h-full bg-accent-500 transition-all" :style="'width:'+Math.min(s.commission.agentCommissionSplit,100)+'%'"></div>
                 </div>
                 <div class="flex justify-between mt-1">
-                  <span class="text-xs text-primary-700 font-semibold">الشركة: <span x-text="s.commission.companyCommissionSplit"></span>%</span>
+                  <span class="text-xs text-ink font-semibold">الشركة: <span x-text="s.commission.companyCommissionSplit"></span>%</span>
                   <span class="text-xs text-accent-700 font-semibold">الوكيل: <span x-text="s.commission.agentCommissionSplit"></span>%</span>
                 </div>
                 <p x-show="Math.abs(s.commission.companyCommissionSplit + s.commission.agentCommissionSplit - 100) > 0.01"
@@ -1355,7 +1412,7 @@
               </div>
               <div class="sm:col-span-2">
                 <label class="ec-label">خصم الصفقات المشتركة (Co-brokerage) (%)</label>
-                <p class="text-xs text-neutral-500 mb-2">نسبة تُخصَم من العمولة الإجمالية عند مشاركة صفقة مع وساطة خارجية</p>
+                <p class="text-xs text-muted mb-2">نسبة تُخصَم من العمولة الإجمالية عند مشاركة صفقة مع وساطة خارجية</p>
                 <input type="number" min="0" max="100" step="0.1" class="ec-input max-w-xs" x-model.number="s.commission.sharedDealSplit" placeholder="50" />
               </div>
             </div>
@@ -1377,17 +1434,17 @@
           <div class="adm-card-head">
             <div>
               <div class="adm-card-title">توزيع العملاء التلقائي (Round Robin)</div>
-              <p class="text-xs text-neutral-500 mt-0.5">PUT /settings/assignment-rules</p>
+              <p class="text-xs text-muted mt-0.5">PUT /settings/assignment-rules</p>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-xs text-neutral-500" x-text="s.assignment.enabled ? 'مفعّل' : 'يدوي'"></span>
+              <span class="text-xs text-muted" x-text="s.assignment.enabled ? 'مفعّل' : 'يدوي'"></span>
               <div class="adm-switch" :class="s.assignment.enabled&&'on'" @click="s.assignment.enabled=!s.assignment.enabled" role="switch" :aria-checked="s.assignment.enabled"></div>
             </div>
           </div>
           <div x-show="s.assignment.enabled" x-collapse class="p-5">
             <div class="max-w-xs">
               <label class="ec-label">الحد الأقصى per-وكيل</label>
-              <p class="text-xs text-neutral-500 mb-2">maxPerAgent — أقصى عدد عملاء نشطين per-وكيل (1-500)</p>
+              <p class="text-xs text-muted mb-2">maxPerAgent — أقصى عدد عملاء نشطين per-وكيل (1-500)</p>
               <input type="number" min="1" max="500" class="ec-input" x-model.number="s.assignment.maxPerAgent" placeholder="50" />
             </div>
           </div>
@@ -1397,23 +1454,23 @@
         <div class="adm-card mb-4">
           <div class="adm-card-head">
             <div class="adm-card-title">إعدادات مستوى الخدمة (SLA)</div>
-            <p class="text-xs text-neutral-500 mt-0.5">PUT /settings/sla</p>
+            <p class="text-xs text-muted mt-0.5">PUT /settings/sla</p>
           </div>
           <div class="p-5">
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl">
               <div>
                 <label class="ec-label">مدة الرد على واتساب (ساعة)</label>
-                <p class="text-xs text-neutral-500 mb-2">whatsappReplySlaHours</p>
+                <p class="text-xs text-muted mb-2">whatsappReplySlaHours</p>
                 <input type="number" min="1" max="8760" class="ec-input" x-model.number="s.sla.whatsappReplySlaHours" placeholder="4" />
               </div>
               <div>
                 <label class="ec-label">أيام خمول العميل</label>
-                <p class="text-xs text-neutral-500 mb-2">leadInactivityDays</p>
+                <p class="text-xs text-muted mb-2">leadInactivityDays</p>
                 <input type="number" min="1" max="365" class="ec-input" x-model.number="s.sla.leadInactivityDays" placeholder="7" />
               </div>
               <div>
                 <label class="ec-label">إغلاق واتساب تلقائياً (يوم)</label>
-                <p class="text-xs text-neutral-500 mb-2">whatsappAutoCloseDays</p>
+                <p class="text-xs text-muted mb-2">whatsappAutoCloseDays</p>
                 <input type="number" min="1" max="365" class="ec-input" x-model.number="s.sla.whatsappAutoCloseDays" placeholder="30" />
               </div>
             </div>
@@ -1432,7 +1489,7 @@
           <div class="adm-card-head">
             <div>
               <div class="adm-card-title">مصفوفة الصلاحيات</div>
-              <p class="text-xs text-neutral-500 mt-0.5">GET /settings/permissions — تعديل محدود ضمن الحدود المسموحة</p>
+              <p class="text-xs text-muted mt-0.5">GET /settings/permissions — تعديل محدود ضمن الحدود المسموحة</p>
             </div>
           </div>
           <div class="overflow-x-auto p-4">
@@ -1442,8 +1499,8 @@
                   <th class="min-w-[200px]">الصلاحية</th>
                   <template x-for="role in s.permMatrix.roles" :key="role.id">
                     <th class="text-center min-w-[100px]">
-                      <div x-text="role.label" class="font-bold text-primary-800 text-sm"></div>
-                      <div x-show="!role.isEditable" class="text-[.64rem] text-neutral-400 font-normal mt-0.5">ثابت</div>
+                      <div x-text="role.label" class="font-bold text-ink text-sm"></div>
+                      <div x-show="!role.isEditable" class="text-[.64rem] text-faint font-normal mt-0.5">ثابت</div>
                     </th>
                   </template>
                 </tr>
@@ -1452,13 +1509,13 @@
               <template x-for="group in s.permMatrix.groups" :key="group.label">
                 <tbody>
                   <tr>
-                    <td colspan="100" class="bg-neutral-50 text-xs font-bold text-neutral-500 py-2 uppercase tracking-wide" x-text="group.label"></td>
+                    <td colspan="100" class="bg-elev text-xs font-bold text-muted py-2 uppercase tracking-wide" x-text="group.label"></td>
                   </tr>
                   <template x-for="perm in group.perms" :key="perm.key">
                     <tr>
                       <td>
-                        <div class="font-medium text-sm text-neutral-800" x-text="perm.label"></div>
-                        <div class="text-xs text-neutral-400 font-latin" x-text="perm.key"></div>
+                        <div class="font-medium text-sm text-ink" x-text="perm.label"></div>
+                        <div class="text-xs text-faint font-latin" x-text="perm.key"></div>
                       </td>
                       <template x-for="role in s.permMatrix.roles" :key="role.id">
                         <td class="text-center">
@@ -1471,7 +1528,7 @@
                           </div>
                           <div x-show="!role.isEditable">
                             <svg x-show="hasPermission(role.id,perm.key)" class="mx-auto text-success" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8l3 3 7-7"/></svg>
-                            <svg x-show="!hasPermission(role.id,perm.key)" class="mx-auto text-neutral-300" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4L4 12"/></svg>
+                            <svg x-show="!hasPermission(role.id,perm.key)" class="mx-auto text-faint" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4L4 12"/></svg>
                           </div>
                         </td>
                       </template>
@@ -1499,12 +1556,12 @@
                 <div class="flex items-start justify-between gap-3">
                   <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                         :class="intg.type==='google_calendar'?'bg-blue-50':(intg.type==='webhook'?'bg-neutral-100':'bg-orange-50')">
+                         :class="intg.type==='google_calendar'?'bg-blue-50':(intg.type==='webhook'?'bg-elev':'bg-orange-50')">
                       <span x-html="integIcon(intg.type)" class="w-5 h-5"></span>
                     </div>
                     <div>
-                      <div class="font-bold text-sm text-primary-800" x-text="intg.name"></div>
-                      <div class="text-xs text-neutral-400 mt-0.5" x-text="integTypeLabel(intg.type)"></div>
+                      <div class="font-bold text-sm text-ink" x-text="intg.name"></div>
+                      <div class="text-xs text-faint mt-0.5" x-text="integTypeLabel(intg.type)"></div>
                     </div>
                   </div>
                   <div class="flex items-center gap-2">
@@ -1517,8 +1574,8 @@
                     </button>
                   </div>
                 </div>
-                <div x-show="intg.type==='webhook'" class="mt-3 px-3 py-2 bg-neutral-50 rounded-lg">
-                  <span class="text-xs font-latin text-neutral-500 break-all" x-text="intg.configJson?.url||'لم يُحدَّد رابط'"></span>
+                <div x-show="intg.type==='webhook'" class="mt-3 px-3 py-2 bg-elev rounded-lg">
+                  <span class="text-xs font-latin text-muted break-all" x-text="intg.configJson?.url||'لم يُحدَّد رابط'"></span>
                 </div>
                 <div x-show="intg.type==='google_calendar'" class="mt-3 px-3 py-2 bg-blue-50/60 rounded-lg text-xs text-blue-700" x-text="intg.configJson?.calendarId||'لم يُربط بعد'"></div>
               </div>
@@ -1537,7 +1594,7 @@
         <div x-show="integModal" x-transition class="adm-overlay" @click.self="integModal=false">
           <div class="adm-modal">
             <div class="adm-modal-head">
-              <span class="font-bold text-primary-800" x-text="editInteg ? 'تعديل التكامل' : 'تكامل جديد'"></span>
+              <span class="font-bold text-ink" x-text="editInteg ? 'تعديل التكامل' : 'تكامل جديد'"></span>
               <button @click="integModal=false" class="adm-icon-btn w-8 h-8"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
             </div>
             <div class="adm-modal-body flex flex-col gap-4">
@@ -1550,47 +1607,47 @@
                 <label class="ec-label">نوع التكامل</label>
                 <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1611,8 +1668,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1629,7 +1686,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -1642,7 +1699,7 @@
               <div x-show="integForm.type==='google_calendar'" x-collapse>
                 <label class="ec-label">معرّف التقويم</label>
                 <input type="text" class="ec-input font-latin" x-model="integForm.configJson.calendarId" placeholder="xxxx@group.calendar.google.com" dir="ltr" />
-                <p class="text-xs text-neutral-400 mt-1">يُكتمَل الربط عبر OAuth بعد الحفظ</p>
+                <p class="text-xs text-faint mt-1">يُكتمَل الربط عبر OAuth بعد الحفظ</p>
               </div>
               <!-- Portal integrations (bayut / aqar / property_finder) -->
               <div x-show="['bayut','aqar','property_finder'].includes(integForm.type)" x-collapse>
@@ -1665,47 +1722,47 @@
                 <label class="ec-label">الحالة</label>
                 <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1726,8 +1783,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1744,7 +1801,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -1774,7 +1831,7 @@
           </div>
           <div class="p-5">
             <dl class="adm-info">
-              <div><dt>الباقة</dt><dd class="flex items-center gap-2"><span class="font-bold text-primary-800" x-text="s.billing.planName"></span><span class="adm-badge b-accent" x-text="s.billing.planType"></span></dd></div>
+              <div><dt>الباقة</dt><dd class="flex items-center gap-2"><span class="font-bold text-ink" x-text="s.billing.planName"></span><span class="adm-badge b-accent" x-text="s.billing.planType"></span></dd></div>
               <div><dt>تاريخ التجديد</dt><dd x-text="fmtDate(s.billing.renewalDate)"></dd></div>
               <div><dt>المستخدمون</dt><dd><span x-text="s.billing.usedSeats"></span> / <span x-text="s.billing.maxSeats"></span> مقعد</dd></div>
               <div><dt>تاريخ بداية الاشتراك</dt><dd x-text="fmtDate(s.billing.startDate)"></dd></div>
@@ -1782,7 +1839,7 @@
               <div><dt>قيمة الاشتراك</dt><dd class="font-bold font-latin" x-text="Number(s.billing.amount).toLocaleString('en-US')+' '+s.billing.currency"></dd></div>
             </dl>
             <div class="mt-4 max-w-sm">
-              <div class="flex justify-between text-xs text-neutral-500 mb-1">
+              <div class="flex justify-between text-xs text-muted mb-1">
                 <span>المقاعد المستخدمة</span>
                 <span><span x-text="s.billing.usedSeats"></span> / <span x-text="s.billing.maxSeats"></span></span>
               </div>
@@ -1792,7 +1849,7 @@
             </div>
           </div>
           <div class="px-5 pb-4">
-            <p class="text-xs text-neutral-500">للترقية أو تعديل الاشتراك تواصل مع الدعم</p>
+            <p class="text-xs text-muted">للترقية أو تعديل الاشتراك تواصل مع الدعم</p>
             <button class="adm-btn adm-btn-ghost adm-btn-sm mt-2">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h8v9H7l-3 3z"/><path d="M7 7h4M7 9.5h2.5"/></svg>
               طلب دعم
@@ -1820,7 +1877,7 @@
                       <span class="adm-badge" :class="inv.status==='paid'?'b-success':(inv.status==='open'?'b-warning':'b-neutral')"
                             x-text="inv.status==='paid'?'مدفوعة':(inv.status==='open'?'مفتوحة':'ملغاة')"></span>
                     </td>
-                    <td class="text-sm text-neutral-500" x-text="fmtDate(inv.date)"></td>
+                    <td class="text-sm text-muted" x-text="fmtDate(inv.date)"></td>
                     <td>
                       <button class="adm-btn adm-btn-ghost adm-btn-sm" :disabled="inv.status!=='paid'" title="تحميل PDF">
                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v7M5 8l3 3 3-3M3 13h10"/></svg>
@@ -1853,7 +1910,7 @@
           <div class="p-4 flex flex-wrap gap-3 border-b border-neutral-50">
             <div class="relative flex-1 min-w-[200px]">
               <input type="search" class="ec-input ps-9" x-model="auditSearch" placeholder="بحث باسم المستخدم أو الإجراء…" />
-              <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+              <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-faint" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
             </div>
             <div class="w-auto"
               x-data="{ ...smartSelect({ optionsFn:()=>[{value:'create',label:'إنشاء'},{value:'update',label:'تعديل'},{value:'delete',label:'حذف'},{value:'login',label:'دخول'}], placeholder:'كل الإجراءات', searchable:false, onChange:v=>{ auditAction=v } }) }"
@@ -1862,47 +1919,47 @@
               @keydown.escape.window="ssForceClose()">
               <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1923,8 +1980,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -1941,7 +1998,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -1959,7 +2016,7 @@
                   <tr>
                     <td>
                       <div class="flex items-center gap-2">
-                        <span class="adm-avatar w-7 h-7 bg-primary-50 text-primary-700 text-[.65rem]" x-text="log.actorName.split(' ').map(n=>n[0]).join('')"></span>
+                        <span class="adm-avatar w-7 h-7 bg-accentSoft text-ink text-[.65rem]" x-text="log.actorName.split(' ').map(n=>n[0]).join('')"></span>
                         <span class="text-sm font-medium" x-text="log.actorName"></span>
                       </div>
                     </td>
@@ -1968,9 +2025,9 @@
                             :class="log.action==='delete'?'b-danger':(log.action==='create'?'b-success':(log.action==='login'?'b-info':'b-neutral'))"
                             x-text="log.action==='create'?'إنشاء':(log.action==='update'?'تعديل':(log.action==='delete'?'حذف':'دخول'))"></span>
                     </td>
-                    <td class="text-sm text-neutral-600" x-text="log.resource"></td>
-                    <td class="text-xs font-latin text-neutral-500" x-text="log.resourceId"></td>
-                    <td class="text-xs text-neutral-500" x-text="timeAgo(log.createdAt)"></td>
+                    <td class="text-sm text-muted" x-text="log.resource"></td>
+                    <td class="text-xs font-latin text-muted" x-text="log.resourceId"></td>
+                    <td class="text-xs text-muted" x-text="timeAgo(log.createdAt)"></td>
                   </tr>
                 </template>
               </tbody>
@@ -1987,7 +2044,7 @@
       ════════════════════════════════════════════════════ -->
       <div x-show="active==='export'" x-cloak>
         <!-- بانر التصدير المتقدّم -->
-        <div class="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl border border-primary-200 bg-primary-50 text-sm text-primary-800">
+        <div class="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl border border-primary-200 bg-accentSoft text-sm text-ink">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" class="shrink-0 text-primary-600"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5h.01"/></svg>
           <span>للتصدير المتقدّم (أعمدة · فلاتر · قوالب · جدولة) استخدم شاشة <a href="data-io.html" class="font-bold underline underline-offset-2 hover:text-primary-600">التصدير والاستيراد</a>.</span>
         </div>
@@ -1995,7 +2052,7 @@
           <div class="adm-card-head">
             <div>
               <div class="adm-card-title">تصدير بيانات الحساب</div>
-              <p class="text-xs text-neutral-500 mt-0.5">POST /settings/export — يُنشئ مهمة تصدير وتُنبَّه عند الاكتمال</p>
+              <p class="text-xs text-muted mt-0.5">POST /settings/export — يُنشئ مهمة تصدير وتُنبَّه عند الاكتمال</p>
             </div>
           </div>
           <div class="p-5">
@@ -2008,47 +2065,47 @@
                 <label class="ec-label">نوع البيانات</label>
                 <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -2069,8 +2126,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -2087,7 +2144,7 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
@@ -2100,47 +2157,47 @@
                 <label class="ec-label">صيغة الملف</label>
                 <!-- Smart Select trigger -->
                 <button type="button"
-                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-white text-neutral-800 cursor-pointer min-h-[38px] text-start transition-all relative hover:border-neutral-300"
-                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-neutral-200'"
+                        class="flex items-center gap-[.45rem] w-full px-3 py-2 border-[1.5px] rounded-[.55rem] text-[.85rem] bg-card text-ink cursor-pointer min-h-[38px] text-start transition-all relative hover:border-lineStrong"
+                        :class="ssOpen ? 'border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]' : 'border-lineStrong'"
                         @click.stop="ssTriggerClick($event)">
                   <template x-if="ssMulti && ssHasValue()">
                     <span class="flex flex-wrap gap-1 flex-1 min-w-0">
                       <template x-for="chip in ssValue" :key="chip">
-                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-neutral-800 rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
+                        <span class="inline-flex items-center gap-1 bg-primary-800/[.08] text-ink rounded-[6px] text-[.72rem] font-semibold py-[.15rem] px-[.45rem] max-w-[10rem]">
                           <span class="overflow-hidden whitespace-nowrap text-ellipsis" x-text="ssLabelFor(chip)"></span>
-                          <svg class="cursor-pointer shrink-0 text-neutral-500 hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          <svg class="cursor-pointer shrink-0 text-muted hover:text-danger-600" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                         </span>
                       </template>
                     </span>
                   </template>
                   <template x-if="!ssMulti && ssHasValue()">
-                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-800" x-text="ssLabelFor(ssValue)"></span>
+                    <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-ink" x-text="ssLabelFor(ssValue)"></span>
                   </template>
-                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-neutral-400" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
+                  <span class="flex-1 min-w-0 overflow-hidden whitespace-nowrap text-ellipsis text-faint" x-show="!ssHasValue()" x-text="ssPlaceholder"></span>
                   <span class="text-[.7rem] font-bold text-primary-600 shrink-0" x-show="ssMulti && ssHasValue()" x-text="ssValue.length+' محدد'"></span>
-                  <span class="shrink-0 text-neutral-300 flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                  <span class="shrink-0 text-faint flex items-center rounded hover:text-danger-600" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </span>
-                  <svg class="shrink-0 text-neutral-400 transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                  <svg class="shrink-0 text-faint transition-transform duration-150" :class="ssOpen ? 'rotate-180' : ''" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
                 </button>
                 <!-- Smart Select panel (fixed → escapes overflow) -->
-                <div class="fixed z-[88] bg-white border-[1.5px] border-neutral-200 rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
-                  <div class="px-[.7rem] py-[.45rem] border-b border-neutral-100 shrink-0" x-show="ssSearchable">
-                    <input class="w-full border-[1.5px] border-neutral-100 rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-neutral-800 bg-neutral-50 outline-none transition-all focus:border-accent-500 focus:bg-white" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                <div class="fixed z-[88] bg-card border-[1.5px] border-lineStrong rounded-xl shadow-[0_12px_40px_rgba(11,31,58,.15),0_4px_12px_rgba(11,31,58,.08)] min-w-[180px] max-h-[280px] flex flex-col overflow-hidden" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="px-[.7rem] py-[.45rem] border-b border-line shrink-0" x-show="ssSearchable">
+                    <input class="w-full border-[1.5px] border-line rounded-[.45rem] py-[.3rem] px-[.55rem] text-[.82rem] text-ink bg-elev outline-none transition-all focus:border-accent-500 focus:bg-card" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
                   </div>
-                  <div class="px-3 py-[.35rem] border-b border-neutral-100 flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-neutral-500 bg-[#FBFCFE]" x-show="ssMulti && ssSelectAll">
+                  <div class="px-3 py-[.35rem] border-b border-line flex items-center justify-between shrink-0 text-[.73rem] font-semibold text-muted bg-elev" x-show="ssMulti && ssSelectAll">
                     <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
-                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-primary-50" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                    <button type="button" class="bg-transparent border-0 cursor-pointer text-[.72rem] font-bold text-primary-600 px-[.3rem] py-[.1rem] rounded hover:bg-accentSoft" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
                   </div>
                   <div class="overflow-y-auto flex-1">
                     <template x-if="ssGrouped">
                       <div>
                         <template x-for="grp in ssFilteredOpts()" :key="grp.label">
                           <div>
-                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-neutral-400 bg-white" x-text="grp.label"></div>
+                            <div class="px-3 pt-[.4rem] pb-[.15rem] text-[.68rem] font-bold tracking-[.04em] uppercase text-faint bg-card" x-text="grp.label"></div>
                             <template x-for="opt in grp.items" :key="opt.value">
-                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                              <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                                   :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                    @click="ssSelect(opt.value)">
                                 <template x-if="ssMulti">
                                   <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -2161,8 +2218,8 @@
                     <template x-if="!ssGrouped">
                       <div>
                         <template x-for="opt in ssFilteredOpts()" :key="opt.value">
-                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-neutral-700 cursor-pointer transition-colors hover:bg-neutral-50"
-                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-primary-900 font-semibold' : ''"
+                          <div class="flex items-center gap-[.55rem] px-3 py-2 text-[.84rem] text-ink cursor-pointer transition-colors hover:bg-elev"
+                               :class="ssIsSelected(opt.value) ? 'bg-primary-800/[.06] text-ink font-semibold' : ''"
                                @click="ssSelect(opt.value)">
                             <template x-if="ssMulti">
                               <input type="checkbox" class="w-3.5 h-3.5 shrink-0 accent-primary-600 cursor-pointer" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
@@ -2179,15 +2236,15 @@
                       </div>
                     </template>
                     <template x-if="ssFilteredOpts().length===0">
-                      <div class="py-[.9rem] px-3 text-[.8rem] text-neutral-400 text-center">لا نتائج</div>
+                      <div class="py-[.9rem] px-3 text-[.8rem] text-faint text-center">لا نتائج</div>
                     </template>
                   </div>
                 </div>
               </div>
               <div class="sm:col-span-2">
-                <div class="flex items-start gap-4 p-4 bg-primary-50 rounded-xl border border-primary-100">
+                <div class="flex items-start gap-4 p-4 bg-accentSoft rounded-xl border border-primary-100">
                   <svg class="text-primary-600 shrink-0 mt-0.5" width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 7v4M8 5.5h.01"/></svg>
-                  <p class="text-sm text-primary-700">التصدير يُعمَل في الخلفية — ستتلقى إشعاراً عند اكتمال الملف ليصبح جاهزاً للتحميل. تنطبق قيود الفوترة وحد المهام النشطة.</p>
+                  <p class="text-sm text-ink">التصدير يُعمَل في الخلفية — ستتلقى إشعاراً عند اكتمال الملف ليصبح جاهزاً للتحميل. تنطبق قيود الفوترة وحد المهام النشطة.</p>
                 </div>
               </div>
             </div>
@@ -2200,13 +2257,13 @@
             </div>
             <!-- recent jobs -->
             <div x-show="s.exportJobs.length" class="mt-6">
-              <div class="text-sm font-bold text-neutral-700 mb-2">مهام التصدير الأخيرة</div>
+              <div class="text-sm font-bold text-ink mb-2">مهام التصدير الأخيرة</div>
               <div class="flex flex-col gap-2">
                 <template x-for="job in s.exportJobs" :key="job.id">
-                  <div class="flex items-center gap-3 p-3 rounded-xl border border-neutral-100 bg-neutral-50">
+                  <div class="flex items-center gap-3 p-3 rounded-xl border border-line bg-elev">
                     <div class="flex-1">
-                      <span class="font-semibold text-sm text-primary-800" x-text="job.entityLabel+' — '+job.format.toUpperCase()"></span>
-                      <div class="text-xs text-neutral-400 mt-0.5" x-text="timeAgo(job.createdAt)"></div>
+                      <span class="font-semibold text-sm text-ink" x-text="job.entityLabel+' — '+job.format.toUpperCase()"></span>
+                      <div class="text-xs text-faint mt-0.5" x-text="timeAgo(job.createdAt)"></div>
                     </div>
                     <span class="adm-badge" :class="job.status==='done'?'b-success':(job.status==='running'?'b-info':'b-warning')"
                           x-text="job.status==='done'?'جاهز':(job.status==='running'?'جارٍ':'في الانتظار')"></span>
@@ -2230,18 +2287,18 @@
         <div class="adm-card mb-4">
           <div class="adm-card-head">
             <div class="adm-card-title">تفضيلات الإشعارات</div>
-            <p class="text-xs text-neutral-500">خاصة بحسابك — لا تؤثر على بقية الفريق</p>
+            <p class="text-xs text-muted">خاصة بحسابك — لا تؤثر على بقية الفريق</p>
           </div>
           <div class="p-5 flex flex-col gap-5 max-w-lg">
             <!-- Channels -->
             <div>
-              <div class="text-sm font-bold text-neutral-700 mb-3">قنوات الاستقبال</div>
+              <div class="text-sm font-bold text-ink mb-3">قنوات الاستقبال</div>
               <div class="flex flex-col gap-3">
                 <template x-for="ch in notifChannelDefs" :key="ch.key">
                   <label class="flex items-center justify-between gap-4 cursor-pointer">
                     <div>
-                      <p class="text-sm font-semibold text-neutral-800" x-text="ch.label"></p>
-                      <p class="text-xs text-neutral-500" x-text="ch.desc"></p>
+                      <p class="text-sm font-semibold text-ink" x-text="ch.label"></p>
+                      <p class="text-xs text-muted" x-text="ch.desc"></p>
                     </div>
                     <div class="adm-switch" :class="s.notifPrefs.channels[ch.key]&&'on'"
                          @click="s.notifPrefs.channels[ch.key]=!s.notifPrefs.channels[ch.key]"
@@ -2252,13 +2309,13 @@
             </div>
             <!-- Events -->
             <div>
-              <div class="text-sm font-bold text-neutral-700 mb-3">أحداث الإشعار</div>
+              <div class="text-sm font-bold text-ink mb-3">أحداث الإشعار</div>
               <div class="flex flex-col gap-3">
                 <template x-for="ev in notifEventDefs" :key="ev.key">
                   <label class="flex items-center justify-between gap-4 cursor-pointer">
                     <div>
-                      <p class="text-sm font-semibold text-neutral-800" x-text="ev.label"></p>
-                      <p class="text-xs text-neutral-500" x-text="ev.desc"></p>
+                      <p class="text-sm font-semibold text-ink" x-text="ev.label"></p>
+                      <p class="text-xs text-muted" x-text="ev.desc"></p>
                     </div>
                     <div class="adm-switch" :class="s.notifPrefs.events[ev.key]&&'on'"
                          @click="s.notifPrefs.events[ev.key]=!s.notifPrefs.events[ev.key]"
@@ -2268,11 +2325,11 @@
               </div>
             </div>
             <!-- Quiet hours -->
-            <div class="border-t border-neutral-100 pt-4">
+            <div class="border-t border-line pt-4">
               <label class="flex items-center justify-between gap-4 cursor-pointer mb-3">
                 <div>
-                  <p class="text-sm font-bold text-neutral-800">ساعات الصمت</p>
-                  <p class="text-xs text-neutral-500">لا إشعارات خلال الفترة المحددة</p>
+                  <p class="text-sm font-bold text-ink">ساعات الصمت</p>
+                  <p class="text-xs text-muted">لا إشعارات خلال الفترة المحددة</p>
                 </div>
                 <div class="adm-switch" :class="s.notifPrefs.quietHoursEnabled&&'on'"
                      @click="s.notifPrefs.quietHoursEnabled=!s.notifPrefs.quietHoursEnabled"
@@ -2283,7 +2340,7 @@
                   <label class="ec-label text-[.75rem]">من</label>
                   <input type="time" class="ec-input w-32 font-latin" x-model="s.notifPrefs.quietFrom" dir="ltr" />
                 </div>
-                <span class="text-neutral-400 mt-4">—</span>
+                <span class="text-faint mt-4">—</span>
                 <div>
                   <label class="ec-label text-[.75rem]">إلى</label>
                   <input type="time" class="ec-input w-32 font-latin" x-model="s.notifPrefs.quietTo" dir="ltr" />
@@ -2299,7 +2356,7 @@
 
   <!-- ===== Sticky save bar ===== -->
   <div x-show="dirty" x-transition
-       class="fixed bottom-0 start-0 end-0 z-40 bg-white border-t border-neutral-200 shadow-xl flex items-center justify-end gap-3 px-6 py-3.5">
+       class="fixed bottom-0 start-0 end-0 z-40 bg-card border-t border-lineStrong shadow-xl flex items-center justify-end gap-3 px-6 py-3.5">
     <span class="text-xs text-warning font-semibold me-auto flex items-center gap-1.5">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.5"/><path d="M8 5v3.5l2 1.5"/></svg>
       لديك تغييرات غير محفوظة
@@ -2319,7 +2376,7 @@
         <button @click="confirmDialog.open=false" class="adm-icon-btn w-8 h-8"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
       </div>
       <div class="adm-modal-body">
-        <p class="text-sm text-neutral-700" x-text="confirmDialog.msg"></p>
+        <p class="text-sm text-ink" x-text="confirmDialog.msg"></p>
       </div>
       <div class="adm-modal-foot">
         <button class="adm-btn adm-btn-danger-solid" @click="confirmDialog.onConfirm(); confirmDialog.open=false" x-text="confirmDialog.confirmLabel||'حذف'"></button>
@@ -2811,6 +2868,12 @@ function settings() {
     };
     return {
       navOpen:false, userMenu:false, bellOpen:false, createMenu:false,
+      theme: (localStorage.getItem('theme') || 'light'),
+      toggleTheme(){
+        this.theme = this.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.classList.toggle('dark', this.theme === 'dark');
+        localStorage.setItem('theme', this.theme);
+      },
       // ===== Window manager: draggable · resizable · multi-window · dedup (one window per entity) =====
       windows:[], winSeq:0, topZ:0, dragId:null, dragMode:null, animId:null, _drag:null,
       openWindow(d){
