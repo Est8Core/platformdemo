@@ -631,41 +631,47 @@
     </div><!-- /quick -->
 
     <!-- ─── MODE: ADVANCED REPORT BUILDER ─── -->
-    <div x-show="exportMode==='advanced'">
+    <div x-show="exportMode==='advanced'" class="flex flex-col" style="height:calc(100dvh - 220px);min-height:500px">
 
-      <!-- Back + Title bar -->
-      <div class="flex items-center justify-between mb-4">
-        <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="exportMode=''">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3l-5 5 5 5"/></svg>
-          العودة للاختيار
-        </button>
-        <div class="flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="1.7"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M11.5 9v4M9.5 11h4"/></svg>
-          <span class="text-sm font-bold text-primary-800">منشئ التقارير المتقدّم</span>
+      <!-- ══ FIXED HEADER ══ -->
+      <div class="flex-shrink-0 adm-card mb-0 rounded-b-none border-b-0">
+        <!-- Back + Title bar -->
+        <div class="flex items-center justify-between px-5 pt-4 pb-3 border-b border-neutral-100">
+          <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="exportMode=''">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3l-5 5 5 5"/></svg>
+            العودة
+          </button>
+          <div class="flex items-center gap-2">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="1.7"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M11.5 9v4M9.5 11h4"/></svg>
+            <span class="text-sm font-bold text-primary-800">منشئ التقارير المتقدّم</span>
+          </div>
+          <div class="w-24"></div><!-- spacer لموازنة الـ flex -->
         </div>
-      </div>
-
-      <!-- 5-step progress indicator -->
-      <div class="adm-card mb-4 p-4">
-        <div class="flex items-center gap-0">
-          <template x-for="(s, i) in advSteps" :key="i">
-            <div class="flex items-center min-w-0">
-              <div class="flex items-center gap-2 shrink-0">
-                <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition"
-                     :class="advStep>i ? 'bg-success text-white' : (advStep===i ? 'text-white' : 'bg-neutral-100 text-neutral-400')"
-                     :style="advStep===i ? 'background:#C8A24B' : ''">
-                  <template x-if="advStep>i">
-                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
-                  </template>
-                  <span x-show="advStep<=i" x-text="i+1"></span>
+        <!-- Step indicator -->
+        <div class="px-5 py-3">
+          <div class="flex items-center gap-0">
+            <template x-for="(s, i) in advSteps" :key="i">
+              <div class="flex items-center min-w-0">
+                <div class="flex items-center gap-2 shrink-0">
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition"
+                       :class="advStep>i ? 'bg-success text-white' : (advStep===i ? 'text-white' : 'bg-neutral-100 text-neutral-400')"
+                       :style="advStep===i ? 'background:#C8A24B' : ''">
+                    <template x-if="advStep>i">
+                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
+                    </template>
+                    <span x-show="advStep<=i" x-text="i+1"></span>
+                  </div>
+                  <span class="text-sm font-semibold hidden sm:block" :class="advStep===i?'text-primary-800':'text-neutral-400'" x-text="s"></span>
                 </div>
-                <span class="text-sm font-semibold hidden sm:block" :class="advStep===i?'text-primary-800':'text-neutral-400'" x-text="s"></span>
+                <div x-show="i<advSteps.length-1" class="flex-1 h-0.5 mx-3 min-w-[1.5rem]" :class="advStep>i?'bg-success':'bg-neutral-200'"></div>
               </div>
-              <div x-show="i<advSteps.length-1" class="flex-1 h-0.5 mx-3 min-w-[1.5rem]" :class="advStep>i?'bg-success':'bg-neutral-200'"></div>
-            </div>
-          </template>
+            </template>
+          </div>
         </div>
       </div>
+
+      <!-- ══ SCROLLABLE BODY ══ -->
+      <div class="flex-1 overflow-y-auto bg-white border border-t-0 border-b-0 border-neutral-200">
 
       <!-- ═══ ADV STEP 1: Base Entity ═══ -->
       <div x-show="advStep===0" class="adm-card p-6">
@@ -699,190 +705,143 @@
             </button>
           </template>
         </div>
-        <!-- ═══ قوالب محفوظة — تُحمَّل مباشرة لخطوة الاختبار ═══ -->
-        <div class="mt-7" x-show="advTemplates.length > 0">
-          <div class="flex items-center gap-2 mb-3">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C8A24B" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 17h7M17.5 14v7"/></svg>
-            <span class="text-sm font-bold text-primary-800">أو جلب قالب محفوظ</span>
-            <span class="adm-badge b-neutral text-xs" x-text="advTemplates.length + ' قالب'"></span>
+      </div>
+
+      <!-- ═══ ADV STEP 2: البيانات والأعمدة (مدمج) ═══ -->
+      <div x-show="advStep===1" class="adm-card">
+
+        <!-- ── قسم العلاقات ── -->
+        <div class="p-5 border-b border-neutral-100">
+          <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+            <div>
+              <h3 class="text-base font-bold text-primary-800">البيانات المرتبطة</h3>
+              <p class="text-sm text-neutral-500 mt-0.5">انقر على علاقة لإضافتها وتحديد أعمدتها — اختياري.</p>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="adm-badge b-neutral text-xs" x-text="advJoins.length + ' علاقة مضافة'"></span>
+              <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="advAddAllJoins()" x-show="advAvailableRelations().length > advJoins.length">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+                إضافة الكل
+              </button>
+              <button class="adm-btn adm-btn-ghost adm-btn-sm text-danger" @click="advRemoveAllJoins()" x-show="advJoins.length > 0">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                إزالة الكل
+              </button>
+            </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <template x-for="t in advTemplates" :key="t.id">
-              <div class="flex items-start gap-3 p-4 rounded-xl border border-neutral-200 bg-white hover:border-amber-300 hover:bg-amber-50 transition cursor-pointer group"
-                   @click="advLoadTemplate(t)">
-                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-neutral-100 group-hover:bg-amber-100 transition">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C8A24B" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-sm font-bold text-primary-800 group-hover:text-amber-800 transition" x-text="t.name"></span>
-                    <span class="adm-badge text-xs" :class="t.isShared ? 'b-info' : 'b-neutral'" x-text="t.isShared ? 'مشترك' : 'خاص'"></span>
+
+          <!-- Available relations -->
+          <template x-if="advAvailableRelations().length > 0">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <template x-for="rel in advAvailableRelations()" :key="rel.id">
+                <div>
+                  <!-- Relation card / toggle -->
+                  <div class="flex items-start gap-3 p-3.5 rounded-xl border-2 transition cursor-pointer"
+                       :class="advJoins.includes(rel.id) ? 'border-amber-400 bg-amber-50 rounded-b-none border-b-0' : 'border-neutral-200 hover:border-amber-300 bg-white'"
+                       @click="advToggleJoin(rel.id)">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-0.5">
+                        <span class="font-semibold text-sm" :class="advJoins.includes(rel.id)?'text-amber-800':'text-neutral-700'" x-text="rel.label"></span>
+                        <span x-show="rel.relType==='one_to_many'" class="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">١-لـ-ن</span>
+                      </div>
+                      <p x-show="rel.relType==='one_to_many'" class="text-xs text-amber-600">أعمدتها تحتاج دالة تجميع</p>
+                      <p x-show="rel.relType==='many_to_one'" class="text-xs text-neutral-400" x-text="'أعمدة من ' + rel.toLabel"></p>
+                    </div>
+                    <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition"
+                         :class="advJoins.includes(rel.id) ? 'bg-amber-400 text-white' : 'bg-neutral-100 text-neutral-400'">
+                      <template x-if="advJoins.includes(rel.id)">
+                        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
+                      </template>
+                      <template x-if="!advJoins.includes(rel.id)">
+                        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
+                      </template>
+                    </div>
                   </div>
-                  <div class="text-xs text-neutral-500 mt-0.5 truncate" x-text="t.description||'—'"></div>
-                  <div class="flex items-center gap-3 mt-1.5">
-                    <span class="text-xs text-neutral-400 flex items-center gap-1">
-                      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5l2 1.5"/></svg>
-                      <span x-text="t.lastUsedAt ? fmtDate(t.lastUsedAt) : '—'"></span>
-                    </span>
-                    <span class="text-xs text-neutral-400 flex items-center gap-1">
-                      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v12M2 8h12"/></svg>
-                      <span x-text="fmtNum(t.usageCount) + ' استخدام'"></span>
-                    </span>
+
+                  <!-- Inline columns for this relation (shown when join active) -->
+                  <div x-show="advJoins.includes(rel.id)" class="border-2 border-t-0 border-amber-400 rounded-b-xl bg-amber-50/40 px-3 pb-3 pt-2">
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-xs font-bold text-amber-700">أعمدة <span x-text="rel.toLabel"></span></span>
+                      <button class="text-xs text-amber-700 hover:text-amber-900 font-semibold underline underline-offset-2"
+                              @click.stop="advToggleAllColsForEntity(rel.to, rel.relType==='one_to_many')"
+                              x-text="advAllColsSelectedForEntity(rel.to) ? 'إلغاء تحديد الكل' : 'تحديد الكل'"></button>
+                    </div>
+                    <template x-for="col in advCatalogColumns[rel.to] || []" :key="rel.to+'.'+col.key">
+                      <div class="mb-1.5 rounded-lg border overflow-hidden"
+                           :class="advCols.includes(rel.to+'.'+col.key) ? (rel.relType==='one_to_many' ? 'border-amber-400 bg-white' : 'border-primary-300 bg-white') : 'border-neutral-200 bg-white'">
+                        <label class="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-neutral-50 transition">
+                          <input type="checkbox"
+                                 :checked="advCols.includes(rel.to+'.'+col.key)"
+                                 @change="advToggleCol(rel.to+'.'+col.key, $event.target.checked); advTested=false; advTestResult=null"
+                                 class="rounded shrink-0" />
+                          <span class="text-sm text-neutral-700 truncate flex-1" x-text="col.label"></span>
+                          <span class="text-xs text-neutral-400 font-latin shrink-0" x-text="col.type"></span>
+                        </label>
+                        <!-- Aggregate picker for one-to-many -->
+                        <div x-show="advCols.includes(rel.to+'.'+col.key) && rel.relType==='one_to_many'"
+                             class="border-t border-amber-200 bg-amber-50 px-3 pb-2 pt-1.5">
+                          <label class="text-xs text-amber-700 font-semibold mb-1 block">دالة التجميع</label>
+                          <select :value="advAgg[rel.to+'.'+col.key] || 'count'"
+                                  @change="advAgg[rel.to+'.'+col.key]=$event.target.value; advTested=false; advTestResult=null"
+                                  class="ec-input text-xs py-1" style="min-height:auto">
+                            <template x-for="fn in advCatalogAggFns" :key="fn.id">
+                              <option :value="fn.id" :selected="(advAgg[rel.to+'.'+col.key]||'count')===fn.id" x-text="fn.label"></option>
+                            </template>
+                          </select>
+                        </div>
+                      </div>
+                    </template>
                   </div>
                 </div>
-                <div class="shrink-0 opacity-0 group-hover:opacity-100 transition mt-0.5">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#C8A24B" stroke-width="2"><path d="M10 3l5 5-5 5"/><path d="M1 8h14"/></svg>
-                </div>
+              </template>
+            </div>
+          </template>
+          <template x-if="advAvailableRelations().length===0">
+            <div class="text-center py-5 text-neutral-400 text-sm">لا علاقات متاحة لهذا الكيان</div>
+          </template>
+        </div>
+
+        <!-- ── قسم الكيان الأساسي (الأعمدة) ── -->
+        <div class="p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-base font-bold text-primary-800">أعمدة الكيان الأساسي</h3>
+              <p class="text-sm text-neutral-500 mt-0.5">
+                <span x-text="advCatalogBaseEntities.find(e=>e.name===advBase)?.label||advBase"></span>
+                — حدد الأعمدة التي تريد تضمينها في التقرير.
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="adm-badge b-info" x-text="advCols.length + ' محدد'"></span>
+              <button class="adm-btn adm-btn-ghost adm-btn-sm"
+                      @click="advToggleAllColsForEntity(advBase, false)"
+                      x-text="advAllColsSelectedForEntity(advBase) ? 'إلغاء تحديد الكل' : 'تحديد الكل'"></button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            <template x-for="col in advCatalogColumns[advBase] || []" :key="advBase+'.'+col.key">
+              <div class="rounded-xl border-2 overflow-hidden transition"
+                   :class="advCols.includes(advBase+'.'+col.key) ? 'border-primary-400' : 'border-neutral-200'">
+                <label class="flex items-center gap-2.5 p-3 cursor-pointer bg-white hover:bg-neutral-50 transition">
+                  <input type="checkbox"
+                         :checked="advCols.includes(advBase+'.'+col.key)"
+                         @change="advToggleCol(advBase+'.'+col.key, $event.target.checked); advTested=false; advTestResult=null"
+                         class="rounded shrink-0" />
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium text-neutral-700 truncate" x-text="col.label"></div>
+                    <div class="text-xs text-neutral-400 font-latin truncate" x-text="col.type"></div>
+                  </div>
+                </label>
               </div>
             </template>
           </div>
         </div>
 
-        <div class="flex justify-end mt-6">
-          <button class="adm-btn adm-btn-primary" :disabled="!advBase" @click="advStep=1" style="background:#C8A24B;border-color:#C8A24B">
-            التالي — إضافة بيانات مرتبطة
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
-          </button>
-        </div>
       </div>
 
-      <!-- ═══ ADV STEP 2: Joins ═══ -->
-      <div x-show="advStep===1" class="adm-card p-6">
-        <div class="flex items-start justify-between mb-1">
-          <div>
-            <h3 class="text-base font-bold text-primary-800">إضافة بيانات مرتبطة</h3>
-            <p class="text-sm text-neutral-500 mt-0.5">اختر الجداول التي تريد ضمّها — يمكن تركها فارغة.</p>
-          </div>
-          <span class="adm-badge b-neutral text-xs" x-text="advJoins.length + ' علاقة مضافة'"></span>
-        </div>
-
-        <!-- Added joins chips -->
-        <div class="flex flex-wrap gap-2 mt-4 mb-5 min-h-[2rem]" x-show="advJoins.length">
-          <template x-for="jid in advJoins" :key="jid">
-            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border transition"
-                 :class="advCatalogRelations.find(r=>r.id===jid)&&advCatalogRelations.find(r=>r.id===jid).relType==='one_to_many' ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-primary-50 border-primary-200 text-primary-800'">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
-              <span x-text="advCatalogRelations.find(r=>r.id===jid) ? advCatalogRelations.find(r=>r.id===jid).label : jid"></span>
-              <button @click="advJoins=advJoins.filter(x=>x!==jid); advCols=advCols.filter(c=>!c.startsWith((advCatalogRelations.find(r=>r.id===jid)||{}).to+'.')); advTested=false; advTestResult=null" class="hover:text-danger ml-1">
-                <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
-              </button>
-            </div>
-          </template>
-        </div>
-
-        <!-- Available relations grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <template x-for="rel in advAvailableRelations()" :key="rel.id">
-            <div class="flex items-start gap-3 p-4 rounded-xl border-2 transition cursor-pointer"
-                 :class="advJoins.includes(rel.id) ? 'border-amber-400 bg-amber-50' : 'border-neutral-200 hover:border-neutral-300 bg-white'"
-                 @click="advToggleJoin(rel.id)">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="font-semibold text-sm" :class="advJoins.includes(rel.id)?'text-amber-800':'text-neutral-700'" x-text="rel.label"></span>
-                  <span x-show="rel.relType==='one_to_many'" class="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">١-لـ-ن</span>
-                </div>
-                <p x-show="rel.relType==='one_to_many'" class="text-xs text-amber-600">قد يضاعف الصفوف — ستُجمَّع تلقائياً</p>
-                <p x-show="rel.relType==='many_to_one'" class="text-xs text-neutral-400">إضافة أعمدة من <span x-text="rel.toLabel"></span></p>
-              </div>
-              <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition"
-                   :class="advJoins.includes(rel.id) ? 'bg-amber-400 text-white' : 'bg-neutral-100 text-neutral-400'">
-                <template x-if="advJoins.includes(rel.id)">
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l4 4 6-7"/></svg>
-                </template>
-                <template x-if="!advJoins.includes(rel.id)">
-                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3v10M3 8h10"/></svg>
-                </template>
-              </div>
-            </div>
-          </template>
-        </div>
-
-        <template x-if="advAvailableRelations().length===0">
-          <div class="text-center py-8 text-neutral-400 text-sm">لا علاقات متاحة لهذا الكيان</div>
-        </template>
-
-        <div class="flex justify-between mt-6">
-          <button class="adm-btn adm-btn-ghost" @click="advStep=0">
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
-            السابق
-          </button>
-          <button class="adm-btn adm-btn-primary" @click="advStep=2; if(!advCols.length) advAutoSelectCols()" style="background:#C8A24B;border-color:#C8A24B">
-            التالي — اختر الأعمدة
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- ═══ ADV STEP 3: Columns ═══ -->
+      <!-- ═══ ADV STEP 3: Filters + Date Range ═══ -->
       <div x-show="advStep===2" class="adm-card p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h3 class="text-base font-bold text-primary-800">اختر الأعمدة</h3>
-            <p class="text-sm text-neutral-500 mt-0.5">مُجمَّعة حسب الكيان — الأعمدة المجمَّعة تحتاج دالة تجميع.</p>
-          </div>
-          <span class="adm-badge b-info" x-text="advCols.length + ' عمود محدد'"></span>
-        </div>
-
-        <!-- Groups -->
-        <template x-for="grp in advColumnGroups()" :key="grp.relId||grp.entity">
-          <div class="mb-6">
-            <!-- Group header -->
-            <div class="flex items-center gap-2 mb-3">
-              <div class="h-px flex-1 bg-neutral-200"></div>
-              <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold"
-                   :class="grp.isJoin && grp.isOneToMany ? 'bg-amber-100 text-amber-800' : 'bg-primary-50 text-primary-700'">
-                <span x-text="grp.label"></span>
-                <span x-show="grp.isJoin && grp.isOneToMany" class="text-amber-600">• تجميع</span>
-              </div>
-              <div class="h-px flex-1 bg-neutral-200"></div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-              <template x-for="col in grp.cols" :key="grp.entity+'.'+col.key">
-                <div class="rounded-xl border-2 overflow-hidden transition"
-                     :class="advCols.includes(grp.entity+'.'+col.key) ? (grp.isJoin && grp.isOneToMany ? 'border-amber-400' : 'border-primary-400') : 'border-neutral-200'">
-                  <label class="flex items-center gap-2.5 p-3 cursor-pointer bg-white hover:bg-neutral-50 transition">
-                    <input type="checkbox" :value="grp.entity+'.'+col.key"
-                           :checked="advCols.includes(grp.entity+'.'+col.key)"
-                           @change="advToggleCol(grp.entity+'.'+col.key, $event.target.checked); advTested=false; advTestResult=null"
-                           class="rounded shrink-0" />
-                    <div class="flex-1 min-w-0">
-                      <div class="text-sm font-medium text-neutral-700 truncate" x-text="col.label"></div>
-                      <div class="text-xs text-neutral-400 font-latin truncate" x-text="col.type"></div>
-                    </div>
-                  </label>
-                  <!-- Aggregate picker — only for one-to-many joined cols -->
-                  <div x-show="advCols.includes(grp.entity+'.'+col.key) && grp.isJoin && grp.isOneToMany"
-                       class="border-t border-amber-200 bg-amber-50 px-3 pb-2 pt-1.5">
-                    <label class="text-xs text-amber-700 font-semibold mb-1 block">دالة التجميع</label>
-                    <select :value="advAgg[grp.entity+'.'+col.key] || 'count'"
-                            @change="advAgg[grp.entity+'.'+col.key]=$event.target.value; advTested=false; advTestResult=null"
-                            class="ec-input text-xs py-1" style="min-height:auto">
-                      <template x-for="fn in advCatalogAggFns" :key="fn.id">
-                        <option :value="fn.id" :selected="(advAgg[grp.entity+'.'+col.key]||'count')===fn.id" x-text="fn.label"></option>
-                      </template>
-                    </select>
-                  </div>
-                </div>
-              </template>
-            </div>
-          </div>
-        </template>
-
-        <div class="flex justify-between mt-2">
-          <button class="adm-btn adm-btn-ghost" @click="advStep=1">
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
-            السابق
-          </button>
-          <button class="adm-btn adm-btn-primary" :disabled="!advCols.length" @click="advStep=3" style="background:#C8A24B;border-color:#C8A24B">
-            التالي — الفلاتر
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- ═══ ADV STEP 4: Filters + Date Range ═══ -->
-      <div x-show="advStep===3" class="adm-card p-6">
         <div class="flex items-center justify-between mb-4">
           <div>
             <h3 class="text-base font-bold text-primary-800">الفلاتر ونطاق التاريخ</h3>
@@ -976,20 +935,10 @@
           </div>
         </div>
 
-        <div class="flex justify-between mt-5">
-          <button class="adm-btn adm-btn-ghost" @click="advStep=2">
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
-            السابق
-          </button>
-          <button class="adm-btn adm-btn-primary" @click="advStep=4" style="background:#C8A24B;border-color:#C8A24B">
-            التالي — اختبار التقرير
-            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
-          </button>
-        </div>
       </div>
 
-      <!-- ═══ ADV STEP 5: Test + Export ═══ -->
-      <div x-show="advStep===4">
+      <!-- ═══ ADV STEP 4: Test + Export ═══ -->
+      <div x-show="advStep===3">
 
         <!-- Test Panel (prominent, always visible) -->
         <div class="adm-card mb-4">
@@ -1102,10 +1051,10 @@
           </div>
         </div>
 
-        <!-- Format + Actions (only after successful test) -->
-        <div x-show="advTested && advTestResult && advTestResult.valid" x-transition class="adm-card p-6">
+        <!-- Format picker (shown after successful test) -->
+        <div x-show="advTested && advTestResult && advTestResult.valid" x-transition class="p-6 border-t border-neutral-100">
           <h3 class="text-base font-bold text-primary-800 mb-4">صيغة التصدير</h3>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <template x-for="fmt in formats" :key="fmt.id">
               <button @click="advFormat=fmt.id"
                       class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition"
@@ -1115,37 +1064,72 @@
               </button>
             </template>
           </div>
-          <div class="flex flex-wrap gap-3 justify-between">
-            <button class="adm-btn adm-btn-ghost" @click="advStep=3">
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
-              السابق
-            </button>
-            <div class="flex gap-2 flex-wrap">
-              <button class="adm-btn adm-btn-ghost" @click="advOpenSaveModal()">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h8l3 3v9H3z"/><path d="M5 2v4h6V2M5 14v-4h6v4"/></svg>
-                حفظ كقالب متقدّم
+        </div>
+
+      </div><!-- /adv step 4 (test+export) -->
+
+      </div><!-- /scrollable body -->
+
+      <!-- ══ FIXED FOOTER ══ -->
+      <div class="flex-shrink-0 adm-card rounded-t-none border-t border-neutral-200 px-5 py-3 bg-white">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <!-- زر السابق -->
+          <button class="adm-btn adm-btn-ghost"
+                  x-show="advStep > 0"
+                  @click="advStep = advStep - 1">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
+            السابق
+          </button>
+          <div x-show="advStep === 0"></div>
+
+          <!-- أزرار اليمين -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- خطوة 1: الكيان -->
+            <template x-if="advStep === 0">
+              <button class="adm-btn adm-btn-primary" :disabled="!advBase"
+                      @click="advStep=1; if(!advCols.length) advAutoSelectCols()"
+                      style="background:#C8A24B;border-color:#C8A24B">
+                التالي — البيانات والأعمدة
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
               </button>
-              <button class="adm-btn adm-btn-gold" :disabled="!advFormat || quotaUsed >= quotaLimit" @click="advDoExport()">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
-                تصدير التقرير
+            </template>
+            <!-- خطوة 2: البيانات والأعمدة -->
+            <template x-if="advStep === 1">
+              <button class="adm-btn adm-btn-primary" :disabled="!advCols.length"
+                      @click="advStep=2"
+                      style="background:#C8A24B;border-color:#C8A24B">
+                التالي — الفلاتر والمدى
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
               </button>
-            </div>
+            </template>
+            <!-- خطوة 3: الفلاتر -->
+            <template x-if="advStep === 2">
+              <button class="adm-btn adm-btn-primary" @click="advStep=3"
+                      style="background:#C8A24B;border-color:#C8A24B">
+                التالي — اختبار التقرير
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3l5 5-5 5"/></svg>
+              </button>
+            </template>
+            <!-- خطوة 4: الاختبار والتصدير -->
+            <template x-if="advStep === 3">
+              <div class="flex items-center gap-2">
+                <button class="adm-btn adm-btn-ghost"
+                        x-show="advTested && advTestResult && advTestResult.valid"
+                        @click="advOpenSaveModal()">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 2h8l3 3v9H3z"/><path d="M5 2v4h6V2M5 14v-4h6v4"/></svg>
+                  حفظ كقالب
+                </button>
+                <button class="adm-btn adm-btn-gold"
+                        :disabled="!advFormat || quotaUsed >= quotaLimit || !(advTested && advTestResult && advTestResult.valid)"
+                        @click="advDoExport()">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10v3h10v-3M8 2v8M5 7l3 3 3-3"/></svg>
+                  تصدير التقرير
+                </button>
+              </div>
+            </template>
           </div>
         </div>
-
-        <!-- Not-tested nudge -->
-        <div x-show="!advTested || !advTestResult || !advTestResult.valid" class="rounded-xl border-2 border-dashed border-neutral-300 p-5 text-center text-sm text-neutral-400 mt-0">
-          يُطلب تشغيل الاختبار بنجاح قبل ظهور أزرار الحفظ والتصدير.
-        </div>
-
-        <div class="mt-4">
-          <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="advStep=3">
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 3l-5 5 5 5"/></svg>
-            السابق — الفلاتر
-          </button>
-        </div>
-
-      </div><!-- /adv step 5 -->
+      </div><!-- /fixed footer -->
 
     </div><!-- /advanced -->
 
@@ -1159,7 +1143,10 @@
   <!-- =================== TAB 2: TEMPLATES =================== -->
   <div x-show="tab==='templates'">
     <div class="flex justify-between items-center mb-4">
-      <div></div>
+      <div class="text-sm text-neutral-500">
+        <span x-text="templates.filter(t=>t.kind==='quick').length"></span> تصدير سريع ·
+        <span x-text="templates.filter(t=>t.kind==='advanced').length"></span> تقرير متقدّم
+      </div>
       <button class="adm-btn adm-btn-gold" @click="openTplCreate()">
         <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M8 3v10M3 8h10"/></svg>
         قالب جديد
@@ -1169,7 +1156,7 @@
       <div class="overflow-x-auto">
         <table class="adm-table">
           <thead><tr>
-            <th>اسم القالب</th><th>الكيان</th><th>الصيغة</th><th>الأعمدة</th><th>النوع</th><th>الاستخدام</th><th>آخر استخدام</th><th></th>
+            <th>اسم القالب</th><th>نوع القالب</th><th>الكيان</th><th>الصيغة</th><th>الأعمدة</th><th>الاستخدام</th><th>آخر استخدام</th><th></th>
           </tr></thead>
           <tbody>
             <template x-for="t in templates" :key="t.id">
@@ -1178,20 +1165,29 @@
                   <div class="font-semibold text-primary-800 text-sm" x-text="t.name"></div>
                   <div class="text-xs text-neutral-400 mt-0.5" x-text="t.description||'—'"></div>
                 </td>
+                <td>
+                  <span class="adm-badge text-xs"
+                        :class="t.kind==='advanced' ? 'b-warning' : 'b-neutral'"
+                        x-text="t.kind==='advanced' ? 'تقرير متقدّم' : 'تصدير سريع'"></span>
+                </td>
                 <td><span class="adm-badge b-neutral" x-text="entityLabel(t.entityType)"></span></td>
                 <td>
                   <span class="font-bold text-xs px-2 py-1 rounded-md text-white" :style="'background:'+formatColor(t.format)" x-text="t.format.toUpperCase()"></span>
                 </td>
-                <td><span class="adm-badge b-info" x-text="t.columns.length + ' عمود'"></span></td>
                 <td>
-                  <div class="adm-switch" :class="t.isShared&&'on'" @click="t.isShared=!t.isShared" title="مشترك / خاص"></div>
+                  <span x-show="t.kind==='quick'" class="adm-badge b-info" x-text="(t.columns||[]).length + ' عمود'"></span>
+                  <span x-show="t.kind==='advanced'" class="adm-badge b-neutral text-xs">
+                    <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><path d="M11.5 9v4M9.5 11h4"/></svg>
+                    مبني
+                  </span>
                 </td>
                 <td class="font-latin text-sm" x-text="fmtNum(t.usageCount)"></td>
                 <td class="text-xs text-neutral-500" x-text="t.lastUsedAt ? fmtDate(t.lastUsedAt) : '—'"></td>
                 <td>
                   <div class="flex items-center gap-1">
-                    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="useTemplate(t)">استخدم</button>
-                    <button class="adm-icon-btn w-7 h-7" @click="openTplEdit(t)" title="تعديل">
+                    <button class="adm-btn adm-btn-ghost adm-btn-sm" @click="useTemplate(t)"
+                            :title="t.kind==='advanced' ? 'فتح في المنشئ المتقدّم' : 'فتح في التصدير السريع'">استخدم</button>
+                    <button x-show="t.kind==='quick'" class="adm-icon-btn w-7 h-7" @click="openTplEdit(t)" title="تعديل">
                       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11.5 2.5l2 2L6 12l-3 1 1-3z"/></svg>
                     </button>
                     <button class="adm-icon-btn w-7 h-7 text-danger" @click="deleteTemplate(t)" title="حذف">
@@ -1204,7 +1200,7 @@
           </tbody>
         </table>
       </div>
-      <template x-if="!templates.length"><div class="adm-empty">لا قوالب محفوظة — أنشئ أول قالب</div></template>
+      <template x-if="!templates.length"><div class="adm-empty">لا قوالب محفوظة — أنشئ أول قالب أو احفظ تقريراً متقدّماً</div></template>
     </div>
   </div>
 
@@ -1981,12 +1977,32 @@ function dataIO() {
       this.tplModal = { id: null, name: '', description: '', entityType: this.exportEntity, format: this.exportFormat, columns: JSON.parse(JSON.stringify(this.selectedCols)), isShared: false };
     },
 
-    // ---- Templates ----
+    // ---- Templates (موحَّد: quick + advanced) ----
     tplModal: null,
     templates: [
-      { id: 't1', name: 'تقرير العملاء الشهري', description: 'كل العملاء النشطين مع بيانات التواصل', entityType: 'leads', format: 'xlsx', columns: ['id', 'firstName', 'lastName', 'email', 'phone', 'status'], isShared: true, usageCount: 47, lastUsedAt: D(3) },
-      { id: 't2', name: 'صفحة العقارات للبيع', description: 'عقارات للبيع مع الأسعار', entityType: 'properties', format: 'csv', columns: ['id', 'title', 'purpose', 'price', 'currency', 'city'], isShared: false, usageCount: 12, lastUsedAt: D(12) },
-      { id: 't3', name: 'تقرير الصفقات المالي', description: 'جميع الصفقات مع تفاصيل العمولة', entityType: 'deals', format: 'xlsx', columns: ['id', 'dealNumber', 'status', 'finalPrice', 'commissionAmount', 'agentCommission'], isShared: true, usageCount: 31, lastUsedAt: D(1) },
+      { id: 't1', kind: 'quick', name: 'تقرير العملاء الشهري', description: 'كل العملاء النشطين مع بيانات التواصل', entityType: 'leads', format: 'xlsx', columns: ['id', 'firstName', 'lastName', 'email', 'phone', 'status'], isShared: true, usageCount: 47, lastUsedAt: D(3) },
+      { id: 't2', kind: 'quick', name: 'صفحة العقارات للبيع', description: 'عقارات للبيع مع الأسعار', entityType: 'properties', format: 'csv', columns: ['id', 'title', 'purpose', 'price', 'currency', 'city'], isShared: false, usageCount: 12, lastUsedAt: D(12) },
+      { id: 't3', kind: 'quick', name: 'تقرير الصفقات المالي', description: 'جميع الصفقات مع تفاصيل العمولة', entityType: 'deals', format: 'xlsx', columns: ['id', 'dealNumber', 'status', 'finalPrice', 'commissionAmount', 'agentCommission'], isShared: true, usageCount: 31, lastUsedAt: D(1) },
+      {
+        id: 'tpl-adv-1', kind: 'advanced', name: 'تقرير العملاء مع المراحل', entityType: 'leads', format: 'xlsx', columns: [],
+        description: 'قائمة العملاء المحتملين مع مراحلهم ومصادرهم والوكيل المسؤول',
+        isShared: true, usageCount: 14, lastUsedAt: '2026-06-20T10:00:00Z',
+        spec: {
+          base: 'leads', joins: ['lead.contact', 'lead.branch'],
+          columns: ['leads.first_name','leads.last_name','leads.email','leads.budget','leads.created_at'],
+          agg: {}, filters: [], dateCol: 'created_at', dateFrom: '', dateTo: '', format: 'xlsx'
+        }
+      },
+      {
+        id: 'tpl-adv-2', kind: 'advanced', name: 'ملخّص الصفقات والعمولات', entityType: 'deals', format: 'csv', columns: [],
+        description: 'إجمالي الصفقات المُغلقة مع تفاصيل العمولة لكل وكيل',
+        isShared: false, usageCount: 7, lastUsedAt: '2026-06-18T14:30:00Z',
+        spec: {
+          base: 'deals', joins: ['deal.buyer_agent'],
+          columns: ['deals.deal_number','deals.status','deals.final_price','deals.commission_amount','deals.closed_at'],
+          agg: {}, filters: [{ col: 'deals.status', op: 'eq', val: 'closed_won' }], dateCol: 'closed_at', dateFrom: '', dateTo: '', format: 'csv'
+        }
+      },
     ],
 
     openTplCreate() { this.tplModal = { id: null, name: '', description: '', entityType: 'leads', format: 'csv', columns: [], isShared: false }; },
@@ -2011,15 +2027,22 @@ function dataIO() {
     },
 
     useTemplate(t) {
-      this.exportEntity = t.entityType;
-      this.selectedCols = JSON.parse(JSON.stringify(t.columns));
-      this.exportFormat = t.format;
-      this.exportFilters = {};
-      this.exportStep = 0;
-      this.tab = 'export';
       t.usageCount++;
       t.lastUsedAt = new Date().toISOString();
-      this.showToast('تم تحميل القالب في منشئ التصدير');
+      this.tab = 'export';
+      if (t.kind === 'advanced') {
+        // قالب متقدّم → افتح المنشئ المتقدّم من خطوة الاختبار
+        this.advLoadTemplate(t);
+      } else {
+        // قالب سريع → افتح المصدّر السريع
+        this.exportEntity = t.entityType;
+        this.selectedCols = Array.isArray(t.columns) ? t.columns.slice() : [];
+        this.exportFormat = t.format;
+        this.exportFilters = {};
+        this.exportMode = 'quick';
+        this.exportStep = 1;
+        this.showToast('تم تحميل القالب في منشئ التصدير');
+      }
     },
 
     // ---- Schedules ----
@@ -2378,7 +2401,7 @@ function dataIO() {
     },
 
     // ─ Advanced Builder State ─
-    advSteps: ['الكيان الأساسي', 'البيانات المرتبطة', 'الأعمدة', 'الفلاتر', 'الاختبار والتصدير'],
+    advSteps: ['الكيان الأساسي', 'البيانات والأعمدة', 'الفلاتر والمدى', 'الاختبار والتصدير'],
     advStep: 0,
     advBase: '',
     advJoins: [],
@@ -2393,28 +2416,6 @@ function dataIO() {
     advTested: false,
     advTestResult: null,
     advSaveModal: null,
-    advTemplates: [
-      {
-        id: 'tpl-adv-1', name: 'تقرير العملاء مع المراحل', isShared: true,
-        description: 'قائمة العملاء المحتملين مع مراحلهم ومصادرهم والوسيل المسؤول',
-        usageCount: 14, lastUsedAt: '2026-06-20T10:00:00Z',
-        spec: {
-          base: 'leads', joins: ['lead.stage', 'lead.source'],
-          columns: ['leads.first_name','leads.last_name','leads.email','leads.budget','leads.created_at'],
-          agg: {}, filters: [], dateCol: 'leads.created_at', dateFrom: '', dateTo: '', format: 'xlsx'
-        }
-      },
-      {
-        id: 'tpl-adv-2', name: 'ملخّص الصفقات والعمولات', isShared: false,
-        description: 'إجمالي الصفقات المُغلقة مع تفاصيل العمولة لكل وكيل',
-        usageCount: 7, lastUsedAt: '2026-06-18T14:30:00Z',
-        spec: {
-          base: 'deals', joins: ['deal.assigned_agent'],
-          columns: ['deals.title','deals.status','deals.deal_value','deals.commission_amount','deals.closed_at'],
-          agg: {}, filters: [{ col: 'deals.status', op: 'eq', val: 'closed' }], dateCol: 'deals.closed_at', dateFrom: '', dateTo: '', format: 'csv'
-        }
-      },
-    ],
 
     // ─ Advanced Builder Functions ─
 
@@ -2439,6 +2440,51 @@ function dataIO() {
     advAutoSelectCols() {
       const baseCols = (this.advCatalogColumns[this.advBase] || []).slice(0, 5).map(c => this.advBase + '.' + c.key);
       this.advCols = baseCols;
+    },
+
+    // إضافة كل العلاقات المتاحة دفعةً واحدة
+    advAddAllJoins() {
+      const available = this.advAvailableRelations();
+      const toAdd = available.filter(r => !this.advJoins.includes(r.id)).map(r => r.id);
+      this.advJoins = [...this.advJoins, ...toAdd];
+      this.advTested = false;
+      this.advTestResult = null;
+    },
+
+    // إزالة كل العلاقات + أعمدتها
+    advRemoveAllJoins() {
+      const available = this.advAvailableRelations();
+      for (const rel of available) {
+        const relDef = this.advCatalogRelations.find(r => r.id === rel.id);
+        if (relDef) this.advCols = this.advCols.filter(c => !c.startsWith(relDef.to + '.'));
+      }
+      this.advJoins = [];
+      this.advTested = false;
+      this.advTestResult = null;
+    },
+
+    // تحديد / إلغاء تحديد كل أعمدة كيان معيّن
+    advToggleAllColsForEntity(entityName, isOneToMany) {
+      const cols = (this.advCatalogColumns[entityName] || []).map(c => entityName + '.' + c.key);
+      const allSelected = cols.every(k => this.advCols.includes(k));
+      if (allSelected) {
+        this.advCols = this.advCols.filter(c => !cols.includes(c));
+        cols.forEach(k => { delete this.advAgg[k]; });
+      } else {
+        const toAdd = cols.filter(k => !this.advCols.includes(k));
+        this.advCols = [...this.advCols, ...toAdd];
+        if (isOneToMany) {
+          toAdd.forEach(k => { if (!this.advAgg[k]) this.advAgg[k] = 'count'; });
+        }
+      }
+      this.advTested = false;
+      this.advTestResult = null;
+    },
+
+    // هل كل أعمدة الكيان محدّدة؟
+    advAllColsSelectedForEntity(entityName) {
+      const cols = (this.advCatalogColumns[entityName] || []).map(c => entityName + '.' + c.key);
+      return cols.length > 0 && cols.every(k => this.advCols.includes(k));
     },
 
     advColumnGroups() {
@@ -2587,17 +2633,22 @@ function dataIO() {
         dateTo: this.advDateTo,
         format: this.advFormat,
       };
-      this.advTemplates.unshift({
+      // أضف للقائمة الموحّدة templates بـ kind: 'advanced'
+      this.templates.unshift({
         id: 'adv-' + Date.now(),
+        kind: 'advanced',
         name: this.advSaveModal.name,
         description: this.advSaveModal.description,
+        entityType: this.advBase,
+        format: this.advFormat,
+        columns: [],
         isShared: this.advSaveModal.isShared,
         spec,
         usageCount: 0,
-        savedAt: new Date().toISOString(),
+        lastUsedAt: null,
       });
       this.advSaveModal = null;
-      this.showToast('تم حفظ القالب المتقدّم');
+      this.showToast('تم حفظ القالب المتقدّم في تبويب القوالب');
     },
 
     advLoadTemplate(t) {
@@ -2614,9 +2665,8 @@ function dataIO() {
       this.advFormat   = s.format   || 'csv';
       this.advTested   = false;
       this.advTestResult = null;
-      this.advStep     = 4; // jump to test step
+      this.advStep     = 3; // jump to test step (step 4 of 4)
       this.exportMode  = 'advanced';
-      t.usageCount     = (t.usageCount || 0) + 1;
       this.showToast('تم تحميل القالب في المنشئ المتقدّم');
     },
 
