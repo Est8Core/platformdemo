@@ -144,6 +144,51 @@
     .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
     .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
 
+    /* ===== Smart Select — shared component (replaces <select> app-wide) ===== */
+    /* Trigger */
+    .ss-trigger { display:flex; align-items:center; gap:.45rem; width:100%; padding:.5rem .75rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; cursor:pointer; transition:all .15s; min-height:36px; text-align:start; position:relative; }
+    .ss-trigger:hover { border-color:#C4CBDA; }
+    .ss-trigger.open { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ss-trigger.sm, .ss-trigger-sm { padding:.32rem .6rem; font-size:.78rem; min-height:30px; }
+    .ss-placeholder { color:#9BA6BB; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .ss-value { flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; color:#1E2A45; }
+    /* Arrow */
+    .ss-arrow { flex-shrink:0; color:#9BA6BB; transition:transform .15s; }
+    .ss-trigger.open .ss-arrow { transform:rotate(180deg); }
+    /* Clear btn */
+    .ss-clear { flex-shrink:0; color:#C4CBDA; border:none; background:none; padding:0; cursor:pointer; display:flex; align-items:center; border-radius:4px; }
+    .ss-clear:hover { color:#C0392B; }
+    /* Multi chips row */
+    .ss-chips { display:flex; flex-wrap:wrap; gap:.25rem; flex:1; min-width:0; }
+    .ss-chip { display:inline-flex; align-items:center; gap:.25rem; background:rgba(11,31,58,.08); color:#1E2A45; border-radius:6px; font-size:.72rem; font-weight:600; padding:.15rem .45rem; max-width:10rem; }
+    .ss-chip-label { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .ss-chip-x { cursor:pointer; flex-shrink:0; color:#6E7F9C; }
+    .ss-chip-x:hover { color:#C0392B; }
+    /* Panel (position:fixed — escapes overflow clipping) */
+    .ss-panel { position:fixed; z-index:88; background:#fff; border:1.5px solid #DDE1EA; border-radius:.75rem; box-shadow:0 12px 40px rgba(11,31,58,.15),0 4px 12px rgba(11,31,58,.08); min-width:180px; max-height:280px; display:flex; flex-direction:column; overflow:hidden; }
+    /* Panel search */
+    .ss-search { padding:.45rem .7rem; border-bottom:1px solid #EEF0F5; flex-shrink:0; }
+    .ss-search-input { width:100%; border:1.5px solid #EEF0F5; border-radius:.45rem; padding:.3rem .55rem; font-size:.82rem; color:#1E2A45; background:#F8F9FB; outline:none; transition:.15s; }
+    .ss-search-input:focus { border-color:#C8A24B; background:#fff; }
+    /* Panel header (select-all / counter for multi) */
+    .ss-panel-head { padding:.35rem .75rem; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; font-size:.73rem; font-weight:600; color:#6E7F9C; background:#FBFCFE; }
+    .ss-panel-head-btn { background:none; border:none; cursor:pointer; font-size:.72rem; font-weight:700; color:#1A4590; padding:.1rem .3rem; border-radius:4px; }
+    .ss-panel-head-btn:hover { background:#EAF0F8; }
+    /* Options list */
+    .ss-list { overflow-y:auto; flex:1; }
+    .ss-option { display:flex; align-items:center; gap:.55rem; padding:.5rem .75rem; font-size:.84rem; color:#344260; cursor:pointer; transition:.1s; }
+    .ss-option:hover { background:#F4F6FA; }
+    .ss-option.selected { background:rgba(26,69,144,.06); color:#102A4C; font-weight:600; }
+    /* Check icon (SVG — shown only for selected) */
+    .ss-check { width:14px; height:14px; flex-shrink:0; color:#1A4590; }
+    .ss-check-placeholder { width:14px; flex-shrink:0; }
+    /* Option checkbox (multi mode) */
+    .ss-cb { width:14px; height:14px; flex-shrink:0; accent-color:#1A4590; cursor:pointer; }
+    /* Group label (optgroup equivalent) */
+    .ss-group-label { padding:.4rem .75rem .15rem; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#9BA6BB; background:#fff; }
+    /* Empty state */
+    .ss-empty { padding:.9rem .75rem; font-size:.8rem; color:#9BA6BB; text-align:center; }
+
     /* ===== Embed mode (detail shown inside a quick-view drawer iframe → hide chrome) ===== */
     .crm-embed .crm-sidebar, .crm-embed .crm-topbar { display:none !important; }
     .crm-embed .crm-main { margin-inline-start:0 !important; }
@@ -782,6 +827,116 @@ function leads(){
       // Return an OBJECT (not a string): a string :style overwrites the whole style attr and wipes
       // x-show's display:none → all row menus stay visible & stacked. An object merges, so x-show works.
       fmStyle(){ return { top: this.fmTop+'px', right: this.fmRight+'px' }; },
+    };
+  }
+  // ===== Smart Select mixin (spread: {...smartSelect({id, optionsFn, multi, searchable, selectAll, placeholder, onChange})})
+  // Usage (single):  x-data="{ myVal:'', ...smartSelect({ id:'ss-col', optionsFn: ()=>myOptions(), placeholder:'اختر...', onChange: v=>{ myVal=v; } }) }"
+  // Usage (multi):   x-data="{ myArr:[], ...smartSelect({ id:'ss-tags', multi:true, selectAll:true, optionsFn: ()=>myOpts(), onChange: v=>{ myArr=v; } }) }"
+  // Note: optionsFn is called inside Alpine template expressions so Alpine tracks reactive dependencies properly.
+  // Panel is position:fixed — escapes overflow:hidden (tables, drawers). Positions from getBoundingClientRect like floatMenu.
+  // Guard pattern: .stop on the trigger prevents @click.outside (on panel) from firing on the SAME open-click.
+  // Multi-instance: broadcasts 'ss-open' so other instances close when you open a new one.
+  // =========================================================================================================
+  function smartSelect({ id, optionsFn, grouped=false, multi=false, searchable=true, selectAll=false, placeholder='— اختر —', onChange=null }={}){
+    return {
+      ssId: id || ('ss-'+ Math.random().toString(36).slice(2,7)),
+      ssOpen: false,
+      ssSearch: '',
+      ssTop: 0, ssRight: 0, ssWidth: 200,
+      _ssGuard: false,
+      ssValue: multi ? [] : '',   // internal value — caller mirrors via onChange
+      // ── Computed ──
+      // Returns filtered options. optionsFn() called live → Alpine registers reactive dep on any state it reads.
+      ssFilteredOpts(){
+        const raw = (typeof optionsFn === 'function') ? optionsFn() : [];
+        if(!grouped){
+          if(!searchable || !this.ssSearch.trim()) return raw;
+          const q = this.ssSearch.trim().toLowerCase();
+          return raw.filter(o=> (o.label||'').toLowerCase().includes(q));
+        }
+        // grouped: raw is [{label, items:[{value,label}]}]
+        if(!searchable || !this.ssSearch.trim()) return raw;
+        const q = this.ssSearch.trim().toLowerCase();
+        return raw.map(g=>({ ...g, items: g.items.filter(o=>(o.label||'').toLowerCase().includes(q)) }))
+                  .filter(g=> g.items.length > 0);
+      },
+      ssAllFlat(){
+        if(!grouped) return (typeof optionsFn==='function') ? optionsFn() : [];
+        const raw = (typeof optionsFn==='function') ? optionsFn() : [];
+        return raw.flatMap(g=> g.items||[]);
+      },
+      ssLabelFor(val){
+        const all = this.ssAllFlat();
+        const found = all.find(o=> o.value===val);
+        return found ? found.label : val;
+      },
+      ssIsSelected(val){
+        if(multi) return Array.isArray(this.ssValue) && this.ssValue.includes(val);
+        return this.ssValue === val;
+      },
+      ssAllSelected(){
+        const all = this.ssAllFlat();
+        if(!all.length) return false;
+        return all.every(o=> this.ssIsSelected(o.value));
+      },
+      // ── Open / Close ──
+      ssTriggerClick(e){
+        if(this.ssOpen){ this.ssClose(); return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.ssTop    = Math.round(r.bottom + 4);
+        this.ssRight  = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.ssWidth  = Math.round(r.width);
+        this.ssOpen   = true;
+        this._ssGuard = true;
+        queueMicrotask(()=>{ this._ssGuard = false; });
+        // Broadcast to close other instances
+        window.dispatchEvent(new CustomEvent('ss-open', { detail: this.ssId }));
+      },
+      ssClose(){
+        if(this._ssGuard) return;
+        this.ssOpen = false;
+        this.ssSearch = '';
+      },
+      ssForceClose(){ this.ssOpen = false; this.ssSearch = ''; },
+      ssPanelStyle(){
+        return { top: this.ssTop+'px', right: this.ssRight+'px', width: Math.max(this.ssWidth, 200)+'px' };
+      },
+      // ── Selection ──
+      ssSelect(val){
+        if(multi){
+          const arr = Array.isArray(this.ssValue) ? [...this.ssValue] : [];
+          const idx = arr.indexOf(val);
+          if(idx===-1) arr.push(val); else arr.splice(idx,1);
+          this.ssValue = arr;
+        } else {
+          this.ssValue = val;
+          this.ssForceClose();
+        }
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssRemoveChip(val){
+        if(!multi) return;
+        const arr = Array.isArray(this.ssValue) ? [...this.ssValue] : [];
+        this.ssValue = arr.filter(v=> v !== val);
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssSelectAll(){
+        const all = this.ssAllFlat().map(o=> o.value);
+        this.ssValue = [...all];
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssClearAll(){
+        this.ssValue = multi ? [] : '';
+        if(typeof onChange === 'function') onChange(this.ssValue);
+        if(!multi) this.ssForceClose();
+      },
+      ssToggleAll(){
+        if(this.ssAllSelected()) this.ssClearAll(); else this.ssSelectAll();
+      },
+      ssHasValue(){
+        if(multi) return Array.isArray(this.ssValue) && this.ssValue.length > 0;
+        return this.ssValue !== '' && this.ssValue !== null && this.ssValue !== undefined;
+      },
     };
   }
 </script>

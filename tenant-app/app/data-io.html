@@ -144,6 +144,51 @@
     .adm-rowmenu .mi-sep { height:1px; background:#EEF0F5; margin:.3rem 0; }
     .adm-rowmenu svg { width:14px; height:14px; flex-shrink:0; }
 
+    /* ===== Smart Select — shared component (replaces <select> app-wide) ===== */
+    /* Trigger */
+    .ss-trigger { display:flex; align-items:center; gap:.45rem; width:100%; padding:.5rem .75rem; border:1.5px solid #DDE1EA; border-radius:.55rem; font-size:.85rem; background:#fff; color:#1E2A45; cursor:pointer; transition:all .15s; min-height:36px; text-align:start; position:relative; }
+    .ss-trigger:hover { border-color:#C4CBDA; }
+    .ss-trigger.open { border-color:#1A4590; box-shadow:0 0 0 3px rgba(16,42,76,.08); }
+    .ss-trigger.sm, .ss-trigger-sm { padding:.32rem .6rem; font-size:.78rem; min-height:30px; }
+    .ss-placeholder { color:#9BA6BB; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .ss-value { flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; color:#1E2A45; }
+    /* Arrow */
+    .ss-arrow { flex-shrink:0; color:#9BA6BB; transition:transform .15s; }
+    .ss-trigger.open .ss-arrow { transform:rotate(180deg); }
+    /* Clear btn */
+    .ss-clear { flex-shrink:0; color:#C4CBDA; border:none; background:none; padding:0; cursor:pointer; display:flex; align-items:center; border-radius:4px; }
+    .ss-clear:hover { color:#C0392B; }
+    /* Multi chips row */
+    .ss-chips { display:flex; flex-wrap:wrap; gap:.25rem; flex:1; min-width:0; }
+    .ss-chip { display:inline-flex; align-items:center; gap:.25rem; background:rgba(11,31,58,.08); color:#1E2A45; border-radius:6px; font-size:.72rem; font-weight:600; padding:.15rem .45rem; max-width:10rem; }
+    .ss-chip-label { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+    .ss-chip-x { cursor:pointer; flex-shrink:0; color:#6E7F9C; }
+    .ss-chip-x:hover { color:#C0392B; }
+    /* Panel (position:fixed — escapes overflow clipping) */
+    .ss-panel { position:fixed; z-index:88; background:#fff; border:1.5px solid #DDE1EA; border-radius:.75rem; box-shadow:0 12px 40px rgba(11,31,58,.15),0 4px 12px rgba(11,31,58,.08); min-width:180px; max-height:280px; display:flex; flex-direction:column; overflow:hidden; }
+    /* Panel search */
+    .ss-search { padding:.45rem .7rem; border-bottom:1px solid #EEF0F5; flex-shrink:0; }
+    .ss-search-input { width:100%; border:1.5px solid #EEF0F5; border-radius:.45rem; padding:.3rem .55rem; font-size:.82rem; color:#1E2A45; background:#F8F9FB; outline:none; transition:.15s; }
+    .ss-search-input:focus { border-color:#C8A24B; background:#fff; }
+    /* Panel header (select-all / counter for multi) */
+    .ss-panel-head { padding:.35rem .75rem; border-bottom:1px solid #EEF0F5; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; font-size:.73rem; font-weight:600; color:#6E7F9C; background:#FBFCFE; }
+    .ss-panel-head-btn { background:none; border:none; cursor:pointer; font-size:.72rem; font-weight:700; color:#1A4590; padding:.1rem .3rem; border-radius:4px; }
+    .ss-panel-head-btn:hover { background:#EAF0F8; }
+    /* Options list */
+    .ss-list { overflow-y:auto; flex:1; }
+    .ss-option { display:flex; align-items:center; gap:.55rem; padding:.5rem .75rem; font-size:.84rem; color:#344260; cursor:pointer; transition:.1s; }
+    .ss-option:hover { background:#F4F6FA; }
+    .ss-option.selected { background:rgba(26,69,144,.06); color:#102A4C; font-weight:600; }
+    /* Check icon (SVG — shown only for selected) */
+    .ss-check { width:14px; height:14px; flex-shrink:0; color:#1A4590; }
+    .ss-check-placeholder { width:14px; flex-shrink:0; }
+    /* Option checkbox (multi mode) */
+    .ss-cb { width:14px; height:14px; flex-shrink:0; accent-color:#1A4590; cursor:pointer; }
+    /* Group label (optgroup equivalent) */
+    .ss-group-label { padding:.4rem .75rem .15rem; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#9BA6BB; background:#fff; }
+    /* Empty state */
+    .ss-empty { padding:.9rem .75rem; font-size:.8rem; color:#9BA6BB; text-align:center; }
+
     /* ===== Embed mode (detail shown inside a quick-view drawer iframe → hide chrome) ===== */
     .crm-embed .crm-sidebar, .crm-embed .crm-topbar { display:none !important; }
     .crm-embed .crm-main { margin-inline-start:0 !important; }
@@ -857,48 +902,181 @@
         <div class="space-y-3 mb-5">
           <template x-for="(f, fi) in advFilters" :key="fi">
             <div class="flex items-start gap-2 p-3 rounded-xl bg-neutral-50 border border-neutral-200">
-              <!-- Column picker -->
-              <div class="flex-1 min-w-0">
+
+              <!-- ── Column picker (Smart Select — grouped, single, searchable) ── -->
+              <!-- x-effect: keeps ssValue in sync when f.col is set externally -->
+              <div class="flex-1 min-w-0"
+                   x-data="smartSelect({
+                     id: 'ss-col-'+fi,
+                     grouped: true,
+                     searchable: true,
+                     placeholder: '— اختر عموداً —',
+                     optionsFn: () => advColumnGroups().map(grp => ({
+                       label: grp.label,
+                       items: grp.cols.map(col => ({
+                         value: grp.entity+'.'+col.key,
+                         label: col.label
+                       }))
+                     })),
+                     onChange: v => { f.col = v; advOnFilterColChange(f); }
+                   })"
+                   x-effect="ssValue = f.col || ''"
+                   @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                   @keydown.escape.window="ssForceClose()">
                 <label class="text-xs text-neutral-500 font-semibold mb-1 block">العمود</label>
-                <select x-model="f.col" @change="advOnFilterColChange(f)" class="ec-input text-sm">
-                  <option value="">— اختر عموداً —</option>
-                  <template x-for="grp in advColumnGroups()" :key="grp.relId||grp.entity">
-                    <optgroup :label="grp.label">
-                      <template x-for="col in grp.cols" :key="(grp.relId||grp.entity)+'.'+col.key">
-                        <option :value="grp.entity+'.'+col.key" x-text="col.label"></option>
-                      </template>
-                    </optgroup>
-                  </template>
-                </select>
+                <!-- Trigger -->
+                <button type="button"
+                        class="ss-trigger ss-trigger-sm"
+                        :class="{ open: ssOpen }"
+                        @click.stop="ssTriggerClick($event)">
+                  <span class="ss-value" x-show="ssHasValue()" x-text="ssLabelFor(ssValue)"></span>
+                  <span class="ss-placeholder" x-show="!ssHasValue()" x-text="'— اختر عموداً —'"></span>
+                  <span class="ss-clear" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </span>
+                  <svg class="ss-arrow" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Panel -->
+                <div class="ss-panel" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="ss-search" x-show="true">
+                    <input class="ss-search-input" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                  </div>
+                  <div class="ss-list">
+                    <template x-for="grp in ssFilteredOpts()" :key="grp.label">
+                      <div>
+                        <div class="ss-group-label" x-text="grp.label"></div>
+                        <template x-for="opt in grp.items" :key="opt.value">
+                          <div class="ss-option" :class="{ selected: ssIsSelected(opt.value) }" @click="ssSelect(opt.value)">
+                            <template x-if="ssIsSelected(opt.value)">
+                              <svg class="ss-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssIsSelected(opt.value)">
+                              <span class="ss-check-placeholder"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="ss-empty">لا نتائج</div>
+                    </template>
+                  </div>
+                </div>
               </div>
-              <!-- Operator -->
-              <div style="width:120px; shrink:0">
+
+              <!-- ── Operator picker (Smart Select — single, not searchable) ── -->
+              <!-- x-effect: keeps ssValue in sync when parent resets f.op (e.g. after column change) -->
+              <div style="width:140px; flex-shrink:0"
+                   x-data="smartSelect({
+                     id: 'ss-op-'+fi,
+                     searchable: false,
+                     placeholder: 'العملية',
+                     optionsFn: () => advOpsForCol(f.col).map(op => ({ value: op, label: advOpLabel(op) })),
+                     onChange: v => { f.op = v; advOnFilterOpChange(f); }
+                   })"
+                   x-effect="ssValue = f.op || ''"
+                   @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                   @keydown.escape.window="ssForceClose()">
                 <label class="text-xs text-neutral-500 font-semibold mb-1 block">العملية</label>
-                <select x-model="f.op" @change="advOnFilterOpChange(f)" class="ec-input text-sm">
-                  <template x-for="op in advOpsForCol(f.col)" :key="op">
-                    <option :value="op" x-text="advOpLabel(op)"></option>
-                  </template>
-                </select>
+                <!-- Trigger -->
+                <button type="button"
+                        class="ss-trigger ss-trigger-sm"
+                        :class="{ open: ssOpen }"
+                        @click.stop="ssTriggerClick($event)">
+                  <span class="ss-value" x-show="ssHasValue()" x-text="ssLabelFor(ssValue)"></span>
+                  <span class="ss-placeholder" x-show="!ssHasValue()" x-text="'العملية'"></span>
+                  <svg class="ss-arrow" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                </button>
+                <!-- Panel -->
+                <div class="ss-panel" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                  <div class="ss-list">
+                    <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                      <div class="ss-option" :class="{ selected: ssIsSelected(opt.value) }" @click="ssSelect(opt.value)">
+                        <template x-if="ssIsSelected(opt.value)">
+                          <svg class="ss-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                        </template>
+                        <template x-if="!ssIsSelected(opt.value)">
+                          <span class="ss-check-placeholder"></span>
+                        </template>
+                        <span x-text="opt.label"></span>
+                      </div>
+                    </template>
+                    <template x-if="ssFilteredOpts().length===0">
+                      <div class="ss-empty">لا خيارات</div>
+                    </template>
+                  </div>
+                </div>
               </div>
-              <!-- Value — smart input based on column type + operator -->
+
+              <!-- ── Value section ── -->
               <div class="flex-1 min-w-0">
                 <label class="text-xs text-neutral-500 font-semibold mb-1 block">القيمة</label>
 
                 <!-- isNull / notNull: no value needed -->
                 <span x-show="f.op==='isNull' || f.op==='notNull'" class="text-xs text-neutral-400 py-2 block">لا قيمة</span>
 
-                <!-- in: multi-select from options -->
+                <!-- in + hasOptions: Smart Select multi -->
                 <template x-if="f.op==='in' && f.col && advFilterHasOptions(f.col)">
-                  <select multiple x-model="f.val"
-                          @change="advTested=false; advTestResult=null"
-                          class="ec-input text-sm"
-                          style="min-height:80px">
-                    <template x-for="opt in advFilterOptions(f.col)" :key="opt.value">
-                      <option :value="opt.value" x-text="opt.label"></option>
-                    </template>
-                  </select>
+                  <div x-data="smartSelect({
+                         id: 'ss-val-in-'+fi,
+                         multi: true,
+                         selectAll: true,
+                         searchable: true,
+                         placeholder: '— اختر قيماً —',
+                         optionsFn: () => advFilterOptions(f.col),
+                         onChange: v => { f.val = v; advTested=false; advTestResult=null; }
+                       })"
+                       x-effect="ssValue = Array.isArray(f.val) ? f.val : []"
+                       @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                       @keydown.escape.window="ssForceClose()">
+                    <!-- Trigger -->
+                    <button type="button"
+                            class="ss-trigger"
+                            :class="{ open: ssOpen }"
+                            @click.stop="ssTriggerClick($event)">
+                      <template x-if="ssHasValue()">
+                        <span class="ss-chips">
+                          <template x-for="chip in ssValue" :key="chip">
+                            <span class="ss-chip">
+                              <span class="ss-chip-label" x-text="ssLabelFor(chip)"></span>
+                              <svg class="ss-chip-x" width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" @click.stop="ssRemoveChip(chip)"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                            </span>
+                          </template>
+                        </span>
+                      </template>
+                      <span class="ss-placeholder" x-show="!ssHasValue()">— اختر قيماً —</span>
+                      <span class="ss-count" x-show="ssHasValue()" style="font-size:.7rem; font-weight:700; color:#1A4590; flex-shrink:0;" x-text="ssValue.length+' محدد'"></span>
+                      <span class="ss-clear" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح الكل" role="button">
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                      </span>
+                      <svg class="ss-arrow" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                    </button>
+                    <!-- Panel -->
+                    <div class="ss-panel" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                      <div class="ss-search">
+                        <input class="ss-search-input" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                      </div>
+                      <div class="ss-panel-head">
+                        <span x-text="ssValue.length + ' من ' + ssAllFlat().length + ' محدد'"></span>
+                        <button type="button" class="ss-panel-head-btn" @click="ssToggleAll()" x-text="ssAllSelected() ? 'إلغاء الكل' : 'تحديد الكل'"></button>
+                      </div>
+                      <div class="ss-list">
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="ss-option" :class="{ selected: ssIsSelected(opt.value) }" @click="ssSelect(opt.value)">
+                            <input type="checkbox" class="ss-cb" :checked="ssIsSelected(opt.value)" @click.stop="ssSelect(opt.value)" />
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                        <template x-if="ssFilteredOpts().length===0">
+                          <div class="ss-empty">لا نتائج</div>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
                 </template>
-                <!-- in: text fallback (no options defined) -->
+
+                <!-- in + no options: text fallback -->
                 <template x-if="f.op==='in' && !(f.col && advFilterHasOptions(f.col))">
                   <input type="text" x-model="f.val"
                          @input="advTested=false; advTestResult=null"
@@ -919,20 +1097,57 @@
                   </div>
                 </template>
 
-                <!-- enum/uuid single: select -->
+                <!-- enum/ref single: Smart Select single -->
                 <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advFilterHasOptions(f.col)">
-                  <select x-model="f.val"
-                          @change="advTested=false; advTestResult=null"
-                          class="ec-input text-sm">
-                    <option value="">— اختر —</option>
-                    <template x-for="opt in advFilterOptions(f.col)" :key="opt.value">
-                      <option :value="opt.value" x-text="opt.label"></option>
-                    </template>
-                  </select>
+                  <div x-data="smartSelect({
+                         id: 'ss-val-eq-'+fi,
+                         searchable: true,
+                         placeholder: '— اختر —',
+                         optionsFn: () => advFilterOptions(f.col),
+                         onChange: v => { f.val = v; advTested=false; advTestResult=null; }
+                       })"
+                       x-effect="ssValue = (typeof f.val === 'string') ? f.val : ''"
+                       @ss-open.window="if($event.detail !== ssId) ssForceClose()"
+                       @keydown.escape.window="ssForceClose()">
+                    <!-- Trigger -->
+                    <button type="button"
+                            class="ss-trigger"
+                            :class="{ open: ssOpen }"
+                            @click.stop="ssTriggerClick($event)">
+                      <span class="ss-value" x-show="ssHasValue()" x-text="ssLabelFor(ssValue)"></span>
+                      <span class="ss-placeholder" x-show="!ssHasValue()">— اختر —</span>
+                      <span class="ss-clear" x-show="ssHasValue()" @click.stop="ssClearAll()" title="مسح" role="button">
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                      </span>
+                      <svg class="ss-arrow" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 6l4 4 4-4"/></svg>
+                    </button>
+                    <!-- Panel -->
+                    <div class="ss-panel" x-show="ssOpen" :style="ssPanelStyle()" @click.outside="ssClose()" x-cloak>
+                      <div class="ss-search">
+                        <input class="ss-search-input" type="text" placeholder="بحث..." x-model="ssSearch" @keydown.escape="ssForceClose()" />
+                      </div>
+                      <div class="ss-list">
+                        <template x-for="opt in ssFilteredOpts()" :key="opt.value">
+                          <div class="ss-option" :class="{ selected: ssIsSelected(opt.value) }" @click="ssSelect(opt.value)">
+                            <template x-if="ssIsSelected(opt.value)">
+                              <svg class="ss-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                            </template>
+                            <template x-if="!ssIsSelected(opt.value)">
+                              <span class="ss-check-placeholder"></span>
+                            </template>
+                            <span x-text="opt.label"></span>
+                          </div>
+                        </template>
+                        <template x-if="ssFilteredOpts().length===0">
+                          <div class="ss-empty">لا نتائج</div>
+                        </template>
+                      </div>
+                    </div>
+                  </div>
                 </template>
 
-                <!-- boolean: yes/no select -->
-                <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advColType(f.col)==='boolean'">
+                <!-- boolean: yes/no native select (kept as-is) -->
+                <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advColType(f.col)==='boolean' && !advFilterHasOptions(f.col)">
                   <select x-model="f.val"
                           @change="advTested=false; advTestResult=null"
                           class="ec-input text-sm">
@@ -942,21 +1157,21 @@
                   </select>
                 </template>
 
-                <!-- date: date input -->
+                <!-- date: date input (kept as-is) -->
                 <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advColType(f.col)==='date'">
                   <input type="date" x-model="f.val" dir="ltr"
                          @change="advTested=false; advTestResult=null"
                          class="ec-input text-sm font-latin" />
                 </template>
 
-                <!-- number: number input -->
+                <!-- number: number input (kept as-is) -->
                 <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && f.col && advColType(f.col)==='number'">
                   <input type="number" x-model="f.val" dir="ltr"
                          @input="advTested=false; advTestResult=null"
                          class="ec-input text-sm font-latin" placeholder="أدخل رقماً" />
                 </template>
 
-                <!-- text / uuid without options: text input -->
+                <!-- text / uuid without options: text input (kept as-is) -->
                 <template x-if="f.op!=='isNull' && f.op!=='notNull' && f.op!=='in' && f.op!=='between' && !(f.col && advFilterHasOptions(f.col)) && f.col && advColType(f.col)!=='boolean' && advColType(f.col)!=='date' && advColType(f.col)!=='number'">
                   <input type="text" x-model="f.val"
                          @input="advTested=false; advTestResult=null"
@@ -3062,6 +3277,116 @@ function dataIO() {
       // Return an OBJECT (not a string): a string :style overwrites the whole style attr and wipes
       // x-show's display:none → all row menus stay visible & stacked. An object merges, so x-show works.
       fmStyle(){ return { top: this.fmTop+'px', right: this.fmRight+'px' }; },
+    };
+  }
+  // ===== Smart Select mixin (spread: {...smartSelect({id, optionsFn, multi, searchable, selectAll, placeholder, onChange})})
+  // Usage (single):  x-data="{ myVal:'', ...smartSelect({ id:'ss-col', optionsFn: ()=>myOptions(), placeholder:'اختر...', onChange: v=>{ myVal=v; } }) }"
+  // Usage (multi):   x-data="{ myArr:[], ...smartSelect({ id:'ss-tags', multi:true, selectAll:true, optionsFn: ()=>myOpts(), onChange: v=>{ myArr=v; } }) }"
+  // Note: optionsFn is called inside Alpine template expressions so Alpine tracks reactive dependencies properly.
+  // Panel is position:fixed — escapes overflow:hidden (tables, drawers). Positions from getBoundingClientRect like floatMenu.
+  // Guard pattern: .stop on the trigger prevents @click.outside (on panel) from firing on the SAME open-click.
+  // Multi-instance: broadcasts 'ss-open' so other instances close when you open a new one.
+  // =========================================================================================================
+  function smartSelect({ id, optionsFn, grouped=false, multi=false, searchable=true, selectAll=false, placeholder='— اختر —', onChange=null }={}){
+    return {
+      ssId: id || ('ss-'+ Math.random().toString(36).slice(2,7)),
+      ssOpen: false,
+      ssSearch: '',
+      ssTop: 0, ssRight: 0, ssWidth: 200,
+      _ssGuard: false,
+      ssValue: multi ? [] : '',   // internal value — caller mirrors via onChange
+      // ── Computed ──
+      // Returns filtered options. optionsFn() called live → Alpine registers reactive dep on any state it reads.
+      ssFilteredOpts(){
+        const raw = (typeof optionsFn === 'function') ? optionsFn() : [];
+        if(!grouped){
+          if(!searchable || !this.ssSearch.trim()) return raw;
+          const q = this.ssSearch.trim().toLowerCase();
+          return raw.filter(o=> (o.label||'').toLowerCase().includes(q));
+        }
+        // grouped: raw is [{label, items:[{value,label}]}]
+        if(!searchable || !this.ssSearch.trim()) return raw;
+        const q = this.ssSearch.trim().toLowerCase();
+        return raw.map(g=>({ ...g, items: g.items.filter(o=>(o.label||'').toLowerCase().includes(q)) }))
+                  .filter(g=> g.items.length > 0);
+      },
+      ssAllFlat(){
+        if(!grouped) return (typeof optionsFn==='function') ? optionsFn() : [];
+        const raw = (typeof optionsFn==='function') ? optionsFn() : [];
+        return raw.flatMap(g=> g.items||[]);
+      },
+      ssLabelFor(val){
+        const all = this.ssAllFlat();
+        const found = all.find(o=> o.value===val);
+        return found ? found.label : val;
+      },
+      ssIsSelected(val){
+        if(multi) return Array.isArray(this.ssValue) && this.ssValue.includes(val);
+        return this.ssValue === val;
+      },
+      ssAllSelected(){
+        const all = this.ssAllFlat();
+        if(!all.length) return false;
+        return all.every(o=> this.ssIsSelected(o.value));
+      },
+      // ── Open / Close ──
+      ssTriggerClick(e){
+        if(this.ssOpen){ this.ssClose(); return; }
+        const r = e.currentTarget.getBoundingClientRect();
+        this.ssTop    = Math.round(r.bottom + 4);
+        this.ssRight  = Math.round(Math.max(8, window.innerWidth - r.right));
+        this.ssWidth  = Math.round(r.width);
+        this.ssOpen   = true;
+        this._ssGuard = true;
+        queueMicrotask(()=>{ this._ssGuard = false; });
+        // Broadcast to close other instances
+        window.dispatchEvent(new CustomEvent('ss-open', { detail: this.ssId }));
+      },
+      ssClose(){
+        if(this._ssGuard) return;
+        this.ssOpen = false;
+        this.ssSearch = '';
+      },
+      ssForceClose(){ this.ssOpen = false; this.ssSearch = ''; },
+      ssPanelStyle(){
+        return { top: this.ssTop+'px', right: this.ssRight+'px', width: Math.max(this.ssWidth, 200)+'px' };
+      },
+      // ── Selection ──
+      ssSelect(val){
+        if(multi){
+          const arr = Array.isArray(this.ssValue) ? [...this.ssValue] : [];
+          const idx = arr.indexOf(val);
+          if(idx===-1) arr.push(val); else arr.splice(idx,1);
+          this.ssValue = arr;
+        } else {
+          this.ssValue = val;
+          this.ssForceClose();
+        }
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssRemoveChip(val){
+        if(!multi) return;
+        const arr = Array.isArray(this.ssValue) ? [...this.ssValue] : [];
+        this.ssValue = arr.filter(v=> v !== val);
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssSelectAll(){
+        const all = this.ssAllFlat().map(o=> o.value);
+        this.ssValue = [...all];
+        if(typeof onChange === 'function') onChange(this.ssValue);
+      },
+      ssClearAll(){
+        this.ssValue = multi ? [] : '';
+        if(typeof onChange === 'function') onChange(this.ssValue);
+        if(!multi) this.ssForceClose();
+      },
+      ssToggleAll(){
+        if(this.ssAllSelected()) this.ssClearAll(); else this.ssSelectAll();
+      },
+      ssHasValue(){
+        if(multi) return Array.isArray(this.ssValue) && this.ssValue.length > 0;
+        return this.ssValue !== '' && this.ssValue !== null && this.ssValue !== undefined;
+      },
     };
   }
 </script>
