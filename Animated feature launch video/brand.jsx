@@ -45,7 +45,7 @@ const AV = {
 // ── arabic-indic numerals ───────────────────────────────────────────────────
 const _ARD = '٠١٢٣٤٥٦٧٨٩';
 const toAr = (s) => String(s).replace(/[0-9]/g, d => _ARD[+d]);
-const groupAr = (n) => toAr(Math.round(n).toLocaleString('en-US')); // 485,000 -> ٤٨٥٬٠٠٠ (commas kept)
+const groupAr = (n) => toAr(Math.round(n).toLocaleString('en-US')); // 485,000 -> ٤٨٥,٠٠٠ (commas kept)
 
 // ── animation helpers ───────────────────────────────────────────────────────
 function rise(localTime, { delay = 0, dur = 0.55, dist = 26, ease = Easing.easeOutCubic } = {}) {

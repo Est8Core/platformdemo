@@ -159,7 +159,7 @@ function SceneKanban() {
             </KanbanCol>
 
             <KanbanCol dot={E8.success} title="صفقة مكتملة" count={2}>
-              <LeadCard name="فاطمة رضا السيد" refId="#L-٢٠٢٦-٠٠٥٢" prop="مكتب — مدينة نصر" value="١٫٢ مليون ج.م" won commission="٣٦٬٠٠٠ ج.م" badge={{tone:'success',text:'مكتمل'}} assignee={{code:'مس',tone:'teal',name:'مريم سعيد'}} date="١٠ يونيو" />
+              <LeadCard name="فاطمة رضا السيد" refId="#L-٢٠٢٦-٠٠٥٢" prop="مكتب — مدينة نصر" value="١٫٢ مليون ج.م" won commission="٣٦,٠٠٠ ج.م" badge={{tone:'success',text:'مكتمل'}} assignee={{code:'مس',tone:'teal',name:'مريم سعيد'}} date="١٠ يونيو" />
             </KanbanCol>
           </div>
         </AppFrame>
