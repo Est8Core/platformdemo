@@ -1,0 +1,1222 @@
+<style>
+/* ==========================================================================
+   Est8Core — بنش صفحة النشر العامة V2  (.Pm/89)
+   هوية Trust & Authority: كحلي #0B1F3A + ذهبي #C8A24B (design-system).
+   قائم بذاته: بلا CDN، بلا صور خارجية — كل الصور مولَّدة على Canvas.
+   الخطوط: مكدّس نظام مضبوط للعربية (Segoe UI على ويندوز) — لا webfont
+   لأن CSP الـArtifact يحجب نطاقات الخطوط، والسقوط الصامت أسوأ من اختيار واعٍ.
+   ========================================================================== */
+
+:root {
+  /* الأساس — محايدات منحازة للكحلي، لا رمادي حيادي */
+  --ink:        #0B1F3A;
+  --ink-2:      #1A2B45;
+  --gold:       #C8A24B;
+  --gold-deep:  #8C6E27;
+  --paper:      #F4F6F9;
+  --card:       #FFFFFF;
+  --line:       #DDE3EC;
+  --line-soft:  #EAEEF4;
+  --muted:      #6B7A90;
+  --muted-2:    #8B96A8;
+  /* دلالية — منفصلة عن الذهبي، الذهبي لهجة لا حالة */
+  --ok:         #1F7A5A;
+  --warn:       #B4703A;
+  --bad:        #A8332E;
+
+  --shell-bg:   var(--paper);
+  --shell-fg:   var(--ink);
+  --shell-card: var(--card);
+  --shell-line: var(--line);
+  --shell-muted:var(--muted);
+
+  --step--1: 0.78rem;
+  --step-0:  0.94rem;
+  --step-1:  1.18rem;
+  --step-2:  1.55rem;
+  --step-3:  2.1rem;
+  --step-4:  2.9rem;
+
+  --sans: "Segoe UI", "Noto Sans Arabic", "Dubai", Tahoma, system-ui, -apple-system, sans-serif;
+  --mono: "Cascadia Mono", "Consolas", ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shell-bg:   #0A1524;
+    --shell-fg:   #E7ECF4;
+    --shell-card: #101E31;
+    --shell-line: #22344C;
+    --shell-muted:#93A2B8;
+  }
+}
+:root[data-theme="dark"] {
+  --shell-bg:   #0A1524;
+  --shell-fg:   #E7ECF4;
+  --shell-card: #101E31;
+  --shell-line: #22344C;
+  --shell-muted:#93A2B8;
+}
+:root[data-theme="light"] {
+  --shell-bg:   var(--paper);
+  --shell-fg:   var(--ink);
+  --shell-card: var(--card);
+  --shell-line: var(--line);
+  --shell-muted:var(--muted);
+}
+
+.doc {
+  direction: rtl;
+  font-family: var(--sans);
+  font-size: var(--step-0);
+  line-height: 1.65;
+  background: var(--shell-bg);
+  color: var(--shell-fg);
+  padding: 0 0 5rem;
+  -webkit-font-smoothing: antialiased;
+}
+.doc *, .doc *::before, .doc *::after { box-sizing: border-box; }
+.wrap { max-width: 1320px; margin-inline: auto; padding-inline: clamp(1rem, 3vw, 2.25rem); }
+
+/* ── رأس الصفحة ─────────────────────────────────────────────────────── */
+.masthead {
+  border-bottom: 1px solid var(--shell-line);
+  padding-block: clamp(2rem, 5vw, 3.25rem) 1.75rem;
+  background:
+    radial-gradient(120% 140% at 88% -10%, rgba(200,162,75,.13), transparent 55%),
+    var(--shell-bg);
+}
+.eyebrow {
+  font-size: var(--step--1); letter-spacing: .16em; text-transform: uppercase;
+  color: var(--gold-deep); font-weight: 700; margin: 0 0 .5rem;
+}
+@media (prefers-color-scheme: dark) { .eyebrow { color: var(--gold); } }
+:root[data-theme="dark"] .eyebrow { color: var(--gold); }
+:root[data-theme="light"] .eyebrow { color: var(--gold-deep); }
+
+.masthead h1 {
+  font-size: clamp(1.9rem, 4.4vw, var(--step-4));
+  line-height: 1.12; margin: 0 0 .75rem; font-weight: 800;
+  letter-spacing: -.02em; text-wrap: balance;
+}
+.masthead p { margin: 0; max-width: 62ch; color: var(--shell-muted); font-size: var(--step-1); }
+
+/* شريط الاكتشافات الثلاثة — معلومات لا زخرفة */
+.findings { display: grid; gap: .7rem; margin-top: 1.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); }
+.finding {
+  border: 1px solid var(--shell-line); border-radius: 3px;
+  background: var(--shell-card); padding: .85rem 1rem;
+  border-inline-start: 3px solid var(--bad);
+}
+.finding.mid { border-inline-start-color: var(--warn); }
+.finding b { display: block; font-size: var(--step--1); letter-spacing: .04em;
+  color: var(--bad); margin-bottom: .2rem; font-weight: 700; }
+.finding.mid b { color: var(--warn); }
+.finding span { font-size: var(--step--1); color: var(--shell-muted); line-height: 1.5; }
+
+/* ── تنقّل ──────────────────────────────────────────────────────────── */
+.nav { position: sticky; top: 0; z-index: 40; background: var(--shell-bg);
+  border-bottom: 1px solid var(--shell-line); }
+.nav ul { display: flex; gap: .25rem; list-style: none; margin: 0; padding: 0;
+  overflow-x: auto; }
+.nav a {
+  display: block; padding: .8rem .95rem; font-size: var(--step--1); font-weight: 600;
+  color: var(--shell-muted); text-decoration: none; white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+.nav a:hover { color: var(--shell-fg); }
+.nav a:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+
+/* ── أقسام ─────────────────────────────────────────────────────────── */
+.sec { padding-block: clamp(2.25rem, 5vw, 3.5rem); }
+.sec + .sec { border-top: 1px solid var(--shell-line); }
+.sec-head { margin-bottom: 1.5rem; }
+.sec-head h2 { font-size: var(--step-2); margin: 0 0 .3rem; font-weight: 700;
+  letter-spacing: -.015em; }
+.sec-head p { margin: 0; color: var(--shell-muted); max-width: 68ch; }
+.rule { height: 1px; background: linear-gradient(90deg, var(--gold), transparent);
+  margin: .55rem 0 0; }
+
+/* ── البنش: رف تحكّم + معاينة ──────────────────────────────────────── */
+.bench { display: grid; gap: 1.25rem; grid-template-columns: 300px minmax(0, 1fr); align-items: start; }
+@media (max-width: 940px) { .bench { grid-template-columns: 1fr; } }
+
+.rail { position: sticky; top: 3.4rem; display: grid; gap: .9rem;
+  max-height: calc(100vh - 4.5rem); overflow-y: auto; padding-bottom: .5rem; }
+@media (max-width: 940px) { .rail { position: static; max-height: none; } }
+
+.panel { border: 1px solid var(--shell-line); border-radius: 3px;
+  background: var(--shell-card); padding: .9rem 1rem 1rem; }
+.panel > h3 {
+  font-size: var(--step--1); letter-spacing: .1em; text-transform: uppercase;
+  margin: 0 0 .7rem; color: var(--shell-muted); font-weight: 700;
+}
+.panel-note { font-size: .72rem; color: var(--shell-muted); margin: .6rem 0 0; line-height: 1.5; }
+
+/* اختيار القالب */
+.layouts { display: grid; gap: .4rem; }
+.lay {
+  display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: .65rem;
+  border: 1px solid var(--shell-line); border-radius: 2px; background: transparent;
+  padding: .55rem .6rem; cursor: pointer; text-align: start; color: inherit;
+  font: inherit; transition: border-color .12s, background .12s;
+}
+.lay:hover { border-color: var(--gold); }
+.lay:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.lay[aria-pressed="true"] { border-color: var(--gold); background: rgba(200,162,75,.09); }
+.lay .glyph { display: block; }
+.lay .nm { font-weight: 600; font-size: var(--step--1); }
+.lay .sub { display: block; font-weight: 400; font-size: .7rem; color: var(--shell-muted); }
+.tier { font-size: .62rem; letter-spacing: .08em; padding: .12rem .4rem; border-radius: 2px;
+  background: var(--gold); color: #10203A; font-weight: 800; }
+
+/* مفاتيح */
+.sw { display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  padding: .34rem 0; font-size: var(--step--1); cursor: pointer; }
+.sw + .sw { border-top: 1px solid var(--line-soft); }
+:root[data-theme="dark"] .sw + .sw { border-top-color: rgba(255,255,255,.05); }
+@media (prefers-color-scheme: dark) { .sw + .sw { border-top-color: rgba(255,255,255,.05); } }
+.sw input { position: absolute; opacity: 0; pointer-events: none; }
+.track { width: 34px; height: 19px; border-radius: 10px; background: var(--muted-2);
+  position: relative; flex: none; transition: background .15s; }
+.track::after { content: ""; position: absolute; inset-block-start: 2px; inset-inline-end: 2px;
+  width: 15px; height: 15px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.sw input:checked + .track { background: var(--ok); }
+.sw input:checked + .track::after { transform: translateX(-15px); }
+.sw input:focus-visible + .track { outline: 2px solid var(--gold); outline-offset: 2px; }
+.sw.off .lbl { color: var(--shell-muted); }
+.sw .hint { font-size: .68rem; color: var(--shell-muted); display: block; }
+
+/* ── لوحة المعاينة — مثبَّتة على الفاتح عمداً ──────────────────────── */
+.stage { border: 1px solid var(--shell-line); border-radius: 3px; overflow: hidden;
+  background: var(--card); }
+.stage-bar {
+  display: flex; align-items: center; gap: .6rem; padding: .5rem .75rem;
+  background: var(--ink); color: #C9D4E4; font-size: .72rem;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #35496A; flex: none; }
+.urlbar { flex: 1; background: #16293F; border-radius: 2px; padding: .22rem .55rem;
+  font-family: var(--mono); font-size: .68rem; color: #9FB2CB; direction: ltr; text-align: left;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stage-note { font-size: .66rem; color: #7E8FA8; }
+
+/* الصفحة المُعايَنة — فاتحة دائماً (قرار منتج، مذكور صراحةً) */
+.page { color: var(--ink); background: #fff; direction: rtl; }
+.page a { color: inherit; }
+.brandbar { display: flex; align-items: center; justify-content: space-between;
+  padding: .7rem 1.1rem; border-bottom: 1px solid var(--line-soft); }
+.brandbar .bl { display: flex; align-items: center; gap: .55rem; }
+.blogo { width: 26px; height: 26px; border-radius: 3px; background: var(--ink);
+  display: grid; place-items: center; color: var(--gold); font-weight: 800; font-size: .72rem; }
+.bname { font-weight: 700; font-size: .86rem; }
+.bmeta { font-size: .68rem; color: var(--muted); }
+
+/* الهيرو */
+.hero { position: relative; overflow: hidden; background: #0E2138; }
+.hero .backdrop { position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; filter: blur(26px) saturate(1.25) brightness(.62); transform: scale(1.18); }
+.hero .shot { position: relative; display: block; width: 100%; height: 100%;
+  object-fit: contain; }
+.hero-frame { position: relative; display: grid; place-items: center; }
+.hero-tags { position: absolute; inset-block-start: .7rem; inset-inline-start: .7rem;
+  display: flex; gap: .35rem; z-index: 2; }
+.tag { font-size: .66rem; font-weight: 700; padding: .2rem .5rem; border-radius: 2px;
+  background: rgba(11,31,58,.86); color: #fff; backdrop-filter: blur(3px); }
+.tag.gold { background: var(--gold); color: #10203A; }
+
+/* شريط مصغّرات */
+.thumbs { display: flex; gap: .35rem; padding: .5rem 1.1rem; overflow-x: auto;
+  border-bottom: 1px solid var(--line-soft); }
+.thumb { flex: none; width: 78px; height: 54px; border-radius: 2px; overflow: hidden;
+  border: 1px solid var(--line); background: #EEF1F6; cursor: pointer; padding: 0; }
+.thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.thumb[aria-pressed="true"] { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.thumb:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+
+.pbody { padding: 1.1rem 1.1rem 1.4rem; display: grid; gap: 1.2rem; }
+.ptitle { margin: 0; font-size: var(--step-2); font-weight: 800; letter-spacing: -.015em;
+  line-height: 1.2; text-wrap: balance; }
+.ploc { color: var(--muted); font-size: var(--step--1); margin: .2rem 0 0; }
+.pref { font-family: var(--mono); font-size: .7rem; color: var(--muted-2); direction: ltr;
+  display: inline-block; }
+.price { font-size: var(--step-3); font-weight: 800; letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums; margin: .5rem 0 0; }
+.price .cur { font-size: .48em; font-weight: 700; color: var(--muted); margin-inline-start: .25rem; }
+.price.hidden-price { font-size: var(--step-1); color: var(--gold-deep); }
+
+/* المواصفات */
+.specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+.spec { padding: .7rem .8rem; border-inline-start: 1px solid var(--line); }
+.spec:first-child { border-inline-start: 0; }
+.spec dt { font-size: .68rem; color: var(--muted); margin: 0 0 .12rem; }
+.spec dd { margin: 0; font-weight: 700; font-size: var(--step-1); font-variant-numeric: tabular-nums; }
+
+h3.blk { font-size: var(--step-0); font-weight: 700; margin: 0 0 .45rem;
+  padding-bottom: .35rem; border-bottom: 1px solid var(--line-soft); }
+.desc { margin: 0; color: #33445C; }
+
+.feats { display: flex; flex-wrap: wrap; gap: .35rem; list-style: none; margin: 0; padding: 0; }
+.feats li { font-size: var(--step--1); border: 1px solid var(--line); border-radius: 2px;
+  padding: .22rem .55rem; color: #33445C; }
+
+.map { height: 168px; border: 1px solid var(--line); border-radius: 3px; overflow: hidden;
+  position: relative; }
+.map canvas { width: 100%; height: 100%; display: block; }
+.map .pin { position: absolute; inset-block-start: 50%; inset-inline-start: 50%;
+  transform: translate(50%, -100%); width: 15px; height: 15px; border-radius: 50% 50% 50% 0;
+  background: var(--bad); rotate: -45deg; box-shadow: 0 2px 5px rgba(0,0,0,.3); }
+
+/* التواصل */
+.contact { border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+.contact > header { background: var(--paper); padding: .6rem .85rem;
+  border-bottom: 1px solid var(--line); font-weight: 700; font-size: var(--step--1); }
+.cbody { padding: .85rem; display: grid; gap: .7rem; }
+.agent { display: flex; align-items: center; gap: .65rem; }
+.avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--ink); color: var(--gold);
+  display: grid; place-items: center; font-weight: 800; font-size: .82rem; flex: none; }
+.agent .nm { font-weight: 700; font-size: var(--step--1); }
+.agent .rl { font-size: .68rem; color: var(--muted); }
+.ctas { display: flex; flex-wrap: wrap; gap: .45rem; }
+.btn { font: inherit; font-size: var(--step--1); font-weight: 700; border-radius: 2px;
+  padding: .48rem .85rem; border: 1px solid transparent; cursor: pointer; }
+.btn-primary { background: var(--ink); color: #fff; }
+.btn-gold { background: var(--gold); color: #10203A; }
+.btn-ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+.btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.form { display: grid; gap: .45rem; }
+.form .row { display: grid; gap: .45rem; grid-template-columns: 1fr 1fr; }
+@media (max-width: 520px) { .form .row { grid-template-columns: 1fr; } }
+.field { font: inherit; font-size: var(--step--1); padding: .45rem .6rem; border-radius: 2px;
+  border: 1px solid var(--line); background: #fff; color: var(--ink); width: 100%; }
+.field:focus-visible { outline: 2px solid var(--gold); outline-offset: -1px; }
+.honey { display: none; }
+.formnote { font-size: .68rem; color: var(--muted); margin: 0; }
+
+.pfoot { border-top: 1px solid var(--line-soft); padding: .7rem 1.1rem;
+  font-size: .68rem; color: var(--muted); display: flex; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
+
+/* تخطيط "فاخر": عمودان + CTA لاصق */
+.page[data-lay="luxury"] .pbody { grid-template-columns: minmax(0,1fr) 300px; align-items: start; }
+.page[data-lay="luxury"] .col-main { display: grid; gap: 1.2rem; min-width: 0; }
+.page[data-lay="luxury"] .col-side { display: grid; gap: .9rem; position: sticky; top: .8rem; }
+@media (max-width: 780px) {
+  .page[data-lay="luxury"] .pbody { grid-template-columns: 1fr; }
+  .page[data-lay="luxury"] .col-side { position: static; }
+}
+.page:not([data-lay="luxury"]) .col-main,
+.page:not([data-lay="luxury"]) .col-side { display: contents; }
+
+/* ── قبل/بعد القصّ ─────────────────────────────────────────────────── */
+.ab { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+.abcard { border: 1px solid var(--shell-line); border-radius: 3px; overflow: hidden;
+  background: var(--shell-card); }
+.abcard > header { padding: .55rem .8rem; font-size: var(--step--1); font-weight: 700;
+  display: flex; align-items: center; justify-content: space-between; gap: .5rem;
+  border-bottom: 1px solid var(--shell-line); }
+.pill { font-size: .64rem; font-weight: 800; letter-spacing: .05em; padding: .14rem .45rem;
+  border-radius: 2px; }
+.pill.bad { background: rgba(168,51,46,.12); color: var(--bad); }
+.pill.ok  { background: rgba(31,122,90,.13); color: var(--ok); }
+.crop-before { height: 190px; width: 100%; object-fit: cover; display: block; background: #0E2138; }
+.crop-after { position: relative; height: 190px; background: #0E2138; overflow: hidden;
+  display: grid; place-items: center; }
+.crop-after .backdrop { position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; filter: blur(24px) brightness(.6) saturate(1.25); transform: scale(1.2); }
+.crop-after img.fg { position: relative; max-height: 100%; max-width: 100%; object-fit: contain; }
+.abcard p { margin: 0; padding: .6rem .8rem .75rem; font-size: .74rem; color: var(--shell-muted); }
+
+/* ── معاينة المشاركة ───────────────────────────────────────────────── */
+.shares { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+.chatwrap { border: 1px solid var(--shell-line); border-radius: 3px; background: var(--shell-card);
+  overflow: hidden; }
+.chatwrap > header { padding: .55rem .8rem; font-size: var(--step--1); font-weight: 700;
+  border-bottom: 1px solid var(--shell-line); display: flex; justify-content: space-between; gap: .5rem; }
+.chat { background: #DCEBE1; padding: .9rem; min-height: 190px; }
+:root[data-theme="dark"] .chat { background: #16302A; }
+@media (prefers-color-scheme: dark) { .chat { background: #16302A; } }
+:root[data-theme="light"] .chat { background: #DCEBE1; }
+.bubble { background: #fff; border-radius: 6px 6px 6px 2px; padding: .3rem; max-width: 280px;
+  box-shadow: 0 1px 2px rgba(0,0,0,.12); color: var(--ink); }
+.lp { border-radius: 4px; overflow: hidden; background: #F1F4F8; }
+.lp img { width: 100%; height: 108px; object-fit: cover; display: block; }
+.lp .ph { width: 100%; height: 108px; background: repeating-linear-gradient(45deg,#E4E8EF 0 8px,#DCE1EA 8px 16px);
+  display: grid; place-items: center; color: #9AA6B8; font-size: .7rem; }
+.lp .meta { padding: .45rem .55rem; }
+.lp .t { font-size: .78rem; font-weight: 700; line-height: 1.3; }
+.lp .d { font-size: .68rem; color: var(--muted); margin-top: .1rem; }
+.lp .u { font-size: .62rem; color: var(--muted-2); margin-top: .25rem; direction: ltr; text-align: left;
+  font-family: var(--mono); }
+.bubble .txt { font-size: .74rem; padding: .3rem .35rem .1rem; direction: ltr; text-align: left;
+  font-family: var(--mono); color: #2A6ED6; word-break: break-all; }
+
+/* ── كروت السوشيال ─────────────────────────────────────────────────── */
+.cards { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start; }
+.cardbox { border: 1px solid var(--shell-line); border-radius: 3px; background: var(--shell-card);
+  padding: .7rem; display: grid; gap: .5rem; }
+.cardbox canvas { display: block; border-radius: 2px; background: #0E2138; }
+.cardbox .cap { font-size: .7rem; color: var(--shell-muted); display: flex;
+  justify-content: space-between; gap: .5rem; font-variant-numeric: tabular-nums; }
+.cardbox .cap b { color: var(--shell-fg); }
+.pick { display: flex; gap: .25rem; }
+.pick button { flex: 1; height: 34px; padding: 0; border-radius: 2px; overflow: hidden;
+  border: 1px solid var(--shell-line); background: #0E2138; cursor: pointer; position: relative; }
+.pick button img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .5; }
+.pick button[aria-pressed="true"] { border-color: var(--gold); }
+.pick button[aria-pressed="true"] img { opacity: 1; }
+.pick button[aria-pressed="true"]::after { content: ""; position: absolute; inset-block-end: 0;
+  inset-inline: 0; height: 3px; background: var(--gold); }
+.pick button:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+.picklbl { font-size: .66rem; color: var(--shell-muted); }
+.cardmode { display: flex; gap: .35rem; align-items: center; flex-wrap: wrap;
+  margin-bottom: 1rem; }
+.chipbtn { font: inherit; font-size: var(--step--1); font-weight: 600; padding: .38rem .75rem;
+  border-radius: 2px; border: 1px solid var(--shell-line); background: var(--shell-card);
+  color: var(--shell-fg); cursor: pointer; }
+.chipbtn[aria-pressed="true"] { border-color: var(--gold); background: rgba(200,162,75,.12); }
+.chipbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.fmtnote { font-size: .72rem; color: var(--shell-muted); margin: 0 0 1rem; }
+.fmt { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  margin-top: 1rem; }
+.fmtcard { border: 1px solid var(--shell-line); border-radius: 3px; padding: .6rem .75rem;
+  background: var(--shell-card); font-size: .72rem; }
+.fmtcard b { display: block; font-size: var(--step--1); margin-bottom: .15rem; }
+.fmtcard .verdict { font-weight: 800; font-size: .66rem; letter-spacing: .04em; }
+.fmtcard .verdict.no { color: var(--bad); }
+.fmtcard .verdict.yes { color: var(--ok); }
+.fmtcard span { color: var(--shell-muted); display: block; margin-top: .15rem; line-height: 1.45; }
+
+/* ── جدول القرارات ─────────────────────────────────────────────────── */
+.tablewrap { overflow-x: auto; border: 1px solid var(--shell-line); border-radius: 3px; }
+table { border-collapse: collapse; width: 100%; font-size: var(--step--1); min-width: 620px; }
+th, td { text-align: start; padding: .55rem .75rem; border-bottom: 1px solid var(--shell-line);
+  vertical-align: top; }
+th { background: var(--shell-card); font-weight: 700; font-size: .72rem; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--shell-muted); }
+tbody tr:last-child td { border-bottom: 0; }
+td code { font-family: var(--mono); font-size: .78em; background: rgba(200,162,75,.14);
+  padding: .05rem .3rem; border-radius: 2px; }
+.st { font-weight: 700; white-space: nowrap; }
+.st.done { color: var(--ok); }
+.st.open { color: var(--warn); }
+
+.callout { border: 1px solid var(--shell-line); border-inline-start: 3px solid var(--gold);
+  background: var(--shell-card); border-radius: 3px; padding: .85rem 1rem; margin-top: 1.25rem; }
+.callout h4 { margin: 0 0 .3rem; font-size: var(--step-0); }
+.callout p { margin: 0; font-size: var(--step--1); color: var(--shell-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .doc *, .doc *::before, .doc *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+<div class="doc" dir="rtl" lang="ar">
+
+  <header class="masthead">
+    <div class="wrap">
+      <p class="eyebrow">Est8Core · Public Listing · V2</p>
+      <h1>صفحة النشر العامة — بنش تصميم قبل التنفيذ</h1>
+      <p>مش لقطات ثابتة. قلّب المفاتيح على اليمين وشوف الصفحة بتتغيّر فعلاً — نفس المفاتيح اللي هيشوفها الأونر في <code>‏/settings?tab=publishing</code>. البيانات من عقار مزروع حقيقي (PROP‑0800، تينانت seed‑large).</p>
+
+      <div class="findings">
+        <div class="finding">
+          <b>الرابط المُشارَك بلا معاينة</b>
+          <span>لا <code>generateMetadata</code> في المسار، والمحتوى client‑side. الزاحف يقرأ «Est8 Core CRM» لكل عقار في كل تينانت.</span>
+        </div>
+        <div class="finding">
+          <b>كروت السوشيال بيانات بلا صورة</b>
+          <span><code>GetPropertySocialCards</code> ترجّع الأبعاد والنصوص — ومفيش مُولِّد يحوّلها PNG. صفر مستهلك.</span>
+        </div>
+        <div class="finding mid">
+          <b>الصفحة ترسم أقل من نصف الراجع</b>
+          <span><code>media[]</code> · الخريطة · التشطيب · الفرش · الخصم — كلها تصل من الـAPI وتُتجاهَل.</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="أقسام البنش">
+    <div class="wrap">
+      <ul>
+        <li><a href="#bench">البنش التفاعلي</a></li>
+        <li><a href="#crop">معالجة الصور</a></li>
+        <li><a href="#share">معاينة المشاركة</a></li>
+        <li><a href="#cards">كروت السوشيال</a></li>
+        <li><a href="#matrix">مصفوفة القرارات</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══ البنش ═══ -->
+  <section class="sec" id="bench">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>البنش التفاعلي</h2>
+        <div class="rule"></div>
+        <p>الرف على اليمين = لوحة تحكّم الأونر. كل مفتاح هنا يقابل مفتاحاً في <code>settings.publishing</code> أو في <code>properties.publish_settings</code>.</p>
+      </div>
+
+      <div class="bench">
+        <aside class="rail">
+          <div class="panel">
+            <h3>القالب</h3>
+            <div class="layouts" role="group" aria-label="اختيار القالب">
+              <button type="button" class="lay" data-lay="simple" aria-pressed="false">
+                <svg class="glyph" width="34" height="26" viewBox="0 0 34 26" aria-hidden="true"><rect x=".5" y=".5" width="33" height="25" rx="1.5" fill="none" stroke="currentColor" opacity=".35"/><rect x="4" y="4" width="26" height="9" fill="currentColor" opacity=".28"/><rect x="4" y="15.5" width="17" height="2" fill="currentColor" opacity=".5"/><rect x="4" y="19.5" width="22" height="2" fill="currentColor" opacity=".25"/></svg>
+                <span><span class="nm">بسيط</span><span class="sub">صورة · سعر · تواصل</span></span>
+                <span></span>
+              </button>
+              <button type="button" class="lay" data-lay="standard" aria-pressed="true">
+                <svg class="glyph" width="34" height="26" viewBox="0 0 34 26" aria-hidden="true"><rect x=".5" y=".5" width="33" height="25" rx="1.5" fill="none" stroke="currentColor" opacity=".35"/><rect x="4" y="3.5" width="26" height="7.5" fill="currentColor" opacity=".28"/><rect x="4" y="12.5" width="5" height="4" fill="currentColor" opacity=".45"/><rect x="10.5" y="12.5" width="5" height="4" fill="currentColor" opacity=".45"/><rect x="17" y="12.5" width="5" height="4" fill="currentColor" opacity=".45"/><rect x="4" y="18.5" width="26" height="3.5" fill="currentColor" opacity=".2"/></svg>
+                <span><span class="nm">قياسي</span><span class="sub">معرض · مواصفات · خريطة</span></span>
+                <span></span>
+              </button>
+              <button type="button" class="lay" data-lay="luxury" aria-pressed="false">
+                <svg class="glyph" width="34" height="26" viewBox="0 0 34 26" aria-hidden="true"><rect x=".5" y=".5" width="33" height="25" rx="1.5" fill="none" stroke="currentColor" opacity=".35"/><rect x="2" y="2" width="30" height="10" fill="currentColor" opacity=".38"/><rect x="4" y="14" width="17" height="8" fill="currentColor" opacity=".2"/><rect x="23" y="14" width="7" height="8" fill="currentColor" opacity=".5"/></svg>
+                <span><span class="nm">فاخر</span><span class="sub">هيرو ملء الشاشة · CTA لاصق</span></span>
+                <span class="tier">PRO</span>
+              </button>
+            </div>
+            <p class="panel-note">«فاخر» مربوط بالخطة المدفوعة (T9) — العميل بيشوف الفرق على عقاره هو، فتبقى الصفحة محرّك ترقية لا مجرد ميزة.</p>
+          </div>
+
+          <div class="panel">
+            <h3>الأقسام الظاهرة</h3>
+            <div id="sections"></div>
+          </div>
+
+          <div class="panel">
+            <h3>قنوات التواصل</h3>
+            <div id="contacts"></div>
+            <p class="panel-note" id="contactWarn"></p>
+          </div>
+
+          <div class="panel">
+            <h3>السعر</h3>
+            <label class="sw">
+              <span class="lbl">إظهار السعر<span class="hint">إخفاؤه يجبر ظهور نموذج التواصل</span></span>
+              <input type="checkbox" id="showPrice" checked>
+              <span class="track"></span>
+            </label>
+          </div>
+        </aside>
+
+        <div class="stage">
+          <div class="stage-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="urlbar" id="urlbar">seed-large.est8core.com/p/prop-0800</span>
+            <span class="stage-note">فاتح دائماً — قرار منتج</span>
+          </div>
+          <article class="page" id="page" data-lay="standard"></article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ الصور ═══ -->
+  <section class="sec" id="crop">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>معالجة الصور — القصّ اللي رصدته</h2>
+        <div class="rule"></div>
+        <p>الكود الحالي: <code>&lt;img class="h-64 w-full object-cover"&gt;</code>. ارتفاع ثابت + <code>object-cover</code> = قصّ <em>مضمون رياضياً</em> لأي صورة نسبتها مختلفة عن نسبة الإطار. الصورة تحت طولية (3:4) وموضوعها الأساسي — القوس والقبة — في أعلاها.</p>
+      </div>
+
+      <div class="ab">
+        <div class="abcard">
+          <header>الحالي <span class="pill bad">قصّ</span></header>
+          <img class="crop-before" id="cropBefore" alt="الصورة الطولية داخل إطار object-cover — القوس مقصوص">
+          <p>الإطار 190px والصورة 3:4 ⇒ المتصفح يقصّ من فوق ومن تحت. القوس والقبة اختفوا تماماً — يعني أكثر عنصر مميّز في العقار هو أول ما يضيع.</p>
+        </div>
+        <div class="abcard">
+          <header>المقترح <span class="pill ok">بلا قصّ</span></header>
+          <div class="crop-after">
+            <img class="backdrop" id="cropBackA" alt="">
+            <img class="fg" id="cropAfter" alt="نفس الصورة كاملة فوق خلفية مموّهة">
+          </div>
+          <p>نفس الصورة <code>object-contain</code> كاملة، وخلفية منها <code>cover</code> مموّهة تملأ الفراغ. ملء بصري كامل، صفر قصّ — وبيشتغل مع الطولي والعرضي والبانورامي بنفس الكود.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <h4>ليه ده مش تفصيلة تجميلية</h4>
+        <p>صور العقارات بتيجي من موبايلات المندوبين بنِسَب عشوائية. أي إطار ثابت هيقصّ نسبة منها دايماً — والمالك اللي يشوف عقاره مقصوص مش هيثق إن المنصة هتعرضه كويس. نفس المعالجة تنطبق على المعرض والـlightbox: <code>contain</code> دائماً.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ المشاركة ═══ -->
+  <section class="sec" id="share">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>معاينة المشاركة — الفرق الأكبر في الموجة كلها</h2>
+        <div class="rule"></div>
+        <p>ده اللي بيحصل النهاردة لما السمسار يلزق الرابط، وده اللي المفروض يحصل بعد <code>generateMetadata</code> + <code>opengraph-image</code>.</p>
+      </div>
+
+      <div class="shares">
+        <div class="chatwrap">
+          <header>واتساب — النهاردة <span class="pill bad">بلا معاينة</span></header>
+          <div class="chat">
+            <div class="bubble">
+              <div class="lp">
+                <div class="ph">لا صورة</div>
+                <div class="meta">
+                  <div class="t">Est8 Core CRM — نظام إدارة العملاء</div>
+                  <div class="d">نظام إدارة علاقات العملاء</div>
+                  <div class="u">seed-large.est8core.com</div>
+                </div>
+              </div>
+              <div class="txt">https://seed-large.est8core.com/p/prop-0800</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chatwrap">
+          <header>واتساب — بعد الإصلاح <span class="pill ok">معاينة كاملة</span></header>
+          <div class="chat">
+            <div class="bubble">
+              <div class="lp">
+                <img id="ogShot" alt="معاينة العقار">
+                <div class="meta">
+                  <div class="t">فيلا بحوض سباحة خاص — جدة | دار العقارية</div>
+                  <div class="d" id="ogDesc">للإيجار · 2,759,167 ر.س · 6 غرف · 4 حمامات · 1,043 م² · حي الأندلس</div>
+                  <div class="u">seed-large.est8core.com</div>
+                </div>
+              </div>
+              <div class="txt">https://seed-large.est8core.com/p/prop-0800</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <h4>ليه الصورة لازم تكون مولَّدة ذاتياً مش رابط الميديا</h4>
+        <p>رابط الميديا الحالي يرجّع <strong>302</strong> (تحقّقت مباشرةً). واتساب مبيتبعش إعادة التوجيه في <code>og:image</code>، والرابط النهائي موقَّع وبينتهي — والمنصات بتكيّش المعاينة أيام. فالمطلوب PNG بـ<strong>200 مباشر</strong>، وده بالظبط اللي بتعمله <code>opengraph-image.tsx</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ الكروت ═══ -->
+  <section class="sec" id="cards">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>كروت السوشيال — نفس المولّد، ثلاثة مقاسات</h2>
+        <div class="rule"></div>
+        <p>الأبعاد والنصوص دي مقروءة من <code>GetPropertySocialCards</code> الموجودة فعلاً — مش معادة الكتابة. <strong>اختر صورة مختلفة لكل منصة من الشريط تحت كل كارت</strong>، أو شغّل وضع الشرائح.</p>
+      </div>
+
+      <div class="cardmode" role="group" aria-label="وضع الكارت">
+        <button type="button" class="chipbtn" id="modeStill" aria-pressed="true">صورة واحدة لكل منصة</button>
+        <button type="button" class="chipbtn" id="modeSlides" aria-pressed="false">شرائح متحركة</button>
+        <span class="picklbl" id="modeHint">اضغط أي مصغّرة تحت الكارت لتغيير صورته</span>
+      </div>
+
+      <div class="cards" id="cardsRow"></div>
+
+      <div class="callout">
+        <h4>الصيغة المتحركة: MP4 لا GIF — وليست للمعاينة أبداً</h4>
+        <p>الحركة تنفع في حالة واحدة: لما المستخدم <strong>ينزّل الكارت وينشره بنفسه</strong>. أما معاينة الرابط (<code>og:image</code>) فثابتة عند كل المنصات بلا استثناء — تاخد أول إطار وتتجاهل الباقي. وGIF تحديداً <strong>إنستغرام يرفضها</strong>، وواتساب وتويتر بيحوّلوها MP4 داخلياً. فالهدف الصحيح MP4 من البداية.</p>
+        <div class="fmt">
+          <div class="fmtcard">
+            <b>معاينة الرابط <span class="verdict no">ثابتة دائماً</span></b>
+            <span>واتساب · فيسبوك · تويتر · لينكدإن — كلها ترسم <code>og:image</code> كإطار ثابت. أي حركة هنا مهدورة.</span>
+          </div>
+          <div class="fmtcard">
+            <b>GIF <span class="verdict no">لا</span></b>
+            <span>إنستغرام لا يقبل رفعها، وواتساب/تويتر يحوّلونها MP4. أثقل حجماً وأقل جودة من MP4 بفارق كبير.</span>
+          </div>
+          <div class="fmtcard">
+            <b>MP4 (H.264) <span class="verdict yes">نعم</span></b>
+            <span>يُقبَل رفعه في ستوري وريلز إنستغرام وحالة واتساب وتويتر. يُولَّد <strong>في متصفح المستخدم</strong> بـ<code>WebCodecs</code> + <code>mp4-muxer</code> — بلا ffmpeg على الخادم وبلا تكلفة تشغيل.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <h4>البوابة قبل أي بناء (T0)</h4>
+        <p>الكروت دي مرسومة هنا بـCanvas عشان تشوف التركيب. في المنتج المُولِّد هو <code>satori</code> جوّه <code>next/og</code> — وهو <strong>بيحتاج خطاً صريحاً ويشكّل الحروف العربية بنفسه</strong>. أول مهمة في التنفيذ هي إثبات إن التشكيل سليم بصورة PNG حقيقية. لو طلع مكسور، القرار يتحوّل لـ<code>sharp</code> في الباك إند — ومش هيتبني حاجة فوقه قبل النتيجة دي.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ المصفوفة ═══ -->
+  <section class="sec" id="matrix">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>مصفوفة القرارات</h2>
+        <div class="rule"></div>
+        <p>اللي محسوم في البنش ده، واللي لسه محتاج رأيك.</p>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>البند</th><th>الوضع</th><th>الحالة</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>مكان الإعدادات</td><td>افتراضي تينانت + تجاوز لكل عقار، دمج مفتاح‑بمفتاح</td><td class="st done">محسوم</td></tr>
+            <tr><td>القوالب</td><td>ثلاثة مستويات ثراء · <code>luxury</code> مربوط بالخطة</td><td class="st done">محسوم</td></tr>
+            <tr><td>قنوات التواصل</td><td>الأربعة مدعومة، والأونر يفعّل ما يشاء</td><td class="st done">محسوم</td></tr>
+            <tr><td>الصور</td><td>خلفية مموّهة <code>cover</code> + الصورة <code>contain</code>؛ المعرض <code>contain</code> دائماً</td><td class="st done">محسوم</td></tr>
+            <tr><td>رقم المندوب</td><td>لا يُعرض إلا بوضع صريح <strong>و</strong>حقل <code>publicPhone</code> منفصل عن رقمه الشخصي</td><td class="st done">خط أحمر</td></tr>
+            <tr><td>مُولِّد الصور</td><td><code>next/og</code> إن نجح تشكيل العربية، وإلا <code>sharp</code></td><td class="st open">بوابة T0</td></tr>
+            <tr><td>الوضع الغامق للصفحة العامة</td><td>مقترح: تثبيت الفاتح (صفحة تسويقية)</td><td class="st open">رأيك</td></tr>
+            <tr><td>لغة الصفحة للزائر</td><td>مقترح: تتبع لغة التينانت، بلا مبدّل لغة</td><td class="st open">رأيك</td></tr>
+            <tr><td>الفهرس العام <code>/listings</code></td><td>الـendpoint موجود بلا صفحة</td><td class="st open">موجة تانية</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ── بيانات العقار — من التينانت المزروع seed-large، عقار PROP-0800 ───────
+  const P = {
+    title: "فيلا بحوض سباحة خاص",
+    desc: "فيلا مستقلة بحوض سباحة خاص وحديقة، في موقع هادئ بحي الأندلس. تشطيب سوبر لوكس، مدخل خاص، وإطلالة مفتوحة. جاهزة للسكن الفوري.",
+    ref: "PROP-0800", purpose: "للإيجار", status: "قيد التفاوض",
+    price: 2759167, currency: "ر.س",
+    city: "جدة", area: "حي الأندلس",
+    bedrooms: 6, bathrooms: 4, size: 1043,
+    finishing: "سوبر لوكس", furnished: "مفروش",
+    feats: ["مسبح","مصعد","شرفة","مطبخ مجهّز","تكييف مركزي","مدخل خاص","إطلالة بحرية","مفروش","غرفة خادمة"],
+    agent: { name: "أميرة القحطاني", role: "مستشار عقاري · فرع جدة", initials: "أق", phone: "+966 5X XXX XXXX" },
+    company: { name: "دار العقارية", initials: "د" }
+  };
+  const nf = new Intl.NumberFormat("ar-EG");
+
+  // ── توليد "صور" العقار على Canvas بنسب مختلفة فعلاً ──────────────────────
+  // الهدف: إثبات القصّ. لكل صورة موضوع مميّز قرب الحافة عشان يبان لما يتقصّ.
+  function shoot(w, h, kind) {
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const x = c.getContext("2d");
+
+    // سماء متدرّجة
+    const sky = x.createLinearGradient(0, 0, 0, h);
+    if (kind === "dusk") { sky.addColorStop(0, "#25405F"); sky.addColorStop(.55, "#7A6A63"); sky.addColorStop(1, "#C9A177"); }
+    else if (kind === "interior") { sky.addColorStop(0, "#F0EAE0"); sky.addColorStop(1, "#D6CCBE"); }
+    else { sky.addColorStop(0, "#8FB6D9"); sky.addColorStop(.6, "#C8DAE8"); sky.addColorStop(1, "#E8E0D2"); }
+    x.fillStyle = sky; x.fillRect(0, 0, w, h);
+
+    if (kind === "interior") {
+      // غرفة: أرضية + نافذة كبيرة + أثاث مبسّط
+      x.fillStyle = "#B9A488"; x.fillRect(0, h * .68, w, h * .32);
+      x.fillStyle = "#EFEDE8"; x.fillRect(0, 0, w, h * .68);
+      x.fillStyle = "#9FC3DE"; x.fillRect(w * .52, h * .14, w * .38, h * .44);
+      x.strokeStyle = "#6E7A86"; x.lineWidth = Math.max(2, w * .006);
+      x.strokeRect(w * .52, h * .14, w * .38, h * .44);
+      x.beginPath(); x.moveTo(w * .71, h * .14); x.lineTo(w * .71, h * .58); x.stroke();
+      x.fillStyle = "#2F4763"; x.fillRect(w * .07, h * .48, w * .34, h * .2);
+      x.fillStyle = "#C8A24B"; x.fillRect(w * .07, h * .44, w * .34, h * .045);
+      return c.toDataURL("image/png");
+    }
+
+    // شمس/قمر
+    x.fillStyle = kind === "dusk" ? "rgba(255,214,150,.9)" : "rgba(255,255,240,.8)";
+    x.beginPath(); x.arc(w * .78, h * .16, Math.min(w, h) * .055, 0, 7); x.fill();
+
+    // كتل معمارية
+    const groundY = h * (kind === "pano" ? .72 : .66);
+    const blocks = kind === "pano"
+      ? [[.02,.30,.16],[.20,.44,.13],[.35,.22,.20],[.57,.38,.15],[.74,.26,.24]]
+      : [[.08,.42,.30],[.40,.30,.34],[.76,.50,.18]];
+    blocks.forEach(([bx, bh, bw], i) => {
+      const X = w * bx, W = w * bw, H = h * bh, Y = groundY - H;
+      x.fillStyle = i % 2 ? "#1E3552" : "#16283F";
+      x.fillRect(X, Y, W, H);
+      // شبكة نوافذ — تفصيلة تخلّي القصّ واضح
+      x.fillStyle = kind === "dusk" ? "rgba(255,205,130,.85)" : "rgba(226,238,250,.55)";
+      const cw = Math.max(3, W / 9), ch = Math.max(3, H / 11);
+      for (let r = 1; r < 10; r++) for (let q = 1; q < 8; q++) {
+        if ((r * q) % 3 === 0) continue;
+        x.fillRect(X + q * (W / 8) - cw * .35, Y + r * (H / 11) - ch * .35, cw * .55, ch * .5);
+      }
+    });
+
+    // القوس والقبة — الموضوع المميّز، عند الحافة العليا عمداً
+    if (kind === "portrait") {
+      const cx = w * .5, cy = h * .155, r = Math.min(w, h) * .13;
+      x.fillStyle = "#C8A24B";
+      x.beginPath(); x.arc(cx, cy, r, Math.PI, 0); x.fill();
+      x.fillRect(cx - r, cy, r * 2, h * .045);
+      x.fillStyle = "#0B1F3A";
+      x.beginPath(); x.arc(cx, cy + h * .01, r * .52, Math.PI, 0); x.fill();
+      x.strokeStyle = "#C8A24B"; x.lineWidth = Math.max(2, w * .008);
+      x.beginPath(); x.moveTo(cx, cy - r - h * .05); x.lineTo(cx, cy - r); x.stroke();
+    }
+
+    // أرض/ماء
+    x.fillStyle = "#26506B"; x.fillRect(0, groundY, w, h - groundY);
+    x.strokeStyle = "rgba(255,255,255,.22)"; x.lineWidth = Math.max(1, h * .004);
+    for (let i = 0; i < 7; i++) {
+      const yy = groundY + (h - groundY) * (i + 1) / 8;
+      x.beginPath(); x.moveTo(w * (.05 + (i % 3) * .07), yy); x.lineTo(w * (.55 + (i % 4) * .1), yy); x.stroke();
+    }
+    // نخيل
+    x.fillStyle = "#0F2B22";
+    [[.12,.9],[.9,1.05]].forEach(([px, s]) => {
+      const bx2 = w * px, by = groundY, ht = h * .18 * s;
+      x.fillRect(bx2 - w * .006, by - ht, w * .012, ht);
+      for (let a = 0; a < 6; a++) {
+        x.beginPath(); x.moveTo(bx2, by - ht);
+        x.quadraticCurveTo(bx2 + Math.cos(a * 1.05 - .5) * w * .07, by - ht - h * .04,
+                           bx2 + Math.cos(a * 1.05 - .5) * w * .1, by - ht + h * .02);
+        x.lineWidth = Math.max(2, w * .009); x.strokeStyle = "#0F2B22"; x.stroke();
+      }
+    });
+    return c.toDataURL("image/png");
+  }
+
+  const SHOTS = [
+    { src: shoot(600, 800, "portrait"),  w: 600, h: 800,  label: "طولية 3:4" },
+    { src: shoot(960, 540, "dusk"),      w: 960, h: 540,  label: "عرضية 16:9" },
+    { src: shoot(700, 700, "interior"),  w: 700, h: 700,  label: "مربّعة 1:1" },
+    { src: shoot(1120, 480, "pano"),     w: 1120, h: 480, label: "بانوراما 21:9" }
+  ];
+
+  // ── الحالة ──────────────────────────────────────────────────────────────
+  const SECTION_DEFS = [
+    ["gallery", "المعرض", "شريط مصغّرات لكل الصور"],
+    ["specs", "المواصفات", "غرف · حمامات · مساحة · تشطيب"],
+    ["description", "الوصف", ""],
+    ["features", "المرافق", ""],
+    ["map", "الخريطة", "من latitude/longitude"],
+    ["agent", "بطاقة المندوب", ""],
+    ["contact", "التواصل", "يظهر دائماً لو السعر مخفي"],
+    ["brand", "شريط الشركة", "شعار واسم التينانت"]
+  ];
+  const CONTACT_DEFS = [
+    ["lead_form", "نموذج ← lead", "ينشئ lead في الـCRM بمصدر public_listing"],
+    ["listing_agent", "المندوب المسؤول", "publicPhone فقط، لا رقمه الشخصي"],
+    ["company_phone", "رقم الشركة", "رقم موحّد يحدده الأونر"],
+    ["whatsapp", "واتساب", "رسالة جاهزة فيها الرقم المرجعي"]
+  ];
+
+  const S = {
+    layout: "standard",
+    shot: 0,
+    showPrice: true,
+    sections: Object.fromEntries(SECTION_DEFS.map(([k]) => [k, true])),
+    contacts: { lead_form: true, listing_agent: true, company_phone: false, whatsapp: true }
+  };
+
+  // القالب البسيط بيخفي أقساماً بطبيعته — مش كل مفتاح متاح في كل قالب
+  const LAYOUT_FORCE = {
+    simple:  { gallery: false, map: false, features: false },
+    standard:{},
+    luxury:  {}
+  };
+  const eff = (k) => {
+    const forced = LAYOUT_FORCE[S.layout][k];
+    return forced === undefined ? S.sections[k] : forced;
+  };
+
+  // ── بناء الرف ───────────────────────────────────────────────────────────
+  function toggle(id, label, hint, checked, onChange) {
+    const l = document.createElement("label");
+    l.className = "sw" + (checked ? "" : " off");
+    l.innerHTML = `<span class="lbl">${label}${hint ? `<span class="hint">${hint}</span>` : ""}</span>`;
+    const i = document.createElement("input");
+    i.type = "checkbox"; i.checked = checked; i.id = id;
+    const t = document.createElement("span"); t.className = "track";
+    i.addEventListener("change", () => { onChange(i.checked); });
+    l.append(i, t);
+    return l;
+  }
+
+  const secHost = document.getElementById("sections");
+  SECTION_DEFS.forEach(([k, label, hint]) => {
+    secHost.appendChild(toggle("sec-" + k, label, hint, S.sections[k], (v) => { S.sections[k] = v; render(); }));
+  });
+
+  const conHost = document.getElementById("contacts");
+  CONTACT_DEFS.forEach(([k, label, hint]) => {
+    conHost.appendChild(toggle("con-" + k, label, hint, S.contacts[k], (v) => { S.contacts[k] = v; render(); }));
+  });
+
+  document.getElementById("showPrice").addEventListener("change", (e) => {
+    S.showPrice = e.target.checked; render();
+  });
+
+  document.querySelectorAll(".lay").forEach((b) => {
+    b.addEventListener("click", () => {
+      S.layout = b.dataset.lay;
+      document.querySelectorAll(".lay").forEach((o) => o.setAttribute("aria-pressed", String(o === b)));
+      render();
+    });
+  });
+
+  // ── رسم الصفحة ──────────────────────────────────────────────────────────
+  const page = document.getElementById("page");
+
+  function heroHeight() {
+    return S.layout === "luxury" ? 340 : S.layout === "simple" ? 190 : 260;
+  }
+
+  function contactBlock() {
+    const on = Object.entries(S.contacts).filter(([, v]) => v).map(([k]) => k);
+    const forced = !S.showPrice && on.length === 0;
+    if (!eff("contact") && !forced) return "";
+    const showForm = on.includes("lead_form") || forced;
+    const bits = [];
+
+    if (on.includes("listing_agent") && eff("agent")) {
+      bits.push(`<div class="agent">
+        <span class="avatar">${P.agent.initials}</span>
+        <span><span class="nm">${P.agent.name}</span><br><span class="rl">${P.agent.role}</span></span>
+      </div>`);
+    }
+    const ctas = [];
+    if (on.includes("whatsapp")) ctas.push(`<button type="button" class="btn btn-gold">مراسلة على واتساب</button>`);
+    if (on.includes("company_phone")) ctas.push(`<button type="button" class="btn btn-ghost">اتصل بالشركة</button>`);
+    if (on.includes("listing_agent")) ctas.push(`<button type="button" class="btn btn-ghost">اتصل بالمندوب</button>`);
+    if (ctas.length) bits.push(`<div class="ctas">${ctas.join("")}</div>`);
+
+    if (showForm) {
+      bits.push(`<form class="form" onsubmit="return false">
+        <div class="row">
+          <input class="field" placeholder="الاسم" aria-label="الاسم">
+          <input class="field" placeholder="رقم الجوال" inputmode="tel" aria-label="رقم الجوال">
+        </div>
+        <textarea class="field" rows="2" placeholder="رسالتك (اختياري)" aria-label="رسالتك"></textarea>
+        <input class="honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button type="submit" class="btn btn-primary">أرسل استفساري</button>
+        <p class="formnote">يصل مباشرة كـ<strong>lead</strong> في الـCRM بمصدر <code>public_listing</code>، مربوط بالعقار ده ومُسنَد تلقائياً.</p>
+      </form>`);
+    }
+
+    const head = forced ? "السعر عند الطلب — اتركوا بياناتكم" : "تواصل بخصوص هذا العقار";
+    return `<section class="contact"><header>${head}</header><div class="cbody">${bits.join("")}</div></section>`;
+  }
+
+  function render() {
+    // تحديث حالة المفاتيح غير المتاحة في القالب الحالي
+    SECTION_DEFS.forEach(([k]) => {
+      const box = document.getElementById("sec-" + k);
+      if (!box) return;
+      const forced = LAYOUT_FORCE[S.layout][k];
+      box.disabled = forced !== undefined;
+      box.checked = eff(k);
+      box.closest(".sw").classList.toggle("off", !eff(k));
+      box.closest(".sw").style.opacity = forced !== undefined ? ".5" : "1";
+    });
+    CONTACT_DEFS.forEach(([k]) => {
+      const box = document.getElementById("con-" + k);
+      box.closest(".sw").classList.toggle("off", !S.contacts[k]);
+    });
+
+    const anyContact = Object.values(S.contacts).some(Boolean);
+    const warn = document.getElementById("contactWarn");
+    warn.textContent = anyContact
+      ? "رقم المندوب لا يُعرض إلا من حقل publicPhone منفصل — تعريض رقمه الشخصي تسريب بيانات شخصية لا ميزة."
+      : "بلا أي قناة: الصفحة تعرض بلا وسيلة تواصل — والزائر يخرج بلا أثر. لو السعر كمان مخفي، النموذج يظهر إجبارياً.";
+
+    const H = heroHeight();
+    const shot = SHOTS[S.shot];
+
+    const brand = eff("brand") ? `
+      <div class="brandbar">
+        <span class="bl"><span class="blogo">${P.company.initials}</span><span class="bname">${P.company.name}</span></span>
+        <span class="bmeta">وساطة عقارية · جدة</span>
+      </div>` : "";
+
+    const hero = `
+      <div class="hero">
+        <div class="hero-tags">
+          <span class="tag gold">${P.purpose}</span>
+          <span class="tag">${P.status}</span>
+        </div>
+        <div class="hero-frame" style="height:${H}px">
+          <img class="backdrop" src="${shot.src}" alt="">
+          <img class="shot" src="${shot.src}" alt="${P.title}" style="max-height:${H}px">
+        </div>
+      </div>`;
+
+    const gallery = eff("gallery") ? `
+      <div class="thumbs" role="group" aria-label="صور العقار">
+        ${SHOTS.map((s, i) => `<button type="button" class="thumb" data-i="${i}" aria-pressed="${i === S.shot}" title="${s.label}"><img src="${s.src}" alt="${s.label}"></button>`).join("")}
+      </div>` : "";
+
+    const priceHtml = S.showPrice
+      ? `<p class="price">${nf.format(P.price)}<span class="cur">${P.currency}</span></p>`
+      : `<p class="price hidden-price">السعر عند الطلب</p>`;
+
+    const head = `
+      <div>
+        <span class="pref">${P.ref}</span>
+        <h1 class="ptitle">${P.title}</h1>
+        <p class="ploc">${P.area}، ${P.city}</p>
+        ${priceHtml}
+      </div>`;
+
+    const specs = eff("specs") ? `
+      <dl class="specs">
+        <div class="spec"><dt>غرف النوم</dt><dd>${nf.format(P.bedrooms)}</dd></div>
+        <div class="spec"><dt>الحمامات</dt><dd>${nf.format(P.bathrooms)}</dd></div>
+        <div class="spec"><dt>المساحة</dt><dd>${nf.format(P.size)} م²</dd></div>
+        <div class="spec"><dt>التشطيب</dt><dd style="font-size:.95rem">${P.finishing}</dd></div>
+        <div class="spec"><dt>الفرش</dt><dd style="font-size:.95rem">${P.furnished}</dd></div>
+      </dl>` : "";
+
+    const desc = eff("description") ? `<section><h3 class="blk">الوصف</h3><p class="desc">${P.desc}</p></section>` : "";
+    const feats = eff("features") ? `<section><h3 class="blk">المرافق والمميزات</h3><ul class="feats">${P.feats.map(f => `<li>${f}</li>`).join("")}</ul></section>` : "";
+    const map = eff("map") ? `<section><h3 class="blk">الموقع</h3><div class="map"><canvas id="mapc" width="640" height="336"></canvas><span class="pin"></span></div></section>` : "";
+
+    const contact = contactBlock();
+
+    const mainCol = [head, specs, desc, feats, map].filter(Boolean).join("");
+    const sideCol = contact;
+
+    page.dataset.lay = S.layout;
+    page.innerHTML = brand + hero + gallery + `
+      <div class="pbody">
+        <div class="col-main">${mainCol}</div>
+        <div class="col-side">${sideCol}</div>
+      </div>
+      <footer class="pfoot">
+        <span>نُشر بواسطة ${P.company.name} · ${P.ref}</span>
+        <span>Powered by Est8 Core</span>
+      </footer>`;
+
+    page.querySelectorAll(".thumb").forEach((b) => {
+      b.addEventListener("click", () => { S.shot = +b.dataset.i; render(); });
+    });
+    if (eff("map")) drawMap(page.querySelector("#mapc"));
+
+    document.getElementById("urlbar").textContent =
+      "seed-large.est8core.com/p/prop-0800" + (S.layout === "luxury" ? "  ·  layout=luxury" : "");
+  }
+
+  // خريطة تخطيطية — شوارع وكتل، لا مزوّد خارجي
+  function drawMap(c) {
+    if (!c) return;
+    const x = c.getContext("2d"), w = c.width, h = c.height;
+    x.fillStyle = "#EEF0EC"; x.fillRect(0, 0, w, h);
+    x.fillStyle = "#DDE3D9";
+    for (let i = 0; i < 26; i++) {
+      const bw = 40 + (i * 37) % 70, bh = 26 + (i * 53) % 54;
+      x.fillRect((i * 97) % w, (i * 71) % h, bw, bh);
+    }
+    x.strokeStyle = "#FFFFFF"; x.lineWidth = 9;
+    [.24, .52, .8].forEach(p => { x.beginPath(); x.moveTo(0, h * p); x.lineTo(w, h * p); x.stroke(); });
+    [.2, .5, .78].forEach(p => { x.beginPath(); x.moveTo(w * p, 0); x.lineTo(w * p, h); x.stroke(); });
+    x.strokeStyle = "#C7D6E8"; x.lineWidth = 16;
+    x.beginPath(); x.moveTo(0, h * .93); x.lineTo(w, h * .86); x.stroke();
+  }
+
+  // ── قسم القصّ ───────────────────────────────────────────────────────────
+  const portrait = SHOTS[0].src;
+  document.getElementById("cropBefore").src = portrait;
+  document.getElementById("cropAfter").src = portrait;
+  document.getElementById("cropBackA").src = portrait;
+  document.getElementById("ogShot").src = SHOTS[1].src;
+
+  // ── كروت السوشيال ───────────────────────────────────────────────────────
+  const PLATFORMS = [
+    { key: "instagram", label: "إنستغرام", w: 1080, h: 1350, ratio: "4:5" },
+    { key: "whatsapp",  label: "واتساب",   w: 1080, h: 1080, ratio: "1:1" },
+    { key: "twitter",   label: "تويتر / X", w: 1200, h: 675,  ratio: "16:9" }
+  ];
+
+  // الاختيار لكل منصة — افتراضات مختلفة عمداً عشان الفكرة تبان من أول نظرة.
+  // في المنتج: settings.publishing.social_card_media = {instagram:[mediaId], ...}
+  const CARD = {
+    mode: "still",
+    sel: { instagram: [1], whatsapp: [2], twitter: [3] },
+    canvases: {}
+  };
+  const SLIDE_MS = 1500, FADE_MS = 450;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // تحميل الصور مرة واحدة — الرسم بعدها متزامن، فالحركة بلا وميض
+  const IMGS = SHOTS.map((s) => { const i = new Image(); i.src = s.src; return i; });
+
+  const row = document.getElementById("cardsRow");
+  PLATFORMS.forEach((pf) => {
+    const box = document.createElement("div");
+    box.className = "cardbox";
+
+    const c = document.createElement("canvas");
+    c.width = pf.w; c.height = pf.h;
+    const dispW = 216;
+    c.style.width = dispW + "px";
+    c.style.height = Math.round(pf.h * (dispW / pf.w)) + "px";
+    CARD.canvases[pf.key] = c;
+
+    const cap = document.createElement("div");
+    cap.className = "cap";
+    // dir=ltr صراحةً: "1080×1350" رقم-رمز-رقم فيقلبه محرّك bidi داخل سياق rtl
+    cap.innerHTML = `<b>${pf.label}</b><span dir="ltr">${pf.w}×${pf.h} · ${pf.ratio}</span>`;
+
+    const lbl = document.createElement("div");
+    lbl.className = "picklbl";
+    lbl.id = "pl-" + pf.key;
+
+    const pick = document.createElement("div");
+    pick.className = "pick";
+    pick.setAttribute("role", "group");
+    pick.setAttribute("aria-label", "صور كارت " + pf.label);
+    SHOTS.forEach((s, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.title = s.label;
+      b.innerHTML = `<img src="${s.src}" alt="${s.label}">`;
+      b.addEventListener("click", () => pickImage(pf.key, i));
+      pick.appendChild(b);
+    });
+
+    box.append(c, cap, pick, lbl);
+    row.appendChild(box);
+  });
+
+  function pickImage(key, i) {
+    const cur = CARD.sel[key];
+    if (CARD.mode === "still") {
+      CARD.sel[key] = [i];                                   // اختيار مفرد
+    } else {
+      const at = cur.indexOf(i);
+      if (at === -1) cur.push(i);
+      else if (cur.length > 1) cur.splice(at, 1);            // آخر صورة لا تُنزع
+      cur.sort((a, b) => a - b);
+    }
+    syncCards();
+  }
+
+  function syncCards() {
+    PLATFORMS.forEach((pf) => {
+      const sel = CARD.sel[pf.key];
+      const box = CARD.canvases[pf.key].parentElement;
+      [...box.querySelectorAll(".pick button")].forEach((b, i) => {
+        b.setAttribute("aria-pressed", String(sel.includes(i)));
+      });
+      const lbl = document.getElementById("pl-" + pf.key);
+      lbl.textContent = CARD.mode === "still"
+        ? SHOTS[sel[0]].label
+        : (sel.length > 1
+            ? `${nf.format(sel.length)} شرائح · ${((sel.length * SLIDE_MS) / 1000).toFixed(1)} ث`
+            : "شريحة واحدة — أضف صوراً للحركة");
+      if (CARD.mode === "still" || sel.length < 2) paint(pf, IMGS[sel[0]], null, 0);
+    });
+  }
+
+  document.getElementById("modeStill").addEventListener("click", () => setMode("still"));
+  document.getElementById("modeSlides").addEventListener("click", () => setMode("slides"));
+
+  function setMode(m) {
+    CARD.mode = m;
+    document.getElementById("modeStill").setAttribute("aria-pressed", String(m === "still"));
+    document.getElementById("modeSlides").setAttribute("aria-pressed", String(m === "slides"));
+    document.getElementById("modeHint").textContent = m === "still"
+      ? "اضغط أي مصغّرة تحت الكارت لتغيير صورته"
+      : (reduceMotion
+          ? "تفضيل النظام «تقليل الحركة» مفعَّل — الشرائح معروضة ثابتة"
+          : "اضغط المصغّرات لإضافة/إزالة شرائح · المخرَج MP4 يُولَّد في متصفح المستخدم");
+    if (m === "still") {
+      PLATFORMS.forEach((pf) => { CARD.sel[pf.key] = [CARD.sel[pf.key][0]]; });
+    }
+    syncCards();
+  }
+
+  // حلقة واحدة للكروت الثلاثة — لا rAF لكل كارت
+  function tick(now) {
+    if (CARD.mode === "slides" && !reduceMotion) {
+      PLATFORMS.forEach((pf) => {
+        const sel = CARD.sel[pf.key];
+        if (sel.length < 2) return;
+        const cycle = SLIDE_MS * sel.length;
+        const t = now % cycle;
+        const idx = Math.floor(t / SLIDE_MS);
+        const into = t - idx * SLIDE_MS;
+        const fade = into > SLIDE_MS - FADE_MS ? (into - (SLIDE_MS - FADE_MS)) / FADE_MS : 0;
+        paint(pf, IMGS[sel[idx]], fade > 0 ? IMGS[sel[(idx + 1) % sel.length]] : null, fade);
+      });
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /** يرسم كارتاً كاملاً: صورة (cover) + مزج اختياري للتالية + ستارة + نصوص. */
+  function paint(pf, imgA, imgB, blend) {
+    const c = CARD.canvases[pf.key];
+    const x = c.getContext("2d"), w = c.width, h = c.height;
+
+    x.globalAlpha = 1;
+    x.fillStyle = "#0E2138"; x.fillRect(0, 0, w, h);
+    cover(x, imgA, w, h);
+    if (imgB && blend > 0) { x.globalAlpha = blend; cover(x, imgB, w, h); x.globalAlpha = 1; }
+
+    // ستارة تدرّج تضمن قراءة النص مهما كانت الصورة
+    const g = x.createLinearGradient(0, h * .3, 0, h);
+    g.addColorStop(0, "rgba(11,31,58,0)");
+    g.addColorStop(.45, "rgba(11,31,58,.72)");
+    g.addColorStop(1, "rgba(11,31,58,.96)");
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+
+    const pad = w * .07;
+    x.textAlign = "right"; x.direction = "rtl";
+
+    // شارة الغرض
+    x.fillStyle = "#C8A24B";
+    const bw = w * .2, bh = h * .055;
+    x.fillRect(w - pad - bw, pad, bw, bh);
+    x.fillStyle = "#10203A";
+    x.font = `700 ${Math.round(h * .032)}px "Segoe UI", Tahoma, sans-serif`;
+    x.fillText(P.purpose, w - pad - bw * .12, pad + bh * .72);
+
+    x.fillStyle = "#FFFFFF";
+    x.font = `800 ${Math.round(w * .062)}px "Segoe UI", Tahoma, sans-serif`;
+    x.fillText(P.title, w - pad, h - pad - h * .175);
+
+    x.fillStyle = "rgba(255,255,255,.72)";
+    x.font = `400 ${Math.round(w * .036)}px "Segoe UI", Tahoma, sans-serif`;
+    x.fillText(`${P.area}، ${P.city}`, w - pad, h - pad - h * .128);
+
+    x.fillStyle = "#C8A24B";
+    x.font = `800 ${Math.round(w * .072)}px "Segoe UI", Tahoma, sans-serif`;
+    x.fillText(`${nf.format(P.price)} ${P.currency}`, w - pad, h - pad - h * .055);
+
+    x.fillStyle = "rgba(255,255,255,.85)";
+    x.font = `600 ${Math.round(w * .034)}px "Segoe UI", Tahoma, sans-serif`;
+    x.fillText(`${nf.format(P.bedrooms)} غرف · ${nf.format(P.bathrooms)} حمامات · ${nf.format(P.size)} م²`,
+               w - pad, h - pad - h * .012);
+
+    // نقاط الشرائح — مؤشر بصري إن دي حركة لا صورة
+    const sel = CARD.sel[pf.key];
+    if (CARD.mode === "slides" && sel.length > 1) {
+      const r = w * .009, gap = w * .032, y = pad + bh * .35;
+      sel.forEach((_, i) => {
+        const cx = pad + gap * i + r * 2;
+        const active = imgA === IMGS[sel[i]];
+        x.beginPath(); x.arc(cx, y, r, 0, 7);
+        x.fillStyle = active ? "#C8A24B" : "rgba(255,255,255,.4)"; x.fill();
+      });
+    }
+
+    // الشركة + المرجع (يسار)
+    x.textAlign = "left"; x.direction = "ltr";
+    x.fillStyle = "rgba(255,255,255,.55)";
+    x.font = `600 ${Math.round(w * .028)}px "Segoe UI", Tahoma, sans-serif`;
+    x.fillText(P.ref, pad, pad + h * .07);
+    x.fillStyle = "#C8A24B";
+    x.fillText("est8core.com", pad, h - pad + h * .002);
+  }
+
+  /** رسم الصورة بأسلوب cover — القصّ مقبول هنا لأن مقاس الكارت تفرضه المنصة. */
+  function cover(x, img, w, h) {
+    if (!img || !img.naturalWidth) return;
+    const r = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const dw = img.naturalWidth * r, dh = img.naturalHeight * r;
+    x.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  }
+
+  Promise.all(IMGS.map((i) => (i.decode ? i.decode().catch(() => {}) : Promise.resolve())))
+    .then(() => { setMode("still"); requestAnimationFrame(tick); });
+
+  render();
+})();
+</script>
