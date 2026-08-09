@@ -1,0 +1,1047 @@
+<!doctype html>
+<!--
+  Est8Core — 404 (Not Found)
+  ==========================================================================
+  Single self-contained file. No external requests, no build step, no CDN.
+  Safe to serve straight from Nginx:
+
+      error_page 404 /404.html;
+      location = /404.html { root /www/wwwroot/est8core.com; internal; }
+
+  WHAT TO EDIT BEFORE SHIPPING
+  --------------------------------------------------------------------------
+  1. All hrefs are grouped under the "EDIT: LINKS" markers below.
+  2. All stat numbers are marked PLACEHOLDER — replace with real figures.
+  3. Fonts: see --font-display / --font-body. If @est8/ui already ships a
+     webfont (Cairo / Tajawal / Inter), point these vars at it.
+
+  COLOR RULE
+  --------------------------------------------------------------------------
+  Zero hardcoded hex. Every color resolves to a token from the theme file
+  (est8core-no-inline-hex-theme-aware). The :root / .dark blocks below are
+  copied verbatim from the design system — do not fork them, replace the
+  block with an @import of the real stylesheet if you prefer.
+-->
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الصفحة غير موجودة · Est8Core</title>
+<meta name="robots" content="noindex, follow">
+<meta name="description" content="الصفحة المطلوبة غير موجودة. اختر من الروابط السريعة للوصول إلى ما تبحث عنه في Est8Core.">
+<meta name="theme-color" content="#0b1f3a" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#08101e" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="/favicon.ico">
+
+<!-- Pre-paint theme + language restore. Inline on purpose: prevents FOUC. -->
+<script>
+(function () {
+  var d = document.documentElement;
+  var read = function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  var theme = read('est8-theme');
+  if (!theme) {
+    theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  if (theme === 'dark') d.classList.add('dark');
+
+  var lang = read('est8-lang');
+  if (!lang) {
+    lang = (navigator.language || 'ar').toLowerCase().indexOf('ar') === 0 ? 'ar' : 'en';
+  }
+  d.lang = lang;
+  d.dir = lang === 'ar' ? 'rtl' : 'ltr';
+})();
+</script>
+
+<style>
+/* ==========================================================================
+   1. THEME TOKENS — verbatim from the Est8Core design system
+   ========================================================================== */
+:root {
+  --c-bg: 244 246 250;
+  --c-card: 255 255 255;
+  --c-elev: 251 252 254;
+  --c-ink: 30 42 69;
+  --c-muted: 110 127 156;
+  --c-faint: 155 166 187;
+  --c-line: 238 240 245;
+  --c-line-strong: 221 225 234;
+  --c-accent-soft: 234 240 248;
+  --c-brand: 11 31 58;
+  --c-success: 26 140 78;
+  --c-warning: 212 134 10;
+  --c-danger: 192 57 43;
+  --c-info: 21 101 192;
+
+  --c-primary-50: 234 240 248;
+  --c-primary-100: 197 213 233;
+  --c-primary-200: 155 181 215;
+  --c-primary-300: 110 146 196;
+  --c-primary-400: 74 117 180;
+  --c-primary-500: 36 88 165;
+  --c-primary-600: 26 69 144;
+  --c-primary-700: 16 42 76;
+  --c-primary-800: 11 31 58;
+  --c-primary-900: 6 15 30;
+
+  --c-accent-50: 253 248 238;
+  --c-accent-100: 247 234 204;
+  --c-accent-200: 239 212 153;
+  --c-accent-300: 227 186 102;
+  --c-accent-400: 212 162 62;
+  --c-accent-500: 200 162 75;
+  --c-accent-600: 176 139 53;
+  --c-accent-700: 140 110 39;
+  --c-accent-800: 106 82 27;
+  --c-accent-900: 73 56 16;
+
+  --c-neutral-50: 248 249 251;
+  --c-neutral-100: 238 240 245;
+  --c-neutral-200: 221 225 234;
+  --c-neutral-300: 196 203 218;
+  --c-neutral-400: 155 166 187;
+  --c-neutral-500: 110 127 156;
+  --c-neutral-600: 77 95 122;
+  --c-neutral-700: 52 66 96;
+  --c-neutral-800: 30 42 69;
+  --c-neutral-900: 13 20 36;
+
+  /* Fixed (non-theme-following) fills — never redeclared under .dark. */
+  --c-fill-navy: 11 31 58;
+  --c-fill-navy-strong: 16 42 76;
+  --c-fill-navy-soft: 26 69 144;
+  --c-fill-gold-strong: 140 110 39;
+  --c-fill-gold: 200 162 75;
+}
+
+.dark {
+  --c-bg: 8 16 30;
+  --c-card: 18 28 48;
+  --c-elev: 24 36 60;
+  --c-ink: 233 238 246;
+  --c-muted: 158 172 196;
+  --c-faint: 132 146 170;
+  --c-line: 34 47 74;
+  --c-line-strong: 45 60 92;
+  --c-accent-soft: 30 41 63;
+  --c-brand: 46 96 168;
+  --c-success: 46 168 95;
+  --c-warning: 230 158 50;
+  --c-danger: 224 96 84;
+  --c-info: 74 144 226;
+
+  --c-primary-50: 19 29 47;
+  --c-primary-100: 26 38 61;
+  --c-primary-200: 91 116 147;
+  --c-primary-300: 92 125 167;
+  --c-primary-400: 83 142 209;
+  --c-primary-500: 106 161 220;
+  --c-primary-600: 131 180 230;
+  --c-primary-700: 146 195 242;
+  --c-primary-800: 184 219 249;
+  --c-primary-900: 216 236 253;
+
+  --c-accent-50: 48 37 18;
+  --c-accent-100: 62 49 24;
+  --c-accent-200: 133 112 72;
+  --c-accent-300: 144 120 71;
+  --c-accent-400: 172 134 46;
+  --c-accent-500: 197 150 46;
+  --c-accent-600: 217 168 70;
+  --c-accent-700: 244 219 144;
+  --c-accent-800: 250 234 184;
+  --c-accent-900: 253 245 216;
+
+  --c-neutral-50: 49 57 73;
+  --c-neutral-100: 61 70 87;
+  --c-neutral-200: 97 107 128;
+  --c-neutral-300: 108 123 153;
+  --c-neutral-400: 128 140 161;
+  --c-neutral-500: 145 158 180;
+  --c-neutral-600: 163 177 197;
+  --c-neutral-700: 194 202 214;
+  --c-neutral-800: 218 224 231;
+  --c-neutral-900: 236 239 243;
+}
+
+/* ==========================================================================
+   2. PAGE-LOCAL TOKENS
+   --sh follows the same "declare only in :root so it never flips" convention
+   as --c-fill-*: shadows must stay dark in both themes, otherwise a
+   neutral-900-based shadow inverts to a white halo in dark mode.
+   ========================================================================== */
+:root {
+  --sh: 6 15 30;              /* = primary-900 light value, pinned */
+  --sh-a: 0.07;               /* shadow alpha, light */
+  --sh-a2: 0.10;
+  --plate-a: 0.55;            /* blueprint grid opacity */
+
+  --font-display: "Cairo", "Tajawal", "Noto Kufi Arabic", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Cairo", "Tajawal", "Noto Sans Arabic", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 26px;
+
+  --pad: clamp(20px, 5vw, 48px);
+  --gap: clamp(16px, 2.4vw, 24px);
+  --maxw: 1180px;
+  --sect: clamp(48px, 7vw, 88px);
+}
+.dark {
+  --sh-a: 0.30;
+  --sh-a2: 0.45;
+  --plate-a: 0.75;
+}
+html[lang="en"] {
+  --font-display: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* ==========================================================================
+   3. RESET + BASE
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: rgb(var(--c-ink));
+  background-color: rgb(var(--c-bg));
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.25; font-weight: 700; }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+ul { margin: 0; padding: 0; list-style: none; }
+svg { display: block; }
+
+:focus-visible {
+  outline: 2px solid rgb(var(--c-primary-400));
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+/* Bilingual switching. Both languages ship in the DOM so the page still
+   renders with JS disabled — the toggle only flips lang/dir on <html>. */
+html[lang="ar"] .en { display: none !important; }
+html[lang="en"] .ar { display: none !important; }
+
+.wrap { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--pad); }
+
+.skip {
+  position: absolute; inset-inline-start: -9999px; top: 8px; z-index: 99;
+  background: rgb(var(--c-card)); color: rgb(var(--c-ink));
+  padding: 10px 16px; border-radius: var(--r-sm);
+  border: 1px solid rgb(var(--c-line-strong));
+}
+.skip:focus { inset-inline-start: 16px; }
+
+/* ==========================================================================
+   4. HEADER
+   ========================================================================== */
+.hdr {
+  position: sticky; top: 0; z-index: 20;
+  background-color: rgb(var(--c-bg) / 0.86);
+  backdrop-filter: saturate(1.6) blur(12px);
+  border-block-end: 1px solid rgb(var(--c-line));
+}
+.hdr__in {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; height: 66px;
+}
+.brand { display: inline-flex; align-items: center; gap: 10px; }
+.brand__mark {
+  width: 34px; height: 34px; flex: none;
+  border-radius: 9px;
+  background-color: rgb(var(--c-fill-navy));
+  color: rgb(var(--c-accent-400));
+  display: grid; place-items: center;
+  box-shadow: inset 0 0 0 1px rgb(var(--c-accent-400) / 0.35);
+}
+.brand__name {
+  font-family: var(--font-display);
+  font-weight: 800; font-size: 19px; letter-spacing: -0.01em;
+  color: rgb(var(--c-ink));
+}
+.brand__name b { color: rgb(var(--c-accent-600)); font-weight: 800; }
+
+.ctrls { display: flex; align-items: center; gap: 8px; }
+.seg {
+  display: inline-flex; padding: 3px;
+  background-color: rgb(var(--c-accent-soft));
+  border: 1px solid rgb(var(--c-line-strong));
+  border-radius: 999px;
+}
+.seg__btn {
+  appearance: none; border: 0; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 700;
+  padding: 5px 13px; border-radius: 999px;
+  background: transparent; color: rgb(var(--c-muted));
+  transition: color .18s ease, background-color .18s ease;
+}
+.seg__btn[aria-pressed="true"] {
+  background-color: rgb(var(--c-card));
+  color: rgb(var(--c-ink));
+  box-shadow: 0 1px 2px rgb(var(--sh) / var(--sh-a));
+}
+.iconbtn {
+  appearance: none; cursor: pointer;
+  width: 38px; height: 38px; display: grid; place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--c-line-strong));
+  background-color: rgb(var(--c-card));
+  color: rgb(var(--c-muted));
+  transition: color .18s ease, border-color .18s ease;
+}
+.iconbtn:hover { color: rgb(var(--c-ink)); border-color: rgb(var(--c-primary-300)); }
+.dark .icon-moon, .icon-sun { display: none; }
+.dark .icon-sun { display: block; }
+.icon-moon { display: block; }
+
+/* ==========================================================================
+   5. HERO
+   ========================================================================== */
+.hero { padding-block: clamp(36px, 6vw, 72px) var(--sect); }
+.hero__grid {
+  display: grid; gap: clamp(28px, 4vw, 56px);
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+@media (min-width: 940px) {
+  .hero__grid { grid-template-columns: 1fr 1fr; }
+}
+
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-size: 12.5px; font-weight: 800;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgb(var(--c-accent-800));
+  margin-block-end: 18px;
+}
+.eyebrow::before {
+  content: ""; width: 26px; height: 2px; flex: none;
+  background-color: rgb(var(--c-fill-gold));
+}
+html[lang="ar"] .eyebrow { letter-spacing: 0; }
+
+.hero__title {
+  font-size: clamp(30px, 5.4vw, 50px);
+  letter-spacing: -0.015em;
+  margin-block-end: 18px;
+  text-wrap: balance;
+}
+.hero__title em {
+  font-style: normal;
+  color: rgb(var(--c-primary-600));
+  border-block-end: 3px solid rgb(var(--c-fill-gold) / 0.5);
+}
+.hero__lede {
+  font-size: clamp(15.5px, 1.6vw, 17.5px);
+  color: rgb(var(--c-muted));
+  max-width: 46ch;
+  margin-block-end: 26px;
+}
+
+.path {
+  display: inline-flex; align-items: center; gap: 10px;
+  max-width: 100%;
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  border: 1px dashed rgb(var(--c-line-strong));
+  background-color: rgb(var(--c-accent-soft) / 0.6);
+  margin-block-end: 26px;
+}
+.path__k {
+  font-size: 11.5px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; color: rgb(var(--c-neutral-600));
+  flex: none;
+}
+.path__v {
+  font-family: var(--font-mono); font-size: 13.5px;
+  color: rgb(var(--c-danger));
+  direction: ltr; unicode-bidi: isolate;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-block-end: 28px; }
+
+.btn {
+  --btn-bg: transparent;
+  --btn-fg: rgb(var(--c-ink));
+  --btn-bd: rgb(var(--c-line-strong));
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 700;
+  background-color: var(--btn-bg);
+  color: var(--btn-fg);
+  border: 1px solid var(--btn-bd);
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: translateY(0); }
+.btn svg { flex: none; }
+html[dir="rtl"] .btn .arrow { transform: scaleX(-1); }
+
+/* Gold fill + navy text: the pairing documented as AA-safe, and identical in
+   both themes because both tokens are pinned. */
+.btn--primary {
+  --btn-bg: rgb(var(--c-fill-gold));
+  --btn-fg: rgb(var(--c-fill-navy));
+  --btn-bd: rgb(var(--c-fill-gold));
+  box-shadow: 0 6px 18px rgb(var(--sh) / var(--sh-a2));
+}
+.btn--primary:hover { box-shadow: 0 10px 26px rgb(var(--sh) / var(--sh-a2)); }
+.btn--ghost { --btn-bg: rgb(var(--c-card)); }
+.btn--ghost:hover { --btn-bd: rgb(var(--c-primary-300)); }
+
+.tenant {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background-color: rgb(var(--c-card));
+  border: 1px solid rgb(var(--c-line));
+  border-inline-start: 3px solid rgb(var(--c-fill-gold));
+  font-size: 14.5px; color: rgb(var(--c-muted));
+  max-width: 52ch;
+}
+.tenant svg { color: rgb(var(--c-accent-600)); margin-block-start: 3px; flex: none; }
+.tenant code {
+  font-family: var(--font-mono); font-size: 13px;
+  color: rgb(var(--c-primary-600)); font-weight: 600;
+  direction: ltr; unicode-bidi: isolate;
+}
+
+/* ==========================================================================
+   6. SIGNATURE — the blueprint plate
+   ========================================================================== */
+.plate {
+  position: relative;
+  border-radius: var(--r-lg);
+  background-color: rgb(var(--c-card));
+  border: 1px solid rgb(var(--c-line-strong));
+  box-shadow: 0 22px 50px rgb(var(--sh) / var(--sh-a));
+  overflow: hidden;
+  padding: 14px;
+}
+.plate::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, rgb(var(--c-line-strong) / var(--plate-a)) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--c-line-strong) / var(--plate-a)) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 45%, rgb(0 0 0) 20%, transparent 78%);
+  mask-image: radial-gradient(ellipse at 50% 45%, rgb(0 0 0) 20%, transparent 78%);
+  pointer-events: none;
+}
+.plate svg { position: relative; width: 100%; height: auto; }
+
+.bp-wall  { fill: none; stroke: rgb(var(--c-primary-600)); stroke-width: 5; stroke-linejoin: round; }
+.bp-part  { fill: none; stroke: rgb(var(--c-primary-400)); stroke-width: 3; stroke-linecap: round; }
+.bp-thin  { fill: none; stroke: rgb(var(--c-primary-300)); stroke-width: 1.4; }
+.bp-dim   { fill: none; stroke: rgb(var(--c-faint)); stroke-width: 1; }
+.bp-gone  { fill: none; stroke: rgb(var(--c-fill-gold)); stroke-width: 2.4; stroke-dasharray: 9 7; stroke-linecap: round; }
+.bp-fill  { fill: rgb(var(--c-accent-soft)); }
+.bp-lbl   { fill: rgb(var(--c-faint)); font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; }
+.bp-key   { fill: rgb(var(--c-faint)); font-family: var(--font-mono); font-size: 9px; letter-spacing: .12em; }
+.bp-val   { fill: rgb(var(--c-ink)); font-family: var(--font-mono); font-size: 11px; font-weight: 600; }
+.bp-bad   { fill: rgb(var(--c-danger)); font-family: var(--font-mono); font-size: 11px; font-weight: 700; }
+.bp-num   { fill: rgb(var(--c-primary-600)); font-family: var(--font-mono); font-size: 15px; font-weight: 700; }
+.bp-q     { fill: rgb(var(--c-accent-600)); font-family: var(--font-display); font-size: 40px; font-weight: 800; }
+.bp-block { fill: none; stroke: rgb(var(--c-line-strong)); stroke-width: 1.2; }
+
+.bp-stamp-box {
+  fill: rgb(var(--c-fill-gold) / 0.10);
+  stroke: rgb(var(--c-fill-gold-strong));
+  stroke-width: 2;
+}
+.bp-stamp-txt {
+  fill: rgb(var(--c-fill-gold-strong));
+  font-family: var(--font-display);
+  font-size: 21px; font-weight: 800; letter-spacing: .04em;
+}
+
+/* One orchestrated moment: the plan drafts itself, then the stamp lands. */
+@media (prefers-reduced-motion: no-preference) {
+  .bp-draw {
+    stroke-dasharray: 1400; stroke-dashoffset: 1400;
+    animation: draw 1.5s cubic-bezier(.65,.05,.36,1) forwards;
+  }
+  .bp-draw--b { animation-delay: .28s; }
+  .bp-draw--c { animation-delay: .52s; }
+  .bp-stamp { opacity: 0; animation: stamp .5s cubic-bezier(.2,1.4,.4,1) 1.15s forwards; }
+  .bp-late  { opacity: 0; animation: fade .5s ease 1.35s forwards; }
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes stamp {
+  from { opacity: 0; transform: scale(1.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes fade { to { opacity: 1; } }
+
+/* ==========================================================================
+   7. SECTIONS
+   ========================================================================== */
+.sect { padding-block: var(--sect); border-block-start: 1px solid rgb(var(--c-line)); }
+.sect__head { margin-block-end: clamp(22px, 3vw, 34px); }
+.sect__title { font-size: clamp(21px, 2.6vw, 27px); letter-spacing: -0.01em; }
+.sect__sub { color: rgb(var(--c-muted)); font-size: 15.5px; margin-block-start: 8px; max-width: 56ch; }
+
+/* --- quick links --- */
+.links { display: grid; gap: 12px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 660px) { .links { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 980px) { .links { grid-template-columns: repeat(4, 1fr); } }
+
+.link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px;
+  border-radius: var(--r-md);
+  background-color: rgb(var(--c-card));
+  border: 1px solid rgb(var(--c-line));
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.link:hover {
+  border-color: rgb(var(--c-primary-300));
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgb(var(--sh) / var(--sh-a));
+}
+.link__ico {
+  width: 38px; height: 38px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background-color: rgb(var(--c-accent-soft));
+  color: rgb(var(--c-primary-500));
+  transition: background-color .18s ease, color .18s ease;
+}
+.link:hover .link__ico {
+  background-color: rgb(var(--c-fill-gold) / 0.18);
+  color: rgb(var(--c-accent-600));
+}
+.link__t { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+.link__d { font-size: 12.5px; color: rgb(var(--c-neutral-600)); margin-block-start: 1px; }
+
+/* --- stats --- */
+.stats {
+  display: grid; gap: 1px;
+  grid-template-columns: repeat(2, 1fr);
+  background-color: rgb(var(--c-line));
+  border: 1px solid rgb(var(--c-line));
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+@media (min-width: 760px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+.stat { background-color: rgb(var(--c-card)); padding: 26px 20px; text-align: center; }
+.stat__n {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.6vw, 36px); font-weight: 800;
+  color: rgb(var(--c-primary-600));
+  letter-spacing: -0.02em;
+  direction: ltr; unicode-bidi: isolate;
+}
+.stat__l { font-size: 13.5px; color: rgb(var(--c-muted)); margin-block-start: 4px; }
+
+/* --- features --- */
+.feats { display: grid; gap: var(--gap); grid-template-columns: 1fr; }
+@media (min-width: 820px) { .feats { grid-template-columns: repeat(3, 1fr); } }
+.feat {
+  padding: 26px;
+  border-radius: var(--r-lg);
+  background-color: rgb(var(--c-card));
+  border: 1px solid rgb(var(--c-line));
+  transition: border-color .18s ease;
+}
+.feat:hover { border-color: rgb(var(--c-line-strong)); }
+.feat__ico {
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  background-color: rgb(var(--c-fill-navy));
+  color: rgb(var(--c-accent-400));
+  margin-block-end: 16px;
+}
+.feat__t { font-size: 17.5px; margin-block-end: 8px; }
+.feat__d { color: rgb(var(--c-muted)); font-size: 14.8px; }
+
+/* --- closing CTA --- */
+.cta {
+  position: relative; overflow: hidden;
+  border-radius: var(--r-xl);
+  background-color: rgb(var(--c-fill-navy));
+  padding: clamp(32px, 5vw, 56px);
+  text-align: center;
+  box-shadow: 0 20px 48px rgb(var(--sh) / var(--sh-a2));
+}
+.cta::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(to right, rgb(var(--c-fill-gold) / 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--c-fill-gold) / 0.16) 1px, transparent 1px);
+  background-size: 34px 34px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, rgb(0 0 0), transparent 72%);
+  mask-image: radial-gradient(ellipse at 50% 0%, rgb(0 0 0), transparent 72%);
+}
+.cta > * { position: relative; }
+.cta__t {
+  font-size: clamp(22px, 3.2vw, 32px);
+  color: rgb(var(--c-neutral-50));
+  margin-block-end: 12px;
+  letter-spacing: -0.01em;
+}
+.dark .cta__t { color: rgb(var(--c-neutral-900)); }
+.cta__d {
+  color: rgb(var(--c-neutral-50) / 0.82);
+  font-size: 15.5px; max-width: 48ch; margin-inline: auto;
+  margin-block-end: 26px;
+}
+.dark .cta__d { color: rgb(var(--c-neutral-900) / 0.82); }
+.cta .actions { justify-content: center; margin-block-end: 0; }
+.cta .btn--ghost {
+  --btn-bg: transparent;
+  --btn-fg: rgb(var(--c-neutral-50));
+  --btn-bd: rgb(var(--c-neutral-50) / 0.35);
+}
+.dark .cta .btn--ghost { --btn-fg: rgb(var(--c-neutral-900)); --btn-bd: rgb(var(--c-neutral-900) / 0.35); }
+.cta .btn--ghost:hover { --btn-bd: rgb(var(--c-fill-gold)); }
+
+/* ==========================================================================
+   8. FOOTER
+   ========================================================================== */
+.ftr { border-block-start: 1px solid rgb(var(--c-line)); padding-block: 30px 40px; }
+.ftr__in {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 16px;
+}
+.ftr__links { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+.ftr__links a { font-size: 14px; color: rgb(var(--c-muted)); transition: color .16s ease; }
+.ftr__links a:hover { color: rgb(var(--c-primary-500)); }
+.ftr__meta { font-size: 13.5px; color: rgb(var(--c-neutral-600)); }
+.status { display: inline-flex; align-items: center; gap: 7px; }
+.status__dot {
+  width: 8px; height: 8px; border-radius: 999px; flex: none;
+  background-color: rgb(var(--c-success));
+  box-shadow: 0 0 0 3px rgb(var(--c-success) / 0.18);
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main"><span class="ar">تخطّي إلى المحتوى</span><span class="en" lang="en">Skip to content</span></a>
+
+<!-- ======================= HEADER ======================= -->
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <!-- EDIT: LINKS — home -->
+    <a class="brand" href="/">
+      <span class="brand__mark" aria-hidden="true">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>
+        </svg>
+      </span>
+      <span class="brand__name">Est8<b>Core</b></span>
+    </a>
+
+    <div class="ctrls">
+      <div class="seg" role="group" aria-label="Language / اللغة">
+        <button class="seg__btn" type="button" data-lang="ar" aria-pressed="true">ع</button>
+        <button class="seg__btn" type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="iconbtn" type="button" id="theme" aria-label="Toggle theme">
+        <svg class="icon-moon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8"/></svg>
+        <svg class="icon-sun" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ======================= HERO ======================= -->
+<section class="hero">
+  <div class="wrap hero__grid">
+
+    <div>
+      <p class="eyebrow">
+        <span class="ar">خطأ 404</span><span class="en" lang="en">Error 404</span>
+      </p>
+
+      <h1 class="hero__title">
+        <span class="ar">الصفحة دي <em>مش على الخريطة</em></span>
+        <span class="en" lang="en">This page isn't <em>on the plan</em></span>
+      </h1>
+
+      <p class="hero__lede">
+        <span class="ar">غالباً الرابط اتغيّر أو الصفحة اتشالت. اختار من الروابط السريعة تحت وهتوصل لمكانك في ثانية.</span>
+        <span class="en" lang="en">The link probably changed or the page was removed. Pick a shortcut below and you'll be back on track in a second.</span>
+      </p>
+
+      <p class="path">
+        <span class="path__k">
+          <span class="ar">المسار</span><span class="en" lang="en">Path</span>
+        </span>
+        <span class="path__v" id="req-path">/</span>
+      </p>
+
+      <div class="actions">
+        <!-- EDIT: LINKS — home + support -->
+        <a class="btn btn--primary" href="/">
+          <svg class="arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span class="ar">الرجوع للرئيسية</span><span class="en" lang="en">Back to home</span>
+        </a>
+        <button class="btn btn--ghost" type="button" id="back">
+          <span class="ar">الصفحة السابقة</span><span class="en" lang="en">Previous page</span>
+        </button>
+      </div>
+
+      <p class="tenant">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11a8 8 0 1 0-16 0c0 6.5 8 11 8 11z"/><circle cx="12" cy="11" r="3"/></svg>
+        <span>
+          <span class="ar">بتدوّر على لوحة تحكم شركتك؟ حساب كل شركة على النطاق الخاص بها: <code>your-company.est8core.com</code></span>
+          <span class="en" lang="en">Looking for your company's workspace? Each account lives on its own subdomain: <code>your-company.est8core.com</code></span>
+        </span>
+      </p>
+    </div>
+
+    <!-- ---- SIGNATURE: architectural plate ---- -->
+    <div class="plate">
+      <svg viewBox="0 0 520 440" dir="ltr" role="img"
+           aria-labelledby="bp-title">
+        <title id="bp-title">Architectural drawing sheet 404 — unit not found</title>
+
+        <!-- dimension line, top -->
+        <g class="bp-dim bp-late">
+          <path d="M60 46h150M270 46h150"/>
+          <path d="M60 40v12M420 40v12M210 40v12M270 40v12"/>
+        </g>
+        <text class="bp-num bp-late" x="240" y="51" text-anchor="middle">404</text>
+
+        <!-- room fills -->
+        <g class="bp-fill bp-late">
+          <rect x="72" y="82" width="150" height="128"/>
+          <rect x="72" y="230" width="150" height="128"/>
+        </g>
+
+        <!-- outer walls -->
+        <path class="bp-wall bp-draw" d="M60 70h400v300H60z"/>
+
+        <!-- partitions -->
+        <g class="bp-part bp-draw bp-draw--b">
+          <path d="M232 70v300"/>
+          <path d="M60 220h172"/>
+          <path d="M232 250h228"/>
+        </g>
+
+        <!-- door swing + window -->
+        <g class="bp-thin bp-draw bp-draw--c">
+          <path d="M232 130v46"/>
+          <path d="M232 176a46 46 0 0 0 46-46"/>
+          <path d="M300 70h84M300 66h84"/>
+        </g>
+
+        <!-- the missing room -->
+        <rect class="bp-gone bp-late" x="256" y="274" width="180" height="72" rx="4"/>
+        <text class="bp-q bp-late" x="346" y="326" text-anchor="middle">?</text>
+
+        <!-- room labels -->
+        <g class="bp-lbl bp-late">
+          <text x="147" y="150" text-anchor="middle">DASHBOARD</text>
+          <text x="147" y="298" text-anchor="middle">LISTINGS</text>
+          <text x="346" y="165" text-anchor="middle">CONTRACTS</text>
+        </g>
+
+        <!-- stamp -->
+        <g class="bp-stamp" transform="rotate(-11 300 200)" style="transform-origin: 300px 200px;">
+          <rect class="bp-stamp-box" x="150" y="176" width="300" height="52" rx="6"/>
+          <text class="bp-stamp-txt ar" x="300" y="210" text-anchor="middle">غير موجودة</text>
+          <text class="bp-stamp-txt en" x="300" y="211" text-anchor="middle" lang="en">NOT FOUND</text>
+        </g>
+
+        <!-- title block -->
+        <g class="bp-late">
+          <rect class="bp-block" x="60" y="386" width="400" height="38" rx="5"/>
+          <path class="bp-block" d="M190 386v38M310 386v38"/>
+          <text class="bp-key" x="72" y="401">PROJECT</text>
+          <text class="bp-val" x="72" y="416">EST8CORE</text>
+          <text class="bp-key" x="202" y="401">SHEET</text>
+          <text class="bp-val" x="202" y="416">404 / NOT FOUND</text>
+          <text class="bp-key" x="322" y="401">REQUEST</text>
+          <text class="bp-bad" x="322" y="416" id="bp-path">—</text>
+        </g>
+      </svg>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======================= QUICK LINKS ======================= -->
+<section class="sect">
+  <div class="wrap">
+    <div class="sect__head">
+      <h2 class="sect__title">
+        <span class="ar">روابط سريعة</span><span class="en" lang="en">Quick links</span>
+      </h2>
+      <p class="sect__sub">
+        <span class="ar">أكتر الصفحات اللي بيدوّر عليها الناس. اختار الأقرب لهدفك.</span>
+        <span class="en" lang="en">The pages people look for most. Pick whichever is closest to what you need.</span>
+      </p>
+    </div>
+
+    <!-- EDIT: LINKS — quick links block (8 hrefs) -->
+    <nav class="links" aria-label="Quick links">
+
+      <a class="link" href="/">
+        <span class="link__ico" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
+        <span>
+          <span class="link__t"><span class="ar">الرئيسية</span><span class="en" lang="en">Home</span></span>
+          <span class="link__d"><span class="ar">نظرة عامة على المنصة</span><span class="en" lang="en">Platform overview</span></span>
+        </span>
+      </a>
+
+      <a class="link" href="/login">
+        <span class="link__ico" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg></span>
+        <span>
+          <span class="link__t"><span class="ar">تسجيل الدخول</span><span class="en" lang="en">Sign in</span></span>
+          <span class="link__d"><span class="ar">ادخل على حسابك</span><span class="en" lang="en">Go to your account</span></span>
+        </span>
+      </a>
+
+      <a class="link" href="/features">
+        <span class="link__ico" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+        <span>
+          <span class="link__t"><span class="ar">المميزات</span><span class="en" lang="en">Features</span></span>
+          <span class="link__d"><span class="ar">إيه اللي بيعمله النظام</span><span class="en" lang="en">What the system does</span></span>
+        </span>
+      </a>
+
+      <a class="link" href="/pricing">
+        <span class="link__ico" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h9z"/><circle cx="8" cy="8" r="1.4"/></svg></span>
+        <span>
+          <span class="link__t"><span class="ar">الأسعار</span><span class="en" lang="en">Pricing</span></span>
+          <span class="link__d"><span class="ar">الباقات والتكلفة</span><span class="en" lang="en">Plans and costs</span></span>
+        </span>
+      </a>
+
+      <a class="link" href="/demo">
+        <span class="link__ico" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/><path d="M11 15h5"/></svg></span>
+        <span>
+          <span class="link__t"><span class="ar">احجز Demo</span><span class="en" lang="en">Book a demo</span></span>
+          <span class="link__d"><span class="ar">جولة مع فريقنا</span><span class="en" lang="en">A walkthrough with us</span></span>
+        </span>
+      </a>
+
+      <a class="link" href="/help">
+        <span class="link__ico" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.9 2.9 0 0 1 5.6 1c0 1.9-2.8 2.4-2.8 4"/><path d="M12 17.5h.01"/></svg></span>
+        <span>
+          <span class="link__t"><span class="ar">مركز المساعدة</span><span class="en" lang="en">Help center</span></span>
+          <span class="link__d"><span class="ar">أدلة وأسئلة شائعة</span><span class="en" lang="en">Guides and FAQs</span></span>
+        </span>
+      </a>
+
+      <a class="link" href="/blog">
+        <span class="link__ico" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l4 4v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M15 3v5h5M8 13h8M8 17h6"/></svg></span>
+        <span>
+          <span class="link__t"><span class="ar">المدونة</span><span class="en" lang="en">Blog</span></span>
+          <span class="link__d"><span class="ar">مقالات ومستجدات</span><span class="en" lang="en">Articles and updates</span></span>
+        </span>
+      </a>
+
+      <a class="link" href="/contact">
+        <span class="link__ico" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="m4 7 8 6 8-6"/></svg></span>
+        <span>
+          <span class="link__t"><span class="ar">تواصل معنا</span><span class="en" lang="en">Contact us</span></span>
+          <span class="link__d"><span class="ar">فريق المبيعات والدعم</span><span class="en" lang="en">Sales and support</span></span>
+        </span>
+      </a>
+
+    </nav>
+  </div>
+</section>
+
+<!-- ======================= SOCIAL PROOF ======================= -->
+<section class="sect">
+  <div class="wrap">
+    <!-- EDIT: STATS — every number below is a PLACEHOLDER. Replace with real figures. -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat__n">+500</div>
+        <div class="stat__l"><span class="ar">شركة عقارية</span><span class="en" lang="en">real estate companies</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat__n">+120K</div>
+        <div class="stat__l"><span class="ar">وحدة تحت الإدارة</span><span class="en" lang="en">units under management</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat__n">+30K</div>
+        <div class="stat__l"><span class="ar">عقد موثّق</span><span class="en" lang="en">contracts recorded</span></div>
+      </div>
+      <div class="stat">
+        <div class="stat__n">99.9%</div>
+        <div class="stat__l"><span class="ar">جاهزية التشغيل</span><span class="en" lang="en">uptime</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FEATURES ======================= -->
+<section class="sect">
+  <div class="wrap">
+    <div class="sect__head">
+      <h2 class="sect__title">
+        <span class="ar">وأنت هنا، شوف Est8Core بيعمل إيه</span>
+        <span class="en" lang="en">While you're here — what Est8Core does</span>
+      </h2>
+      <p class="sect__sub">
+        <span class="ar">منصة واحدة لإدارة المخزون العقاري، العملاء، والعقود.</span>
+        <span class="en" lang="en">One platform for property inventory, clients, and contracts.</span>
+      </p>
+    </div>
+
+    <div class="feats">
+      <article class="feat">
+        <div class="feat__ico" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg></div>
+        <h3 class="feat__t"><span class="ar">إدارة الوحدات والمشاريع</span><span class="en" lang="en">Inventory and projects</span></h3>
+        <p class="feat__d">
+          <span class="ar">كل وحداتك ومشاريعك في مكان واحد، بحالة وسعر محدّثين لحظياً وصور ومستندات مرتبطة بكل وحدة.</span>
+          <span class="en" lang="en">Every unit and project in one place, with live status and pricing plus photos and documents attached to each one.</span>
+        </p>
+      </article>
+
+      <article class="feat">
+        <div class="feat__ico" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg></div>
+        <h3 class="feat__t"><span class="ar">متابعة العملاء حتى البيع</span><span class="en" lang="en">Track clients to closing</span></h3>
+        <p class="feat__d">
+          <span class="ar">تابع كل عميل من أول استفسار لحد توقيع العقد، مع توزيع تلقائي على فريق المبيعات وتنبيهات متابعة.</span>
+          <span class="en" lang="en">Follow every client from first enquiry to signed contract, with automatic assignment to your sales team and follow-up reminders.</span>
+        </p>
+      </article>
+
+      <article class="feat">
+        <div class="feat__ico" aria-hidden="true"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/><path d="m9 15 2 2 4-4"/></svg></div>
+        <h3 class="feat__t"><span class="ar">العقود والأقساط</span><span class="en" lang="en">Contracts and instalments</span></h3>
+        <p class="feat__d">
+          <span class="ar">جداول أقساط وتنبيهات تحصيل تلقائية، مع سجل تدقيق كامل يوضّح مين غيّر إيه وامتى.</span>
+          <span class="en" lang="en">Instalment schedules and automatic collection reminders, backed by a full audit log of who changed what and when.</span>
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CLOSING CTA ======================= -->
+<section class="sect">
+  <div class="wrap">
+    <div class="cta">
+      <h2 class="cta__t">
+        <span class="ar">جرّب Est8Core على شركتك</span>
+        <span class="en" lang="en">Try Est8Core with your own data</span>
+      </h2>
+      <p class="cta__d">
+        <span class="ar">ابدأ تجربة مجانية 14 يوم — من غير بطاقة ائتمان. أو احجز جولة مع فريقنا يشرحلك النظام على وحداتك الحقيقية.</span>
+        <span class="en" lang="en">Start a 14-day free trial — no credit card. Or book a walkthrough and we'll run through the system on your real units.</span>
+      </p>
+      <div class="actions">
+        <!-- EDIT: LINKS — trial + demo -->
+        <a class="btn btn--primary" href="/signup">
+          <span class="ar">ابدأ تجربة مجانية</span><span class="en" lang="en">Start free trial</span>
+          <svg class="arrow" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a class="btn btn--ghost" href="/demo">
+          <span class="ar">احجز Demo</span><span class="en" lang="en">Book a demo</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ======================= FOOTER ======================= -->
+<footer class="ftr">
+  <div class="wrap ftr__in">
+    <!-- EDIT: LINKS — footer -->
+    <nav class="ftr__links" aria-label="Footer">
+      <a href="/help"><span class="ar">الدعم</span><span class="en" lang="en">Support</span></a>
+      <a href="/docs"><span class="ar">الوثائق</span><span class="en" lang="en">Docs</span></a>
+      <a href="/privacy"><span class="ar">الخصوصية</span><span class="en" lang="en">Privacy</span></a>
+      <a href="/terms"><span class="ar">الشروط</span><span class="en" lang="en">Terms</span></a>
+      <a href="https://status.est8core.com" class="status">
+        <span class="status__dot" aria-hidden="true"></span>
+        <span class="ar">حالة النظام</span><span class="en" lang="en">System status</span>
+      </a>
+    </nav>
+    <p class="ftr__meta">
+      <span class="ar">© <span id="yr">2026</span> Est8Core — كل الحقوق محفوظة</span>
+      <span class="en" lang="en">© <span id="yr-en">2026</span> Est8Core — All rights reserved</span>
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var d = document.documentElement;
+  var save = function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} };
+
+  /* ---- requested path (hero chip + drawing title block) ---- */
+  var raw = (location.pathname || '/') + (location.search || '');
+  var chip = document.getElementById('req-path');
+  if (chip) chip.textContent = raw;
+
+  var slot = document.getElementById('bp-path');
+  if (slot) slot.textContent = raw.length > 17 ? raw.slice(0, 16) + '…' : raw;
+
+  /* ---- year ---- */
+  var y = String(new Date().getFullYear());
+  ['yr', 'yr-en'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = y;
+  });
+
+  /* ---- language toggle ---- */
+  var btns = document.querySelectorAll('[data-lang]');
+  function setLang(lang) {
+    d.lang = lang;
+    d.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.title = lang === 'ar'
+      ? 'الصفحة غير موجودة · Est8Core'
+      : 'Page not found · Est8Core';
+    btns.forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.lang === lang));
+    });
+    save('est8-lang', lang);
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { setLang(b.dataset.lang); });
+  });
+  setLang(d.lang === 'en' ? 'en' : 'ar');
+
+  /* ---- theme toggle ---- */
+  var t = document.getElementById('theme');
+  if (t) {
+    t.addEventListener('click', function () {
+      var dark = d.classList.toggle('dark');
+      save('est8-theme', dark ? 'dark' : 'light');
+    });
+  }
+
+  /* ---- previous page ---- */
+  var back = document.getElementById('back');
+  if (back) {
+    if (history.length <= 1 || !document.referrer) {
+      back.style.display = 'none';
+    } else {
+      back.addEventListener('click', function () { history.back(); });
+    }
+  }
+})();
+</script>
+</body>
+</html>
