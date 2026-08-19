@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<!--
+  موكّ شاشة /developer — .Pm/148 المرحلة G.
+
+  🕐 يتقدّم الخادم عمداً في نقطة واحدة: وضع «أي IP» (ip_mode = any).
+  العمود غير موجود في القاعدة اليوم (آخر مهاجرة على الجدول master/0036_api_keys.sql)،
+  و ApiKeys.Schema.ts يرفض mode='server' بقائمة IP فارغة. فما تراه هنا في هذا الوضع
+  ترفضه الـAPI الآن.
+
+  والسبب ليس نسياناً: قرار ق١٠ يربط الحالة المفتوحة بثلاثة ضوابط شرطُ شحنٍ لا تحسين —
+  الشارة التحذيرية (هذه الشاشة، G) · last_used_ip المعروض (E) · تنبيه عدد الـIP
+  المتمايزة في نافذة (E). وإتاحة الوضع قبلها = حالة مفتوحة بلا ما يجعلها مرئية أو
+  مُراقَبة. التفصيل والترتيب المُلزِم في .Pm/148 قسم «ق١٠ معكوسة».
+-->
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Est8Core — المطوّرون</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: {
+        primary: { 50:'#EAF0F8',100:'#C5D5E9',200:'#9BB5D7',300:'#6E92C4',400:'#4A75B4',500:'#2458A5',600:'#1A4590',700:'#102A4C',800:'#0B1F3A',900:'#060F1E' },
+        accent:  { 50:'#FDF8EE',100:'#F7EACC',200:'#EFD499',300:'#E3BA66',400:'#D4A23E',500:'#C8A24B',600:'#B08B35',700:'#8C6E27',800:'#6A521B',900:'#493810' },
+        neutral: { 50:'#F8F9FB',100:'#EEF0F5',200:'#DDE1EA',300:'#C4CBDA',400:'#9BA6BB',500:'#6E7F9C',600:'#4D5F7A',700:'#344260',800:'#1E2A45',900:'#0D1424' },
+        success:'#1A8C4E', warning:'#D4860A', danger:'#C0392B', info:'#1565C0',
+      },
+      fontFamily: { display:['Amiri','Georgia','serif'], body:['"IBM Plex Sans Arabic"','system-ui','sans-serif'], latin:['Inter','system-ui','sans-serif'] },
+      boxShadow: { card:'0 2px 6px rgba(11,31,58,0.08), 0 1px 2px rgba(11,31,58,0.04)', gold:'0 4px 20px rgba(200,162,75,0.25)', xl2:'0 16px 48px rgba(11,31,58,0.18), 0 8px 16px rgba(11,31,58,0.10)' },
+    } } };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style type="text/tailwindcss">
+    body { font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif; @apply bg-[#F4F6FA] text-[#1E2A45]; }
+    .font-display { font-family: 'Amiri', Georgia, serif; }
+    [x-cloak] { display: none !important; }
+    ::-webkit-scrollbar { @apply w-[9px] h-[9px]; }
+    ::-webkit-scrollbar-thumb { @apply bg-neutral-300 rounded-[8px]; }
+    ::-webkit-scrollbar-track { @apply bg-transparent; }
+
+    /* ===== قيمة تقنية لاتينية داخل جملة عربية — عزل اتجاه إلزامي ===== */
+    .dv-mono { direction: ltr; text-align: left; unicode-bidi: isolate; font-family: 'Inter', ui-monospace, 'SFMono-Regular', monospace; }
+
+    /* ===== Shell ===== */
+    .dv-shell { @apply flex min-h-screen; }
+    .dv-sidebar { @apply w-64 shrink-0 bg-[linear-gradient(180deg,#060F1E_0%,#0B1F3A_100%)] text-primary-100 flex flex-col fixed inset-y-0 start-0 z-40 transition-transform duration-[220ms]; }
+    .dv-main { @apply flex-1 min-w-0 ms-64 flex flex-col; }
+    @media (max-width:1024px) {
+      .dv-sidebar { @apply translate-x-full shadow-[-12px_0_40px_rgba(0,0,0,.3)]; }
+      .dv-sidebar.open { @apply translate-x-0; }
+      .dv-main { @apply ms-0; }
+    }
+    .dv-backdrop { @apply fixed inset-0 bg-[rgba(6,15,30,.5)] z-[35]; }
+    .dv-brand { @apply flex items-center gap-[.65rem] py-[1.15rem] px-[1.25rem] border-b border-[rgba(200,162,75,.15)]; }
+    .dv-nav { @apply flex-1 overflow-y-auto pt-4 px-3 pb-6; }
+    .dv-nav-label { @apply text-[.7rem] font-bold tracking-[.04em] text-neutral-500 pt-4 px-3 pb-1.5 uppercase; }
+    .dv-nav-item { @apply flex items-center gap-[.7rem] py-[.6rem] px-[.8rem] rounded-[.6rem] text-[.875rem] font-medium text-primary-200 transition-all duration-150 cursor-pointer relative; }
+    .dv-nav-item:hover { @apply bg-[rgba(255,255,255,.05)] text-primary-50; }
+    .dv-nav-item.on { @apply bg-[rgba(200,162,75,.13)] text-white font-semibold; }
+    .dv-nav-item.on::before { content:''; @apply absolute start-[-.75rem] top-1/2 -translate-y-1/2 w-[3.5px] h-[60%] bg-accent-500 rounded-[0_4px_4px_0]; }
+    .dv-nav-item svg { @apply w-[18px] h-[18px] shrink-0; }
+    .dv-nav-item .tag { @apply ms-auto text-[.62rem] bg-[rgba(200,162,75,.18)] text-accent-300 py-[.05rem] px-[.4rem] rounded-[5px] font-semibold; }
+
+    /* ===== Topbar ===== */
+    .dv-topbar { @apply h-16 bg-white border-b border-neutral-100 flex items-center gap-4 px-6 sticky top-0 z-30; }
+    .dv-icon-btn { @apply relative w-[38px] h-[38px] inline-flex items-center justify-center rounded-[.6rem] text-neutral-500 transition-all duration-150; }
+    .dv-icon-btn:hover { @apply bg-neutral-50 text-primary-800; }
+
+    /* ===== Content ===== */
+    .dv-content { @apply pt-6 px-5 sm:px-7 pb-14 max-w-[1360px] w-full mx-auto; }
+    .dv-page-title { @apply font-display text-2xl font-bold text-primary-800 leading-tight; }
+    .dv-page-sub { @apply text-sm text-neutral-500 mt-1; }
+
+    /* ===== Card ===== */
+    .dv-card { @apply bg-white border border-neutral-100 rounded-2xl shadow-card; }
+    .dv-card-head { @apply flex items-center justify-between gap-3 py-4 px-5 border-b border-neutral-100 flex-wrap; }
+    .dv-card-title { @apply text-sm font-bold text-primary-800 flex items-center gap-2; }
+
+    /* ===== Buttons ===== */
+    .dv-btn { @apply inline-flex items-center justify-center gap-2 text-sm font-semibold py-2.5 px-4 rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap border border-transparent; }
+    .dv-btn:disabled { @apply opacity-40 cursor-not-allowed; }
+    .dv-btn svg { @apply w-4 h-4; }
+    .dv-btn-primary { @apply bg-primary-800 text-white; }
+    .dv-btn-primary:hover:not(:disabled) { @apply bg-primary-700; }
+    .dv-btn-gold { @apply bg-accent-500 text-primary-800; }
+    .dv-btn-gold:hover:not(:disabled) { @apply bg-accent-600; }
+    .dv-btn-ghost { @apply bg-white text-primary-800 border-neutral-200; }
+    .dv-btn-ghost:hover:not(:disabled) { @apply bg-neutral-50 border-neutral-300; }
+    .dv-btn-danger { @apply bg-white text-danger border-danger/35; }
+    .dv-btn-danger:hover:not(:disabled) { @apply bg-danger/5; }
+    .dv-btn-danger-solid { @apply bg-danger text-white; }
+    .dv-btn-danger-solid:hover:not(:disabled) { @apply bg-[#a5301f]; }
+    .dv-btn-sm { @apply py-[.4rem] px-[.7rem] text-[.78rem]; }
+    .dv-btn-icon { @apply w-8 h-8 !p-0 rounded-[.5rem]; }
+
+    /* ===== Badges ===== */
+    .dv-badge { @apply inline-flex items-center gap-[.35rem] text-[.72rem] font-semibold py-[.22rem] px-[.6rem] rounded-full whitespace-nowrap leading-[1.4]; }
+    .dv-badge::before { content:''; @apply w-[6px] h-[6px] rounded-full bg-current shrink-0; }
+    .b-success { @apply text-success bg-success/10; }
+    .b-warning { @apply text-warning bg-warning/10; }
+    .b-danger  { @apply text-danger bg-danger/10; }
+    .b-info    { @apply text-info bg-info/10; }
+    .b-neutral { @apply text-neutral-500 bg-neutral-100; }
+    .b-accent  { @apply text-accent-700 bg-[rgba(200,162,75,.16)]; }
+    .dv-chip { @apply text-[.7rem] font-semibold py-[.15rem] px-[.5rem] rounded-[6px] bg-primary-50 text-primary-700 whitespace-nowrap; }
+
+    /* ===== Tabs ===== */
+    .dv-tabs { @apply flex items-center gap-1 border-b border-neutral-200 overflow-x-auto; }
+    .dv-tab { @apply py-[.65rem] px-4 text-[.86rem] font-semibold text-neutral-500 border-b-2 border-transparent -mb-px cursor-pointer transition-all duration-150 inline-flex items-center gap-2 whitespace-nowrap; }
+    .dv-tab:hover { @apply text-primary-800; }
+    .dv-tab.on { @apply text-primary-800 border-accent-500; }
+    .dv-tab .cnt { @apply text-[.68rem] bg-neutral-100 text-neutral-500 py-[.05rem] px-[.4rem] rounded-[6px]; }
+    .dv-tab .lock { @apply text-neutral-300; }
+
+    /* ===== Table ===== */
+    .dv-table { @apply w-full border-collapse text-[.85rem] min-w-[720px]; }
+    .dv-table thead th { @apply text-start text-[.7rem] font-bold tracking-[.02em] uppercase text-neutral-500 py-[.7rem] px-4 border-b border-neutral-100 whitespace-nowrap bg-neutral-50; }
+    .dv-table tbody td { @apply py-[.85rem] px-4 border-b border-neutral-50 text-[#1E2A45] align-middle; }
+    .dv-table tbody tr:hover { @apply bg-neutral-50; }
+    .dv-table tbody tr:last-child td { @apply border-b-0; }
+
+    /* ===== Inputs ===== */
+    .ec-input { @apply w-full py-[.6rem] px-[.85rem] border-[1.5px] border-neutral-200 rounded-[.55rem] text-[.85rem] bg-white text-[#1E2A45] outline-none transition-all duration-150; }
+    .ec-input::placeholder { @apply text-neutral-400; }
+    .ec-input:hover { @apply border-neutral-300; }
+    .ec-input:focus { @apply border-primary-600 shadow-[0_0_0_3px_rgba(16,42,76,.08)]; }
+    .ec-label { @apply block text-[.8rem] font-semibold text-primary-800 mb-[.35rem]; }
+    .ec-help { @apply text-[.74rem] text-neutral-500 mt-1.5 leading-relaxed; }
+
+    /* ===== Toggle ===== */
+    .dv-switch { @apply relative w-[42px] h-[24px] bg-neutral-300 rounded-full cursor-pointer transition-all duration-200 shrink-0; }
+    .dv-switch.on { @apply bg-success; }
+    .dv-switch::after { content:''; @apply absolute top-[3px] end-[3px] w-[18px] h-[18px] bg-white rounded-full transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,.2)]; }
+    .dv-switch.on::after { @apply end-[21px]; }
+
+    /* ===== Modal ===== */
+    .dv-overlay { @apply fixed inset-0 bg-[rgba(6,15,30,.55)] backdrop-blur-sm z-[60] flex items-start justify-center pt-[4vh] px-4 pb-[4vh] overflow-y-auto; }
+    .dv-modal { @apply bg-white rounded-2xl shadow-xl2 w-full max-w-[640px]; }
+    .dv-modal-head { @apply flex items-center justify-between py-[1.1rem] px-6 border-b border-neutral-100; }
+    .dv-modal-body { @apply p-6; }
+    .dv-modal-foot { @apply flex gap-[.6rem] justify-start py-[1.1rem] px-6 border-t border-neutral-100; }
+
+    /* ===== Scope / event picker ===== */
+    .dv-scope-row { @apply flex items-center justify-between gap-3 py-2.5 px-3.5 rounded-lg border border-neutral-100 bg-neutral-50/60; }
+    .dv-check { @apply inline-flex items-center gap-1.5 text-[.78rem] font-semibold text-neutral-600 cursor-pointer select-none py-1 px-2 rounded-md transition; }
+    .dv-check.active { @apply bg-primary-800 text-white; }
+    .dv-check:not(.active):hover { @apply bg-neutral-100; }
+    .dv-check.disabled { @apply opacity-30 cursor-not-allowed pointer-events-none; }
+    .dv-evt-group-head { @apply text-[.72rem] font-bold tracking-[.03em] uppercase text-neutral-400 pt-3 pb-1.5 px-1; }
+    .dv-evt-row { @apply flex items-start gap-2.5 py-2 px-2.5 rounded-lg hover:bg-neutral-50 transition cursor-pointer; }
+
+    /* ===== Empty state ===== */
+    .dv-empty-card { @apply text-center py-12 px-6; }
+
+    /* ===== Pagination ===== */
+    .dv-pagination { @apply flex items-center justify-between gap-4 py-3.5 px-5 border-t border-neutral-100 flex-wrap; }
+    .dv-page-btn { @apply w-8 h-8 inline-flex items-center justify-center rounded-[.5rem] border border-neutral-200 text-[.8rem] text-neutral-500 cursor-pointer; }
+    .dv-page-btn:hover:not(:disabled) { @apply bg-neutral-50; }
+    .dv-page-btn:disabled { @apply opacity-40 cursor-not-allowed; }
+    .dv-page-btn.on { @apply bg-primary-800 text-white border-primary-800; }
+
+    /* ===== JSON viewer ===== */
+    .jv-root { direction: ltr; text-align: left; font-family: 'Inter', ui-monospace, 'SFMono-Regular', monospace; font-size: .76rem; line-height: 1.75; color:#1E2A45; background:#F8F9FB; border:1px solid #EEF0F5; border-radius:.65rem; padding:1rem 1.1rem; white-space:pre-wrap; word-break:break-word; }
+    .jv-key { color:#1565C0; }
+    .jv-str { color:#1A8C4E; }
+    .jv-num { color:#B08B35; }
+    .jv-bool { color:#8C1AAE; }
+    .jv-null { color:#9BA6BB; font-style:italic; }
+
+    /* ===== Drawer (تفصيل التسليم) ===== */
+    .dv-drawer-overlay { @apply fixed inset-0 bg-[rgba(6,15,30,.45)] z-[70]; }
+    .dv-drawer { @apply fixed inset-y-0 start-0 w-full sm:w-[540px] max-w-[95vw] bg-white shadow-[0_0_60px_rgba(6,15,30,.28)] z-[75] flex flex-col transition-transform duration-[280ms] ease-out; }
+    .dv-drawer.closed { @apply translate-x-full; }
+    .dv-drawer-head { @apply flex items-start justify-between gap-3 py-4 px-5 border-b border-neutral-100 shrink-0; }
+    .dv-drawer-body { @apply flex-1 overflow-y-auto py-5 px-5 flex flex-col gap-5; }
+    .dv-drawer-foot { @apply flex gap-2 py-4 px-5 border-t border-neutral-100 shrink-0; }
+
+    .dv-kv { @apply grid gap-x-4 gap-y-2.5 [grid-template-columns:auto_1fr] text-[.82rem]; }
+    .dv-kv dt { @apply text-neutral-400 font-semibold; }
+    .dv-kv dd { @apply text-[#1E2A45]; }
+  </style>
+</head>
+
+<body x-data="developerApp()" x-cloak @keydown.escape.window="closeAllOverlays()">
+<div class="dv-shell">
+
+  <!-- Mobile backdrop -->
+  <div class="dv-backdrop lg:hidden" x-show="navOpen" @click="navOpen=false" x-transition.opacity></div>
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="dv-sidebar" :class="navOpen && 'open'">
+    <div class="dv-brand">
+      <span class="w-9 h-9 rounded-lg bg-accent-500 text-primary-800 flex items-center justify-center font-latin font-extrabold text-sm shrink-0">E8</span>
+      <div>
+        <div class="font-latin text-base font-bold text-white leading-none">Est8<span class="text-accent-500">Core</span></div>
+        <div class="text-[.66rem] text-primary-200 mt-1 font-semibold tracking-wide truncate max-w-[150px]">شركة الرواد العقارية</div>
+      </div>
+    </div>
+    <nav class="dv-nav">
+      <div class="dv-nav-label">الرئيسية</div>
+      <a href="#" class="dv-nav-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        لوحة التحكم
+      </a>
+      <a href="#" class="dv-nav-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="6" r="3"/><path d="M2 17c0-3 2.2-5.5 5-5.5s5 2.5 5 5.5"/><circle cx="14.5" cy="6.5" r="2.2"/><path d="M12.5 11.5c2 .2 3.5 2 3.5 5.5"/></svg>
+        العملاء المحتملون
+      </a>
+      <a href="#" class="dv-nav-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="4" width="15" height="12" rx="2"/><path d="M2.5 8h15M6 12h3"/></svg>
+        جهات الاتصال
+      </a>
+      <a href="#" class="dv-nav-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17V9l7-5.5L17 9v8"/><path d="M8 17v-5h4v5"/></svg>
+        العقارات
+      </a>
+      <a href="#" class="dv-nav-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2.5 15.5l5-6 3.5 3 6.5-8"/><path d="M13.5 4.5h4v4"/></svg>
+        الصفقات
+      </a>
+      <div class="dv-nav-label">الإدارة</div>
+      <a href="#" class="dv-nav-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2.5" y="2.5" width="15" height="15" rx="2.5"/><path d="M6.5 6h7M6.5 10h7M6.5 14h4"/></svg>
+        التقارير
+      </a>
+      <a href="#" class="dv-nav-item on" data-nav="developer">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 6L2.5 10 7 14M13 6l4.5 4-4.5 4"/><path d="M11.5 3.5l-3 13"/></svg>
+        المطوّرون
+        <span class="tag">جديد</span>
+      </a>
+      <a href="#" class="dv-nav-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="2.5"/><path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.5 4.5l-1.4 1.4M5.9 14.1l-1.4 1.4M15.5 15.5l-1.4-1.4M5.9 5.9L4.5 4.5"/></svg>
+        الإعدادات
+      </a>
+    </nav>
+    <div class="px-4 py-3 border-t border-white/10 text-[.68rem] text-primary-300 flex items-center gap-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-success"></span> متصل · نسخة تجريبية للمنتج
+    </div>
+  </aside>
+
+  <!-- ===== Main column ===== -->
+  <div class="dv-main">
+    <header class="dv-topbar">
+      <button class="dv-icon-btn lg:hidden" @click="navOpen=true" aria-label="القائمة">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+      </button>
+      <div class="relative hidden sm:block w-72 max-w-full">
+        <input type="search" id="crm-search" name="crm-search" placeholder="بحث في الـCRM…" aria-label="بحث في الـCRM" class="ec-input ps-9" />
+        <svg class="absolute top-1/2 -translate-y-1/2 start-3 text-neutral-400" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+      </div>
+      <div class="flex items-center gap-2 ms-auto">
+        <button class="dv-icon-btn" aria-label="التنبيهات">
+          <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2.5a4.5 4.5 0 00-4.5 4.5c0 4-1.5 5.5-1.5 5.5h12s-1.5-1.5-1.5-5.5A4.5 4.5 0 0010 2.5z"/><path d="M8.5 16a1.5 1.5 0 003 0"/></svg>
+        </button>
+        <div class="flex items-center gap-2 ps-1 pe-2 py-1 rounded-lg">
+          <span class="w-8 h-8 rounded-lg bg-primary-800 text-accent-400 text-xs font-bold flex items-center justify-center">صد</span>
+          <div class="text-start hidden md:block">
+            <div class="text-xs font-bold text-primary-800 leading-none">صبري داوود</div>
+            <div class="text-[.65rem] text-neutral-500 mt-0.5">مالك الحساب</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="dv-content">
+
+      <!-- ===== رأس الصفحة ===== -->
+      <div class="flex items-start justify-between gap-4 flex-wrap mb-6">
+        <div>
+          <h1 class="dv-page-title">المطوّرون</h1>
+          <p class="dv-page-sub">مفاتيح الـAPI العامة، وجهات الـWebhook، وسجلّ التسليم — لربط Est8Core ببرمجياتك الخاصة</p>
+        </div>
+        <a href="#" class="dv-btn dv-btn-ghost dv-btn-sm">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M6 6h4v4M10 6L6 10"/></svg>
+          <span class="dv-mono">API Docs</span> ↗
+        </a>
+      </div>
+
+      <!-- ===== تبويبات ===== -->
+      <div class="dv-tabs mb-5">
+        <button class="dv-tab" :class="tab==='keys' && 'on'" @click="tab='keys'">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5.5" cy="10.5" r="3"/><path d="M7.7 8.3L13 3M10.5 5.5L12.5 7.5M13 3l1.5 1.5"/></svg>
+          مفاتيح الـAPI
+          <span class="cnt" x-text="apiKeys.length"></span>
+        </button>
+        <button class="dv-tab" :class="tab==='webhooks' && 'on'" @click="tab='webhooks'">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="8" r="2"/><circle cx="12.5" cy="4" r="2"/><circle cx="12.5" cy="12" r="2"/><path d="M5.7 7l5-2M5.7 9l5 2"/></svg>
+          وجهات الـWebhook
+          <span class="cnt" x-text="webhooks.length"></span>
+        </button>
+        <button class="dv-tab" :class="tab==='deliveries' && 'on'" @click="tab='deliveries'" title="يتطلب صلاحية webhooks.deliveries.view — منفصلة عمداً لأن السجلّ يعرض أجسام حمولات فيها بيانات حسّاسة">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2.5" width="12" height="11" rx="1.8"/><path d="M4.5 6h7M4.5 8.5h7M4.5 11h4"/></svg>
+          سجلّ التسليم
+          <span class="cnt" x-text="deliveries.length"></span>
+          <svg class="lock" width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="7" width="9" height="6.5" rx="1.3"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg>
+        </button>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- (أ) مفاتيح الـAPI                                              -->
+      <!-- ============================================================ -->
+      <div x-show="tab==='keys'">
+        <div class="dv-card">
+          <div class="dv-card-head">
+            <div>
+              <div class="dv-card-title">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5.5" cy="10.5" r="3"/><path d="M7.7 8.3L13 3M10.5 5.5L12.5 7.5M13 3l1.5 1.5"/></svg>
+                مفاتيح الـAPI
+              </div>
+              <p class="text-xs text-neutral-500 mt-1">مفتاح واحد يمثّل شركتك بأكملها — لا موظفاً بعينه</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="dv-btn dv-btn-ghost dv-btn-sm" @click="emptyPreview=!emptyPreview">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8a6 6 0 0110-4.2M14 8a6 6 0 01-10 4.2"/><path d="M12 1v3h-3M4 15v-3h3"/></svg>
+                <span x-text="emptyPreview ? 'إظهار البيانات' : 'معاينة الحالة الفارغة'"></span>
+              </button>
+              <button class="dv-btn dv-btn-primary dv-btn-sm" @click="openKeyModal()">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>
+                مفتاح جديد
+              </button>
+            </div>
+          </div>
+
+          <!-- الحالة الفارغة — تعلّم لا تعتذر -->
+          <template x-if="emptyPreview || apiKeys.length===0">
+            <div class="dv-empty-card">
+              <span class="w-14 h-14 rounded-2xl bg-primary-50 text-primary-700 inline-flex items-center justify-center mb-4">
+                <svg width="26" height="26" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5.5" cy="10.5" r="3"/><path d="M7.7 8.3L13 3M10.5 5.5L12.5 7.5M13 3l1.5 1.5"/></svg>
+              </span>
+              <h3 class="font-display text-lg font-bold text-primary-800 mb-1.5">لا مفاتيح API بعد</h3>
+              <p class="text-sm text-neutral-500 max-w-md mx-auto mb-6">اربط موقعك الإلكتروني، حملاتك الإعلانية، أو نظامك المحاسبي مباشرةً بـEst8Core بثلاث خطوات:</p>
+              <div class="max-w-lg mx-auto grid gap-3 text-start mb-6">
+                <div class="flex items-start gap-3 bg-neutral-50 rounded-xl p-3.5">
+                  <span class="w-6 h-6 rounded-full bg-primary-800 text-white text-[.72rem] font-bold flex items-center justify-center shrink-0">١</span>
+                  <div><div class="text-sm font-semibold text-primary-800">أنشئ مفتاحاً وحدّد نطاقاته</div><div class="text-xs text-neutral-500 mt-0.5">اختر بالضبط ما يستطيع هذا المفتاح قراءته أو كتابته — عميل محتمل، جهة اتصال، عقار، أو صفقة.</div></div>
+                </div>
+                <div class="flex items-start gap-3 bg-neutral-50 rounded-xl p-3.5">
+                  <span class="w-6 h-6 rounded-full bg-primary-800 text-white text-[.72rem] font-bold flex items-center justify-center shrink-0">٢</span>
+                  <div><div class="text-sm font-semibold text-primary-800">اختر الفرع الافتراضي</div><div class="text-xs text-neutral-500 mt-0.5">كل ما يُنشئه هذا المفتاح يُختم بهذا الفرع تلقائياً، لأن لا مستخدماً بشرياً خلفه ليختاره.</div></div>
+                </div>
+                <div class="flex items-start gap-3 bg-neutral-50 rounded-xl p-3.5">
+                  <span class="w-6 h-6 rounded-full bg-primary-800 text-white text-[.72rem] font-bold flex items-center justify-center shrink-0">٣</span>
+                  <div><div class="text-sm font-semibold text-primary-800">انسخ المفتاح فور ظهوره</div><div class="text-xs text-neutral-500 mt-0.5">يُعرض كاملاً مرة واحدة فقط ولا يمكن استرجاعه بعدها — إن ضاع، أبطِله وأنشئ غيره.</div></div>
+                </div>
+              </div>
+              <div class="flex items-center justify-center gap-2.5 flex-wrap">
+                <button class="dv-btn dv-btn-gold" @click="emptyPreview=false; openKeyModal()">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>
+                  إنشاء أول مفتاح
+                </button>
+                <a href="#" class="dv-btn dv-btn-ghost">اقرأ توثيق الـAPI (إنجليزي) ↗</a>
+              </div>
+            </div>
+          </template>
+
+          <!-- الجدول -->
+          <template x-if="!emptyPreview && apiKeys.length>0">
+            <div class="overflow-x-auto">
+              <table class="dv-table">
+                <thead>
+                  <tr>
+                    <th>الاسم</th>
+                    <th>المفتاح</th>
+                    <th>النطاقات</th>
+                    <th>الفرع الافتراضي</th>
+                    <th>آخر IP</th>
+                    <th>آخر استعمال</th>
+                    <th>الحالة</th>
+                    <th class="text-center">إجراءات</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="k in apiKeys" :key="k.id">
+                    <tr>
+                      <td>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                          <span class="font-semibold text-primary-800" x-text="k.name"></span>
+                          <span class="dv-badge b-warning" x-show="k.ipMode==='any'" title="هذا المفتاح غير محصور بعناوين IP — يمكن استعماله من أي مكان">أي IP</span>
+                        </div>
+                        <div class="text-[.7rem] text-neutral-400 mt-0.5" x-text="k.mode==='server' ? (k.ipMode==='any' ? 'خادم — مفتوح لأي عنوان' : 'خادم — محصور بعناوين IP') : 'متصفح — محصور بالنطاقات (Origins)'"></div>
+                        <div class="mt-1" x-show="k.rotatingUntil">
+                          <span class="dv-badge b-info" x-text="k.rotatingUntil ? ('قيد التدوير — المفتاح القديم يعمل حتى ' + k.rotatingUntil) : ''"></span>
+                        </div>
+                      </td>
+                      <td><span dir="ltr" class="dv-mono text-[.78rem] text-neutral-600" x-text="k.masked"></span></td>
+                      <td>
+                        <div class="flex flex-wrap gap-1 max-w-[220px]">
+                          <template x-for="s in k.scopes" :key="s"><span class="dv-chip" x-text="s"></span></template>
+                        </div>
+                      </td>
+                      <td class="text-sm text-neutral-600" x-text="k.branchName"></td>
+                      <td><span dir="ltr" class="dv-mono text-[.78rem]" :class="k.ipMode==='any' ? 'text-warning font-semibold' : 'text-neutral-600'" x-text="k.lastIp"></span></td>
+                      <td class="text-xs text-neutral-500 whitespace-nowrap" x-text="k.lastUsed"></td>
+                      <td>
+                        <span class="dv-badge" :class="k.status==='active' ? 'b-success' : 'b-neutral'" x-text="k.status==='active' ? 'نشط' : 'مُبطَل'"></span>
+                      </td>
+                      <td class="text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                          <!-- ⛔ موكّ فقط، بلا مقابل في المنتج: يعرض لوحة «مرة واحدة» على مفتاح قائم كي
+                               يراها المُراجع بلا إنشاء مفتاح. المنتج لا يملك قيمة المفتاح بعد السكّ (تُجزّأ)،
+                               وزرٌّ كهذا في G يُبطل «العرض مرة واحدة» كلَّه. التدوير هو المسار الوحيد لقيمة جديدة. -->
+                          <button class="dv-btn dv-btn-ghost dv-btn-icon" @click="previewReveal(k)" title="معاينة العرض مرة واحدة">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>
+                          </button>
+                          <button class="dv-btn dv-btn-ghost dv-btn-icon" :disabled="k.status!=='active'" @click="openKeyModal(k)" title="تعديل المفتاح">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 2l3 3-8 8-3.5 1 1-3.5z"/></svg>
+                          </button>
+                          <button class="dv-btn dv-btn-ghost dv-btn-icon" :disabled="k.status!=='active'" @click="openRotateKeyConfirm(k)" title="تدوير المفتاح">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 8a6 6 0 0110-4.2M14 8a6 6 0 01-10 4.2"/><path d="M12 1v3h-3M4 15v-3h3"/></svg>
+                          </button>
+                          <button class="dv-btn dv-btn-danger dv-btn-icon" :disabled="k.status!=='active'" @click="revokeKey(k)" title="إبطال المفتاح">
+                            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6"/><path d="M5.5 5.5l5 5"/></svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- (ب) وجهات الـWebhook                                          -->
+      <!-- ============================================================ -->
+      <div x-show="tab==='webhooks'">
+        <div class="dv-card">
+          <div class="dv-card-head">
+            <div>
+              <div class="dv-card-title">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="8" r="2"/><circle cx="12.5" cy="4" r="2"/><circle cx="12.5" cy="12" r="2"/><path d="M5.7 7l5-2M5.7 9l5 2"/></svg>
+                وجهات الـWebhook
+              </div>
+              <p class="text-xs text-neutral-500 mt-1">نُخبِر برمجياتك لحظة وقوع حدث — بدل أن تستطلع الـAPI كل دقيقة</p>
+            </div>
+            <button class="dv-btn dv-btn-primary dv-btn-sm" @click="openWebhookModal()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>
+              وجهة جديدة
+            </button>
+          </div>
+
+          <div class="bg-info/5 border-b border-neutral-100 px-5 py-3 flex items-start gap-2.5 text-xs text-neutral-600">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#1565C0" stroke-width="1.6" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 5.2v.2"/></svg>
+            <span>تُعطَّل الوجهة تلقائياً بعد <strong class="text-primary-800">٢٠ محاولة تسليم فاشلة متتالية</strong> لحماية النظام من إهدار الموارد على وجهة معطوبة — يمكن إصلاحها وإعادة تفعيلها يدوياً في أي وقت.</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="dv-table">
+              <thead>
+                <tr>
+                  <th>الرابط</th>
+                  <th>الأنواع المشترَك بها</th>
+                  <th>الحالة</th>
+                  <th>فشل متتالٍ</th>
+                  <th>آخر تسليم</th>
+                  <th class="text-center">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="w in webhooks" :key="w.id">
+                  <tr>
+                    <td class="max-w-[240px]">
+                      <div dir="ltr" class="dv-mono text-[.8rem] text-primary-800 truncate" x-text="w.url"></div>
+                    </td>
+                    <td>
+                      <div class="flex flex-wrap gap-1 max-w-[260px] items-center">
+                        <template x-for="t in w.eventTypes.slice(0,3)" :key="t"><span class="dv-chip" x-text="eventLabel(t)"></span></template>
+                        <span class="text-[.7rem] text-neutral-400 font-semibold" x-show="w.eventTypes.length>3" x-text="'+'+(w.eventTypes.length-3)"></span>
+                      </div>
+                      <div dir="ltr" class="dv-mono text-[.66rem] text-neutral-400 mt-1 truncate max-w-[260px]" :title="w.eventTypes.join(', ')" x-text="w.eventTypes.slice(0,3).join(', ') + (w.eventTypes.length>3 ? ' +' + (w.eventTypes.length-3) : '')"></div>
+                    </td>
+                    <td>
+                      <template x-if="w.status==='auto_disabled'">
+                        <div>
+                          <span class="dv-badge b-danger">مُعطَّلة تلقائياً</span>
+                          <div class="text-[.68rem] text-danger/80 mt-1 max-w-[180px]">بعد بلوغ عتبة الفشل</div>
+                        </div>
+                      </template>
+                      <template x-if="w.status!=='auto_disabled'">
+                        <div class="flex items-center gap-2">
+                          <button type="button" class="dv-switch" :class="w.status==='active' && 'on'" @click="toggleWebhook(w)" :aria-label="w.status==='active' ? 'تعطيل الوجهة' : 'تفعيل الوجهة'"></button>
+                          <span class="text-xs font-semibold" :class="w.status==='active' ? 'text-success' : 'text-neutral-400'" x-text="w.status==='active' ? 'نشطة' : 'معطَّلة'"></span>
+                        </div>
+                      </template>
+                    </td>
+                    <td>
+                      <span dir="ltr" class="dv-mono">
+                        <span class="font-bold" :class="w.consecutiveFailures>=10 ? 'text-danger' : (w.consecutiveFailures>0 ? 'text-warning' : 'text-neutral-400')" x-text="w.consecutiveFailures"></span>
+                        <span class="text-[.7rem] text-neutral-400"> / 20</span>
+                      </span>
+                    </td>
+                    <td class="text-xs text-neutral-500 whitespace-nowrap" x-text="w.lastDelivery"></td>
+                    <td class="text-center">
+                      <div class="flex items-center justify-center gap-1.5">
+                        <template x-if="w.status==='auto_disabled'">
+                          <button class="dv-btn dv-btn-ghost dv-btn-sm" @click="reactivateWebhook(w)">
+                            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8a6 6 0 0110-4.2M14 8a6 6 0 01-10 4.2"/><path d="M12 1v3h-3M4 15v-3h3"/></svg>
+                            إعادة تفعيل
+                          </button>
+                        </template>
+                        <button class="dv-btn dv-btn-ghost dv-btn-icon" @click="openWebhookModal(w)" title="تعديل">
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 2l3 3-8 8-3.5 1 1-3.5z"/></svg>
+                        </button>
+                        <button class="dv-btn dv-btn-danger dv-btn-icon" @click="deleteWebhook(w)" title="حذف">
+                          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 4.5h10M5 4.5V3h6v1.5M6.5 7v4.5M9.5 7v4.5"/><rect x="4" y="4.5" width="8" height="9" rx="1.5"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- (ج) سجلّ التسليم                                              -->
+      <!-- ============================================================ -->
+      <div x-show="tab==='deliveries'">
+        <div class="dv-card">
+          <div class="dv-card-head">
+            <div class="dv-card-title">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2.5" width="12" height="11" rx="1.8"/><path d="M4.5 6h7M4.5 8.5h7M4.5 11h4"/></svg>
+              سجلّ التسليم
+            </div>
+            <span class="text-xs text-neutral-400 flex items-center gap-1.5">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="7" width="9" height="6.5" rx="1.3"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg>
+              يتطلب صلاحية منفصلة — يعرض أجسام حمولات فيها بيانات حسّاسة
+            </span>
+          </div>
+
+          <!-- الفلاتر -->
+          <div class="flex flex-col sm:flex-row gap-3 p-4 border-b border-neutral-100 bg-neutral-50/50">
+
+            <!-- SmartSelect: نوع الحدث (متعدد) -->
+            <div class="relative sm:w-64" x-data="smartSelect({ field:'type', multi:true, options: eventTypeOptions(), placeholder:'كل أنواع الأحداث' })">
+              <button type="button" id="filter-event-type" aria-label="تصفية حسب نوع الحدث" class="ec-input w-full flex items-center justify-between gap-2 text-start" :aria-expanded="open" aria-haspopup="listbox" @click="toggleOpen()">
+                <span class="flex-1 flex flex-wrap items-center gap-1 min-w-0 py-[.05rem]">
+                  <template x-if="selectedValues.length===0">
+                    <span class="truncate text-neutral-400" x-text="placeholder"></span>
+                  </template>
+                  <template x-if="selectedValues.length>0">
+                    <span class="flex flex-wrap items-center gap-1 min-w-0">
+                      <template x-for="v in selectedValues.slice(0,2)" :key="v">
+                        <span class="dv-chip inline-flex items-center gap-1">
+                          <span class="truncate max-w-[84px]" x-text="labelFor(v)"></span>
+                          <button type="button" class="text-primary-400 hover:text-danger" @click.stop="removeValue(v)" :aria-label="'إزالة ' + labelFor(v)">
+                            <svg width="8" height="8" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                          </button>
+                        </span>
+                      </template>
+                      <span class="text-[.72rem] font-semibold text-neutral-500 whitespace-nowrap" x-text="selectedValues.length + ' مُختار'"></span>
+                    </span>
+                  </template>
+                </span>
+                <span class="flex items-center gap-1 shrink-0">
+                  <button type="button" class="text-neutral-400 hover:text-danger" x-show="clearable && selectedValues.length>0" @click.stop="clearAll()" aria-label="مسح التحديد">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </button>
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" class="text-neutral-400 transition-transform duration-150" :class="open && 'rotate-180'"><path d="M4 6l4 4 4-4"/></svg>
+                </span>
+              </button>
+              <div x-show="open" x-cloak @click.outside="open=false" @keydown="onKeydown($event)" x-transition class="absolute z-20 mt-1.5 w-full min-w-[260px] bg-white border border-neutral-200 rounded-lg shadow-xl2 overflow-hidden">
+                <div class="p-2 border-b border-neutral-100">
+                  <input x-ref="searchInput" type="text" x-model="query" placeholder="بحث…" aria-label="بحث ضمن القائمة" class="ec-input text-[.8rem] py-1.5" @keydown.escape="open=false" />
+                </div>
+                <ul class="max-h-56 overflow-y-auto py-1" role="listbox" aria-multiselectable="true">
+                  <template x-for="(opt, idx) in filteredOptions()" :key="opt.value">
+                    <li role="option" :aria-selected="isSelected(opt)" class="flex items-center gap-2 py-1.5 px-3 text-[.82rem] cursor-pointer" :class="[isSelected(opt) && 'bg-primary-50', idx===activeIndex && 'bg-neutral-100']" @click="selectOption(opt)" @mouseenter="activeIndex=idx">
+                      <span class="w-3.5 h-3.5 rounded border border-neutral-300 flex items-center justify-center shrink-0" :class="isSelected(opt) && 'bg-primary-800 border-primary-800'">
+                        <svg x-show="isSelected(opt)" width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2.5"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                      </span>
+                      <span class="flex-1 min-w-0">
+                        <span class="block truncate text-primary-800 font-medium" x-text="opt.label"></span>
+                        <span dir="ltr" class="dv-mono block text-[.68rem] text-neutral-400 truncate" x-text="opt.sub"></span>
+                      </span>
+                    </li>
+                  </template>
+                  <li x-show="filteredOptions().length===0" class="py-4 text-center text-xs text-neutral-400">لا نتائج مطابقة</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- SmartSelect: الحالة (مفرد) -->
+            <div class="relative sm:w-48" x-data="smartSelect({ field:'status', multi:false, options: statusFilterOptions, placeholder:'كل الحالات' })">
+              <button type="button" id="filter-status" aria-label="تصفية حسب الحالة" class="ec-input w-full flex items-center justify-between gap-2 text-start" :aria-expanded="open" aria-haspopup="listbox" @click="toggleOpen()">
+                <span class="flex-1 truncate" :class="selectedValues.length===0 && 'text-neutral-400'" x-text="buttonText()"></span>
+                <span class="flex items-center gap-1 shrink-0">
+                  <button type="button" class="text-neutral-400 hover:text-danger" x-show="clearable && selectedValues.length>0" @click.stop="clearAll()" aria-label="مسح التحديد">
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </button>
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" class="text-neutral-400 transition-transform duration-150" :class="open && 'rotate-180'"><path d="M4 6l4 4 4-4"/></svg>
+                </span>
+              </button>
+              <div x-show="open" x-cloak @click.outside="open=false" @keydown="onKeydown($event)" x-transition class="absolute z-20 mt-1.5 w-full min-w-[220px] bg-white border border-neutral-200 rounded-lg shadow-xl2 overflow-hidden">
+                <div class="p-2 border-b border-neutral-100">
+                  <input x-ref="searchInput" type="text" x-model="query" placeholder="بحث…" aria-label="بحث ضمن القائمة" class="ec-input text-[.8rem] py-1.5" @keydown.escape="open=false" />
+                </div>
+                <ul class="max-h-56 overflow-y-auto py-1" role="listbox">
+                  <template x-for="(opt, idx) in filteredOptions()" :key="opt.value">
+                    <li role="option" :aria-selected="isSelected(opt)" class="flex items-center gap-2 py-1.5 px-3 text-[.82rem] cursor-pointer" :class="[isSelected(opt) && 'bg-primary-50', idx===activeIndex && 'bg-neutral-100']" @click="selectOption(opt)" @mouseenter="activeIndex=idx">
+                      <span class="flex-1 min-w-0 truncate text-primary-800" x-text="opt.label"></span>
+                      <svg x-show="isSelected(opt)" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" class="text-primary-700 shrink-0"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                    </li>
+                  </template>
+                  <li x-show="filteredOptions().length===0" class="py-4 text-center text-xs text-neutral-400">لا نتائج مطابقة</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- SmartSelect: المدى الزمني (مفرد، بلا تفريغ) -->
+            <div class="relative sm:w-48" x-data="smartSelect({ field:'range', multi:false, clearable:false, options: rangeFilterOptions, placeholder:'المدى الزمني' })">
+              <button type="button" id="filter-range" aria-label="تصفية حسب المدى الزمني" class="ec-input w-full flex items-center justify-between gap-2 text-start" :aria-expanded="open" aria-haspopup="listbox" @click="toggleOpen()">
+                <span class="flex-1 truncate" x-text="buttonText()"></span>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" class="text-neutral-400 transition-transform duration-150 shrink-0" :class="open && 'rotate-180'"><path d="M4 6l4 4 4-4"/></svg>
+              </button>
+              <div x-show="open" x-cloak @click.outside="open=false" @keydown="onKeydown($event)" x-transition class="absolute z-20 mt-1.5 w-full min-w-[200px] bg-white border border-neutral-200 rounded-lg shadow-xl2 overflow-hidden">
+                <div class="p-2 border-b border-neutral-100">
+                  <input x-ref="searchInput" type="text" x-model="query" placeholder="بحث…" aria-label="بحث ضمن القائمة" class="ec-input text-[.8rem] py-1.5" @keydown.escape="open=false" />
+                </div>
+                <ul class="max-h-56 overflow-y-auto py-1" role="listbox">
+                  <template x-for="(opt, idx) in filteredOptions()" :key="opt.value">
+                    <li role="option" :aria-selected="isSelected(opt)" class="flex items-center gap-2 py-1.5 px-3 text-[.82rem] cursor-pointer" :class="[isSelected(opt) && 'bg-primary-50', idx===activeIndex && 'bg-neutral-100']" @click="selectOption(opt)" @mouseenter="activeIndex=idx">
+                      <span class="flex-1 min-w-0 truncate text-primary-800" x-text="opt.label"></span>
+                      <svg x-show="isSelected(opt)" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" class="text-primary-700 shrink-0"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                    </li>
+                  </template>
+                  <li x-show="filteredOptions().length===0" class="py-4 text-center text-xs text-neutral-400">لا نتائج مطابقة</li>
+                </ul>
+              </div>
+            </div>
+
+            <button class="dv-btn dv-btn-ghost dv-btn-sm" @click="deliveryFilters={type:[],status:'',range:'7d'}" x-show="deliveryFilters.type.length || deliveryFilters.status">مسح الفلاتر</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="dv-table">
+              <thead>
+                <tr>
+                  <th>الحدث</th>
+                  <th>الوجهة</th>
+                  <th>كود الرد</th>
+                  <th>المحاولة</th>
+                  <th>الحالة</th>
+                  <th>الوقت</th>
+                  <th class="text-center">تفاصيل</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="d in filteredDeliveries()" :key="d.id">
+                  <tr class="cursor-pointer" @click="openDelivery(d)">
+                    <td>
+                      <span class="dv-chip" x-text="eventLabel(d.eventType)"></span>
+                      <div dir="ltr" class="dv-mono text-[.66rem] text-neutral-400 mt-1" x-text="d.eventType"></div>
+                    </td>
+                    <td class="max-w-[200px]"><span dir="ltr" class="dv-mono text-[.78rem] text-neutral-600 truncate block" x-text="d.endpointUrl"></span></td>
+                    <td>
+                      <span dir="ltr" class="dv-mono font-semibold text-sm" :class="d.responseStatus && d.responseStatus<300 ? 'text-success' : 'text-danger'" x-text="d.responseStatus || '—'"></span>
+                    </td>
+                    <td><span dir="ltr" class="dv-mono text-sm text-neutral-600" x-text="d.attempt + ' / ' + d.maxAttempts"></span></td>
+                    <td><span class="dv-badge" :class="statusTone(d.status)" x-text="statusLabel(d.status)"></span></td>
+                    <td class="text-xs text-neutral-500 whitespace-nowrap" x-text="d.time"></td>
+                    <td class="text-center">
+                      <button class="dv-btn dv-btn-ghost dv-btn-icon" @click.stop="openDelivery(d)" title="عرض التفاصيل">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3l5 5-5 5"/></svg>
+                      </button>
+                    </td>
+                  </tr>
+                </template>
+                <tr x-show="filteredDeliveries().length===0">
+                  <td colspan="7" class="text-center py-10 text-sm text-neutral-400">لا نتائج تطابق الفلاتر المحدَّدة</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="dv-pagination">
+            <span class="text-xs text-neutral-500" x-text="'عرض ' + filteredDeliveries().length + ' من ' + deliveries.length + ' عملية تسليم'"></span>
+            <div class="flex items-center gap-1">
+              <button class="dv-page-btn on">١</button>
+              <button class="dv-page-btn" disabled>٢</button>
+              <button class="dv-page-btn" disabled>
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 4l4 4-4 4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- مودال: إنشاء مفتاح API                                            -->
+<!-- ================================================================ -->
+<div class="dv-overlay" x-show="keyModalOpen" x-cloak @click.self="keyModalOpen=false" x-transition.opacity>
+  <div class="dv-modal" @click.stop x-transition>
+    <div class="dv-modal-head">
+      <div class="flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-lg bg-primary-50 text-primary-700 flex items-center justify-center">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5.5" cy="10.5" r="3"/><path d="M7.7 8.3L13 3M10.5 5.5L12.5 7.5M13 3l1.5 1.5"/></svg>
+        </span>
+        <div class="font-bold text-primary-800 text-base" x-text="keyForm.id ? 'تعديل مفتاح API' : 'مفتاح API جديد'"></div>
+      </div>
+      <button @click="keyModalOpen=false" class="dv-icon-btn">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="dv-modal-body flex flex-col gap-5 max-h-[68vh] overflow-y-auto">
+
+      <template x-if="keyForm.id">
+        <div>
+          <label class="ec-label">المفتاح</label>
+          <div dir="ltr" class="dv-mono bg-neutral-50 border border-neutral-200 rounded-lg py-2.5 px-3 text-[.82rem] text-neutral-600" x-text="keyForm.masked"></div>
+          <p class="ec-help">لا يمكن عرض المفتاح الكامل بعد إنشائه — استخدم «تدوير المفتاح» من قائمة المفاتيح إن احتجت قيمة جديدة.</p>
+        </div>
+      </template>
+
+      <div>
+        <label class="ec-label" for="key-name"><span class="text-danger">*</span> اسم المفتاح</label>
+        <input type="text" id="key-name" name="key-name" x-model="keyForm.name" placeholder="مثال: تكامل الموقع الإلكتروني" class="ec-input" />
+      </div>
+
+      <div>
+        <label class="ec-label"><span class="text-danger">*</span> نوع المفتاح</label>
+        <div class="grid grid-cols-2 gap-2.5">
+          <label class="flex items-start gap-2.5 border-[1.5px] rounded-lg p-3 cursor-pointer transition" :class="keyForm.mode==='server' ? 'border-primary-600 bg-primary-50/40' : 'border-neutral-200'">
+            <input type="radio" name="key-mode" value="server" x-model="keyForm.mode" class="mt-0.5 accent-primary-800" />
+            <span><span class="block text-sm font-semibold text-primary-800">خادم (Server)</span><span class="block text-xs text-neutral-500 mt-0.5">مثل نظام خلفي أو سكربت — يُحصَر بعناوين IP</span></span>
+          </label>
+          <label class="flex items-start gap-2.5 border-[1.5px] rounded-lg p-3 cursor-pointer transition" :class="keyForm.mode==='browser' ? 'border-primary-600 bg-primary-50/40' : 'border-neutral-200'">
+            <input type="radio" name="key-mode" value="browser" x-model="keyForm.mode" class="mt-0.5 accent-primary-800" />
+            <span><span class="block text-sm font-semibold text-primary-800">متصفح (Browser)</span><span class="block text-xs text-neutral-500 mt-0.5">مثل نموذج على موقعك — يُحصَر بالنطاقات (Origins)</span></span>
+          </label>
+        </div>
+      </div>
+
+      <div x-show="keyForm.mode==='server'">
+        <label class="ec-label" for="key-ips">عناوين IP المسموحة</label>
+        <div class="flex flex-col sm:flex-row gap-2 mb-3">
+          <label class="flex items-center gap-2 border-[1.5px] rounded-lg py-2 px-3 cursor-pointer transition flex-1" :class="keyForm.ipMode==='restricted' ? 'border-primary-600 bg-primary-50/40' : 'border-neutral-200'">
+            <input type="radio" name="key-ipmode" value="restricted" x-model="keyForm.ipMode" class="accent-primary-800 shrink-0" />
+            <span class="text-sm font-semibold text-primary-800">حصر بعناوين محدَّدة <span class="text-[.68rem] font-normal text-neutral-500">(موصى به)</span></span>
+          </label>
+          <label class="flex items-center gap-2 border-[1.5px] rounded-lg py-2 px-3 cursor-pointer transition flex-1" :class="keyForm.ipMode==='any' ? 'border-warning bg-warning/5' : 'border-neutral-200'">
+            <input type="radio" name="key-ipmode" value="any" x-model="keyForm.ipMode" class="accent-warning shrink-0" />
+            <span class="text-sm font-semibold text-primary-800">السماح لأي عنوان IP</span>
+          </label>
+        </div>
+
+        <template x-if="keyForm.ipMode==='restricted'">
+          <div>
+            <div class="ec-input flex flex-wrap items-center gap-1.5 min-h-[2.75rem] cursor-text" dir="ltr" @click="$refs.ipChipInput.focus()">
+              <template x-for="(ip, idx) in keyForm.allowedIps" :key="ip + '-' + idx">
+                <span class="dv-chip inline-flex items-center gap-1 py-[.2rem]">
+                  <span x-text="ip"></span>
+                  <button type="button" class="text-primary-400 hover:text-danger transition" @click.stop="removeChip('allowedIps', idx)" :aria-label="'إزالة العنوان ' + ip">
+                    <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+                  </button>
+                </span>
+              </template>
+              <input x-ref="ipChipInput" type="text" id="key-ips" name="key-ips" x-model="chipDraft.allowedIps"
+                class="flex-1 min-w-[130px] outline-none border-0 p-0 bg-transparent text-[.82rem] dv-mono"
+                placeholder="203.0.113.10"
+                @keydown.enter.prevent="addChip('allowedIps')"
+                @keydown.comma.prevent="addChip('allowedIps')"
+                @keydown.backspace="onChipBackspace('allowedIps')"
+                @blur="addChip('allowedIps')" />
+            </div>
+            <p class="text-[.74rem] text-danger mt-1.5" x-show="chipError.allowedIps" x-html="chipErrorHtml('allowedIps')"></p>
+            <p class="ec-help">اضغط <span dir="ltr" class="dv-mono">Enter</span> أو الفاصلة لإضافة عنوان — عنوان IPv4 مفرد أو نطاق CIDR. القائمة الفارغة تعني رفض كل طلب في وضع الحصر.</p>
+          </div>
+        </template>
+        <template x-if="keyForm.ipMode==='any'">
+          <div class="bg-warning/8 border border-warning/25 rounded-lg p-3.5 text-sm text-primary-800 flex items-start gap-2.5">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#D4860A" stroke-width="1.7" class="shrink-0 mt-0.5"><path d="M8 1.5L1 14h14L8 1.5z"/><path d="M8 6.5v3.5M8 12v.1"/></svg>
+            <span><strong>تحذير أمني:</strong> هذا المفتاح سيقرأ ويكتب بيانات منشأتك بالكامل ضمن نطاقاته المحدَّدة أعلاه — من أي مكان في العالم. إن تسرّب، يمكن استعماله فوراً بلا أي قيد على المصدر. البديل الأأمن دائماً هو حصر عناوين IP.</span>
+          </div>
+        </template>
+      </div>
+      <div x-show="keyForm.mode==='browser'">
+        <label class="ec-label" for="key-origins"><span class="text-danger">*</span> النطاقات المسموحة (Origins)</label>
+        <div class="ec-input flex flex-wrap items-center gap-1.5 min-h-[2.75rem] cursor-text" dir="ltr" @click="$refs.originChipInput.focus()">
+          <template x-for="(o, idx) in keyForm.allowedOrigins" :key="o + '-' + idx">
+            <span class="dv-chip inline-flex items-center gap-1 py-[.2rem]">
+              <span x-text="o"></span>
+              <button type="button" class="text-primary-400 hover:text-danger transition" @click.stop="removeChip('allowedOrigins', idx)" :aria-label="'إزالة النطاق ' + o">
+                <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+              </button>
+            </span>
+          </template>
+          <input x-ref="originChipInput" type="text" id="key-origins" name="key-origins" x-model="chipDraft.allowedOrigins"
+            class="flex-1 min-w-[160px] outline-none border-0 p-0 bg-transparent text-[.82rem] dv-mono"
+            placeholder="https://www.your-brokerage.com"
+            @keydown.enter.prevent="addChip('allowedOrigins')"
+            @keydown.comma.prevent="addChip('allowedOrigins')"
+            @keydown.backspace="onChipBackspace('allowedOrigins')"
+            @blur="addChip('allowedOrigins')" />
+        </div>
+        <p class="text-[.74rem] text-danger mt-1.5" x-show="chipError.allowedOrigins" x-html="chipErrorHtml('allowedOrigins')"></p>
+        <p class="ec-help">اضغط <span dir="ltr" class="dv-mono">Enter</span> أو الفاصلة لإضافة نطاق كامل بما فيه البروتوكول. القائمة الفارغة تعني رفض كل طلب.</p>
+      </div>
+
+      <div>
+        <label class="ec-label"><span class="text-danger">*</span> نطاقات الوصول (Scopes)</label>
+        <div class="flex flex-col gap-2">
+          <template x-for="g in scopeGroups" :key="g.resource">
+            <div class="dv-scope-row">
+              <span class="text-sm font-semibold text-primary-800" x-text="g.label"></span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="dv-check" :class="keyForm.scopes.includes(g.read) && 'active'" @click="toggleScope(g.read)">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l3.5 3.5L13 5" x-show="keyForm.scopes.includes(g.read)"/></svg>
+                  قراءة
+                </button>
+                <button type="button" class="dv-check" :class="[keyForm.scopes.includes(g.write) && 'active', !g.write && 'disabled']" :disabled="!g.write" @click="g.write && toggleScope(g.write)">كتابة</button>
+              </div>
+            </div>
+          </template>
+        </div>
+        <p class="ec-help">فضاء نطاقات مستقلّ عن صلاحيات المستخدمين الداخلية (<code dir="ltr" class="dv-mono">leads:read</code> لا <code dir="ltr" class="dv-mono">leads.view</code>) — مطابقة دقيقة بلا صلاحيات شاملة (wildcard).</p>
+      </div>
+
+      <div>
+        <label class="ec-label" for="key-branch"><span class="text-danger">*</span> الفرع الافتراضي</label>
+        <select id="key-branch" name="key-branch" x-model="keyForm.branchId" class="ec-input">
+          <option value="" disabled>اختر فرعاً…</option>
+          <template x-for="b in branches" :key="b.id"><option :value="b.id" x-text="b.name"></option></template>
+        </select>
+        <p class="ec-help">لا مستخدم بشري خلف هذا المفتاح ليُشتقّ الفرع من جلسته — فحقل الفرع في جسم الطلب يُهمَل دائماً. كل عميل محتمل أو جهة اتصال أو عقار أو صفقة يُنشئها هذا المفتاح يُختم بهذا الفرع تلقائياً.</p>
+      </div>
+
+    </div>
+    <div class="dv-modal-foot">
+      <button class="dv-btn dv-btn-primary" :disabled="!canSubmitKey()" @click="submitKeyForm()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>
+        <span x-text="keyForm.id ? 'حفظ التعديلات' : 'إنشاء المفتاح'"></span>
+      </button>
+      <button class="dv-btn dv-btn-ghost" @click="keyModalOpen=false">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- مودال: عرض المفتاح — مرة واحدة فقط                                -->
+<!-- ================================================================ -->
+<div class="dv-overlay" style="z-index:70" x-show="revealOpen" x-cloak @click.self="revealOpen=false" x-transition.opacity>
+  <div class="dv-modal max-w-[520px]" @click.stop x-transition>
+    <div class="dv-modal-head">
+      <div class="flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-lg bg-warning/10 text-warning flex items-center justify-center">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 1.5L1 14h14L8 1.5z"/><path d="M8 6.5v3.5M8 12v.1"/></svg>
+        </span>
+        <div class="font-bold text-primary-800 text-base" x-text="revealKind==='webhookSecret' ? 'سرّ الويبهوك الجديد جاهز' : 'مفتاحك جاهز'"></div>
+      </div>
+    </div>
+    <div class="dv-modal-body">
+      <div class="bg-warning/8 border border-warning/25 rounded-lg p-3.5 mb-4 text-sm text-primary-800 flex items-start gap-2.5">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#D4860A" stroke-width="1.7" class="shrink-0 mt-0.5"><path d="M8 1.5L1 14h14L8 1.5z"/><path d="M8 6.5v3.5M8 12v.1"/></svg>
+        <span x-show="revealKind!=='webhookSecret'"><strong>لن يُعرض هذا المفتاح ثانيةً.</strong> انسخه الآن واحفظه في مكان آمن — القائمة ستعرض بعدها النسخة المقنَّعة فقط.</span>
+        <span x-show="revealKind==='webhookSecret'"><strong>لن يُعرض هذا السرّ ثانيةً.</strong> انسخه الآن واحفظه في مكان آمن — السرّ القديم يبقى صالحاً لمدة ٢٤ ساعة بعدها.</span>
+      </div>
+      <label class="ec-label" x-text="revealKind==='webhookSecret' ? 'السرّ الكامل' : 'المفتاح الكامل'"></label>
+      <div class="flex items-center gap-2">
+        <div dir="ltr" class="dv-mono flex-1 bg-neutral-50 border border-neutral-200 rounded-lg py-2.5 px-3 text-[.82rem] text-primary-800 break-all">
+          <span x-text="revealedValue"></span>
+        </div>
+        <button class="dv-btn dv-btn-ghost dv-btn-icon shrink-0" @click="copyValue()" :title="copied ? 'تم النسخ' : 'نسخ'">
+          <svg x-show="!copied" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5.5" y="5.5" width="8.5" height="8.5" rx="1.5"/><path d="M3 10.5V3a1.5 1.5 0 011.5-1.5H10"/></svg>
+          <svg x-show="copied" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#1A8C4E" stroke-width="2"><path d="M3 8.5l3.5 3.5L13 5"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="dv-modal-foot">
+      <button class="dv-btn dv-btn-primary" @click="revealOpen=false">فهمت، أغلق النافذة</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- مودال: تأكيد تدوير مفتاح API                                      -->
+<!-- ================================================================ -->
+<div class="dv-overlay" style="z-index:65" x-show="rotateKeyConfirmOpen" x-cloak @click.self="rotateKeyConfirmOpen=false" x-transition.opacity>
+  <div class="dv-modal max-w-[520px]" @click.stop x-transition>
+    <div class="dv-modal-head">
+      <div class="flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-lg bg-warning/10 text-warning flex items-center justify-center">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 8a6 6 0 0110-4.2M14 8a6 6 0 01-10 4.2"/><path d="M12 1v3h-3M4 15v-3h3"/></svg>
+        </span>
+        <div class="font-bold text-primary-800 text-base">تدوير مفتاح API؟</div>
+      </div>
+      <button @click="rotateKeyConfirmOpen=false" class="dv-icon-btn">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="dv-modal-body flex flex-col gap-4">
+      <p class="text-sm text-neutral-600 leading-relaxed">سيُنشأ مفتاح جديد بنفس النطاقات (Scopes) والفرع، ويُعرض لك مرة واحدة فقط بعد التأكيد. اختر متى يتوقف المفتاح القديم عن العمل:</p>
+
+      <div>
+        <label class="ec-label" for="rotate-key-grace">مهلة السماح</label>
+        <!-- SmartSelect: مهلة تدوير المفتاح — نفس مكوّن فلاتر سجلّ التسليم، مربوط بـrotateKeyForm.graceHours -->
+        <div class="relative" x-data="smartSelect({ stateKey:'rotateKeyForm', field:'graceHours', multi:false, clearable:false, options: graceHoursOptions, placeholder:'اختر مهلة' })">
+          <button type="button" id="rotate-key-grace" class="ec-input w-full flex items-center justify-between gap-2 text-start" :aria-expanded="open" aria-haspopup="listbox" @click="toggleOpen()">
+            <span class="flex-1 truncate" x-text="buttonText()"></span>
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" class="text-neutral-400 transition-transform duration-150 shrink-0" :class="open && 'rotate-180'"><path d="M4 6l4 4 4-4"/></svg>
+          </button>
+          <div x-show="open" x-cloak @click.outside="open=false" @keydown="onKeydown($event)" x-transition class="absolute z-20 mt-1.5 w-full min-w-[280px] bg-white border border-neutral-200 rounded-lg shadow-xl2 overflow-hidden">
+            <div class="p-2 border-b border-neutral-100">
+              <input x-ref="searchInput" type="text" x-model="query" placeholder="بحث…" aria-label="بحث ضمن القائمة" class="ec-input text-[.8rem] py-1.5" @keydown.escape="open=false" />
+            </div>
+            <ul class="max-h-56 overflow-y-auto py-1" role="listbox">
+              <template x-for="(opt, idx) in filteredOptions()" :key="opt.value">
+                <li role="option" :aria-selected="isSelected(opt)" class="flex items-center gap-2 py-1.5 px-3 text-[.82rem] cursor-pointer" :class="[isSelected(opt) && 'bg-primary-50', idx===activeIndex && 'bg-neutral-100']" @click="selectOption(opt)" @mouseenter="activeIndex=idx">
+                  <span class="flex-1 min-w-0 truncate text-primary-800" x-text="opt.label"></span>
+                  <svg x-show="isSelected(opt)" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" class="text-primary-700 shrink-0"><path d="M3 8l3.5 3.5L13 5"/></svg>
+                </li>
+              </template>
+              <li x-show="filteredOptions().length===0" class="py-4 text-center text-xs text-neutral-400">لا نتائج مطابقة</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-lg p-3.5 text-sm flex items-start gap-2.5" :class="rotateKeyForm.graceHours===0 ? 'bg-danger/8 border border-danger/25 text-primary-800' : 'bg-info/8 border border-info/20 text-primary-800'">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" :stroke="rotateKeyForm.graceHours===0 ? '#C0392B' : '#1565C0'" stroke-width="1.7" class="shrink-0 mt-0.5"><path d="M8 1.5L1 14h14L8 1.5z"/><path d="M8 6.5v3.5M8 12v.1"/></svg>
+        <span x-show="rotateKeyForm.graceHours===0"><strong>سيتوقف المفتاح القديم عن العمل فوراً</strong> بمجرد إنشاء المفتاح الجديد — اختر هذا إن كان المفتاح قد تسرّب.</span>
+        <span x-show="rotateKeyForm.graceHours>0"><strong>المفتاح القديم يبقى يعمل</strong> طوال المهلة المختارة، حتى تتّسع الفرصة لتحديث تكاملك بالمفتاح الجديد بلا انقطاع.</span>
+      </div>
+    </div>
+    <div class="dv-modal-foot">
+      <button class="dv-btn dv-btn-primary" @click="confirmRotateKey()">تدوير المفتاح الآن</button>
+      <button class="dv-btn dv-btn-ghost" @click="rotateKeyConfirmOpen=false">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- مودال: تأكيد تدوير سرّ الويبهوك                                    -->
+<!-- ================================================================ -->
+<div class="dv-overlay" style="z-index:65" x-show="rotateConfirmOpen" x-cloak @click.self="rotateConfirmOpen=false" x-transition.opacity>
+  <div class="dv-modal max-w-[480px]" @click.stop x-transition>
+    <div class="dv-modal-head">
+      <div class="flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-lg bg-warning/10 text-warning flex items-center justify-center">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 8a6 6 0 0110-4.2M14 8a6 6 0 01-10 4.2"/><path d="M12 1v3h-3M4 15v-3h3"/></svg>
+        </span>
+        <div class="font-bold text-primary-800 text-base">تدوير سرّ التوقيع؟</div>
+      </div>
+      <button @click="rotateConfirmOpen=false" class="dv-icon-btn">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="dv-modal-body">
+      <p class="text-sm text-neutral-600 leading-relaxed">سيُولَّد سرّ توقيع جديد لهذه الوجهة. السرّ الحالي يبقى صالحاً لمدة <strong class="text-primary-800">٢٤ ساعة</strong> بعد التدوير، حتى تتّسع الفرصة لتحديث تكاملك بالسرّ الجديد — بعدها يُرفَض توقيع أي حمولة موقَّعة بالسرّ القديم.</p>
+    </div>
+    <div class="dv-modal-foot">
+      <button class="dv-btn dv-btn-primary" @click="confirmRotateSecret()">تدوير السرّ الآن</button>
+      <button class="dv-btn dv-btn-ghost" @click="rotateConfirmOpen=false">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- مودال: وجهة Webhook (إنشاء/تعديل)                                 -->
+<!-- ================================================================ -->
+<div class="dv-overlay" x-show="webhookModalOpen" x-cloak @click.self="webhookModalOpen=false" x-transition.opacity>
+  <div class="dv-modal max-w-[680px]" @click.stop x-transition>
+    <div class="dv-modal-head">
+      <div class="flex items-center gap-2.5">
+        <span class="w-9 h-9 rounded-lg bg-primary-50 text-primary-700 flex items-center justify-center">
+          <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="4" cy="8" r="2"/><circle cx="12.5" cy="4" r="2"/><circle cx="12.5" cy="12" r="2"/><path d="M5.7 7l5-2M5.7 9l5 2"/></svg>
+        </span>
+        <div class="font-bold text-primary-800 text-base" x-text="webhookForm.id ? 'تعديل وجهة الـWebhook' : 'وجهة Webhook جديدة'"></div>
+      </div>
+      <button @click="webhookModalOpen=false" class="dv-icon-btn">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+      </button>
+    </div>
+    <div class="dv-modal-body flex flex-col gap-5 max-h-[68vh] overflow-y-auto">
+
+      <div>
+        <label class="ec-label" for="wh-url"><span class="text-danger">*</span> الرابط (URL)</label>
+        <input type="text" id="wh-url" name="wh-url" x-model="webhookForm.url" dir="ltr" class="ec-input dv-mono text-left" placeholder="https://your-system.com/hooks/est8" />
+        <p class="ec-help"><span dir="ltr" class="dv-mono">https</span> فقط، وبلا عناوين داخلية أو محلية.</p>
+      </div>
+
+      <template x-if="!webhookForm.id">
+        <div class="bg-neutral-50 border border-neutral-100 rounded-lg p-3.5 text-sm text-neutral-600 flex items-start gap-2.5">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="#4D5F7A" stroke-width="1.6" class="shrink-0 mt-0.5"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 5.2v.2"/></svg>
+          <span>يُولَّد سرّ التوقيع تلقائياً على الخادم عند الحفظ، ويُستخدَم لتوليد ترويسة <span dir="ltr" class="dv-mono">X-Est8-Signature</span> على كل حمولة تصل إليك — يُعرض لك <strong class="text-primary-800">مرة واحدة فقط</strong> بعد الإنشاء مباشرةً، ولا يمكن كتابته أو استرجاعه بنفسك.</span>
+        </div>
+      </template>
+      <template x-if="webhookForm.id">
+        <div>
+          <label class="ec-label">سرّ التوقيع</label>
+          <div class="flex items-center gap-2">
+            <div dir="ltr" class="dv-mono flex-1 bg-neutral-50 border border-neutral-200 rounded-lg py-2.5 px-3 text-[.82rem] text-neutral-600" x-text="'whsec_••••••••' + (webhookForm.secretLast4 || '')"></div>
+            <button type="button" class="dv-btn dv-btn-ghost dv-btn-sm shrink-0" @click="openRotateConfirm()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 8a6 6 0 0110-4.2M14 8a6 6 0 01-10 4.2"/><path d="M12 1v3h-3M4 15v-3h3"/></svg>
+              تدوير السرّ
+            </button>
+          </div>
+          <p class="ec-help">السرّ الحالي يبقى صالحاً حتى تُدوِّره صراحةً — لا يمكن استرجاعه بعد أول عرض.</p>
+        </div>
+      </template>
+
+      <div>
+        <label class="ec-label"><span class="text-danger">*</span> أنواع الأحداث — الاشتراك (١٧ نوعاً)</label>
+        <div class="border border-neutral-200 rounded-lg p-3 max-h-64 overflow-y-auto">
+          <template x-for="g in eventCatalog" :key="g.resource">
+            <div>
+              <div class="dv-evt-group-head" x-text="g.label"></div>
+              <template x-for="e in g.events" :key="e.type">
+                <label class="dv-evt-row">
+                  <input type="checkbox" class="mt-0.5 accent-primary-800 shrink-0" :checked="webhookForm.eventTypes.includes(e.type)" @change="toggleEventType(e.type)" />
+                  <span>
+                    <span class="block text-[.84rem] font-semibold text-primary-800" x-text="e.label"></span>
+                    <span dir="ltr" class="dv-mono block text-[.7rem] text-neutral-400 mt-0.5" x-text="e.type"></span>
+                    <span class="block text-xs text-neutral-500 mt-1" x-text="e.desc"></span>
+                  </span>
+                </label>
+              </template>
+            </div>
+          </template>
+        </div>
+        <p class="ec-help" x-text="webhookForm.eventTypes.length + ' نوعاً محدَّداً من أصل ' + totalEventCount()"></p>
+      </div>
+
+    </div>
+    <div class="dv-modal-foot">
+      <button class="dv-btn dv-btn-primary" :disabled="!webhookForm.url || webhookForm.eventTypes.length===0" @click="submitWebhook()">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.5 3.5L13 5"/></svg>
+        <span x-text="webhookForm.id ? 'حفظ التعديلات' : 'إنشاء الوجهة'"></span>
+      </button>
+      <button class="dv-btn dv-btn-ghost" @click="webhookModalOpen=false">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- درج: تفاصيل عملية التسليم                                          -->
+<!-- ================================================================ -->
+<div class="dv-drawer-overlay" x-show="deliveryDrawerOpen" x-cloak @click="closeDelivery()" x-transition.opacity></div>
+<aside class="dv-drawer" :class="!deliveryDrawerOpen && 'closed'" x-cloak>
+  <template x-if="selectedDelivery">
+    <div class="flex flex-col h-full">
+      <div class="dv-drawer-head">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="dv-chip" x-text="eventLabel(selectedDelivery.eventType)"></span>
+            <span dir="ltr" class="dv-mono text-[.7rem] text-neutral-400" x-text="selectedDelivery.eventType"></span>
+            <span class="dv-badge" :class="statusTone(selectedDelivery.status)" x-text="statusLabel(selectedDelivery.status)"></span>
+          </div>
+          <div class="text-xs text-neutral-500 mt-1.5" x-text="selectedDelivery.time"></div>
+        </div>
+        <button @click="closeDelivery()" class="dv-icon-btn shrink-0">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </div>
+
+      <div class="dv-drawer-body">
+
+        <div>
+          <div class="text-xs font-bold text-neutral-400 uppercase tracking-wide mb-2">الوجهة</div>
+          <div dir="ltr" class="dv-mono text-sm text-primary-800 break-all bg-neutral-50 border border-neutral-100 rounded-lg py-2 px-3" x-text="selectedDelivery.endpointUrl"></div>
+        </div>
+
+        <dl class="dv-kv">
+          <dt>كود الرد</dt>
+          <dd><span dir="ltr" class="dv-mono font-bold" :class="selectedDelivery.responseStatus && selectedDelivery.responseStatus<300 ? 'text-success' : 'text-danger'" x-text="selectedDelivery.responseStatus || 'بلا رد (انتهت المهلة)'"></span></dd>
+          <dt>رقم المحاولة</dt>
+          <dd><span dir="ltr" class="dv-mono" x-text="selectedDelivery.attempt + ' / ' + selectedDelivery.maxAttempts"></span></dd>
+          <dt>زمن الاستجابة</dt>
+          <dd><span dir="ltr" class="dv-mono" x-text="selectedDelivery.durationMs ? selectedDelivery.durationMs + ' ms' : '—'"></span></dd>
+        </dl>
+
+        <div>
+          <div class="text-xs font-bold text-neutral-400 uppercase tracking-wide mb-2">ترويسات التسليم</div>
+          <div class="border border-neutral-100 rounded-lg divide-y divide-neutral-100 text-[.78rem]">
+            <div class="flex items-center gap-2 py-2 px-3"><span class="dv-mono text-neutral-400 shrink-0 w-[168px]">X-Est8-Event-Id</span><span dir="ltr" class="dv-mono text-primary-800 truncate" x-text="selectedDelivery.eventId"></span></div>
+            <div class="flex items-center gap-2 py-2 px-3"><span class="dv-mono text-neutral-400 shrink-0 w-[168px]">X-Est8-Event-Type</span><span dir="ltr" class="dv-mono text-primary-800 truncate" x-text="selectedDelivery.eventType"></span></div>
+            <div class="flex items-center gap-2 py-2 px-3"><span class="dv-mono text-neutral-400 shrink-0 w-[168px]">X-Est8-Delivery-Id</span><span dir="ltr" class="dv-mono text-primary-800 truncate" x-text="selectedDelivery.id"></span></div>
+            <div class="flex items-center gap-2 py-2 px-3"><span class="dv-mono text-neutral-400 shrink-0 w-[168px]">X-Est8-Attempt</span><span dir="ltr" class="dv-mono text-primary-800" x-text="selectedDelivery.attempt"></span></div>
+            <div class="flex flex-col gap-1 py-2 px-3"><span class="dv-mono text-neutral-400">X-Est8-Signature</span><span dir="ltr" class="dv-mono text-primary-800 break-all text-[.72rem]" x-text="selectedDelivery.signature"></span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="text-xs font-bold text-neutral-400 uppercase tracking-wide mb-2">المغلّف (Payload)</div>
+          <pre class="jv-root" x-html="highlightJson(envelopeFor(selectedDelivery))"></pre>
+        </div>
+
+      </div>
+
+      <div class="dv-drawer-foot">
+        <button class="dv-btn dv-btn-primary" @click="resendDelivery(selectedDelivery)">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 8a6 6 0 0110-4.2M14 8a6 6 0 01-10 4.2"/><path d="M12 1v3h-3M4 15v-3h3"/></svg>
+          إعادة الإرسال
+        </button>
+        <button class="dv-btn dv-btn-ghost" @click="closeDelivery()">إغلاق</button>
+      </div>
+    </div>
+  </template>
+</aside>
+
+<script>
+function developerApp() {
+  return {
+    navOpen: false,
+    tab: 'keys',
+    emptyPreview: false,
+
+    closeAllOverlays() {
+      this.navOpen = false;
+      this.keyModalOpen = false;
+      this.rotateKeyConfirmOpen = false;
+      this.revealOpen = false;
+      this.webhookModalOpen = false;
+      this.rotateConfirmOpen = false;
+      this.deliveryDrawerOpen = false;
+    },
+
+    branches: [
+      { id: 'br1', name: 'الفرع الرئيسي — القاهرة' },
+      { id: 'br2', name: 'فرع الإسكندرية' },
+      { id: 'br3', name: 'فرع الجيزة' },
+    ],
+
+    scopeGroups: [
+      { resource: 'leads', label: 'العملاء المحتملون', read: 'leads:read', write: 'leads:write' },
+      { resource: 'contacts', label: 'جهات الاتصال', read: 'contacts:read', write: 'contacts:write' },
+      { resource: 'properties', label: 'العقارات', read: 'properties:read', write: 'properties:write' },
+      { resource: 'deals', label: 'الصفقات', read: 'deals:read', write: 'deals:write' },
+      { resource: 'lookups', label: 'القوائم المرجعية', read: 'lookups:read', write: null },
+    ],
+
+    eventCatalog: [
+      { resource: 'lead', label: 'العملاء المحتملون', events: [
+        { type: 'lead.created', label: 'عميل محتمل جديد', desc: 'إنشاء عميل محتمل جديد — لا يُطلق للعملاء الواصلين عبر استيراد ملف CSV.' },
+        { type: 'lead.updated', label: 'تحديث بيانات عميل محتمل', desc: 'تعديل بيانات عميل محتمل — يُرسَل فقط عند تغيّر حقل فعلياً.' },
+        { type: 'lead.deleted', label: 'حذف عميل محتمل', desc: 'حذف عميل محتمل، فردياً أو ضمن حذف جماعي.' },
+        { type: 'lead.assigned', label: 'إسناد عميل محتمل لموظف', desc: 'تغيّر مالك العميل المحتمل — يدوياً أو بمحرّك التوزيع التلقائي.' },
+        { type: 'lead.stage_changed', label: 'تغيّر مرحلة العميل المحتمل', desc: 'انتقال العميل المحتمل إلى مرحلة مختلفة في القُمع.' },
+      ]},
+      { resource: 'contact', label: 'جهات الاتصال', events: [
+        { type: 'contact.created', label: 'جهة اتصال جديدة', desc: 'إنشاء جهة اتصال جديدة.' },
+        { type: 'contact.updated', label: 'تحديث بيانات جهة اتصال', desc: 'تعديل بيانات جهة اتصال — فقط عند تغيّر حقل فعلياً.' },
+        { type: 'contact.deleted', label: 'حذف جهة اتصال', desc: 'حذف جهة اتصال، فردياً أو ضمن حذف جماعي.' },
+      ]},
+      { resource: 'property', label: 'العقارات', events: [
+        { type: 'property.created', label: 'عقار جديد', desc: 'إنشاء عقار جديد.' },
+        { type: 'property.updated', label: 'تحديث بيانات عقار', desc: 'تعديل بيانات عقار — فقط عند تغيّر حقل فعلياً.' },
+        { type: 'property.deleted', label: 'حذف عقار', desc: 'حذف عقار.' },
+        { type: 'property.published', label: 'نشر عقار على الصفحة العامة', desc: 'نشر العقار على صفحة العرض العامة.' },
+      ]},
+      { resource: 'deal', label: 'الصفقات', events: [
+        { type: 'deal.created', label: 'صفقة جديدة', desc: 'إنشاء صفقة جديدة.' },
+        { type: 'deal.updated', label: 'تحديث بيانات صفقة', desc: 'تعديل صفقة — فقط عند تغيّر حقل فعلياً.' },
+        { type: 'deal.deleted', label: 'حذف صفقة', desc: 'حذف صفقة.' },
+        { type: 'deal.stage_changed', label: 'تغيّر مرحلة الصفقة', desc: 'انتقال الصفقة إلى مرحلة مختلفة.' },
+        { type: 'deal.closed', label: 'إغلاق صفقة', desc: 'إغلاق الصفقة — فوزاً أو خسارة.' },
+      ]},
+    ],
+
+    apiKeys: [
+      { id: 'k1', name: 'الموقع الإلكتروني — نموذج التواصل', masked: 'est8_live_7f3a9c2b••••', full: 'est8_live_7f3a9c2b1e4d8f21a6b3c9d0e7f4a1b2', mode: 'server', ipMode: 'restricted', lastIp: '41.32.98.14', allowedIps: ['41.32.98.14', '41.32.98.15'], allowedOrigins: [], scopes: ['leads:write', 'lookups:read'], branchName: 'الفرع الرئيسي — القاهرة', lastUsed: 'قبل ١٢ دقيقة', status: 'active', rotatingUntil: '١٩ أغسطس، ٩:٠٠ م' },
+      { id: 'k2', name: 'حملة إعلانات فيسبوك (Zapier)', masked: 'est8_live_2b88a610••••', full: 'est8_live_2b88a610f5c2d9e3a7b1c4f6e8d0a2b9', mode: 'server', ipMode: 'any', lastIp: '185.220.101.54', allowedIps: [], allowedOrigins: [], scopes: ['leads:write'], branchName: 'فرع الإسكندرية', lastUsed: 'قبل ٣ ساعات', status: 'active', rotatingUntil: null },
+      { id: 'k3', name: 'تكامل النظام المحاسبي (قديم)', masked: 'est8_live_0091d4aa••••', full: 'est8_live_0091d4aa77e1c8b5f2a9d6e3c0b7f4a1', mode: 'server', ipMode: 'restricted', lastIp: '156.203.12.9', allowedIps: ['156.203.12.9'], allowedOrigins: [], scopes: ['deals:read', 'contacts:read'], branchName: 'الفرع الرئيسي — القاهرة', lastUsed: 'منذ ٤١ يوماً', status: 'revoked', rotatingUntil: null },
+    ],
+
+    webhooks: [
+      { id: 'w1', url: 'https://accounting.example.com/hooks/est8', eventTypes: ['deal.closed', 'deal.updated'], status: 'active', consecutiveFailures: 0, lastDelivery: 'قبل ٥ دقائق', secretLast4: '3f9a' },
+      { id: 'w2', url: 'https://crm-mirror.example-realestate.com/webhooks/incoming', eventTypes: ['lead.created', 'lead.updated', 'lead.assigned', 'lead.deleted', 'lead.stage_changed'], status: 'active', consecutiveFailures: 3, lastDelivery: 'قبل ساعة', secretLast4: '8b21' },
+      { id: 'w3', url: 'https://old-integration.brokerapp.io/est8-sync', eventTypes: ['property.created', 'property.updated', 'property.deleted', 'property.published'], status: 'auto_disabled', consecutiveFailures: 20, lastDelivery: 'منذ يومين', secretLast4: 'e04c' },
+    ],
+
+    deliveries: [
+      { id: 'del_019a1b2c3d4e', eventId: 'evt_019a1b2c3d40', eventType: 'deal.closed', endpointUrl: 'https://accounting.example.com/hooks/est8', responseStatus: 200, attempt: 1, maxAttempts: 6, durationMs: 214, status: 'succeeded', time: 'قبل ٥ دقائق', signature: 't=1755509520,v1=8f2a91c7d4e6b3a0f1c9d8e7b6a5f4c3d2e1b0a9f8e7d6c5b4a3f2e1d0c9b8a7',
+        payload: { id: '019a1b2c3d4e', deal_number: 'DEAL-512', title: 'فيلا حدائق الأهرام', status: 'closed_won', amount: 4500000, currency: 'EGP', closed_at: '2026-08-18T09:11:40Z' } },
+      { id: 'del_019a1b2c3d4f', eventId: 'evt_019a1b2c3d41', eventType: 'lead.created', endpointUrl: 'https://crm-mirror.example-realestate.com/webhooks/incoming', responseStatus: 200, attempt: 1, maxAttempts: 6, durationMs: 118, status: 'succeeded', time: 'قبل ١٨ دقيقة', signature: 't=1755508660,v1=3c1a92b8e5f7d4c0a9b6e3f1d8c5a2b0f7e4d1c8b5a2f9e6d3c0b7a4f1e8d5c2',
+        payload: { id: '019a1b2c3d50', first_name: 'Ahmed', last_name: 'Saleh', phone: '+201012345678', status: 'new', source: 'facebook_campaign', created_at: '2026-08-18T08:53:12Z' } },
+      { id: 'del_019a1b2c3d51', eventId: 'evt_019a1b2c3d42', eventType: 'lead.assigned', endpointUrl: 'https://crm-mirror.example-realestate.com/webhooks/incoming', responseStatus: 503, attempt: 3, maxAttempts: 6, durationMs: 10004, status: 'failed', time: 'قبل ساعة', signature: 't=1755506120,v1=a1f8e5d2c9b6a3f0e7d4c1b8a5f2e9d6c3b0a7f4e1d8c5b2a9f6e3d0c7b4a1f8',
+        payload: { lead_id: '019a1b2c3d52', assigned_to: '019a1b2c3d10', assigned_by: '019a1b2c3d09', method: 'auto_distribution', assigned_at: '2026-08-18T08:15:20Z' } },
+      { id: 'del_019a1b2c3d53', eventId: 'evt_019a1b2c3d43', eventType: 'property.updated', endpointUrl: 'https://old-integration.brokerapp.io/est8-sync', responseStatus: null, attempt: 6, maxAttempts: 6, durationMs: null, status: 'exhausted', time: 'منذ يومين', signature: 't=1755337620,v1=5d2c9b6a3f0e7d4c1b8a5f2e9d6c3b0a7f4e1d8c5b2a9f6e3d0c7b4a1f8e5d2c',
+        payload: { id: '019a1b2c3d54', property_id: '019a1b2c3d54', title_changed: true, is_published: true, updated_at: '2026-08-16T11:02:00Z' } },
+      { id: 'del_019a1b2c3d55', eventId: 'evt_019a1b2c3d44', eventType: 'deal.updated', endpointUrl: 'https://accounting.example.com/hooks/est8', responseStatus: 200, attempt: 1, maxAttempts: 6, durationMs: 189, status: 'succeeded', time: 'قبل ٥ دقائق', signature: 't=1755509518,v1=c9b6a3f0e7d4c1b8a5f2e9d6c3b0a7f4e1d8c5b2a9f6e3d0c7b4a1f8e5d2c9b6',
+        payload: { id: '019a1b2c3d4e', deal_number: 'DEAL-512', field_changed: 'status', updated_at: '2026-08-18T09:11:39Z' } },
+      { id: 'del_019a1b2c3d56', eventId: 'evt_019a1b2c3d45', eventType: 'lead.stage_changed', endpointUrl: 'https://crm-mirror.example-realestate.com/webhooks/incoming', responseStatus: 429, attempt: 2, maxAttempts: 6, durationMs: 340, status: 'failed', time: 'قبل ساعتين', signature: 't=1755502820,v1=e7d4c1b8a5f2e9d6c3b0a7f4e1d8c5b2a9f6e3d0c7b4a1f8e5d2c9b6a3f0e7d4',
+        payload: { lead_id: '019a1b2c3d57', from_stage_id: 'stage_qualifying', to_stage_id: 'stage_negotiation', changed_by: '019a1b2c3d09', changed_at: '2026-08-18T07:30:00Z' } },
+    ],
+
+    // ===== مفاتيح الـAPI =====
+    keyModalOpen: false,
+    keyForm: { id: null, name: '', mode: 'server', ipMode: 'restricted', scopes: [], allowedIps: [], allowedOrigins: [], branchId: '', masked: '' },
+    chipDraft: { allowedIps: '', allowedOrigins: '' },
+    chipError: { allowedIps: '', allowedOrigins: '' },
+    CHIP_ERROR_MESSAGES: {
+      ip_invalid: 'تنسيق غير صالح — أدخل عنوان IPv4 مثل <span dir="ltr" class="dv-mono">203.0.113.10</span> أو نطاق CIDR مثل <span dir="ltr" class="dv-mono">198.51.100.0/24</span>.',
+      ip_full_range: 'لا يُقبل فتح المدى بالكامل — استخدم خيار «أي عنوان» أعلاه.',
+      origin_invalid: 'رابط غير صالح — أدخل نطاقاً كاملاً بلا مسار مثل <span dir="ltr" class="dv-mono">https://www.example.com</span>.',
+      origin_wildcard: 'الرمز <span dir="ltr" class="dv-mono">*</span> غير مسموح — أدخل نطاقاً محدَّداً.',
+    },
+    revealOpen: false,
+    revealKind: 'apiKey',
+    revealedValue: '',
+    copied: false,
+
+    openKeyModal(existing) {
+      if (existing) {
+        this.keyForm = {
+          id: existing.id, name: existing.name, mode: existing.mode, ipMode: existing.ipMode,
+          scopes: [...existing.scopes], allowedIps: [...(existing.allowedIps || [])], allowedOrigins: [...(existing.allowedOrigins || [])],
+          branchId: (this.branches.find(b => b.name === existing.branchName) || {}).id || '',
+          masked: existing.masked,
+        };
+      } else {
+        this.keyForm = { id: null, name: '', mode: 'server', ipMode: 'restricted', scopes: [], allowedIps: [], allowedOrigins: [], branchId: '', masked: '' };
+      }
+      this.chipDraft = { allowedIps: '', allowedOrigins: '' };
+      this.chipError = { allowedIps: '', allowedOrigins: '' };
+      this.keyModalOpen = true;
+    },
+    toggleScope(scope) {
+      const i = this.keyForm.scopes.indexOf(scope);
+      if (i > -1) this.keyForm.scopes.splice(i, 1); else this.keyForm.scopes.push(scope);
+    },
+    // ===== شرائح (chips) عناوين IP / نطاقات Origins =====
+    validateIp(val) {
+      if (val === '*') return { ok: false, key: 'ip_full_range' };
+      const m = val.match(/^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9]|0)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9]|0)){3}(\/([0-9]|[12][0-9]|3[0-2]))?$/);
+      if (!m) return { ok: false, key: 'ip_invalid' };
+      const prefix = val.includes('/') ? val.split('/')[1] : null;
+      if (val === '0.0.0.0/0' || prefix === '0') return { ok: false, key: 'ip_full_range' };
+      return { ok: true };
+    },
+    validateOrigin(val) {
+      if (val === '*') return { ok: false, key: 'origin_wildcard' };
+      const re = /^https?:\/\/([a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)(\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*(:[0-9]{1,5})?$/;
+      if (!re.test(val)) return { ok: false, key: 'origin_invalid' };
+      return { ok: true };
+    },
+    addChip(field) {
+      const val = (this.chipDraft[field] || '').trim();
+      if (!val) return;
+      const result = field === 'allowedIps' ? this.validateIp(val) : this.validateOrigin(val);
+      if (!result.ok) { this.chipError[field] = result.key; return; }
+      if (this.keyForm[field].includes(val)) { this.chipDraft[field] = ''; this.chipError[field] = ''; return; } // تكرار — تجاهل صامت
+      this.keyForm[field].push(val);
+      this.chipDraft[field] = '';
+      this.chipError[field] = '';
+    },
+    removeChip(field, idx) {
+      this.keyForm[field].splice(idx, 1);
+    },
+    onChipBackspace(field) {
+      if (this.chipDraft[field] === '' && this.keyForm[field].length > 0) this.keyForm[field].pop();
+    },
+    chipErrorHtml(field) {
+      const key = this.chipError[field];
+      return key ? this.CHIP_ERROR_MESSAGES[key] : '';
+    },
+    canSubmitKey() {
+      const k = this.keyForm;
+      if (!k.name.trim() || !k.branchId || k.scopes.length === 0) return false;
+      // وضع "أي IP" حالة حقل مستقلة (ipMode) لا قيمة تُكتب في القائمة — يمرّ بلا قائمة عناوين.
+      // القائمة الفارغة في وضع الحصر تبقى غير صالحة دائماً.
+      if (k.mode === 'server' && k.ipMode === 'restricted' && k.allowedIps.length === 0) return false;
+      if (k.mode === 'browser' && k.allowedOrigins.length === 0) return false;
+      return true;
+    },
+    submitKeyForm() {
+      if (!this.canSubmitKey()) return;
+      const branch = this.branches.find(b => b.id === this.keyForm.branchId);
+      if (this.keyForm.id) {
+        // تعديل — لا يُعاد عرض المفتاح الكامل أبداً؛ فقط الحقول القابلة للتعديل عبر PUT.
+        const k = this.apiKeys.find(x => x.id === this.keyForm.id);
+        if (k) {
+          k.name = this.keyForm.name;
+          k.mode = this.keyForm.mode;
+          k.ipMode = this.keyForm.mode === 'server' ? this.keyForm.ipMode : 'restricted';
+          k.allowedIps = [...this.keyForm.allowedIps];
+          k.allowedOrigins = [...this.keyForm.allowedOrigins];
+          k.scopes = [...this.keyForm.scopes];
+          k.branchName = branch ? branch.name : k.branchName;
+        }
+        console.log('PUT /api/v1/api-keys/' + this.keyForm.id, this.keyForm);
+        this.keyModalOpen = false;
+      } else {
+        const full = 'est8_live_' + Array.from({ length: 32 }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+        this.apiKeys.unshift({
+          id: 'k' + Date.now(), name: this.keyForm.name, masked: full.slice(0, 18) + '••••', full,
+          mode: this.keyForm.mode, ipMode: this.keyForm.mode === 'server' ? this.keyForm.ipMode : 'restricted', lastIp: '—',
+          scopes: [...this.keyForm.scopes], allowedIps: [...this.keyForm.allowedIps], allowedOrigins: [...this.keyForm.allowedOrigins],
+          branchName: branch ? branch.name : '—',
+          lastUsed: 'لم يُستخدَم بعد', status: 'active', rotatingUntil: null,
+        });
+        console.log('POST /api/v1/api-keys', this.keyForm);
+        this.keyModalOpen = false;
+        this.revealKind = 'apiKey';
+        this.revealedValue = full;
+        this.copied = false;
+        this.revealOpen = true;
+      }
+    },
+    previewReveal(k) {
+      this.revealKind = 'apiKey';
+      this.revealedValue = k.full;
+      this.copied = false;
+      this.revealOpen = true;
+    },
+    copyValue() {
+      if (navigator.clipboard) navigator.clipboard.writeText(this.revealedValue).catch(() => {});
+      this.copied = true;
+      setTimeout(() => { this.copied = false; }, 1800);
+    },
+    revokeKey(k) {
+      k.status = 'revoked';
+      console.log('DELETE /api/v1/api-keys/' + k.id);
+    },
+
+    // ===== تدوير مفتاح API (POST …/rotate {graceHours}) =====
+    rotateKeyConfirmOpen: false,
+    rotateKeyForm: { keyId: null, graceHours: 24 },
+    graceHoursOptions: [
+      { value: 0, label: 'فوراً — يتوقف المفتاح القديم عن العمل مباشرةً', sub: '0h' },
+      { value: 24, label: '٢٤ ساعة — يبقى المفتاح القديم يعمل يوماً كاملاً', sub: '24h' },
+      { value: 72, label: '٧٢ ساعة — ثلاثة أيام لتحديث تكاملك', sub: '72h' },
+      { value: 168, label: 'أسبوع — نافذة كاملة لتحديث تكاملك', sub: '168h' },
+    ],
+    openRotateKeyConfirm(k) {
+      this.rotateKeyForm = { keyId: k.id, graceHours: 24 };
+      this.rotateKeyConfirmOpen = true;
+    },
+    confirmRotateKey() {
+      const k = this.apiKeys.find(x => x.id === this.rotateKeyForm.keyId);
+      if (!k) { this.rotateKeyConfirmOpen = false; return; }
+      const graceHours = this.rotateKeyForm.graceHours;
+      const newFull = 'est8_live_' + Array.from({ length: 32 }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+      console.log('POST /api/v1/api-keys/' + k.id + '/rotate', { graceHours });
+      if (graceHours === 0) {
+        // فوراً — المفتاح القديم يتوقف عن العمل الآن (خيار التسرّب).
+        k.status = 'revoked';
+        k.rotatingUntil = null;
+      } else {
+        const until = new Date(Date.now() + graceHours * 3600 * 1000);
+        k.rotatingUntil = until.toLocaleString('ar-EG', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+      }
+      // المفتاح الجديد صفّ منفصل بنفس النطاقات والفرع — الخادم الحقيقي يرجّعه ضمن رد /rotate.
+      this.apiKeys.unshift({
+        id: 'k' + Date.now(), name: k.name, masked: newFull.slice(0, 18) + '••••', full: newFull,
+        mode: k.mode, ipMode: k.ipMode, lastIp: '—',
+        scopes: [...k.scopes], allowedIps: [...(k.allowedIps || [])], allowedOrigins: [...(k.allowedOrigins || [])],
+        branchName: k.branchName, lastUsed: 'لم يُستخدَم بعد', status: 'active', rotatingUntil: null,
+      });
+      this.rotateKeyConfirmOpen = false;
+      this.revealKind = 'apiKey';
+      this.revealedValue = newFull;
+      this.copied = false;
+      this.revealOpen = true;
+    },
+
+    // ===== وجهات الـWebhook =====
+    webhookModalOpen: false,
+    webhookForm: { id: null, url: '', eventTypes: [], secretLast4: '' },
+    rotateConfirmOpen: false,
+
+    totalEventCount() {
+      return this.eventCatalog.reduce((s, g) => s + g.events.length, 0);
+    },
+    eventLabel(type) {
+      for (const g of this.eventCatalog) {
+        const found = g.events.find(e => e.type === type);
+        if (found) return found.label;
+      }
+      return type;
+    },
+    openWebhookModal(existing) {
+      if (existing) {
+        this.webhookForm = { id: existing.id, url: existing.url, eventTypes: [...existing.eventTypes], secretLast4: existing.secretLast4 || '' };
+      } else {
+        this.webhookForm = { id: null, url: '', eventTypes: [], secretLast4: '' };
+      }
+      this.webhookModalOpen = true;
+    },
+    toggleEventType(type) {
+      const i = this.webhookForm.eventTypes.indexOf(type);
+      if (i > -1) this.webhookForm.eventTypes.splice(i, 1); else this.webhookForm.eventTypes.push(type);
+    },
+    submitWebhook() {
+      if (this.webhookForm.id) {
+        const w = this.webhooks.find(x => x.id === this.webhookForm.id);
+        if (w) { w.url = this.webhookForm.url; w.eventTypes = [...this.webhookForm.eventTypes]; }
+        console.log('PATCH /api/v1/webhooks/endpoints/' + this.webhookForm.id, { url: this.webhookForm.url, eventTypes: this.webhookForm.eventTypes });
+      } else {
+        this.webhooks.unshift({ id: 'w' + Date.now(), url: this.webhookForm.url, eventTypes: [...this.webhookForm.eventTypes], status: 'active', consecutiveFailures: 0, lastDelivery: 'بلا تسليمات بعد', secretLast4: '' });
+        console.log('POST /api/v1/webhooks/endpoints', this.webhookForm);
+        // السرّ يُولَّد على الخادم مع الرد على هذا الطلب ويُعرض مرة واحدة — لا مكافئ للمعاينة في الموكّ.
+      }
+      this.webhookModalOpen = false;
+    },
+    openRotateConfirm() {
+      this.rotateConfirmOpen = true;
+    },
+    confirmRotateSecret() {
+      this.rotateConfirmOpen = false;
+      const newSecret = 'whsec_' + Array.from({ length: 32 }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join('');
+      const last4 = newSecret.slice(-4);
+      const w = this.webhooks.find(x => x.id === this.webhookForm.id);
+      if (w) w.secretLast4 = last4;
+      this.webhookForm.secretLast4 = last4;
+      console.log('POST /api/v1/webhooks/endpoints/' + this.webhookForm.id + '/rotate-secret');
+      this.revealKind = 'webhookSecret';
+      this.revealedValue = newSecret;
+      this.copied = false;
+      this.revealOpen = true;
+    },
+    toggleWebhook(w) {
+      w.status = w.status === 'active' ? 'disabled' : 'active';
+      console.log('PATCH /api/v1/webhooks/endpoints/' + w.id, { status: w.status });
+    },
+    reactivateWebhook(w) {
+      w.status = 'active';
+      w.consecutiveFailures = 0;
+      console.log('POST /api/v1/webhooks/endpoints/' + w.id + '/reactivate');
+    },
+    deleteWebhook(w) {
+      this.webhooks = this.webhooks.filter(x => x.id !== w.id);
+      console.log('DELETE /api/v1/webhooks/endpoints/' + w.id);
+    },
+
+    // ===== سجلّ التسليم =====
+    deliveryFilters: { type: [], status: '', range: '7d' },
+    deliveryDrawerOpen: false,
+    selectedDelivery: null,
+
+    // خيارات SmartSelect — أنواع الأحداث تُشتقّ من eventCatalog، والاثنان الآخران ثابتان
+    eventTypeOptions() {
+      const opts = [];
+      this.eventCatalog.forEach(g => {
+        g.events.forEach(e => opts.push({ value: e.type, label: e.label, sub: e.type }));
+      });
+      return opts;
+    },
+    statusFilterOptions: [
+      { value: 'succeeded', label: 'ناجح', sub: '' },
+      { value: 'failed', label: 'فاشل — يُعاد لاحقاً', sub: '' },
+      { value: 'exhausted', label: 'استُنفدت المحاولات', sub: '' },
+      { value: 'skipped', label: 'تم تجاوزه', sub: '' },
+      { value: 'pending', label: 'بانتظار التسليم', sub: '' },
+    ],
+    rangeFilterOptions: [
+      { value: '24h', label: 'آخر ٢٤ ساعة', sub: '' },
+      { value: '7d', label: 'آخر ٧ أيام', sub: '' },
+      { value: '30d', label: 'آخر ٣٠ يوماً', sub: '' },
+    ],
+
+    filteredDeliveries() {
+      return this.deliveries.filter(d => {
+        if (this.deliveryFilters.type.length && !this.deliveryFilters.type.includes(d.eventType)) return false;
+        if (this.deliveryFilters.status && d.status !== this.deliveryFilters.status) return false;
+        return true;
+      });
+    },
+    statusLabel(s) {
+      return { succeeded: 'ناجح', failed: 'فاشل — يُعاد لاحقاً', exhausted: 'استُنفدت المحاولات', skipped: 'تم تجاوزه', pending: 'بانتظار التسليم', delivering: 'جارٍ التسليم' }[s] || s;
+    },
+    statusTone(s) {
+      return { succeeded: 'b-success', failed: 'b-warning', exhausted: 'b-danger', skipped: 'b-neutral', pending: 'b-info', delivering: 'b-info' }[s] || 'b-neutral';
+    },
+    openDelivery(d) { this.selectedDelivery = d; this.deliveryDrawerOpen = true; },
+    closeDelivery() { this.deliveryDrawerOpen = false; },
+    resendDelivery(d) {
+      console.log('POST /api/v1/webhooks/deliveries/' + d.id + '/resend');
+      alert('تمت جدولة إعادة الإرسال (attempt=0) — هذا زر تجريبي في الموكّ فقط.');
+    },
+    envelopeFor(d) {
+      return { id: d.eventId, type: d.eventType, created: '2026-08-18T09:12:00Z', api_version: '2026-08-18', data: { object: d.payload } };
+    },
+    highlightJson(obj) {
+      const json = JSON.stringify(obj, null, 2);
+      const esc = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return esc.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false)\b|\bnull\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        let cls = 'jv-num';
+        if (/^"/.test(match)) cls = /:$/.test(match) ? 'jv-key' : 'jv-str';
+        else if (/true|false/.test(match)) cls = 'jv-bool';
+        else if (/null/.test(match)) cls = 'jv-null';
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    },
+  };
+}
+
+// ===== SmartSelect — مكوّن واحد يُعاد استخدامه لأكثر من فلتر/فورم (نوع الحدث/الحالة/المدى · مهلة تدوير المفتاح) =====
+// يقرأ ويكتب مباشرةً على state[stateKey][field] في جذر developerApp() عبر $root —
+// لا حاجة لنسخ الحالة محلياً، والقراءة تبقى حيّة مع أي تغيير خارجي على الحالة المرتبطة.
+// stateKey تختار الكائن الحاوي (deliveryFilters افتراضياً — الاستعمالات الثلاثة الأصلية بلا تغيير).
+function smartSelect(cfg) {
+  return {
+    multi: !!cfg.multi,
+    stateKey: cfg.stateKey || 'deliveryFilters',
+    field: cfg.field,
+    options: cfg.options || [],
+    placeholder: cfg.placeholder || 'اختر…',
+    clearable: cfg.clearable !== false,
+    open: false,
+    query: '',
+    activeIndex: -1,
+
+    // $root يُرجع عنصر الـDOM الجذر لا كائن البيانات — لازم Alpine.$data() لقراءة/كتابة الحالة حيّاً.
+    get current() { return Alpine.$data(this.$root)[this.stateKey][this.field]; },
+    set current(v) { Alpine.$data(this.$root)[this.stateKey][this.field] = v; },
+
+    get selectedValues() {
+      const v = this.current;
+      // فحص "قيمة موجودة" لا "قيمة صادقة" — 0 مهلة تدوير صالحة وصريحة (فوراً) ويجب ألا تُقرأ كـ"لا اختيار".
+      const hasValue = v !== '' && v !== null && v !== undefined;
+      return this.multi ? (Array.isArray(v) ? v : []) : (hasValue ? [v] : []);
+    },
+    isSelected(opt) {
+      return this.selectedValues.includes(opt.value);
+    },
+    labelFor(val) {
+      const o = this.options.find(o => o.value === val);
+      return o ? o.label : val;
+    },
+    buttonText() {
+      const vals = this.selectedValues;
+      if (vals.length === 0) return this.placeholder;
+      if (this.multi) return vals.length + ' مُختار';
+      return this.labelFor(vals[0]);
+    },
+    filteredOptions() {
+      const q = this.query.trim().toLowerCase();
+      if (!q) return this.options;
+      return this.options.filter(o => o.label.toLowerCase().includes(q) || (o.sub || '').toLowerCase().includes(q));
+    },
+    toggleOpen() {
+      this.open = !this.open;
+      if (this.open) {
+        this.query = '';
+        this.activeIndex = -1;
+        this.$nextTick(() => { this.$refs.searchInput && this.$refs.searchInput.focus(); });
+      }
+    },
+    selectOption(opt) {
+      if (this.multi) {
+        const cur = Array.isArray(this.current) ? [...this.current] : [];
+        const i = cur.indexOf(opt.value);
+        if (i > -1) cur.splice(i, 1); else cur.push(opt.value);
+        this.current = cur;
+      } else {
+        this.current = (this.clearable && this.current === opt.value) ? '' : opt.value;
+        this.open = false;
+        this.query = '';
+      }
+    },
+    removeValue(val) {
+      if (this.multi) this.current = (this.current || []).filter(v => v !== val);
+      else this.current = '';
+    },
+    clearAll() {
+      this.current = this.multi ? [] : '';
+    },
+    onKeydown(e) {
+      const opts = this.filteredOptions();
+      if (e.key === 'ArrowDown') { e.preventDefault(); this.activeIndex = Math.min(this.activeIndex + 1, opts.length - 1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); this.activeIndex = Math.max(this.activeIndex - 1, 0); }
+      else if (e.key === 'Enter') { if (opts[this.activeIndex]) { e.preventDefault(); this.selectOption(opts[this.activeIndex]); } }
+      else if (e.key === 'Escape') { this.open = false; }
+    },
+  };
+}
+</script>
+</body>
+</html>

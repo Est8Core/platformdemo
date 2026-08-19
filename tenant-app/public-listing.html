@@ -417,12 +417,12 @@ td code { font-family: var(--mono); font-size: .78em; background: rgba(200,162,7
     <div class="wrap">
       <p class="eyebrow">Est8Core · Public Listing · V2</p>
       <h1>صفحة النشر العامة — بنش تصميم قبل التنفيذ</h1>
-      <p>مش لقطات ثابتة. قلّب المفاتيح على اليمين وشوف الصفحة بتتغيّر فعلاً — نفس المفاتيح اللي هيشوفها الأونر في <code>‏/settings?tab=publishing</code>. البيانات من عقار مزروع حقيقي (PROP‑0800، تينانت seed‑large).</p>
+      <p>مش لقطات ثابتة. قلّب المفاتيح على اليمين وشوف الصفحة بتتغيّر فعلاً — نفس المفاتيح اللي هيشوفها الأونر في <code>‏/settings?tab=publishing</code>. البيانات من عقار مزروع حقيقي (PROP‑0800، مستأجر seed‑large).</p>
 
       <div class="findings">
         <div class="finding">
           <b>الرابط المُشارَك بلا معاينة</b>
-          <span>لا <code>generateMetadata</code> في المسار، والمحتوى client‑side. الزاحف يقرأ «Est8 Core CRM» لكل عقار في كل تينانت.</span>
+          <span>لا <code>generateMetadata</code> في المسار، والمحتوى client‑side. الزاحف يقرأ «Est8 Core CRM» لكل عقار في كل مستأجر.</span>
         </div>
         <div class="finding">
           <b>كروت السوشيال بيانات بلا صورة</b>
@@ -655,14 +655,14 @@ td code { font-family: var(--mono); font-size: .78em; background: rgba(200,162,7
             <tr><th>البند</th><th>الوضع</th><th>الحالة</th></tr>
           </thead>
           <tbody>
-            <tr><td>مكان الإعدادات</td><td>افتراضي تينانت + تجاوز لكل عقار، دمج مفتاح‑بمفتاح</td><td class="st done">محسوم</td></tr>
+            <tr><td>مكان الإعدادات</td><td>افتراضي مستأجر + تجاوز لكل عقار، دمج مفتاح‑بمفتاح</td><td class="st done">محسوم</td></tr>
             <tr><td>القوالب</td><td>ثلاثة مستويات ثراء · <code>luxury</code> مربوط بالخطة</td><td class="st done">محسوم</td></tr>
             <tr><td>قنوات التواصل</td><td>الأربعة مدعومة، والأونر يفعّل ما يشاء</td><td class="st done">محسوم</td></tr>
             <tr><td>الصور</td><td>خلفية مموّهة <code>cover</code> + الصورة <code>contain</code>؛ المعرض <code>contain</code> دائماً</td><td class="st done">محسوم</td></tr>
             <tr><td>رقم المندوب</td><td>لا يُعرض إلا بوضع صريح <strong>و</strong>حقل <code>publicPhone</code> منفصل عن رقمه الشخصي</td><td class="st done">خط أحمر</td></tr>
             <tr><td>مُولِّد الصور</td><td><code>next/og</code> إن نجح تشكيل العربية، وإلا <code>sharp</code></td><td class="st open">بوابة T0</td></tr>
             <tr><td>الوضع الغامق للصفحة العامة</td><td>مقترح: تثبيت الفاتح (صفحة تسويقية)</td><td class="st open">رأيك</td></tr>
-            <tr><td>لغة الصفحة للزائر</td><td>مقترح: تتبع لغة التينانت، بلا مبدّل لغة</td><td class="st open">رأيك</td></tr>
+            <tr><td>لغة الصفحة للزائر</td><td>مقترح: تتبع لغة المستأجر، بلا مبدّل لغة</td><td class="st open">رأيك</td></tr>
             <tr><td>الفهرس العام <code>/listings</code></td><td>الـendpoint موجود بلا صفحة</td><td class="st open">موجة تانية</td></tr>
           </tbody>
         </table>
@@ -675,7 +675,7 @@ td code { font-family: var(--mono); font-size: .78em; background: rgba(200,162,7
 (() => {
   "use strict";
 
-  // ── بيانات العقار — من التينانت المزروع seed-large، عقار PROP-0800 ───────
+  // ── بيانات العقار — من المستأجر المزروع seed-large، عقار PROP-0800 ───────
   const P = {
     title: "فيلا بحوض سباحة خاص",
     desc: "فيلا مستقلة بحوض سباحة خاص وحديقة، في موقع هادئ بحي الأندلس. تشطيب سوبر لوكس، مدخل خاص، وإطلالة مفتوحة. جاهزة للسكن الفوري.",
@@ -789,7 +789,7 @@ td code { font-family: var(--mono); font-size: .78em; background: rgba(200,162,7
     ["map", "الخريطة", "من latitude/longitude"],
     ["agent", "بطاقة المندوب", ""],
     ["contact", "التواصل", "يظهر دائماً لو السعر مخفي"],
-    ["brand", "شريط الشركة", "شعار واسم التينانت"]
+    ["brand", "شريط الشركة", "شعار واسم المستأجر"]
   ];
   const CONTACT_DEFS = [
     ["lead_form", "نموذج ← lead", "ينشئ lead في الـCRM بمصدر public_listing"],
